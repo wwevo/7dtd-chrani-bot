@@ -236,6 +236,7 @@ if __name__ == '__main__':
                             stop_flag = Event()
                             online_player.update({"event": stop_flag})
                             player_observer_thread = PlayerObserver(stop_flag, logger, online_player, telnet_line)
+                            online_player.update({"thread": player_observer_thread})
                             player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
                                   args_dict['Telnet-password'])
                             player_observer_thread.tn = player_tn
@@ -245,6 +246,7 @@ if __name__ == '__main__':
 
                             logger.debug("thread started for player " + player_name)
                         else:
+                            player_observer_thread = online_player["thread"]
                             player_observer_thread.update_telnet_line(telnet_line)
                             player_observer_thread.update_player(online_player)
 
