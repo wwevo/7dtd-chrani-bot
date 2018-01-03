@@ -82,13 +82,16 @@ if __name__ == '__main__':
     NewGame, JoinMultiplayer, Teleport, Died, LoadedGame, EnterMultiplayer
     """
     match_types = {
-        'player_line_regexp': r"\d{1,2}. id=(\d+), ([\w+]+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(\d+\.\d+\.\d+\.\d+), ping=(\d+)\n*",
         'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: \'(?P<player_name>.*)\': /(?P<command>.+)\r",
         'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)\r",
         'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), .* PlayerName='(?P<player_name>.*)'\r",
-        'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes\r",
-        'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'(?P<telnet_command>.*)\' from client (?P<player_steamid>.+)\r",
     }
+    match_types_system = {
+        'player_line_regexp': r"\d{1,2}. id=(\d+), ([\w+]+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(\d+\.\d+\.\d+\.\d+), ping=(\d+)\n*",
+        'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'(?P<telnet_command>.*)\' from client (?P<player_steamid>.+)\r",
+        'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes\r",
+    }
+
 
     def get_region_string(pos_x, pos_z):
         grid_x = int(math.floor(pos_x / 512))
@@ -101,7 +104,7 @@ if __name__ == '__main__':
         online_players_dict = {}
         if listplayers is None:
             listplayers = ""
-        player_line_regexp = match_types["player_line_regexp"]
+        player_line_regexp = match_types_system["player_line_regexp"]
         for m in re.finditer(player_line_regexp, listplayers):
             """
             m.group(16) = steamid
@@ -184,7 +187,7 @@ if __name__ == '__main__':
                                 if player_name == m.group("player_name"):
                                     online_player.update({"is_in_limbo": False})
 
-                    m = re.search(match_types["telnet_player_disconnected"], telnet_line)
+                    m = re.search(match_types_system["telnet_player_disconnected"], telnet_line)
                     if m:
                         if m.group("command") == "disconnected":
                             players_to_remove = []
@@ -206,6 +209,13 @@ if __name__ == '__main__':
                             for player_name, online_player in players_dict.iteritems():
                                 if player_name == m.group("player_name"):
                                     online_player.update({"is_in_limbo": False})
+
+                    m = re.search(match_types_system["telnet_commands"], telnet_line)
+                    if m:
+                        if m.group("telnet_command").startswith("tele "):
+                            c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
+                            if c:
+                                players_dict[c.group("player_name")].update({"is_in_limbo": True})
 
                     for player_name, online_player in players_dict.iteritems():
                         if "event" not in online_player:

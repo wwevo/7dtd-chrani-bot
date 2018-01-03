@@ -52,6 +52,6 @@ class PlayerObserver(Thread):
                                 function_name(*function_parameters)
 
             self.logger.debug("thread for player " + self.player["name"] + " is active (limbo: " + str(self.player["is_in_limbo"]) + ")")
-            next_cycle = 2
+            next_cycle = 1
 
         self.stopped.set()
