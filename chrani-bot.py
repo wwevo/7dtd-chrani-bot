@@ -240,6 +240,7 @@ if __name__ == '__main__':
                             logger.debug("thread started for player " + player_name)
                         else:
                             player_observer_thread.update_telnet_line(telnet_line)
+                            player_observer_thread.update_player(online_player)
 
                 except IOError as e:
                     """

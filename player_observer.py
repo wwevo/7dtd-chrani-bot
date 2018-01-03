@@ -21,6 +21,9 @@ class PlayerObserver(Thread):
     def update_telnet_line(self, telnet_line):
         self.global_telnet_line = telnet_line
 
+    def update_player(self, player):
+        self.player = player
+
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
