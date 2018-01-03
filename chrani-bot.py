@@ -177,7 +177,7 @@ if __name__ == '__main__':
 
                     m = re.search(match_types["telnet_events_player"], telnet_line)
                     if m:
-                        if m.group("command") == "died":
+                        if m.group("command") == "died" or m.group("command").startswith("killed by"):
                             for player_name, online_player in players_dict.iteritems():
                                 if player_name == m.group("player_name"):
                                     online_player.update({"is_in_limbo": True})
