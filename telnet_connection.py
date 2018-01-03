@@ -4,7 +4,7 @@ set up and maintain the telnet connection to the game-server
 import telnetlib
 import re
 import atexit
-
+import time
 
 class TelnetConnection:
     connection = None
@@ -133,3 +133,18 @@ class TelnetConnection:
                 message_got_through = True
 
         return telnet_response
+
+    def teleportplayer(self, player, location):
+        try:
+            connection = self.connection
+            while True:
+                if player["is_in_limbo"] is not True:
+                    connection.write(
+                        "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
+                            int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n")
+                    break
+                else:
+                    time.sleep(0.5)
+        except:
+            return False
+

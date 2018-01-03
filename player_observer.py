@@ -26,16 +26,26 @@ class PlayerObserver(Thread):
     def update_player(self, player):
         self.player = player
 
+    def update_locations(self, locations):
+        self.locations = locations
+
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
-            self.logger.info(self.telnet_line)
+            self.logger.debug(self.telnet_line)
             for match_type in self.match_types:
                 m = re.search(self.match_types[match_type], self.telnet_line)
                 # match chat messages
                 if m:
+                    """
+                    this is a tricky bit! you need to define all variables used in any action here
+                    your IDE will tell you they are not used while in fact they are.
+                    the eval down there does the magic ^^
+                    so take some time to understand this. or just make it better if you know how ^^
+                    """
                     player_name = m.group('player_name')
                     player = self.player
+                    locations = self.locations
                     if self.player_name == player_name:
                         command = m.group('command')
 
@@ -53,6 +63,15 @@ class PlayerObserver(Thread):
                                     function_name = action[2]
                                     function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
                                     function_name(*function_parameters)
+
+            if self.observers is not None:
+                for observer in self.observers:
+                    player = self.player
+                    locations = self.locations
+                    function_name = observer[1]
+                    function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
+                    function_name(*function_parameters)
+
 
             self.logger.debug("thread for player " + self.player["name"] + " is active (limbo: " + str(self.player["is_in_limbo"]) + ")")
             next_cycle = 1

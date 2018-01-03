@@ -152,15 +152,18 @@ if __name__ == '__main__':
 
     from threading import Event
     from player_observer import PlayerObserver
-    from actions_welcome import actions_welcome
+    from actions_status_messages import actions_status_messages
+    from actions_authentication import actions_authentication
+    from actions_lobby import actions_lobby, observers_lobby
 
+    players_dict = {}
+    locations_dict = {}
 
     while True:
         """
         outer loop to catch fatal server errors
         """
         try:
-            players_dict = {}
             tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
                                   args_dict['Telnet-password'])
             tn.say("Bot is active")
@@ -202,7 +205,6 @@ if __name__ == '__main__':
                             for player in players_to_remove:
                                 del players_dict[player]
 
-
                     m = re.search(match_types["telnet_events_playerspawn"], telnet_line)
                     if m:
                         if m.group("command") == "Died" or m.group("command") == "Teleport":
@@ -237,11 +239,12 @@ if __name__ == '__main__':
                             online_player.update({"event": stop_flag})
                             player_observer_thread = PlayerObserver(stop_flag, logger, online_player, telnet_line)
                             online_player.update({"thread": player_observer_thread})
-                            player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
-                                  args_dict['Telnet-password'])
+                            player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
                             player_observer_thread.tn = player_tn
                             player_observer_thread.match_types = match_types
-                            player_observer_thread.actions = actions_welcome
+                            player_observer_thread.actions = actions_status_messages + actions_authentication + actions_lobby
+                            player_observer_thread.observers = observers_lobby
+                            player_observer_thread.locations = locations_dict
                             player_observer_thread.start()
 
                             logger.debug("thread started for player " + player_name)
@@ -249,6 +252,7 @@ if __name__ == '__main__':
                             player_observer_thread = online_player["thread"]
                             player_observer_thread.update_telnet_line(telnet_line)
                             player_observer_thread.update_player(online_player)
+                            player_observer_thread.update_locations(locations_dict)
 
                 except IOError as e:
                     """
@@ -264,7 +268,6 @@ if __name__ == '__main__':
                     except NameError:
                         pass
 
-                    players_dict = {}
                     wait_until_reconnect = 5
                     logger.warn(e)
                     log_message = 'will try again in ' + str(wait_until_reconnect) + " seconds"
