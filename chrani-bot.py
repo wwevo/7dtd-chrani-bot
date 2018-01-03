@@ -148,6 +148,8 @@ if __name__ == '__main__':
 
     from threading import Event
     from player_observer import PlayerObserver
+    from actions_welcome import actions_welcome
+
 
     while True:
         """
@@ -157,6 +159,7 @@ if __name__ == '__main__':
             players_dict = {}
             tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
                                   args_dict['Telnet-password'])
+            tn.say("Bot is active")
             while True:
                 """
                 this is the main loop. do your magic here!
@@ -227,7 +230,13 @@ if __name__ == '__main__':
                             stop_flag = Event()
                             online_player.update({"event": stop_flag})
                             player_observer_thread = PlayerObserver(stop_flag, logger, online_player, telnet_line)
+                            player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
+                                  args_dict['Telnet-password'])
+                            player_observer_thread.tn = player_tn
+                            player_observer_thread.match_types = match_types
+                            player_observer_thread.actions = actions_welcome
                             player_observer_thread.start()
+
                             logger.debug("thread started for player " + player_name)
                         else:
                             player_observer_thread.update_telnet_line(telnet_line)
