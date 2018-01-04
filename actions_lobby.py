@@ -1,5 +1,6 @@
 import math
 import re
+import time
 
 actions_lobby = []
 
@@ -70,7 +71,7 @@ def on_player_join(self, player, locations):
             self.tn.say("yo ass will be ported to our lobby plus tha command-shit is restricted yo")
             self.tn.say("read the rules on https://chrani.net/rules")
             self.tn.say("enter the password with /password <password> in this chat")
-            self.tn.teleport_player(player, location)
+            self.tn.teleportplayer(player, location)
         else:
             self.tn.say("your account is restricted until you have read the rules")
             self.tn.say("read the rules on https://chrani.net/rules")
@@ -81,14 +82,7 @@ actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, play
 
 
 def on_respawn_after_death(self, player, locations):
-    """
-    sends players who are not authenticated back to the lobby
-    :param self: needed for the class it will be running in
-    :param player: player-object pulled from database
-    :param connection: Telnet command object
-    :return: nothing to return
-    """
-    if "authenticated" in player and not player["authenticated"]:
+    if "authenticated" not in player or not player["authenticated"]:
         if "lobby" in locations:
             location = locations["lobby"]
             self.tn.teleportplayer(player, location)
@@ -98,22 +92,20 @@ def on_respawn_after_death(self, player, locations):
 actions_lobby.append(("isequal", "Died", on_respawn_after_death, "(self, player, locations)"))
 
 
-def password(self, player, command, locations):
+def password(self, player, command):
     p = re.search(r"password (.+)", command)
     if p:
         password = p.group(1)
         if password == "openup":
-            # print "correct password!!"
-            if not player["authenticated"]:
-                if "spawn" in player:
-                    location = player["spawn"]
-                    self.tn.teleport_player(player, location)
-                    del player["spawn"]
-                else:
-                    self.tn.say(player["name"] + " could not find your place of birth!")
+            if "spawn" in player:
+                location = player["spawn"]
+                self.tn.teleportplayer(player, location)
+                del player["spawn"]
+            else:
+                self.tn.say(player["name"] + " could not find your place of birth!")
 
 
-actions_lobby.append(("startswith", "password", password, "(self, player, command, locations)"))
+actions_lobby.append(("startswith", "password", password, "(self, player, command)"))
 
 """
 here come the observers
@@ -127,15 +119,15 @@ def player_left_area(self, player, locations):
     else:
         return
 
-    if "authenticated" in player and not player["authenticated"]:
+    if "authenticated" not in player or not player["authenticated"]:
         distance_to_lobby_center = float(math.sqrt(
                 (float(location["pos_x"]) - float(player["pos_x"])) ** 2 + (
                     float(location["pos_y"]) - float(player["pos_y"])) ** 2 + (
                     float(location["pos_z"]) - float(player["pos_z"])) ** 2))
 
         if distance_to_lobby_center > location["radius"]:
-            self.tn.say("And stay there!")
-            self.tn.teleportplayer(player, location)
+            if self.tn.teleportplayer(player, location):
+                self.tn.say("And stay there!")
 
 
 observers_lobby.append(("player left lobby", player_left_area, "(self, player, locations)"))
@@ -147,14 +139,15 @@ def player_approaching_boundary_from_inside(self, player, locations):
     else:
         return
 
-    if "authenticated" in player and not player["authenticated"]:
+    if "authenticated" not in player or not player["authenticated"]:
         distance_to_lobby_center = float(math.sqrt(
                 (float(location["pos_x"]) - float(player["pos_x"])) ** 2 + (
                     float(location["pos_y"]) - float(player["pos_y"])) ** 2 + (
                     float(location["pos_z"]) - float(player["pos_z"])) ** 2))
 
-        if distance_to_lobby_center >= (location["radius"] / 2) and distance_to_lobby_center <= location["radius"]:
+        if distance_to_lobby_center >= (location["radius"] * 0.75) and distance_to_lobby_center <= location["radius"]:
             self.tn.say("get your ass back in the lobby or else (" + str(abs(distance_to_lobby_center)) + ")")
+            time.sleep(1)
 
 
 observers_lobby.append(("player approaching boundary from inside", player_approaching_boundary_from_inside, "(self, player,locations)"))

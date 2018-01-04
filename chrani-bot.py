@@ -39,27 +39,6 @@ ch.setLevel(numeric_level)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-"""
-ORM for transparent data-handling
-
-not being used so far...
-"""
-import pony.orm as pny
-
-
-def get_ponydb_connection(db_source):
-    try:
-        db = pny.Database('sqlite', db_source, create_db=True)
-    except Exception:
-        message = 'could not establish connection to the database'
-        logger.critical(message)
-        raise IOError(message)
-
-    logger.debug("ponyDB is willing and ready: " + str(db))
-    return db
-
-
-db = get_ponydb_connection(args_dict['Database-file'])
 
 from telnet_connection import TelnetConnection
 
@@ -99,7 +78,6 @@ if __name__ == '__main__':
 
         return str(grid_x) + "." + str(grid_z) + ".7.rg"
 
-
     def listplayers_to_dict(listplayers):
         online_players_dict = {}
         if listplayers is None:
@@ -135,9 +113,9 @@ if __name__ == '__main__':
 
     import collections
 
-
     def deep_update(source, overrides):
-        """Update a nested dictionary or similar mapping.
+        """
+        Update a nested dictionary or similar mapping.
 
         Modify ``source`` in place.
         """
@@ -149,15 +127,11 @@ if __name__ == '__main__':
                 source[key] = overrides[key]
         return source
 
-
     from threading import Event
     from player_observer import PlayerObserver
-    from actions_status_messages import actions_status_messages
     from actions_authentication import actions_authentication
     from actions_lobby import actions_lobby, observers_lobby
-
-    players_dict = {}
-    locations_dict = {}
+    from actions_home import actions_home
 
     while True:
         """
@@ -166,6 +140,11 @@ if __name__ == '__main__':
         try:
             tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
                                   args_dict['Telnet-password'])
+
+            players_dict = {}
+            locations_dict = {}
+            active_threads = {}
+
             tn.say("Bot is active")
             while True:
                 """
@@ -177,50 +156,60 @@ if __name__ == '__main__':
                     list_players_dict = listplayers_to_dict(listplayers_raw)
 
                     deep_update(players_dict, list_players_dict)  # deep update, since we have a nested Dict
+                    if telnet_line is not None:
+                        """
+                        do all system relevant actions here
+                        these should not be touched unless you know exactly what you are doing, as every other method in
+                        this bot will rely on this data
+                        """
+                        m = re.search(match_types["telnet_events_player"], telnet_line)
+                        if m:
+                            if m.group("command") == "died" or m.group("command").startswith("killed by"):
+                                for player_name, online_player in players_dict.iteritems():
+                                    if player_name == m.group("player_name"):
+                                        online_player.update({"is_in_limbo": True})
 
-                    m = re.search(match_types["telnet_events_player"], telnet_line)
-                    if m:
-                        if m.group("command") == "died" or m.group("command").startswith("killed by"):
-                            for player_name, online_player in players_dict.iteritems():
-                                if player_name == m.group("player_name"):
-                                    online_player.update({"is_in_limbo": True})
+                            elif m.group("command") == "joined the game":
+                                for player_name, online_player in players_dict.iteritems():
+                                    if player_name == m.group("player_name"):
+                                        online_player.update({"is_in_limbo": False})
 
-                        elif m.group("command") == "joined the game":
-                            for player_name, online_player in players_dict.iteritems():
-                                if player_name == m.group("player_name"):
-                                    online_player.update({"is_in_limbo": False})
+                        m = re.search(match_types_system["telnet_player_disconnected"], telnet_line)
+                        if m:
+                            if m.group("command") == "disconnected":
+                                players_to_remove = []
+                                for player_name, online_player in players_dict.iteritems():
+                                    if "event" in online_player and player_name == m.group("player_name"):
+                                        stop_flag = online_player["event"]
+                                        stop_flag.set()
+                                        online_player.update({"is_in_limbo": True})
+                                        logger.debug("thread stopped for player " + player_name + " after " + str(
+                                            m.group("time")) + " minutes")
+                                        players_to_remove.append(player_name)
+                                for player in players_to_remove:
+                                    del players_dict[player]
 
-                    m = re.search(match_types_system["telnet_player_disconnected"], telnet_line)
-                    if m:
-                        if m.group("command") == "disconnected":
-                            players_to_remove = []
-                            for player_name, online_player in players_dict.iteritems():
-                                if "event" in online_player and player_name == m.group("player_name"):
-                                    stop_flag = online_player["event"]
-                                    stop_flag.set()
-                                    online_player.update({"is_in_limbo": True})
-                                    logger.debug("thread stopped for player " + player_name + " after " + str(
-                                        m.group("time")) + " minutes")
-                                    players_to_remove.append(player_name)
-                            for player in players_to_remove:
-                                del players_dict[player]
+                        m = re.search(match_types["telnet_events_playerspawn"], telnet_line)
+                        if m:
+                            if m.group("command") == "Died" or m.group("command") == "Teleport":
+                                for player_name, online_player in players_dict.iteritems():
+                                    if player_name == m.group("player_name"):
+                                        online_player.update({"is_in_limbo": False})
 
-                    m = re.search(match_types["telnet_events_playerspawn"], telnet_line)
-                    if m:
-                        if m.group("command") == "Died" or m.group("command") == "Teleport":
-                            for player_name, online_player in players_dict.iteritems():
-                                if player_name == m.group("player_name"):
-                                    online_player.update({"is_in_limbo": False})
-
-                    m = re.search(match_types_system["telnet_commands"], telnet_line)
-                    if m:
-                        if m.group("telnet_command").startswith("tele "):
-                            c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
-                            if c:
-                                players_dict[c.group("player_name")].update({"is_in_limbo": True})
+                        m = re.search(match_types_system["telnet_commands"], telnet_line)
+                        if m:
+                            if m.group("telnet_command").startswith("tele "):
+                                c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
+                                if c:
+                                    players_dict[c.group("player_name")].update({"is_in_limbo": True})
 
                     for player_name, online_player in players_dict.iteritems():
-                        if "event" not in online_player:
+                        try:
+                            player_observer_thread = active_threads[player_name]["thread"]
+                            player_observer_thread.update_telnet_line(telnet_line)
+                            player_observer_thread.update_player(online_player)
+                            player_observer_thread.update_locations(locations_dict)
+                        except KeyError:
                             """
                             since the active player state can not be retrieved from the game, we have to assume the worst:
                             the game will bug out if you do some actions (like teleports) to players who have died and are
@@ -236,23 +225,17 @@ if __name__ == '__main__':
                                 online_player.update({"is_in_limbo": True})
 
                             stop_flag = Event()
-                            online_player.update({"event": stop_flag})
                             player_observer_thread = PlayerObserver(stop_flag, logger, online_player, telnet_line)
-                            online_player.update({"thread": player_observer_thread})
                             player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
                             player_observer_thread.tn = player_tn
                             player_observer_thread.match_types = match_types
-                            player_observer_thread.actions = actions_status_messages + actions_authentication + actions_lobby
+                            player_observer_thread.actions = actions_authentication + actions_home + actions_lobby
                             player_observer_thread.observers = observers_lobby
                             player_observer_thread.locations = locations_dict
                             player_observer_thread.start()
 
+                            active_threads.update({player_name: {"event": stop_flag, "thread": player_observer_thread}})
                             logger.debug("thread started for player " + player_name)
-                        else:
-                            player_observer_thread = online_player["thread"]
-                            player_observer_thread.update_telnet_line(telnet_line)
-                            player_observer_thread.update_player(online_player)
-                            player_observer_thread.update_locations(locations_dict)
 
                 except IOError as e:
                     """

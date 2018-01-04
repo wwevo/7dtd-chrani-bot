@@ -75,10 +75,10 @@ class TelnetConnection:
             telnet_response = connection.read_until(b"\r\n", 2)
             if telnet_response:
                 self.logger.debug(telnet_response)
+                return telnet_response
         except Exception:
             raise
 
-        return telnet_response
 
     def listplayers(self):
         try:
@@ -139,10 +139,12 @@ class TelnetConnection:
             connection = self.connection
             while True:
                 if player["is_in_limbo"] is not True:
-                    connection.write(
-                        "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
-                            int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n")
-                    break
+                    command = "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
+                            int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
+                    print command
+                    connection.write(command)
+                    time.sleep(0.5)
+                    return True
                 else:
                     time.sleep(0.5)
         except:
