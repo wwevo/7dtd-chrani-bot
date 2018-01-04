@@ -179,15 +179,18 @@ if __name__ == '__main__':
                             if m.group("command") == "disconnected":
                                 players_to_remove = []
                                 for player_name, online_player in players_dict.iteritems():
-                                    if "event" in online_player and player_name == m.group("player_name"):
-                                        stop_flag = online_player["event"]
+                                    try:
+                                        stop_flag = active_threads[player_name]["event"]
                                         stop_flag.set()
                                         online_player.update({"is_in_limbo": True})
                                         logger.debug("thread stopped for player " + player_name + " after " + str(
                                             m.group("time")) + " minutes")
                                         players_to_remove.append(player_name)
-                                for player in players_to_remove:
-                                    del players_dict[player]
+                                    except KeyError:
+                                        pass
+                                for player_name in players_to_remove:
+                                    del players_dict[player_name]
+                                    del active_threads[player_name]
 
                         m = re.search(match_types["telnet_events_playerspawn"], telnet_line)
                         if m:
