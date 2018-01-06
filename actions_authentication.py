@@ -22,6 +22,16 @@ actions_authentication.append(("startswith", "password", password, "(self, playe
 
 
 def on_player_join(self, player, locations):
+    if "spawn" in player:
+        self.tn.say("Welcome back " + ["player.name"] + " o/")
+    else:
+        location = {}
+        location["pos_x"] = player["pos_x"]
+        location["pos_y"] = player["pos_y"]
+        location["pos_z"] = player["pos_z"]
+        player.update({"spawn": location})
+
+        self.tn.say("this servers bot says Hi to " + player["name"] + " o/")
     if "authenticated" not in player or not player["authenticated"]:
         self.tn.say("read the rules on https://chrani.net/rules")
         self.tn.say("enter the password with /password <password> in this chat")

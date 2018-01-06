@@ -4,49 +4,19 @@ next attempt for my bot ^^ this time a bit more organized.
 takes command line options like so:
 python chrani-bot.py 127.0.0.1 8081 12345678 dummy.sqlite --verbosity=DEBUG
 """
-"""
-command line parser for configurations
-"""
-import argparse  # used for passing configurations to the bot
-
-parser = argparse.ArgumentParser()
-parser.add_argument("IP-address", help="IP-address of your 7dtd game-server (127.0.0.1)", nargs='?',
-                    default="127.0.0.1")
-parser.add_argument("Telnet-port", help="Telnet-port of your 7dtd game-server (8081)", nargs='?', default="8081",
-                    type=int)
-parser.add_argument("Telnet-password", help="Telnet-password of your 7dtd game-server (12345678)", nargs='?',
-                    default="12345678")
-parser.add_argument("Database-file", help="SQLite3 Database to be used for storing information (dummy.db)", nargs='?',
-                    default="dummy.sqlite")
-parser.add_argument("--verbosity", help="what messages would you like to see? (INFO)", default="INFO")
-args = parser.parse_args()
-args_dict = vars(args)
-"""
-Logging
-"""
-import logging
-
-loglevel = args_dict["verbosity"].upper()
-numeric_level = getattr(logging, loglevel, None)
-if not isinstance(numeric_level, int):
-    raise ValueError('Invalid log level: %s' % loglevel)
-
-logger = logging.getLogger('chrani-bot')
-logger.setLevel(numeric_level)
-ch = logging.StreamHandler()
-ch.setLevel(numeric_level)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
-from telnet_connection import TelnetConnection
-
-"""
-send a message to the game to see where we are at!
-"""
 import time
 import math
 import re
+from telnet_connection import TelnetConnection
+"""
+command line parser for configurations
+"""
+from command_line_args import args_dict
+"""
+Logging
+"""
+from logger import logger
+
 
 if __name__ == '__main__':
     """
@@ -160,13 +130,12 @@ if __name__ == '__main__':
         """
         outer loop to catch fatal server errors
         """
+        players_dict = {}
+        locations_dict = {'lobby': {'pos_x': 117, 'pos_y': 111, 'pos_z': -473, 'radius': 5}}
+        active_threads = {}
         try:
-            tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'],
+            tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'],
                                   args_dict['Telnet-password'])
-
-            players_dict = {}
-            locations_dict = {'lobby': {'pos_x': 117, 'pos_y': 111, 'pos_z': -473, 'radius': 5}}
-            active_threads = {}
 
             tn.say("Bot is active")
             while True:
@@ -188,28 +157,19 @@ if __name__ == '__main__':
                             if check_if_lifesigns_have_changed(online_player):
                                 online_player.update({"is_in_limbo": False})
                         except KeyError:
-                            """
-                            since the active player state can not be retrieved from the game, we have to assume the worst:
-                            the game will bug out if you do some actions (like teleports) to players who have died and are
-                            in the respawn screen (for example)
-                            the flag will be set by all official game-actions like spawn, death, teleport... if the bot is
-                            started after a player joined, we can not determine if that player is actually dead or alive.
-                            So we have to set the is_in_limbo flag to be safe.
-                            this player will be observed but treated as a dead player
-                            we need to find a way to detect alive players, perhaps by analyzing their movemens and checking
-                            if they chat or not. we could monitor all players stats and compare them to the last run. 
-                            """
                             store_player_lifesigns(online_player)
                             online_player.update({"is_in_limbo": True})
 
                             stop_flag = Event()
-                            player_observer_thread = PlayerObserver(stop_flag, logger, online_player)
-                            player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+                            player_observer_thread = PlayerObserver(stop_flag, online_player)
+                            player_tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
                             player_observer_thread.tn = player_tn
                             player_observer_thread.match_types = match_types
                             player_observer_thread.actions = actions_authentication + actions_home + actions_lobby
                             player_observer_thread.observers = observers_lobby
                             player_observer_thread.locations = locations_dict
+                            player_observer_thread.name = player_name
+                            player_observer_thread.isDaemon()
                             player_observer_thread.start()
 
                             active_threads.update({player_name: {"event": stop_flag, "thread": player_observer_thread}})
@@ -264,38 +224,29 @@ if __name__ == '__main__':
                                     store_player_lifesigns(players_dict[c.group("player_name")])
                                     players_dict[c.group("player_name")].update({"is_in_limbo": True})
 
-                except IOError as e:
-                    """
-                    connection lost, stop all local player_events, remove live-data
-                    attempt reconnection!
-                    """
-                    try:
-                        for player_name, online_player in players_dict.iteritems():
-                            if "event" in online_player:
-                                stop_flag = online_player["event"]
-                                stop_flag.set()
-                        del players_dict
-                    except NameError:
-                        pass
+                except Exception:
+                    raise
 
-                    wait_until_reconnect = 5
-                    logger.warn(e)
-                    log_message = 'will try again in ' + str(wait_until_reconnect) + " seconds"
-                    logger.info(log_message)
-                    time.sleep(wait_until_reconnect)
-                    try:
-                        tn.keep_alive()
-                    except IOError:
-                        pass
+        except Exception as error:
+            """
+            connection lost, stop all local player_events, remove live-data
+            attempt reconnection!
+            """
+            try:
+                for player_name, online_player in active_threads.iteritems():
+                    if "event" in online_player:
+                        stop_flag = online_player["event"]
+                        stop_flag.set()
+                        # thread = online_player["thread"]
+                        # thread.stopped.set()
+                        logger.debug("thread stopped for player " + player_name)
 
-        except IOError as e:
-            """
-            fatal error. server-restart or whatever. try to reinitialize the whole thing
-            """
-            log_message = 'could not establish connection to the host. check your network, ip and port'
-            logger.critical(log_message)
+                players_dict.clear()
+            except NameError:
+                pass
+
             wait_until_reconnect = 5
+            logger.warn(error)
             log_message = 'will try again in ' + str(wait_until_reconnect) + " seconds"
             logger.info(log_message)
             time.sleep(wait_until_reconnect)
-            pass

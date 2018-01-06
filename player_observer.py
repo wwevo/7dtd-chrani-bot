@@ -1,5 +1,6 @@
 from threading import Thread, Event
 import re
+from logger import logger
 
 
 class PlayerObserver(Thread):
@@ -8,11 +9,12 @@ class PlayerObserver(Thread):
     logger = None
     telnet_line = None
     player_name = None
+    locations = None
 
     match_types = None
     actions = None
 
-    def __init__(self, event, logger, player):
+    def __init__(self, event, player):
         self.logger = logger
         self.player = player
         self.player_name = player["name"]
@@ -32,7 +34,7 @@ class PlayerObserver(Thread):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             if self.telnet_line is not None:
-                print self.telnet_line
+                self.logger.debug(self.telnet_line)
                 """
                 these only have to be run if the telnet is active
                 """
@@ -79,7 +81,7 @@ class PlayerObserver(Thread):
                     function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
                     function_name(*function_parameters)
 
-            self.logger.debug("thread for player " + self.player["name"] + " is active (limbo: " + str(self.player["is_in_limbo"]) + ")")
+            self.logger.debug("thread is active (limbo: " + str(self.player["is_in_limbo"]) + ")")
             next_cycle = 1
 
         self.stopped.set()
