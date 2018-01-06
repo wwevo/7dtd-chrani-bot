@@ -1,6 +1,5 @@
 """
-next attempt for my bot ^^ this time a bit more organized, no code will leave my home without a unit-test and proper
-exception handling (as good as my abilities allow ^^)
+next attempt for my bot ^^ this time a bit more organized.
 
 takes command line options like so:
 python chrani-bot.py 127.0.0.1 8081 12345678 dummy.sqlite --verbosity=DEBUG
@@ -133,6 +132,30 @@ if __name__ == '__main__':
     from actions_lobby import actions_lobby, observers_lobby
     from actions_home import actions_home
 
+    rot_old = {}
+    pos_old = {}
+    vitals_old = {}
+
+    def store_player_lifesigns(player):
+        rot_old.update(
+            {player["name"]: {"rot_x": player["rot_x"], "rot_y": player["rot_y"], "rot_z": player["rot_z"]}})
+        pos_old.update(
+            {player["name"]: {"pos_x": player["pos_x"], "pos_y": player["pos_y"], "pos_z": player["pos_z"]}})
+
+    def check_if_lifesigns_have_changed(player):
+        if player["rot_x"] != rot_old[player["name"]]["rot_x"] or player["rot_y"] != rot_old[player["name"]]["rot_y"] or player["rot_z"] != rot_old[player["name"]]["rot_z"]:
+            if player["is_in_limbo"]:
+                logger.debug(player["name"] + ": change detected! setting player-status ALIVE (rot)")
+                tn.say("bot is tracking you!")
+                return True
+
+        if player["pos_x"] != pos_old[player["name"]]["pos_x"] or player["pos_y"] != pos_old[player["name"]]["pos_y"] or player["pos_z"] != pos_old[player["name"]]["pos_z"]:
+            if player["is_in_limbo"]:
+                logger.debug(player["name"] + ": change detected! setting player-status ALIVE (pos)")
+                tn.say("bot is tracking you!")
+                return True
+        return False
+
     while True:
         """
         outer loop to catch fatal server errors
@@ -142,7 +165,7 @@ if __name__ == '__main__':
                                   args_dict['Telnet-password'])
 
             players_dict = {}
-            locations_dict = {}
+            locations_dict = {'lobby': {'pos_x': 117, 'pos_y': 111, 'pos_z': -473, 'radius': 5}}
             active_threads = {}
 
             tn.say("Bot is active")
@@ -151,11 +174,48 @@ if __name__ == '__main__':
                 this is the main loop. do your magic here!
                 """
                 try:
-                    telnet_line = tn.read_line(b"\r\n")
                     listplayers_raw, count = tn.listplayers()
                     list_players_dict = listplayers_to_dict(listplayers_raw)
-
                     deep_update(players_dict, list_players_dict)  # deep update, since we have a nested Dict
+
+                    for player_name, online_player in players_dict.iteritems():
+                        try:
+                            player_observer_thread = active_threads[player_name]["thread"]
+                            if telnet_line is not None:
+                                player_observer_thread.update_telnet_line(telnet_line)
+                            player_observer_thread.update_player(online_player)
+                            player_observer_thread.update_locations(locations_dict)
+                            if check_if_lifesigns_have_changed(online_player):
+                                online_player.update({"is_in_limbo": False})
+                        except KeyError:
+                            """
+                            since the active player state can not be retrieved from the game, we have to assume the worst:
+                            the game will bug out if you do some actions (like teleports) to players who have died and are
+                            in the respawn screen (for example)
+                            the flag will be set by all official game-actions like spawn, death, teleport... if the bot is
+                            started after a player joined, we can not determine if that player is actually dead or alive.
+                            So we have to set the is_in_limbo flag to be safe.
+                            this player will be observed but treated as a dead player
+                            we need to find a way to detect alive players, perhaps by analyzing their movemens and checking
+                            if they chat or not. we could monitor all players stats and compare them to the last run. 
+                            """
+                            store_player_lifesigns(online_player)
+                            online_player.update({"is_in_limbo": True})
+
+                            stop_flag = Event()
+                            player_observer_thread = PlayerObserver(stop_flag, logger, online_player)
+                            player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+                            player_observer_thread.tn = player_tn
+                            player_observer_thread.match_types = match_types
+                            player_observer_thread.actions = actions_authentication + actions_home + actions_lobby
+                            player_observer_thread.observers = observers_lobby
+                            player_observer_thread.locations = locations_dict
+                            player_observer_thread.start()
+
+                            active_threads.update({player_name: {"event": stop_flag, "thread": player_observer_thread}})
+                            logger.debug("thread started for player " + player_name)
+
+                    telnet_line = tn.read_line(b"\r\n")
                     if telnet_line is not None:
                         """
                         do all system relevant actions here
@@ -167,6 +227,7 @@ if __name__ == '__main__':
                             if m.group("command") == "died" or m.group("command").startswith("killed by"):
                                 for player_name, online_player in players_dict.iteritems():
                                     if player_name == m.group("player_name"):
+                                        store_player_lifesigns(online_player)
                                         online_player.update({"is_in_limbo": True})
 
                             elif m.group("command") == "joined the game":
@@ -177,20 +238,16 @@ if __name__ == '__main__':
                         m = re.search(match_types_system["telnet_player_disconnected"], telnet_line)
                         if m:
                             if m.group("command") == "disconnected":
-                                players_to_remove = []
-                                for player_name, online_player in players_dict.iteritems():
-                                    try:
-                                        stop_flag = active_threads[player_name]["event"]
-                                        stop_flag.set()
-                                        online_player.update({"is_in_limbo": True})
-                                        logger.debug("thread stopped for player " + player_name + " after " + str(
-                                            m.group("time")) + " minutes")
-                                        players_to_remove.append(player_name)
-                                    except KeyError:
-                                        pass
-                                for player_name in players_to_remove:
-                                    del players_dict[player_name]
-                                    del active_threads[player_name]
+                                try:
+                                    player_name = m.group("player_name")
+                                    stop_flag = active_threads[player_name]["event"]
+                                    stop_flag.set()
+                                    logger.debug("thread stopped for player " + player_name + " after " + str(
+                                        m.group("time")) + " minutes")
+                                except KeyError:
+                                    pass
+                                del players_dict[player_name]
+                                del active_threads[player_name]
 
                         m = re.search(match_types["telnet_events_playerspawn"], telnet_line)
                         if m:
@@ -204,41 +261,8 @@ if __name__ == '__main__':
                             if m.group("telnet_command").startswith("tele "):
                                 c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
                                 if c:
+                                    store_player_lifesigns(players_dict[c.group("player_name")])
                                     players_dict[c.group("player_name")].update({"is_in_limbo": True})
-
-                    for player_name, online_player in players_dict.iteritems():
-                        try:
-                            player_observer_thread = active_threads[player_name]["thread"]
-                            player_observer_thread.update_telnet_line(telnet_line)
-                            player_observer_thread.update_player(online_player)
-                            player_observer_thread.update_locations(locations_dict)
-                        except KeyError:
-                            """
-                            since the active player state can not be retrieved from the game, we have to assume the worst:
-                            the game will bug out if you do some actions (like teleports) to players who have died and are
-                            in the respawn screen (for example)
-                            the flag will be set by all official game-actions like spawn, death, teleport... if the bot is
-                            started after a player joined, we can not determine if that player is actually dead or alive.
-                            So we have to set the is_in_limbo flag to be safe.
-                            this player will be observed but treated as a dead player
-                            we need to find a way to detect alive players, perhaps by analyzing their movemens and checking
-                            if they chat or not. we could monitor all players stats and compare them to the last run. 
-                            """
-                            if "is_in_limbo" not in online_player:
-                                online_player.update({"is_in_limbo": True})
-
-                            stop_flag = Event()
-                            player_observer_thread = PlayerObserver(stop_flag, logger, online_player, telnet_line)
-                            player_tn = TelnetConnection(logger, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
-                            player_observer_thread.tn = player_tn
-                            player_observer_thread.match_types = match_types
-                            player_observer_thread.actions = actions_authentication + actions_home + actions_lobby
-                            player_observer_thread.observers = observers_lobby
-                            player_observer_thread.locations = locations_dict
-                            player_observer_thread.start()
-
-                            active_threads.update({player_name: {"event": stop_flag, "thread": player_observer_thread}})
-                            logger.debug("thread started for player " + player_name)
 
                 except IOError as e:
                     """

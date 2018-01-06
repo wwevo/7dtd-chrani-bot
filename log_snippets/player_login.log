@@ -1,0 +1,45 @@
+2017-12-31T15:48:50 7462.160 INF [NET] PlayerConnected EntityID=-1, PlayerID='', OwnerID='', PlayerName=''
+
+2017-12-31T15:48:50 7462.387 INF PlayerLogin: ecv/Alpha 16.4
+
+2017-12-31T15:48:50 7462.387 INF Client IP: 127.0.0.1
+
+2017-12-31T15:48:50 7462.387 INF [Steamworks.NET] Auth.AuthenticateUser()
+
+2017-12-31T15:48:50 7462.388 INF [Steamworks.NET] Authenticating player: ecv SteamId: 76561198040658370 TicketLen: 1024 Result: k_EBeginAuthSessionResultOK
+
+2017-12-31T15:48:51 7462.845 INF [Steamworks.NET] Authentication callback. ID: 76561198040658370, owner: 76561198040658370, result: k_EAuthSessionResponseOK
+
+2017-12-31T15:48:51 7462.846 INF Steam authentication successful, registering with EAC: EntityID=-1, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
+
+2017-12-31T15:48:51 7462.847 INF [EAC] Registering user: EntityID=-1, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
+
+2017-12-31T15:48:51 7462.848 INF [EAC] Log: [RegisterClient] Client: 0000000000000005 PlayerGUID: 76561198040658370 PlayerIP: 127.0.0.1 OwnerGUID: 76561198040658370 PlayerName: ecv
+
+2017-12-31T15:48:52 7463.721 INF [EAC] Log: [Register Client] Success (1/2). Client: 0000000000000005
+
+2017-12-31T15:48:52 7463.722 INF [EAC] Log: [QueueClientUpdate] Client: 0000000000000005 Session: 5 Status: Client Authenticated Message: Client authenticated
+
+2017-12-31T15:48:52 7463.745 INF [EAC] UserStatusHandler callback. Status: ClientAuthenticatedLocal ReqKick: False Message: Client authenticated
+
+2017-12-31T15:48:52 7464.259 INF [EAC] Log: [Register Client] Success (2/2). Client: 0000000000000005
+
+2017-12-31T15:48:52 7464.260 INF [EAC] Log: [QueueClientUpdate] Client: 0000000000000005 Session: 5 Status: Client Authenticated Remotely Message: Client authenticated remotely
+
+2017-12-31T15:48:52 7464.294 INF [EAC] UserStatusHandler callback. Status: ClientAuthenticatedRemote ReqKick: False Message: Client authenticated remotely
+
+2017-12-31T15:48:52 7464.295 INF EAC authentication successful, allowing user: EntityID=-1, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
+
+2017-12-31T15:48:52 7464.297 INF Allowing player with id 76561198040658370
+
+2017-12-31T15:48:54 7465.594 INF RequestToEnterGame: 76561198040658370/ecv
+
+2017-12-31T15:49:02 7473.657 INF RequestToSpawnPlayer: 710, ecv, 12
+
+2017-12-31T15:49:02 7473.663 INF Created player with id=710
+
+2017-12-31T15:49:02 7473.676 INF Player connected, entityid=710, name=ecv, steamid=76561198040658370, steamOwner=76561198040658370, ip=127.0.0.1
+
+2017-12-31T15:49:02 7473.676 INF Player set to online: 76561198040658370
+
+2017-12-31T15:49:11 7483.277 INF GMSG: Player 'ecv' joined the game

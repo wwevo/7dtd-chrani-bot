@@ -6,6 +6,7 @@ import re
 import atexit
 import time
 
+
 class TelnetConnection:
     connection = None
     logger = None
@@ -45,7 +46,7 @@ class TelnetConnection:
             try:
                 found_prompt = False
                 while found_prompt is not True:
-                    telnet_response = connection.read_until(b"\r\n")  # read everything it has to give
+                    telnet_response = connection.read_until(b"\r\n")
                     if re.match(r"Please enter password:\r\n", telnet_response):
                         found_prompt = True
 
@@ -60,6 +61,13 @@ class TelnetConnection:
                         raise ValueError()
                     if re.match(r"Logon successful.\r\n", telnet_response) is not None:
                         authenticated = True
+
+                displayed_welcome = False
+                while displayed_welcome is not True:
+                    telnet_response = connection.read_until(b"\r\n")  # read everything it has to give
+                    if re.match(r"Press 'help' to get a list of all commands. Press 'exit' to end session.", telnet_response):
+                        displayed_welcome = True
+
             except Exception:
                 raise
 
@@ -72,10 +80,12 @@ class TelnetConnection:
     def read_line(self, message):
         try:
             connection = self.connection
-            telnet_response = connection.read_until(b"\r\n", 2)
+            telnet_response = connection.read_until(b"\r\n", 0.5)
             if telnet_response:
-                self.logger.debug(telnet_response)
+                # self.logger.debug(telnet_response)
                 return telnet_response
+            else:
+                return None
         except Exception:
             raise
 
@@ -137,16 +147,12 @@ class TelnetConnection:
     def teleportplayer(self, player, location):
         try:
             connection = self.connection
-            while True:
-                if player["is_in_limbo"] is not True:
-                    command = "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
-                            int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
-                    print command
-                    connection.write(command)
-                    time.sleep(0.5)
-                    return True
-                else:
-                    time.sleep(0.5)
+            command = "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
+                    int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
+            print command
+            connection.write(command)
+            time.sleep(0.5)
+            return True
         except:
             return False
 

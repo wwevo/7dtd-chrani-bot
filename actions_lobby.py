@@ -69,13 +69,7 @@ def on_player_join(self, player, locations):
         if "lobby" in locations:
             location = locations["lobby"]
             self.tn.say("yo ass will be ported to our lobby plus tha command-shit is restricted yo")
-            self.tn.say("read the rules on https://chrani.net/rules")
-            self.tn.say("enter the password with /password <password> in this chat")
             self.tn.teleportplayer(player, location)
-        else:
-            self.tn.say("your account is restricted until you have read the rules")
-            self.tn.say("read the rules on https://chrani.net/rules")
-            self.tn.say("enter the password with /password <password> in this chat")
 
 
 actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, player, locations)"))
@@ -127,7 +121,7 @@ def player_left_area(self, player, locations):
 
         if distance_to_lobby_center > location["radius"]:
             if self.tn.teleportplayer(player, location):
-                self.tn.say("And stay there!")
+                self.tn.say("You have been ported back to the lobby! Authenticate with /password <password>")
 
 
 observers_lobby.append(("player left lobby", player_left_area, "(self, player, locations)"))

@@ -19,3 +19,14 @@ def password(self, player, command):
 
 
 actions_authentication.append(("startswith", "password", password, "(self, player, command)"))
+
+
+def on_player_join(self, player, locations):
+    if "authenticated" not in player or not player["authenticated"]:
+        self.tn.say("read the rules on https://chrani.net/rules")
+        self.tn.say("enter the password with /password <password> in this chat")
+
+
+actions_authentication.append(("isequal", "joined the game", on_player_join, "(self, player, locations)"))
+
+
