@@ -5,6 +5,7 @@ import telnetlib
 import re
 import atexit
 import time
+from logger import logger
 
 
 class TelnetConnection:
@@ -14,19 +15,13 @@ class TelnetConnection:
     port = None
     password = None
 
-    def __init__(self, logger, ip, port, password):
+    def __init__(self, ip, port, password):
         self.logger = logger
         self.ip = ip
         self.port = port
         self.password = password
         self.connection = self.__get_telnet_connection(ip, port, password)
         atexit.register(self.__cleanup)
-
-    def keep_alive(self):
-        ip = self.ip
-        port = self.port
-        password = self.password
-        self.connection = self.__get_telnet_connection(ip, port, password)
 
     def __cleanup(self):
         if self.connection is not None:
@@ -61,12 +56,14 @@ class TelnetConnection:
                         raise ValueError()
                     if re.match(r"Logon successful.\r\n", telnet_response) is not None:
                         authenticated = True
+                        self.logger.debug(telnet_response)
 
                 displayed_welcome = False
                 while displayed_welcome is not True:
                     telnet_response = connection.read_until(b"\r\n")  # read everything it has to give
                     if re.match(r"Press 'help' to get a list of all commands. Press 'exit' to end session.", telnet_response):
                         displayed_welcome = True
+                        self.logger.debug(telnet_response)
 
             except Exception:
                 raise
@@ -77,28 +74,24 @@ class TelnetConnection:
         self.logger.debug("telnet connection established: " + str(connection))
         return connection
 
-    def read_line(self, message):
+    def read_line(self, message=b"\r\n", timeout=0):
         try:
             connection = self.connection
-            telnet_response = connection.read_until(b"\r\n", 0.5)
+            telnet_response = connection.read_until(message, timeout)
             if telnet_response:
-                # self.logger.debug(telnet_response)
+                # self.logger.info(telnet_response)
                 return telnet_response
             else:
                 return None
         except Exception:
             raise
 
-
     def listplayers(self):
         try:
             connection = self.connection
             connection.write("lp" + b"\r\n")
         except Exception:
-            log_message = 'could not establish connection to the host. check ip and port'
-            # this seems to be logged automatically oO
-            # self.logger.critical(log_message)
-            raise IOError(log_message)
+            raise
 
         player_count = 0
         telnet_response = ""
@@ -113,7 +106,9 @@ class TelnetConnection:
             the complete response and
             the playercount
             """
-            telnet_response = telnet_response + connection.read_eager()
+            telnet_response = telnet_response + connection.read_until(b"\r\n")
+            # if telnet_response:
+            #     self.logger.debug(telnet_response)
 
             m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_response)
             if m:
@@ -147,11 +142,15 @@ class TelnetConnection:
     def teleportplayer(self, player, location):
         try:
             connection = self.connection
-            command = "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
+            command = "teleportplayer " + player.steamid + " " + str(int(float(location["pos_x"]))) + " " + str(
                     int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
-            print command
+            self.logger.debug(command)
             connection.write(command)
-            time.sleep(0.5)
+            """
+            we'll sleep a few hundred milliseconds. shouldn't impact anything since every player has his own telnet and
+            how quickly will we need it again after a teleport, eh? This needs a better approach though
+            """
+            time.sleep(1)
             return True
         except:
             return False
