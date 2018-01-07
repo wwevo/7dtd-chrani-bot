@@ -104,7 +104,61 @@ if __name__ == '__main__':
 
     rot_old = {}
     pos_old = {}
-    vitals_old = {}
+
+
+    class Player(object):
+        id = long
+        name = str
+        pos_x = float
+        pos_y = float
+        pos_z = float
+        rot_x = float
+        rot_y = float
+        rot_z = float
+        remote = bool
+        health = int
+        deaths = int
+        zombies = int
+        players = int
+        score = int
+        level = int
+        steamid = str
+        ip = str
+        ping = int
+        region = str
+
+        rot_old = {}
+        pos_old = {}
+        is_in_limbo = False
+
+        def __init__(self, **kwargs):
+            for (k, v) in kwargs.iteritems():
+                setattr(self, k, v)
+            self.region = self.__get_region_string(self.pos_x, self.pos_z)
+
+        def __get_region_string(self, pos_x, pos_z):
+            grid_x = int(math.floor(pos_x / 512))
+            grid_z = int(math.floor(pos_z / 512))
+
+            return str(grid_x) + "." + str(grid_z) + ".7.rg"
+
+        def store_player_lifesigns(self):
+            self.rot_old.update({"rot_x": self.rot_x, "rot_y": self.rot_y, "rot_z": self.rot_z})
+            self.pos_old.update({"pos_x": self.pos_x, "pos_y": self.pos_y, "pos_z": self.pos_z})
+
+        def check_if_lifesigns_have_changed(self):
+            if self.rot_x != self.rot_old["rot_x"] or self.rot_y != self.rot_old["rot_y"] or self.rot_z != self.rot_old["rot_z"]:
+                if self.is_in_limbo:
+                    logger.debug(self.name + ": change detected! setting player-status ALIVE (rot)")
+                    tn.say("bot is tracking you!")
+                    return True
+            elif self.pos_x != self.pos_old["pos_x"] or self.pos_y != self.pos_old["pos_y"] or self.pos_z != self.pos_old["pos_z"]:
+                if self.is_in_limbo:
+                    logger.debug(self.name + ": change detected! setting player-status ALIVE (pos)")
+                    tn.say("bot is tracking you!")
+                    return True
+            return False
+
 
     def store_player_lifesigns(player):
         rot_old.update(
@@ -133,6 +187,9 @@ if __name__ == '__main__':
         players_dict = {}
         locations_dict = {'lobby': {'pos_x': 117, 'pos_y': 111, 'pos_z': -473, 'radius': 5}}
         active_threads = {}
+
+        player_class_dict = {}
+        telnet_line = None
         try:
             tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'],
                                   args_dict['Telnet-password'])
@@ -145,6 +202,9 @@ if __name__ == '__main__':
                 try:
                     listplayers_raw, count = tn.listplayers()
                     list_players_dict = listplayers_to_dict(listplayers_raw)
+                    for player_name, online_player in list_players_dict.iteritems():
+                        player_class_dict.update({player_name: Player(**online_player)})
+
                     deep_update(players_dict, list_players_dict)  # deep update, since we have a nested Dict
 
                     for player_name, online_player in players_dict.iteritems():
@@ -156,9 +216,15 @@ if __name__ == '__main__':
                             player_observer_thread.update_locations(locations_dict)
                             if check_if_lifesigns_have_changed(online_player):
                                 online_player.update({"is_in_limbo": False})
+
+                            if player_class_dict[player_name].check_if_lifesigns_have_changed():
+                                player_class_dict[player_name].is_in_limbo = False
                         except KeyError:
                             store_player_lifesigns(online_player)
                             online_player.update({"is_in_limbo": True})
+
+                            player_class_dict[player_name].store_player_lifesigns()
+                            player_class_dict[player_name].is_in_limbo = True
 
                             stop_flag = Event()
                             player_observer_thread = PlayerObserver(stop_flag, online_player)
@@ -187,13 +253,18 @@ if __name__ == '__main__':
                             if m.group("command") == "died" or m.group("command").startswith("killed by"):
                                 for player_name, online_player in players_dict.iteritems():
                                     if player_name == m.group("player_name"):
-                                        store_player_lifesigns(online_player)
                                         online_player.update({"is_in_limbo": True})
+                                        store_player_lifesigns(online_player)
+
+                                        player_class_dict[player_name].is_in_limbo = True
+                                        player_class_dict[player_name].store_player_lifesigns()
 
                             elif m.group("command") == "joined the game":
                                 for player_name, online_player in players_dict.iteritems():
                                     if player_name == m.group("player_name"):
                                         online_player.update({"is_in_limbo": False})
+
+                                        player_class_dict[player_name].is_in_limbo = False
 
                         m = re.search(match_types_system["telnet_player_disconnected"], telnet_line)
                         if m:
@@ -202,8 +273,7 @@ if __name__ == '__main__':
                                     player_name = m.group("player_name")
                                     stop_flag = active_threads[player_name]["event"]
                                     stop_flag.set()
-                                    logger.debug("thread stopped for player " + player_name + " after " + str(
-                                        m.group("time")) + " minutes")
+                                    logger.debug("thread stopped for player " + player_name + " after " + str(m.group("time")) + " minutes")
                                 except KeyError:
                                     pass
                                 del players_dict[player_name]
@@ -215,6 +285,7 @@ if __name__ == '__main__':
                                 for player_name, online_player in players_dict.iteritems():
                                     if player_name == m.group("player_name"):
                                         online_player.update({"is_in_limbo": False})
+                                        player_class_dict[player_name].is_in_limbo = False
 
                         m = re.search(match_types_system["telnet_commands"], telnet_line)
                         if m:
@@ -223,6 +294,9 @@ if __name__ == '__main__':
                                 if c:
                                     store_player_lifesigns(players_dict[c.group("player_name")])
                                     players_dict[c.group("player_name")].update({"is_in_limbo": True})
+
+                                    player_class_dict[c.group("player_name")].store_player_lifesigns()
+                                    player_class_dict[c.group("player_name")].is_in_limbo = True
 
                 except Exception:
                     raise

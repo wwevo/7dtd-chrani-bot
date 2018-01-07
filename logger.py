@@ -16,7 +16,7 @@ class Logger():
         logger.setLevel(numeric_level)
         ch = logging.StreamHandler()
         ch.setLevel(numeric_level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)10s @ %(threadName)s: %(message)s ')
+        formatter = logging.Formatter('%(asctime)s - %(name)s: %(levelname)10s @ %(threadName)s: %(message)s ')
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
