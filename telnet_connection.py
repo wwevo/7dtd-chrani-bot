@@ -74,12 +74,12 @@ class TelnetConnection:
         self.logger.debug("telnet connection established: " + str(connection))
         return connection
 
-    def read_line(self, message):
+    def read_line(self, message=b"\r\n", timeout=0):
         try:
             connection = self.connection
-            telnet_response = connection.read_until(b"\r\n", 0.5)
+            telnet_response = connection.read_until(message, timeout)
             if telnet_response:
-                self.logger.info(telnet_response)
+                # self.logger.info(telnet_response)
                 return telnet_response
             else:
                 return None
@@ -106,7 +106,9 @@ class TelnetConnection:
             the complete response and
             the playercount
             """
-            telnet_response = telnet_response + connection.read_eager()
+            telnet_response = telnet_response + connection.read_until(b"\r\n")
+            # if telnet_response:
+            #     self.logger.debug(telnet_response)
 
             m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_response)
             if m:
@@ -140,11 +142,15 @@ class TelnetConnection:
     def teleportplayer(self, player, location):
         try:
             connection = self.connection
-            command = "teleportplayer " + player["steamid"] + " " + str(int(float(location["pos_x"]))) + " " + str(
+            command = "teleportplayer " + player.steamid + " " + str(int(float(location["pos_x"]))) + " " + str(
                     int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
             self.logger.debug(command)
             connection.write(command)
-            time.sleep(0.5)
+            """
+            we'll sleep a few hundred milliseconds. shouldn't impact anything since every player has his own telnet and
+            how quickly will we need it again after a teleport, eh? This needs a better approach though
+            """
+            time.sleep(1)
             return True
         except:
             return False
