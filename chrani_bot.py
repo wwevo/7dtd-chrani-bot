@@ -25,8 +25,9 @@ class ChraniBot():
 
     listplayers_interval = 1
     online_players_dict = {}  # contains all currently online players
-    locations_dict = {}
     active_player_threads_dict = {}
+
+    locations_dict = {}
 
     def __init__(self):
         self.locations_dict.update({"lobby": {'pos_x': 117, 'pos_y': 111, 'pos_z': -473, 'radius': 5}})
@@ -121,7 +122,17 @@ class ChraniBot():
 
                 listplayers_timeout = self.listplayers_interval
 
-            self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
+            self.telnet_line = self.tn.read_line(timeout=self.listplayers_interval)  # get the current global telnet-response
+            logger.debug(self.telnet_line)
+
+            """ trigger chat actions for players """
+            if self.telnet_line is not None:
+                for player_name, player_dict in self.online_players_dict.iteritems():
+                    possible_action_for_player = re.search(player_name, self.telnet_line)
+                    if possible_action_for_player:
+                        if player_name in self.active_player_threads_dict:
+                            active_player_thread = self.active_player_threads_dict[player_name]
+                            active_player_thread["thread"].trigger_chat_action(self.telnet_line)
 
             """ handle player-threads """
             for player_name, online_player in self.online_players_dict.iteritems():

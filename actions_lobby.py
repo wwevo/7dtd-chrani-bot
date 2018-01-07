@@ -72,6 +72,7 @@ def on_player_join(self, player, locations):
             self.tn.teleportplayer(player, location)
 
 
+actions_lobby.append(("isequal", "JoinMultiplayer", on_player_join, "(self, player, locations)"))
 actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, player, locations)"))
 
 
@@ -110,9 +111,9 @@ def player_left_area(self, player, locations):
                     float(location["pos_z"]) - float(player.pos_z)) ** 2))
 
         if distance_to_lobby_center > location["radius"]:
-            if self.tn.teleportplayer(player, location):
-                self.tn.say("You have been ported back to the lobby! Authenticate with /password <password>")
-                time.sleep(1)
+            self.tn.teleportplayer(player, location)
+            self.tn.say("You have been ported back to the lobby! Authenticate with /password <password>")
+            time.sleep(3)
 
 observers_lobby.append(("player left lobby", player_left_area, "(self, player, locations)"))
 

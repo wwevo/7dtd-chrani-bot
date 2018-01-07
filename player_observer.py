@@ -50,48 +50,6 @@ class PlayerObserver(Thread):
                 log_status_start = datetime.now()
                 log_status_timeout = log_status_interval
                 logger.debug("thread is active, player is in region " + player.region + " (I log this every " + str(log_status_interval) + " seconds)")
-            """
-            since we monitor the global telnet response, which runs at it's own speed, we have to make sure
-            that we only react to new telnet_lines.
-            so we check if there IS a line and then see if it differs from the last readout 
-            """
-            current_telnet_line = bot.telnet_line  # make a copy, in case the current line gets changed during execution
-            if current_telnet_line and (not last_telnet_line or last_telnet_line != current_telnet_line):
-                """
-                look for player.name in the telnet_line, indicating a possible need for ACTION!
-                """
-                possible_action_for_player = re.search(player.name, current_telnet_line)
-                logger.debug(current_telnet_line)
-                if possible_action_for_player:
-                    logger.debug("possible action for " + player.name + " required")
-
-                    for match_type in bot.match_types :
-                        m = re.search(bot.match_types[match_type], current_telnet_line)
-                        if m:
-                            """
-                            this is a tricky bit! you need to define all variables used in any action here
-                            your IDE will tell you they are not used while in fact they are.
-                            the eval down there does the magic ^^
-                            so take some time to understand this. or just make it better if you know how ^^
-                            """
-                            player_name = m.group('player_name')
-                            player = self.player_object
-                            if player.name == player_name:
-                                command = m.group('command')
-
-                                temp_command = None
-                                if self.player_actions is not None:
-                                    for action in self.player_actions:
-                                        if action[0] == "isequal":
-                                            temp_command = command
-                                        if action[0] == "startswith":
-                                            temp_command = command.split(' ', 1)[0]
-
-                                        if action[1] == temp_command:
-                                            function_name = action[2]
-                                            function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
-                                            function_name(*function_parameters)
-
 
             """
             we need to hack a bit because of a nasty game bug
@@ -111,8 +69,46 @@ class PlayerObserver(Thread):
                     function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
                     function_name(*function_parameters)
 
-            last_telnet_line = current_telnet_line
-            next_cycle = 0.75
+            next_cycle = 1
 
         logger.debug("thread has stopped")
 
+    def trigger_chat_action(self, telnet_line):
+        """
+        since we monitor the global telnet response, which runs at it's own speed, we have to make sure
+        that we only react to new telnet_lines.
+        so we check if there IS a line and then see if it differs from the last readout
+        """
+        bot = self.bot
+        player = self.player_object
+
+        current_telnet_line = telnet_line  # make a copy, in case the current line gets changed during execution
+        logger.debug(current_telnet_line)
+        logger.debug("possible action for " + player.name + " required")
+
+        for match_type in bot.match_types:
+            m = re.search(bot.match_types[match_type], current_telnet_line)
+            if m:
+                """
+                this is a tricky bit! you need to define all variables used in any action here
+                your IDE will tell you they are not used while in fact they are.
+                the eval down there does the magic ^^
+                so take some time to understand this. or just make it better if you know how ^^
+                """
+                player_name = m.group('player_name')
+                player = self.player_object
+                if player.name == player_name:
+                    command = m.group('command')
+
+                    temp_command = None
+                    if self.player_actions is not None:
+                        for action in self.player_actions:
+                            if action[0] == "isequal":
+                                temp_command = command
+                            if action[0] == "startswith":
+                                temp_command = command.split(' ', 1)[0]
+
+                            if action[1] == temp_command:
+                                function_name = action[2]
+                                function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
+                                function_name(*function_parameters)
