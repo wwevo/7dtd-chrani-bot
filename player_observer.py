@@ -93,25 +93,25 @@ class PlayerObserver(Thread):
                                             function_name(*function_parameters)
 
 
+            """
+            we need to hack a bit because of a nasty game bug
+            if a player gets teleported while dead, he will get a black screen and has to relog
+            upon respawn he will immediately die again. this can lead to a nasty death-loop
+            so I switch the player off in the main loop after death and switch him back on after respawn ^^
+            this is my third attempt at getting to a logic that actually workd. promising so far!
+            """
+            if self.observers is not None and self.player_is_alive:
                 """
-                we need to hack a bit because of a nasty game bug
-                if a player gets teleported while dead, he will get a black screen and has to relog
-                upon respawn he will immediately die again. this can lead to a nasty death-loop
-                so I switch the player off in the main loop after death and switch him back on after respawn ^^
-                this is my third attempt at getting to a logic that actually workd. promising so far!
+                these monitor stuff regardless of telnet activity!
                 """
-                if self.observers is not None and self.player_is_alive:
-                    """
-                    these monitor stuff regardless of telnet activity!
-                    """
-                    for observer in self.observers:
-                        player = self.player_object
-                        locations = bot.locations_dict
-                        function_name = observer[1]
-                        function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
-                        function_name(*function_parameters)
+                for observer in self.observers:
+                    player = self.player_object
+                    locations = bot.locations_dict
+                    function_name = observer[1]
+                    function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
+                    function_name(*function_parameters)
 
-                last_telnet_line = current_telnet_line
+            last_telnet_line = current_telnet_line
             next_cycle = 0.75
 
         logger.debug("thread has stopped")

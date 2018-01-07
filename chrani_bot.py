@@ -23,7 +23,7 @@ class ChraniBot():
 
     telnet_line = None
 
-    listplayers_interval = 2
+    listplayers_interval = 1
     online_players_dict = {}  # contains all currently online players
     locations_dict = {}
     active_player_threads_dict = {}
@@ -121,7 +121,7 @@ class ChraniBot():
 
                 listplayers_timeout = self.listplayers_interval
 
-            self.telnet_line = self.tn.read_line(timeout=2)  # get the current global telnet-response
+            self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
 
             """ handle player-threads """
             for player_name, online_player in self.online_players_dict.iteritems():
