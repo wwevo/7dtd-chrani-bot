@@ -37,7 +37,6 @@ def on_player_join(self, player, locations):
         self.tn.say("enter the password with /password <password> in this chat")
 
 
-actions_authentication.append(("isequal", "JoinMultiplayer", on_player_join, "(self, player, locations)"))
 actions_authentication.append(("isequal", "joined the game", on_player_join, "(self, player, locations)"))
 
 

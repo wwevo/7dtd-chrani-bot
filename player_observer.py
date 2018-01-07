@@ -97,6 +97,7 @@ class PlayerObserver(Thread):
                 """
                 player_name = m.group('player_name')
                 player = self.player_object
+                locations = bot.locations_dict
                 if player.name == player_name:
                     command = m.group('command')
 

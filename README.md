@@ -21,3 +21,18 @@ i have integrated some portions of the old version, locations are not implemente
 it's limited.
 
 basic lobby functions work already
+
+i have hardcoded a lobby suited for Navezgane, so if you want to take this for a spin, it's best to use the
+Navezgane map for now
+
+installation:
+download files. put on a server or run it at home in a python terminal
+to start the bot with full debug output use:
+
+chrani-bot.py 127.0.0.1 8081 12345678 --verbosity=DEBUG
+
+if you want it to be mostly silent use
+
+chrani-bot.py 127.0.0.1 8081 12345678 --verbosity=INFO
+ 
+ xchange ip, port and telnet password with your servers data :)

@@ -72,7 +72,6 @@ def on_player_join(self, player, locations):
             self.tn.teleportplayer(player, location)
 
 
-actions_lobby.append(("isequal", "JoinMultiplayer", on_player_join, "(self, player, locations)"))
 actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, player, locations)"))
 
 

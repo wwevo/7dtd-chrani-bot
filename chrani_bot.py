@@ -123,7 +123,8 @@ class ChraniBot():
                 listplayers_timeout = self.listplayers_interval
 
             self.telnet_line = self.tn.read_line(timeout=self.listplayers_interval)  # get the current global telnet-response
-            logger.debug(self.telnet_line)
+            if self.telnet_line is not None:
+                logger.debug(self.telnet_line)
 
             """ handle player-threads """
             for player_name, online_player in self.online_players_dict.iteritems():
