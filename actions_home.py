@@ -2,7 +2,7 @@ actions_home = []
 
 
 def make_this_my_home(self, player):
-    if "authenticated" in player and player["authenticated"]:
+    if player.authenticated:
         location = {}
         location["pos_x"] = player.pos_x
         location["pos_y"] = player.pos_y
