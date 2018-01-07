@@ -14,7 +14,10 @@ class ChraniBot():
     is_active = None  # used for restarting the bot safely after connection loss
 
     match_types = {
-        'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: \'(?P<player_name>.*)\': /(?P<command>.+)\r",
+        'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: \'(?P<player_name>.*)\': /(?P<command>.+)\r"
+    }
+
+    match_types_system = {
         'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)\r",
         'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), .* PlayerName='(?P<player_name>.*)'\r",
         'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes\r",
@@ -46,7 +49,6 @@ class ChraniBot():
         self.active_player_threads_dict.clear()
         self.online_players_dict.clear()
         self.locations_dict.clear()
-        self.match_types.clear()
         self.telnet_line = None
         self.tn = None
 
@@ -143,7 +145,7 @@ class ChraniBot():
 
             """ handle player-death-and-respawn-events, 'suspending' threads if needed! """
             if self.telnet_line is not None:
-                m = re.search(self.match_types["telnet_events_player"], self.telnet_line)
+                m = re.search(self.match_types_system["telnet_events_player"], self.telnet_line)
                 if m:
                     if m.group("command") == "died" or m.group("command").startswith("killed by"):
                         for player_name, online_player in self.online_players_dict.iteritems():
@@ -151,9 +153,9 @@ class ChraniBot():
                                 if player_name in self.active_player_threads_dict:
                                     active_player_thread = self.active_player_threads_dict[player_name]
                                     active_player_thread["thread"].player_is_alive = False
-                                    logger.debug("switched off player")
+                                    logger.debug("switched off player " + player_name)
 
-                m = re.search(self.match_types["telnet_events_playerspawn"], self.telnet_line)
+                m = re.search(self.match_types_system["telnet_events_playerspawn"], self.telnet_line)
                 if m:
                     if m.group("command") == "Died" or m.group("command") == "Teleport":
                         for player_name, online_player in self.online_players_dict.iteritems():
@@ -161,16 +163,16 @@ class ChraniBot():
                                 if player_name in self.active_player_threads_dict:
                                     active_player_thread = self.active_player_threads_dict[player_name]
                                     active_player_thread["thread"].player_is_alive = True
-                                    logger.debug("switched on player")
+                                    logger.debug("switched on player " + player_name)
 
-                m = re.search(self.match_types["telnet_commands"], self.telnet_line)
+                m = re.search(self.match_types_system["telnet_commands"], self.telnet_line)
                 if m:
                     if m.group("telnet_command").startswith("tele "):
                         c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
                         if c:
                             active_player_thread = self.active_player_threads_dict[c.group('player_name')]
                             active_player_thread["thread"].player_is_alive = False
-                            logger.debug("switched off player")
+                            logger.debug("switched off player " + c.group('player_name'))
 
             """ trigger chat actions for players """
             if self.telnet_line is not None:

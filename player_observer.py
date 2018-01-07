@@ -86,30 +86,29 @@ class PlayerObserver(Thread):
         logger.debug(current_telnet_line)
         logger.debug("possible action for " + player.name + " required")
 
-        for match_type in bot.match_types:
-            m = re.search(bot.match_types[match_type], current_telnet_line)
-            if m:
-                """
-                this is a tricky bit! you need to define all variables used in any action here
-                your IDE will tell you they are not used while in fact they are.
-                the eval down there does the magic ^^
-                so take some time to understand this. or just make it better if you know how ^^
-                """
-                player_name = m.group('player_name')
-                player = self.player_object
-                locations = bot.locations_dict
-                if player.name == player_name:
-                    command = m.group('command')
+        m = re.search(bot.match_types["chat_commands"], current_telnet_line)
+        if m:
+            """
+            this is a tricky bit! you need to define all variables used in any action here
+            your IDE will tell you they are not used while in fact they are.
+            the eval down there does the magic ^^
+            so take some time to understand this. or just make it better if you know how ^^
+            """
+            player_name = m.group('player_name')
+            player = self.player_object
+            locations = bot.locations_dict
+            if player.name == player_name:
+                command = m.group('command')
 
-                    temp_command = None
-                    if self.player_actions is not None:
-                        for action in self.player_actions:
-                            if action[0] == "isequal":
-                                temp_command = command
-                            if action[0] == "startswith":
-                                temp_command = command.split(' ', 1)[0]
+                temp_command = None
+                if self.player_actions is not None:
+                    for action in self.player_actions:
+                        if action[0] == "isequal":
+                            temp_command = command
+                        if action[0] == "startswith":
+                            temp_command = command.split(' ', 1)[0]
 
-                            if action[1] == temp_command:
-                                function_name = action[2]
-                                function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
-                                function_name(*function_parameters)
+                        if action[1] == temp_command:
+                            function_name = action[2]
+                            function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
+                            function_name(*function_parameters)
