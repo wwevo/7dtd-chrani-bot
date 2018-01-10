@@ -1,0 +1,4 @@
+2018-01-10T09:56:08 6051.151 INF Player ecv disconnected after 1.0 minutes
+2018-01-10T09:56:08 6051.213 INF Player set to offline: 76561198040658370
+2018-01-10T09:56:08 6051.218 INF Player disconnected: EntityID=3825, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
+2018-01-10T09:56:08 6051.219 INF GMSG: Player 'ecv' left the game

@@ -86,7 +86,7 @@ class PlayerObserver(Thread):
                 these are run regardless of telnet activity!
                 """
                 for observer in self.observers:
-                    player = self.player_object
+                    player_object = self.player_object
                     locations = bot.locations_dict
                     function_name = observer[1]
                     function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
@@ -100,11 +100,9 @@ class PlayerObserver(Thread):
 
     def trigger_action(self, telnet_line):
         bot = self.bot
-        player = self.player_object
 
         current_telnet_line = telnet_line  # make a copy, in case the current line gets changed during execution, no idea if that makes sense even
         logger.debug(telnet_line)
-        logger.debug("possible action for " + player.name + " required")
 
         for match_type in bot.match_types:
             m = re.search(bot.match_types[match_type], current_telnet_line)
@@ -115,10 +113,13 @@ class PlayerObserver(Thread):
                 the eval down there does the magic ^^
                 so take some time to understand this. or just make it better if you know how ^^
                 """
+                players = bot.players_dict
                 player_name = m.group('player_name')
+                player_object = players[player_name]
+
                 locations = bot.locations_dict
 
-                if player.name == player_name:
+                if player_object.name == player_name:
                     command = m.group('command')
                     temp_command = None
                     if self.player_actions is not None:

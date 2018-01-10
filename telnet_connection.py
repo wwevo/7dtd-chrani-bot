@@ -140,11 +140,11 @@ class TelnetConnection:
 
         return telnet_response
 
-    def teleportplayer(self, player, location):
+    def teleportplayer(self, player_object, location_object):
         try:
             connection = self.connection
-            command = "teleportplayer " + player.steamid + " " + str(int(float(location["pos_x"]))) + " " + str(
-                    int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
+            command = "teleportplayer " + player_object.steamid + " " + str(int(float(location_object.pos_x))) + " " + str(
+                    int(float(location_object.pos_y))) + " " + str(int(float(location_object.pos_z))) + b"\r\n"
             self.logger.debug(command)
             connection.write(command)
             return True

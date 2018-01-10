@@ -12,3 +12,7 @@ class Location(object):
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
+
+    def update(self, **kwargs):
+        for (k, v) in kwargs.iteritems():
+            setattr(self, k, v)
