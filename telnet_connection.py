@@ -20,7 +20,7 @@ class TelnetConnection:
         self.ip = ip
         self.port = port
         self.password = password
-        self.connection = self.__get_telnet_connection(ip, port, password)
+        self.__get_telnet_connection(ip, port, password)
         atexit.register(self.__cleanup)
 
     def __cleanup(self):
@@ -32,6 +32,7 @@ class TelnetConnection:
         try:
             try:
                 connection = telnetlib.Telnet(ip, port)
+                self.connection = connection
             except Exception:
                 log_message = 'could not establish connection to the host. check ip and port'
                 # this seems to be logged automatically oO
@@ -146,11 +147,6 @@ class TelnetConnection:
                     int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
             self.logger.debug(command)
             connection.write(command)
-            """
-            we'll sleep a few hundred milliseconds. shouldn't impact anything since every player has his own telnet and
-            how quickly will we need it again after a teleport, eh? This needs a better approach though
-            """
-            time.sleep(1)
             return True
         except:
             return False

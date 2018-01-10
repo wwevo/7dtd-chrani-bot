@@ -1,4 +1,5 @@
 import math
+from logger import logger
 
 
 class Player(object):
@@ -23,9 +24,9 @@ class Player(object):
     region = str
 
     authenticated = False
+    is_responsive = False
 
-    rot_old = {}
-    pos_old = {}
+    lifesigns_dict_old = {}
 
     def __init__(self, **kwargs):
         """ populate player-data """
@@ -39,17 +40,51 @@ class Player(object):
 
         return str(grid_x) + "." + str(grid_z) + ".7.rg"
 
+    def switch_on(self, source=""):
+        self.is_responsive = True
+        self.store_player_lifesigns()
+        logger.debug("switched on player " + self.name + " " + source)
+
+    def switch_off(self, source=""):
+        self.is_responsive = False
+        self.store_player_lifesigns()
+        logger.debug("switched off player " + self.name + " " + source)
+
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
 
     def store_player_lifesigns(self):
-        self.rot_old.update({"rot_x": self.rot_x, "rot_y": self.rot_y, "rot_z": self.rot_z})
-        self.pos_old.update({"pos_x": self.pos_x, "pos_y": self.pos_y, "pos_z": self.pos_z})
+        self.lifesigns_dict_old.update({
+            "rot_x": self.rot_x, "rot_y": self.rot_y, "rot_z": self.rot_z, "pos_x": self.pos_x, "pos_y": self.pos_y, "pos_z": self.pos_z}
+        )
 
     def check_if_lifesigns_have_changed(self):
-        if self.rot_x != self.rot_old["rot_x"] or self.rot_y != self.rot_old["rot_y"] or self.rot_z != self.rot_old["rot_z"]:
-            return True
-        if self.pos_x != self.pos_old["pos_x"] or self.pos_y != self.pos_old["pos_y"] or self.pos_z != self.pos_old["pos_z"]:
+        """ compares playerdata that is bound to change often
+
+        i was having troubles with rounding, in fact, i still do. converting this to integers does help a litle,
+        but i believe in boundary cases it can still misfire
+        """
+        if self.rot_x != self.lifesigns_dict_old["rot_x"]\
+                or int(self.rot_y) != int(self.lifesigns_dict_old["rot_y"])\
+                or int(self.rot_z) != int(self.lifesigns_dict_old["rot_z"])\
+                or int(self.pos_x) != int(self.lifesigns_dict_old["pos_x"])\
+                or int(self.pos_y) != int(self.lifesigns_dict_old["pos_y"])\
+                or int(self.pos_z) != int(self.lifesigns_dict_old["pos_z"]):
             return True
         return False
+
+    def is_dead(self):
+        if self.health == 0:
+            return True
+        else:
+            return False
+
+    def get_lifesigns_dict(self):
+        lifesigns_dict = {
+            "rot_x": self.rot_x, "rot_y": self.rot_y, "rot_z": self.rot_z, "pos_x": self.pos_x, "pos_y": self.pos_y, "pos_z": self.pos_z
+        }
+        return lifesigns_dict
+
+    def get_lifesigns_old_dict(self):
+        return self.lifesigns_dict_old
