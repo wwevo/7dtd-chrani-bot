@@ -15,7 +15,10 @@ def make_this_my_home(self, player_object, locations):
             radius=12,
             region=player_object.region
         )
-        locations.update({player_object.name: {'home': Location(**location_dict)}})
+        try:
+            locations[player_object.name].update({'home': Location(**location_dict)})
+        except:
+            locations[player_object.name] = {'home': Location(**location_dict)}
 
         self.tn.say(player_object.name + " has decided to settle down!")
     else:
@@ -55,7 +58,7 @@ def set_up_home_perimeter(self, player_object, locations):
             )
         location_object.radius = radius
 
-        self.tn.say("your estate ends here and spawns " + str(int(radius * 2)) + " meters \0/")
+        self.tn.say("your estate ends here and spawns " + str(int(radius * 2)) + " meters ^^")
     else:
         self.tn.say(player_object.name + " needs to enter the password to get access to commands!")
 

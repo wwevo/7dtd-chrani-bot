@@ -24,11 +24,12 @@ actions_authentication.append(("startswith", "password", password, "(self, playe
 
 def on_player_join(self, player_object, locations):
     try:
-        locations[player_object.name]['spawn']
+        location = locations[player_object.name]['spawn']
         self.tn.say("Welcome back " + player_object.name + " o/")
     except KeyError:
         self.tn.say("this servers bot says Hi to " + player_object.name + " o/")
         location_dict = dict(
+            name='spawn',
             owner=player_object.name,
             pos_x=int(player_object.pos_x),
             pos_y=int(player_object.pos_y),

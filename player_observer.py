@@ -26,8 +26,9 @@ class PlayerObserver(Thread):
     def __init__(self, bot, event, player):
         """ using a telnet connection for every thread. shouldn't be that bad on a 24 player server """
         self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
-
+        self.tn.bot = bot
         self.bot = bot
+
         self.stopped = event
         self.player_object = player
 
@@ -72,9 +73,6 @@ class PlayerObserver(Thread):
             if player.is_responsive and player.is_dead():
                 player.switch_off("observer")
 
-            if not player.is_responsive and player.check_if_lifesigns_have_changed():
-                player.switch_on("observer")
-
             if self.observers and player.is_responsive:
                 """ execute real-time observers
 
@@ -86,11 +84,17 @@ class PlayerObserver(Thread):
                 these are run regardless of telnet activity!
                 """
                 for observer in self.observers:
-                    player_object = self.player_object
-                    locations = bot.locations_dict
-                    function_name = observer[1]
-                    function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
-                    function_name(*function_parameters)
+                    if player.is_alive():
+                        player_object = self.player_object
+                        locations = bot.locations_dict
+                        function_name = observer[1]
+                        function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
+                        function_name(*function_parameters)
+                    else:
+                        break
+
+            if not player.is_responsive and player.check_if_lifesigns_have_changed():
+                player.switch_on("observer")
 
             profile_end = time.time()
             execution_time = profile_end - profile_start
@@ -129,7 +133,10 @@ class PlayerObserver(Thread):
                             if action[0] == "startswith":
                                 temp_command = command.split(' ', 1)[0]
 
-                            if action[1] == temp_command:
-                                function_name = action[2]
-                                function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
-                                function_name(*function_parameters)
+                            if player_object.is_responsive:
+                                if action[1] == temp_command:
+                                    function_name = action[2]
+                                    function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
+                                    function_name(*function_parameters)
+                            else:
+                                break

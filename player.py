@@ -74,6 +74,12 @@ class Player(object):
             return True
         return False
 
+    def is_alive(self):
+        if self.health is not 0:
+            return True
+        else:
+            return False
+
     def is_dead(self):
         if self.health == 0:
             return True

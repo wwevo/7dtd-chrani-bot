@@ -82,7 +82,7 @@ def password(self, player_object, locations, command):
         password = p.group(1)
         if password == "openup":
             try:
-                location = locations[player_object]['spawn']
+                location = locations[player_object.name]['spawn']
                 self.tn.teleportplayer(player_object, location)
             except KeyError:
                 self.tn.say("i'm terribly sorry, i seem to have misplaced your spawn, " + player_object.name)
@@ -103,16 +103,16 @@ def player_left_area(self, player_object, locations):
     except KeyError:
         return False
 
-    if not player_object.authenticated:
+    if not player_object.authenticated and player_object.is_responsive:
         distance_to_lobby_center = float(math.sqrt(
                 (float(location.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(location.pos_y) - float(player_object.pos_y)) ** 2 + (
                     float(location.pos_z) - float(player_object.pos_z)) ** 2))
 
         if distance_to_lobby_center > location.radius:
-            self.tn.teleportplayer(player_object, location)
-            self.tn.say("You have been ported to the lobby! Authenticate with /password <password>")
-            time.sleep(2)  # possibly not the best way to avoid mutliple teleports
+            if self.tn.teleportplayer(player_object, location):
+                self.tn.say("You have been ported to the lobby! Authenticate with /password <password>")
+            # time.sleep(2)  # possibly not the best way to avoid mutliple teleports in a row
 
 
 observers_lobby.append(("player left lobby", player_left_area, "(self, player_object, locations)"))
@@ -131,7 +131,7 @@ def player_approaching_boundary_from_inside(self, player_object, locations):
                     float(location.pos_z) - float(player_object.pos_z)) ** 2))
 
         if distance_to_lobby_center >= (location.radius * 0.75) and distance_to_lobby_center <= location.radius:
-            self.tn.say("get your behind back in the lobby or else (" + str(abs(distance_to_lobby_center)) + ")")
+            self.tn.say("get your behind back in the lobby or we'll manhandle you there rudely!")
 
 
 observers_lobby.append(("player approaching boundary from inside", player_approaching_boundary_from_inside, "(self, player_object ,locations)"))
