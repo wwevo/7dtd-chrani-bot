@@ -6,9 +6,11 @@ import re
 import atexit
 import time
 from logger import logger
+from timeout import timeout_occurred
 
 
 class TelnetConnection:
+    bot = None
     connection = None
     logger = None
     ip = None
@@ -75,7 +77,7 @@ class TelnetConnection:
         self.logger.debug("telnet connection established: " + str(connection))
         return connection
 
-    def read_line(self, message=b"\r\n", timeout=0):
+    def read_line(self, message=b"\r\n", timeout=2):
         try:
             connection = self.connection
             telnet_response = connection.read_until(message, timeout)
@@ -97,7 +99,8 @@ class TelnetConnection:
         player_count = 0
         telnet_response = ""
         poll_is_finished = False
-        while poll_is_finished is not True:
+        timeout = time.time()
+        while poll_is_finished is not True and not timeout_occurred(2, timeout):
             """
             fetches the response of the games telnet 'lp' command
             (lp = list players)
@@ -128,26 +131,44 @@ class TelnetConnection:
         telnet_response = ""
         message_got_through = False
         sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
-        while message_got_through is not True:
+        timeout = time.time()
+        while message_got_through is not True and not timeout_occurred(2, timeout):
             """
             fetches the response of the games telnet 'say' command
             we are waiting for the games telnet to echo the actual message
             """
-            telnet_response = telnet_response + connection.read_very_eager()
-            m = re.search(r"(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response)
+            telnet_response = connection.read_until(b"\r\n")
+            m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
             if m:
                 message_got_through = True
 
         return telnet_response
 
-    def teleportplayer(self, player, location):
+    last_teleport = 0
+
+    def teleportplayer(self, player_object, location_object):
+        print (time.time() - self.last_teleport)
+        if (time.time() - self.last_teleport) < 2:
+            return False
         try:
             connection = self.connection
-            command = "teleportplayer " + player.steamid + " " + str(int(float(location["pos_x"]))) + " " + str(
-                    int(float(location["pos_y"]))) + " " + str(int(float(location["pos_z"]))) + b"\r\n"
+            command = "teleportplayer " + player_object.steamid + " " + str(int(float(location_object.pos_x))) + " " + str(int(float(location_object.pos_y))) + " " + str(int(float(location_object.pos_z))) + b"\r\n"
             self.logger.debug(command)
             connection.write(command)
-            return True
-        except:
+        except Exception:
+            return False
+        try:
+            teleport_succeeded = False
+            timeout = time.time()
+            while teleport_succeeded is not True and not timeout_occurred(2, timeout):
+                telnet_response = connection.read_until(b"\r\n")
+                m = re.search(self.bot.match_types_system["telnet_events_playerspawn"], telnet_response)
+                if m:
+                    if m.group("command") == "Teleport":
+                        if player_object.name == m.group("player_name"):
+                            self.last_teleport = time.time()
+                            teleport_succeeded = True
+        except Exception:
             return False
 
+        return True

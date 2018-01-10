@@ -19,7 +19,7 @@ if __name__ == '__main__':
     while True:
         try:
             telnet_connection = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
-
+            telnet_connection.bot = bot
             bot.activate()
             bot.setup_telnet_connection(telnet_connection)
             bot.run()
