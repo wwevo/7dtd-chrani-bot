@@ -22,19 +22,18 @@ actions_authentication.append(("startswith", "password", password, "(self, playe
 
 
 def on_player_join(self, player, locations):
-    if "spawn" in locations:
-        self.tn.say("Welcome back " + player.name + " o/")
+    if player.name in locations:
+        if "spawn" in locations[player.name]:
+            self.tn.say("Welcome back " + player.name + " o/")
     else:
-        location = {}
-        location["pos_x"] = player.pos_x
-        location["pos_y"] = player.pos_y
-        location["pos_z"] = player.pos_z
-        # player.update({"spawn": location})
+        locations.update({
+            player.name: {'spawn': {'owner': player.name, 'pos_x': int(player.pos_x), 'pos_y': int(player.pos_y),
+                     'pos_z': int(player.pos_z), 'shape': None, 'radius': None, 'region': player.region}
+        }})
 
         self.tn.say("this servers bot says Hi to " + player.name + " o/")
-    if player.authenticated:
+    if not player.authenticated:
         self.tn.say("read the rules on https://chrani.net/rules")
-        self.tn.say("enter the password with /password <password> in this chat")
 
 
 actions_authentication.append(("isequal", "joined the game", on_player_join, "(self, player, locations)"))

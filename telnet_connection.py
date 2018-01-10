@@ -20,7 +20,7 @@ class TelnetConnection:
         self.ip = ip
         self.port = port
         self.password = password
-        self.connection = self.__get_telnet_connection(ip, port, password)
+        self.__get_telnet_connection(ip, port, password)
         atexit.register(self.__cleanup)
 
     def __cleanup(self):
@@ -32,6 +32,7 @@ class TelnetConnection:
         try:
             try:
                 connection = telnetlib.Telnet(ip, port)
+                self.connection = connection
             except Exception:
                 log_message = 'could not establish connection to the host. check ip and port'
                 # this seems to be logged automatically oO
