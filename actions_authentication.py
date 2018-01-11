@@ -23,6 +23,13 @@ actions_authentication.append(("startswith", "password", password, "(self, playe
 
 
 def on_player_join(self, player_object, locations):
+    """
+    When a player is joining
+    :param self:
+    :param player_object:
+    :param locations:
+    :return:
+    """
     try:
         location = locations[player_object.name]['spawn']
         self.tn.say("Welcome back " + player_object.name + " o/")

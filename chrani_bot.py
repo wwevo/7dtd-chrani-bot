@@ -1,8 +1,6 @@
 from threading import Event
-from datetime import datetime
 import time
 import re
-import socket
 from logger import logger
 from player import Player
 from player_observer import PlayerObserver
@@ -65,6 +63,11 @@ class ChraniBot():
         self.tn = telnet_connection
 
     def listplayers_to_dict(self, listplayers):
+        """
+        Return the list of player as a dict.
+        :param listplayers: (str) players online
+        :return: (list) players
+        """
         online_players_dict = {}
         if listplayers is None:
             listplayers = ""
@@ -114,11 +117,17 @@ class ChraniBot():
         self.tn.connection.close()
 
     def run(self):
+        """
+        Start the loop of the bot consuming events.
+        :return:
+        """
         logger.info("chrani-bot started")
 
         listplayers_start = time.time()
         listplayers_timeout = 0.0  # should poll first, then timeout ^^
         while self.is_active:
+
+            # player online part
             if (time.time() - listplayers_start) > listplayers_timeout:
                 """ manage currently online players dict
 
@@ -127,7 +136,12 @@ class ChraniBot():
                 # get all currently online players and store them in a dictionary
                 listplayers_start = time.time()
                 listplayers_raw, count = self.tn.listplayers()
-                log_message = "executed 'listplayers' - " + str(count) + " players online (i do this every " + str(self.listplayers_interval) + " seconds)"
+
+                # TODO : replace str concatenation by format instead
+                #log_message = "executed 'listplayers' - " + count + " players online (i do this every " + str(
+                #    self.listplayers_interval) + " seconds)"
+                log_message = "executed 'listplayers' - {} players online (i do this every {} seconds)".format(count,
+                                                                                                               self.listplayers_interval)
                 logger.debug(log_message)
                 listplayers_dict = self.listplayers_to_dict(listplayers_raw)
 
@@ -136,6 +150,7 @@ class ChraniBot():
                     if player_name in self.players_dict:
                         self.players_dict[player_name].update(**player_dict)
                     else:
+                        #TODO : could be done without using update, just insert the entry in the dict
                         self.players_dict.update({player_name: Player(**player_dict)})
 
                 # prune players not online anymore """
@@ -144,10 +159,11 @@ class ChraniBot():
 
                 listplayers_timeout = self.listplayers_interval  # need to add modifier for execution time to get a precise interval
 
-            self.telnet_line = self.tn.read_line(timeout=self.listplayers_interval)  # get the current global telnet-response
+            # TODO telnet_line could be a local variable instead of an attribute as it's not use in another method, not sure to be confirmed
+            self.telnet_line = self.tn.read_line()  # get the current global telnet-response
             if self.telnet_line is not None and self.telnet_line != b"\r\n":
                 telnet_line_stripped = self.telnet_line.rstrip()
-                logger.info(telnet_line_stripped + " (before execution if it's a command)")
+                logger.info(telnet_line_stripped)
 
             if self.players_dict:  # only need to run the functions if a player is online
                 """ handle player-threads """
@@ -155,12 +171,14 @@ class ChraniBot():
                     """ start player_observer_thread for each player not already being observed """
                     if player_name not in self.active_player_threads_dict:
                         stop_flag = Event()
-                        player_observer_thread = PlayerObserver(self, stop_flag, online_player)  # I'm passing the bot (self) into it to have easy access to it's variables
+                        player_observer_thread = PlayerObserver(self, stop_flag,
+                                                                online_player)  # I'm passing the bot (self) into it to have easy access to it's variables
                         player_observer_thread.name = player_name  # nice to have for the logs
                         player_observer_thread.isDaemon()
                         player_observer_thread.start()
 
-                        self.active_player_threads_dict.update({player_name: {"event": stop_flag, "thread": player_observer_thread}})
+                        self.active_player_threads_dict.update(
+                            {player_name: {"event": stop_flag, "thread": player_observer_thread}})
                         logger.debug("thread started for player " + player_name)
 
             self.prune_active_player_threads_dict()

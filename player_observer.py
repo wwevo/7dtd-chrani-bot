@@ -59,7 +59,8 @@ class PlayerObserver(Thread):
                     status = "active"
                 else:
                     status = "suspended"
-                logger.debug("thread is " + status + ", player is in region " + player.region + " (I scan every " + str(self.run_observers_interval) + " seconds and log this every " + str(log_status_interval) + " seconds)")
+                log_message = "thread is {}, player is in region {} (I scan every {} seconds and log this every {} seconds)".format(status, player.region, str(self.run_observers_interval), str(log_status_interval))
+                logger.debug(log_message)
 
             """ monitor player movement
             
