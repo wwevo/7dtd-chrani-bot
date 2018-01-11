@@ -3,6 +3,8 @@ next attempt for my bot ^^ this time a bit more organized.
 
 takes command line options like so:
 python chrani-bot.py 127.0.0.1 8081 12345678 dummy.sqlite --verbosity=DEBUG
+
+nohup python chrani-bot.py 127.0.0.1 8081 12345678 dummy.sqlite --verbosity=DEBUG > /dev/null 2>&1 &
 """
 import time
 

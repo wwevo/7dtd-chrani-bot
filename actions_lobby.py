@@ -131,6 +131,11 @@ def player_approaching_boundary_from_inside(self, player_object, locations):
                     float(location.pos_z) - float(player_object.pos_z)) ** 2))
 
         if distance_to_lobby_center >= (location.radius * 0.75) and distance_to_lobby_center <= location.radius:
+            # TODO: this needs to be a sheduled message on a set timer. like every second, every two seconds.
+            #       we will also need that to remind people if they are in a reset zone or otherwise noteworthy location
+            #       player is in location -> start message
+            #       player is in boundary -> increase frequency and or clolor?
+            #       okayer left location -> end message
             self.tn.say("get your behind back in the lobby or we'll manhandle you there rudely!")
 
 

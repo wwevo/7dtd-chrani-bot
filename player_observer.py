@@ -9,6 +9,7 @@ import re
 from actions_authentication import actions_authentication
 from actions_home import actions_home
 from actions_lobby import actions_lobby, observers_lobby
+from actions_dev import actions_dev
 
 
 class PlayerObserver(Thread):
@@ -20,7 +21,7 @@ class PlayerObserver(Thread):
     player_object = None
     logger = None
 
-    player_actions = actions_authentication + actions_home + actions_lobby
+    player_actions = actions_dev + actions_authentication + actions_home + actions_lobby
     observers = observers_lobby
 
     def __init__(self, bot, event, player):

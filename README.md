@@ -52,3 +52,4 @@ if you want it to be mostly silent use
 chrani-bot.py 127.0.0.1 8081 12345678 --verbosity=INFO
  
  exchange ip, port and telnet password with your servers data :)
+ 

@@ -43,17 +43,6 @@ class ChraniBot():
     locations_dict = {}
 
     def __init__(self):
-        location_dict = dict(
-            owner=None,
-            pos_x=int(117),
-            pos_y=int(111),
-            pos_z=int(-473),
-            shape='sphere',
-            radius=6,
-            region=None
-        )
-
-        self.locations_dict.update({'lobby': Location(**location_dict)})
         pass
 
     def activate(self):

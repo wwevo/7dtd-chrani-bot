@@ -22,7 +22,7 @@ def make_this_my_home(self, player_object, locations):
 
         self.tn.say(player_object.name + " has decided to settle down!")
     else:
-        self.tn.say(player_object.name + " id no authorized no nope. should go read read!")
+        self.tn.say(player_object.name + " is no authorized no nope. should go read read!")
 
 
 actions_home.append(("isequal", "make this my home", make_this_my_home, "(self, player_object, locations)"))
