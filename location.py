@@ -23,6 +23,7 @@ class Location(object):
 
     def player_is_outside_boundary(self, player_object):
         if self.shape == "sphere":
+            # Todo: i also want cube, room, country (bottom to top), maybe later polygon ^^
             distance_to_lobby_center = float(math.sqrt(
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
@@ -52,6 +53,7 @@ class Location(object):
                         float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                         float(self.pos_z) - float(player_object.pos_z)) ** 2))
 
+        # Todo: adjust for small radius, not much sense in a one block outer perimeter, should be at least what, ten?
         if distance_to_lobby_center >= self.radius and distance_to_lobby_center <= (self.radius * 1.5):
             return True
         else:

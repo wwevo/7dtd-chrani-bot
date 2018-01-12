@@ -100,7 +100,7 @@ class ChraniBot():
             stop_flag = active_player_thread["thread"]
             stop_flag.stopped.set()
         self.active_player_threads_dict.clear()
-        self.players_dict.clear()
+        #  self.players_dict.clear()
 
         self.telnet_line = None
         self.tn.connection.close()
