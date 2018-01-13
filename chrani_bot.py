@@ -9,6 +9,7 @@ from location import Location
 
 
 class ChraniBot():
+    name = "chrani-bot"
     is_active = None  # used for restarting the bot safely after connection loss
 
     match_types = {
@@ -37,10 +38,10 @@ class ChraniBot():
 
     listplayers_interval = 1.25
 
-    players_dict = {}  # contains all currently online players
-    active_player_threads_dict = {}
+    players_dict = {}  # contains all player_objects of online players
+    active_player_threads_dict = {}  # contains link to the players observer-thread
 
-    locations_dict = {}
+    locations_dict = {}  # contains all location objects
 
     def __init__(self):
         pass
@@ -63,24 +64,24 @@ class ChraniBot():
         player_line_regexp = self.match_types_system["listplayers_result_regexp"]
         for m in re.finditer(player_line_regexp, listplayers):
             online_players_dict.update({m.group(2): {
-                "id": m.group(1),
-                "name": str(m.group(2)),
-                "pos_x": float(m.group(3)),
-                "pos_y": float(m.group(4)),
-                "pos_z": float(m.group(5)),
-                "rot_x": float(m.group(6)),
-                "rot_y": float(m.group(7)),
-                "rot_z": float(m.group(8)),
-                "remote": bool(m.group(9)),
-                "health": int(m.group(10)),
-                "deaths": int(m.group(11)),
-                "zombies": int(m.group(12)),
-                "players": int(m.group(13)),
-                "score": m.group(14),
-                "level": m.group(15),
-                "steamid": m.group(16),
-                "ip": str(m.group(17)),
-                "ping": int(m.group(18))
+                "id":       m.group(1),
+                "name":     str(m.group(2)),
+                "pos_x":    float(m.group(3)),
+                "pos_y":    float(m.group(4)),
+                "pos_z":    float(m.group(5)),
+                "rot_x":    float(m.group(6)),
+                "rot_y":    float(m.group(7)),
+                "rot_z":    float(m.group(8)),
+                "remote":   bool(m.group(9)),
+                "health":   int(m.group(10)),
+                "deaths":   int(m.group(11)),
+                "zombies":  int(m.group(12)),
+                "players":  int(m.group(13)),
+                "score":    m.group(14),
+                "level":    m.group(15),
+                "steamid":  m.group(16),
+                "ip":       str(m.group(17)),
+                "ping":     int(m.group(18))
             }})
         return online_players_dict
 
@@ -111,11 +112,14 @@ class ChraniBot():
         :return:
         """
         logger.info("chrani-bot started")
+        self.tn.say("chrani-bot started")
+        self.tn.togglechatcommandhide("/")
 
         listplayers_start = time.time()
-        listplayers_timeout = 0.0  # should poll first, then timeout ^^
+        listplayers_timeout = 0  # should poll first, then timeout ^^
+        bot_main_loop_execution_time = 0
         while self.is_active:
-
+            bot_main_loop_start = time.time()
             # player online part
             if (time.time() - listplayers_start) > listplayers_timeout:
                 """ manage currently online players dict
@@ -126,12 +130,6 @@ class ChraniBot():
                 listplayers_start = time.time()
                 listplayers_raw, count = self.tn.listplayers()
 
-                # TODO : replace str concatenation by format instead
-                #log_message = "executed 'listplayers' - " + count + " players online (i do this every " + str(
-                #    self.listplayers_interval) + " seconds)"
-                log_message = "executed 'listplayers' - {} players online (i do this every {} seconds)".format(count,
-                                                                                                               self.listplayers_interval)
-                logger.debug(log_message)
                 listplayers_dict = self.listplayers_to_dict(listplayers_raw)
 
                 # create new player entries / update existing ones
@@ -139,17 +137,17 @@ class ChraniBot():
                     if player_name in self.players_dict:
                         self.players_dict[player_name].update(**player_dict)
                     else:
-                        #TODO : could be done without using update, just insert the entry in the dict
-                        self.players_dict.update({player_name: Player(**player_dict)})
+                        self.players_dict[player_name] = Player(**player_dict)
 
                 # prune players not online anymore """
                 for player in set(self.players_dict) - set(listplayers_dict.keys()):
                     del self.players_dict[player]
 
-                listplayers_timeout = self.listplayers_interval  # need to add modifier for execution time to get a precise interval
+                log_message = "executed 'listplayers' - {} players online (i do this every {} seconds, it took me {} seconds)".format(count, self.listplayers_interval, time.time() - listplayers_start)
+                # logger.debug(log_message)
 
             # TODO telnet_line could be a local variable instead of an attribute as it's not use in another method, not sure to be confirmed
-            self.telnet_line = self.tn.read_line()  # get the current global telnet-response
+            self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
             if self.telnet_line is not None and self.telnet_line != b"\r\n":
                 telnet_line_stripped = self.telnet_line.rstrip()
                 logger.info(telnet_line_stripped)
@@ -235,5 +233,11 @@ class ChraniBot():
                         if player_name in self.active_player_threads_dict:
                             active_player_thread = self.active_player_threads_dict[player_name]
                             active_player_thread["thread"].trigger_action(self.telnet_line)
+
+            bot_main_loop_execution_time = time.time() - bot_main_loop_start
+            listplayers_timeout = self.listplayers_interval - bot_main_loop_execution_time  # need to add modifier for execution time to get a precise interval
+            log_message = "executed main bot loop. That took me about {} seconds)".format(time.time() - bot_main_loop_start)
+            logger.debug(log_message)
+
 
 

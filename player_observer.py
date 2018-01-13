@@ -5,9 +5,10 @@ from threading import Thread, Event
 from logger import logger
 import time
 import re
+import pprint
 
 from actions_authentication import actions_authentication
-from actions_home import actions_home
+from actions_home import actions_home, observers_home
 from actions_lobby import actions_lobby, observers_lobby
 from actions_dev import actions_dev
 
@@ -22,7 +23,7 @@ class PlayerObserver(Thread):
     logger = None
 
     player_actions = actions_dev + actions_authentication + actions_home + actions_lobby
-    observers = observers_lobby
+    observers = observers_lobby + observers_home
 
     def __init__(self, bot, event, player):
         """ using a telnet connection for every thread. shouldn't be that bad on a 24 player server """
@@ -46,6 +47,9 @@ class PlayerObserver(Thread):
         log_status_start = 0
         log_status_timeout = 0  # should log first, then timeout ^^
         player.store_player_lifesigns()  # save the starting-values of our player's vitals / position
+
+        self.tn.send_message_to_player(player, "bot " + bot.name + " is ready and listening")
+
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
             profile_start = time.time()
@@ -85,13 +89,16 @@ class PlayerObserver(Thread):
 
                 these are run regardless of telnet activity!
                 """
+                command_queue = []
                 for observer in self.observers:
-                    if player.is_alive():
                         player_object = self.player_object
                         locations = bot.locations_dict
                         function_name = observer[1]
                         function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
-                        function_name(*function_parameters)
+                        command_queue.append([function_name, function_parameters])
+                for command in command_queue:
+                    if player.is_alive():
+                        command[0](*command[1])
                     else:
                         break
 
@@ -100,6 +107,7 @@ class PlayerObserver(Thread):
 
             profile_end = time.time()
             execution_time = profile_end - profile_start
+            print "executed player_observer loop. that took me like totally less than {} seconds!!".format(execution_time)
             next_cycle = self.run_observers_interval - execution_time
 
         logger.debug("thread has stopped")

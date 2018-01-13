@@ -38,7 +38,7 @@ class Player(object):
         grid_x = int(math.floor(pos_x / 512))
         grid_z = int(math.floor(pos_z / 512))
 
-        return str(grid_x) + "." + str(grid_z) + ".7.rg"
+        return str(grid_x) + "." + str(grid_z) + ".7rg"
 
     def switch_on(self, source=""):
         self.is_responsive = True

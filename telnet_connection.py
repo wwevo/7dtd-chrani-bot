@@ -96,10 +96,10 @@ class TelnetConnection:
         self.logger.debug("telnet connection established: " + str(connection))
         return connection
 
-    def read_line(self, message=b"\r\n"):
+    def read_line(self, message=b"\r\n", timeout=1):
         try:
             connection = self.connection
-            telnet_response = connection.read_until(message, 2)
+            telnet_response = connection.read_until(message, timeout)
             if telnet_response:
                 # self.logger.info(telnet_response)
                 return telnet_response
@@ -147,6 +147,14 @@ class TelnetConnection:
 
         return telnet_response, player_count
 
+    def togglechatcommandhide(self, prefix):
+        command = "tcch " + prefix + b"\r\n"
+        try:
+            connection = self.connection
+            connection.write(command)
+        except:
+            return False
+
     def say(self, message):
         """
         Say something on the chat.
@@ -172,6 +180,38 @@ class TelnetConnection:
             m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
             if m:
                 message_got_through = True
+
+        return telnet_response
+
+    last_teleport = 0
+
+    def send_message_to_player(self, player_object, message):
+        """
+        Say something on the chat.
+        :param player_object: (Player) receiver of the message
+        :param sender_name: (str) name that should be given as sender
+        :param message: (str) message to send
+        :return: bool for success
+        """
+        try:
+            connection = self.connection
+            connection.write("sayplayer " + player_object.name + " \"" + message + b"\"\r\n")
+        except Exception:
+            return False
+
+        telnet_response = ""
+        message_got_through = False
+        sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
+        # timeout = time.time()
+        # while message_got_through is not True and not timeout_occurred(2, timeout):
+        #     """
+        #     fetches the response of the games telnet 'say' command
+        #     we are waiting for the games telnet to echo the actual message
+        #     """
+        #     telnet_response = connection.read_until(b"\r\n")
+        #     m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
+        #     if m:
+        #         message_got_through = True
 
         return telnet_response
 
