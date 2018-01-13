@@ -10,11 +10,13 @@ def set_up_lobby(self, player_object, locations):
     if player_object.authenticated:
         location_dict = dict(
             owner=None,
+            name='lobby',
             pos_x=int(player_object.pos_x),
             pos_y=int(player_object.pos_y),
             pos_z=int(player_object.pos_z),
             shape='sphere',
             radius=12,
+            boundary_percentage=33,
             region=[player_object.region]
         )
         locations.update({'lobby': Location(**location_dict)})

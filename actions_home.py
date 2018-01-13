@@ -7,12 +7,14 @@ actions_home = []
 def make_this_my_home(self, player_object, locations):
     if player_object.authenticated:
         location_dict = dict(
+            name='home',
             owner=player_object.name,
             pos_x=int(player_object.pos_x),
             pos_y=int(player_object.pos_y),
             pos_z=int(player_object.pos_z),
             shape='sphere',
             radius=12,
+            boundary_percentage=33,
             region=[player_object.region]
         )
         try:
@@ -73,10 +75,10 @@ observers_home = []
 
 def player_crossed_outside_boundary_from_outside(self, player_object, locations):
     try:
-        for owner, location_object in locations.iteritems():
-            if "home" in location_object:
-                if location_object["home"].player_crossed_outside_boundary_from_outside(player_object):
-                    self.tn.send_message_to_player(player_object, "you have entered the lands of {}".format(location_object["home"].owner))
+        for owner, player_locations_dict in locations.iteritems():
+            if "home" in player_locations_dict:
+                if player_locations_dict["home"].player_crossed_outside_boundary_from_outside(player_object):
+                    self.tn.send_message_to_player(player_object, "you have entered the lands of {}".format(player_locations_dict["home"].owner))
     except TypeError:
         pass
 
@@ -86,10 +88,10 @@ observers_home.append(("player crossed home boundary from outside", player_cross
 
 def player_crossed_outside_boundary_from_inside(self, player_object, locations):
     try:
-        for owner, location_object in locations.iteritems():
-            if "home" in location_object:
-                if location_object["home"].player_crossed_outside_boundary_from_inside(player_object):
-                    self.tn.send_message_to_player(player_object, "you have left the lands of {}".format(location_object["home"].owner))
+        for owner, player_locations_dict in locations.iteritems():
+            if "home" in player_locations_dict:
+                if player_locations_dict["home"].player_crossed_outside_boundary_from_inside(player_object):
+                    self.tn.send_message_to_player(player_object, "you have left the lands of {}".format(player_locations_dict["home"].owner))
     except TypeError:
         pass
 
@@ -99,10 +101,10 @@ observers_home.append(("player crossed home boundary from inside", player_crosse
 
 def player_crossed_inside_core_from_boundary(self, player_object, locations):
     try:
-        for owner, location_object in locations.iteritems():
-            if "home" in location_object:
-                if location_object["home"].player_crossed_inside_core_from_boundary(player_object):
-                    self.tn.send_message_to_player(player_object, "you have entered {}'s core".format(location_object["home"].name))
+        for owner, player_locations_dict in locations.iteritems():
+            if "home" in player_locations_dict:
+                if player_locations_dict["home"].player_crossed_inside_core_from_boundary(player_object):
+                    self.tn.send_message_to_player(player_object, "you have entered {}'s core".format(player_locations_dict["home"].name))
     except TypeError:
         pass
 
@@ -112,10 +114,10 @@ observers_home.append(("player crossed home-core boundary from outside", player_
 
 def player_crossed_inside_boundary_from_core(self, player_object, locations):
     try:
-        for owner, location_object in locations.iteritems():
-            if "home" in location_object:
-                if location_object["home"].player_crossed_inside_boundary_from_core(player_object):
-                    self.tn.send_message_to_player(player_object, "you have left {}'s core".format(location_object["home"].name))
+        for owner, player_locations_dict in locations.iteritems():
+            if "home" in player_locations_dict:
+                if player_locations_dict["home"].player_crossed_inside_boundary_from_core(player_object):
+                    self.tn.send_message_to_player(player_object, "you have left {}'s core".format(player_locations_dict["home"].name))
     except TypeError:
         pass
 

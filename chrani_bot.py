@@ -115,6 +115,10 @@ class ChraniBot():
         self.tn.say("chrani-bot started")
         self.tn.togglechatcommandhide("/")
 
+        log_main_loop_interval = 5  # print player status ever ten seconds or so
+        log_main_loop_start = 0
+        log_main_loop_timeout = 0  # should log first, then timeout ^^
+
         listplayers_start = time.time()
         listplayers_timeout = 0  # should poll first, then timeout ^^
         bot_main_loop_execution_time = 0
@@ -144,7 +148,7 @@ class ChraniBot():
                     del self.players_dict[player]
 
                 log_message = "executed 'listplayers' - {} players online (i do this every {} seconds, it took me {} seconds)".format(count, self.listplayers_interval, time.time() - listplayers_start)
-                # logger.debug(log_message)
+                logger.debug(log_message)
 
             # TODO telnet_line could be a local variable instead of an attribute as it's not use in another method, not sure to be confirmed
             self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
@@ -168,6 +172,9 @@ class ChraniBot():
                             {player_name: {"event": stop_flag, "thread": player_observer_thread}})
                         logger.debug("thread started for player " + player_name)
 
+                        if player_observer_thread.is_alive():
+                            online_player.switch_on()
+
             self.prune_active_player_threads_dict()
 
             if self.telnet_line is not None:
@@ -187,20 +194,20 @@ class ChraniBot():
                 
                 here we check any telnet response relevant for setting the 'responsive' status of a player
                 """
-                """ check if a player is being teleported
-                
-                and discontinue all further execution at the earliest point
-                """
-                m = re.search(self.match_types_system["telnet_commands"], self.telnet_line)
-                if m:
-                    if m.group("telnet_command").startswith("tele "):
-                        c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
-                        if c:
-                            try:
-                                player_object = self.players_dict[c.group('player_name')]
-                                player_object.switch_off("main")
-                            except KeyError:
-                                pass
+                # """ check if a player is being teleported
+                #
+                # and discontinue all further execution at the earliest point
+                # """
+                # m = re.search(self.match_types_system["telnet_commands"], self.telnet_line)
+                # if m:
+                #     if m.group("telnet_command").startswith("tele "):
+                #         c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
+                #         if c:
+                #             try:
+                #                 player_object = self.players_dict[c.group('player_name')]
+                #                 player_object.switch_off("main")
+                #             except KeyError:
+                #                 pass
 
                 m = re.search(self.match_types_system["telnet_events_player_gmsg"], self.telnet_line)
                 if m:
@@ -234,10 +241,13 @@ class ChraniBot():
                             active_player_thread = self.active_player_threads_dict[player_name]
                             active_player_thread["thread"].trigger_action(self.telnet_line)
 
-            bot_main_loop_execution_time = time.time() - bot_main_loop_start
-            listplayers_timeout = self.listplayers_interval - bot_main_loop_execution_time  # need to add modifier for execution time to get a precise interval
-            log_message = "executed main bot loop. That took me about {} seconds)".format(time.time() - bot_main_loop_start)
-            logger.debug(log_message)
+            if time.time() - log_main_loop_start > log_main_loop_timeout:
+                log_message = "executed main bot loop. That took me about {} seconds)".format(
+                    time.time() - bot_main_loop_start)
+                logger.debug(log_message)
 
+                log_main_loop_start = time.time()
+                log_main_loop_timeout = (log_main_loop_interval - 1)
+            listplayers_timeout = self.listplayers_interval
 
 

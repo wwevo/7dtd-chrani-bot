@@ -53,20 +53,6 @@ class PlayerObserver(Thread):
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
             profile_start = time.time()
-            if time.time() - log_status_start > log_status_timeout:
-                """ prepare log-output
-                
-                we don't have it clogged with endless meaningless lines
-                """
-                log_status_start = time.time()
-                log_status_timeout = (log_status_interval - 1)
-                if player.is_responsive:
-                    status = "active"
-                else:
-                    status = "suspended"
-                log_message = "thread is {}, player is in region {} (I scan every {} seconds and log this every {} seconds)".format(status, player.region, str(self.run_observers_interval), str(log_status_interval))
-                logger.debug(log_message)
-
             """ monitor player movement
             
             make sure a moving player is accepted as responsive, in case the bot got started when players where already
@@ -76,8 +62,8 @@ class PlayerObserver(Thread):
             this is ONLY for detecting players already online before the bot got started!!
             
             a wish for a17? enhance the listplayer command and include death-state (alive, bedroll-screen, dead) """
-            if player.is_responsive and player.is_dead():
-                player.switch_off("observer")
+            # if player.is_responsive and player.is_dead():
+            #     player.switch_off("observer")
 
             if self.observers and player.is_responsive:
                 """ execute real-time observers
@@ -102,13 +88,31 @@ class PlayerObserver(Thread):
                     else:
                         break
 
-            if not player.is_responsive and player.check_if_lifesigns_have_changed():
-                player.switch_on("observer")
+            # if not player.is_responsive and player.check_if_lifesigns_have_changed():
+            #     player.switch_on("observer")
 
-            profile_end = time.time()
-            execution_time = profile_end - profile_start
-            print "executed player_observer loop. that took me like totally less than {} seconds!!".format(execution_time)
+            execution_time = time.time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
+
+            if time.time() - log_status_start > log_status_timeout:
+                """ prepare log-output
+
+                we don't have it clogged with endless meaningless lines
+                """
+                log_message = "executed player_observer loop. that took me like totally less than {} seconds!!".format(
+                    execution_time)
+                logger.debug(log_message)
+
+                log_status_start = time.time()
+                log_status_timeout = (log_status_interval - 1)
+                if player.is_responsive:
+                    status = "active"
+                else:
+                    status = "suspended"
+
+                log_message = "thread is {}, player is in region {} (I scan every {} seconds and log this every {} seconds)".format(
+                    status, player.region, str(self.run_observers_interval), str(log_status_interval))
+                logger.debug(log_message)
 
         logger.debug("thread has stopped")
 
