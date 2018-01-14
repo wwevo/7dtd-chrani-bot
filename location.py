@@ -4,13 +4,13 @@ import math
 class Location(object):
     owner = str
     name = str
+    description = str
     pos_x = float
     pos_y = float
     pos_z = float
     shape = str
     radius = float
     boundary_percentage = 33
-
     # Todo: region should be a list as a location nd it's effect can spawn several regions. capture all regions if empty
     region = list
 
@@ -35,16 +35,25 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
-        distance_to_location_center = 0
+        is_inside_boundary = 0
         if self.shape == "sphere":
-            """ we determine the location by the locations radius and the distance of the player from it's center
+            """ we determine the location by the locations radius and the distance of the player from it's center,
+            spheres make this especially easy, so I picked them first ^^
             """
             distance_to_location_center = float(math.sqrt(
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                     float(self.pos_z) - float(player_object.pos_z)) ** 2))
-        player_is_inside_boundary = distance_to_location_center <= float(self.radius)
+            is_inside_boundary = distance_to_location_center <= float(self.radius)
 
+        if self.shape == "room":
+            """ we determine the location by the locations radius and the distance of the player from it's center,
+            spheres make this especially easy, so I picked them first ^^
+            """
+            distance_to_location_center = 0
+            is_inside_boundary = distance_to_location_center <= float(self.radius)
+
+        player_is_inside_boundary = is_inside_boundary
         # print "player_is_inside_boundary: {} of {}".format(player_is_inside_boundary, self.name)
         return player_is_inside_boundary
 
@@ -72,16 +81,16 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_outside_boundary_from_outside"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_outside_boundary_from_outside"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
-        if player_object.name not in self.last_player_activity_dict:
-            self.last_player_activity_dict[player_object.name] = {}
-        if self.owner not in self.last_player_activity_dict[player_object.name]:
-            self.last_player_activity_dict[player_object.name][self.owner] = {}
+        if player_object.steamid not in self.last_player_activity_dict:
+            self.last_player_activity_dict[player_object.steamid] = {}
+        if self.owner not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.name][self.owner].update({"player_crossed_outside_boundary_from_outside": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_outside_boundary_from_outside": player_is_inside_boundary})
 
         if player_was_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -101,16 +110,16 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_outside_boundary_from_inside"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_outside_boundary_from_inside"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
-        if player_object.name not in self.last_player_activity_dict:
-            self.last_player_activity_dict[player_object.name] = {}
-        elif self.owner not in self.last_player_activity_dict[player_object.name]:
-            self.last_player_activity_dict[player_object.name][self.owner] = {}
+        if player_object.steamid not in self.last_player_activity_dict:
+            self.last_player_activity_dict[player_object.steamid] = {}
+        elif self.owner not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.name][self.owner].update({"player_crossed_outside_boundary_from_inside": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_outside_boundary_from_inside": player_is_inside_boundary})
 
         if player_is_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -130,16 +139,16 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_core(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_inside_core_from_boundary"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_inside_core_from_boundary"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
-        if player_object.name not in self.last_player_activity_dict:
-            self.last_player_activity_dict[player_object.name] = {}
-        elif self.owner not in self.last_player_activity_dict[player_object.name]:
-            self.last_player_activity_dict[player_object.name][self.owner] = {}
+        if player_object.steamid not in self.last_player_activity_dict:
+            self.last_player_activity_dict[player_object.steamid] = {}
+        elif self.owner not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.name][self.owner].update({"player_crossed_inside_core_from_boundary": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_inside_core_from_boundary": player_is_inside_boundary})
 
         if player_was_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -159,16 +168,16 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_core(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_inside_boundary_from_core"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_inside_boundary_from_core"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
-        if player_object.name not in self.last_player_activity_dict:
-            self.last_player_activity_dict[player_object.name] = {}
-        elif self.owner not in self.last_player_activity_dict[player_object.name]:
-            self.last_player_activity_dict[player_object.name][self.owner] = {}
+        if player_object.steamid not in self.last_player_activity_dict:
+            self.last_player_activity_dict[player_object.steamid] = {}
+        elif self.owner not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.name][self.owner].update({"player_crossed_inside_boundary_from_core": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_inside_boundary_from_core": player_is_inside_boundary})
 
         if player_is_inside_boundary:  # no need to do anything if player was already in
             return False

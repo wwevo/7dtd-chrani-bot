@@ -52,6 +52,7 @@ class PlayerObserver(Thread):
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
+            profile_start = time.time()
             if self.observers and player.is_responsive:
                 """ execute real-time observers
 
@@ -116,23 +117,26 @@ class PlayerObserver(Thread):
                 so take some time to understand this. or just make it better if you know how ^^
                 """
                 players = bot.players_dict
-                player_name = m.group('player_name')
-                player_object = players[player_name]
-
                 locations = bot.locations_dict
 
+                player_name = m.group('player_name')
+                for player_steamid, player_object in players.iteritems():
+                    if player_object.name == player_name:
+                        player_object = players[player_steamid]
+                        break
                 if player_object.name == player_name:
                     command = m.group('command')
-                    temp_command = None
+                    # temp_command = None
                     if self.player_actions is not None:
                         for action in self.player_actions:
-                            if action[0] == "isequal":
-                                temp_command = command
-                            if action[0] == "startswith":
-                                temp_command = command.split(' ', 1)[0]
+                            # if action[0] == "isequal":
+                            #     temp_command = command
+                            # if action[0] == "startswith":
+                            #     temp_command = command.split(' ', 1)[0]
 
                             if player_object.is_responsive:
-                                if action[1] == temp_command:
+                                if action[1] == command or command.startswith(action[1]):
+                                # if action[1] == temp_command:
                                     function_name = action[2]
                                     function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
                                     function_name(*function_parameters)

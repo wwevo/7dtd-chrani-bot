@@ -63,7 +63,7 @@ class ChraniBot():
             listplayers = ""
         player_line_regexp = self.match_types_system["listplayers_result_regexp"]
         for m in re.finditer(player_line_regexp, listplayers):
-            online_players_dict.update({m.group(2): {
+            online_players_dict.update({m.group(16): {
                 "id":       m.group(1),
                 "name":     str(m.group(2)),
                 "pos_x":    float(m.group(3)),
@@ -86,18 +86,18 @@ class ChraniBot():
         return online_players_dict
 
     def prune_active_player_threads_dict(self):
-        for player_name in set(self.active_player_threads_dict) - set(self.players_dict.keys()):
+        for player_steamid in set(self.active_player_threads_dict) - set(self.players_dict.keys()):
             """ prune all active_player_threads from players no longer online """
-            active_player_thread = self.active_player_threads_dict[player_name]
+            active_player_thread = self.active_player_threads_dict[player_steamid]
             stop_flag = active_player_thread["thread"]
             stop_flag.stopped.set()
-            del self.active_player_threads_dict[player_name]
+            del self.active_player_threads_dict[player_steamid]
 
     def shutdown(self):
         self.is_active = False
-        for player_name in self.active_player_threads_dict:
+        for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
-            active_player_thread = self.active_player_threads_dict[player_name]
+            active_player_thread = self.active_player_threads_dict[player_steamid]
             stop_flag = active_player_thread["thread"]
             stop_flag.stopped.set()
         self.active_player_threads_dict.clear()
@@ -137,11 +137,11 @@ class ChraniBot():
                 listplayers_dict = self.listplayers_to_dict(listplayers_raw)
 
                 # create new player entries / update existing ones
-                for player_name, player_dict in listplayers_dict.iteritems():
-                    if player_name in self.players_dict:
-                        self.players_dict[player_name].update(**player_dict)
+                for player_steamid, player_dict in listplayers_dict.iteritems():
+                    if player_steamid in self.players_dict:
+                        self.players_dict[player_steamid].update(**player_dict)
                     else:
-                        self.players_dict[player_name] = Player(**player_dict)
+                        self.players_dict[player_steamid] = Player(**player_dict)
 
                 # prune players not online anymore """
                 for player in set(self.players_dict) - set(listplayers_dict.keys()):
@@ -159,19 +159,19 @@ class ChraniBot():
 
             if self.players_dict:  # only need to run the functions if a player is online
                 """ handle player-threads """
-                for player_name, online_player in self.players_dict.iteritems():
+                for player_steamid, online_player in self.players_dict.iteritems():
                     """ start player_observer_thread for each player not already being observed """
-                    if player_name not in self.active_player_threads_dict:
+                    if player_steamid not in self.active_player_threads_dict:
                         stop_flag = Event()
                         player_observer_thread = PlayerObserver(self, stop_flag,
                                                                 online_player)  # I'm passing the bot (self) into it to have easy access to it's variables
-                        player_observer_thread.name = player_name  # nice to have for the logs
+                        player_observer_thread.name = player_steamid  # nice to have for the logs
                         player_observer_thread.isDaemon()
                         player_observer_thread.start()
 
                         self.active_player_threads_dict.update(
-                            {player_name: {"event": stop_flag, "thread": player_observer_thread}})
-                        logger.debug("thread started for player " + player_name)
+                            {player_steamid: {"event": stop_flag, "thread": player_observer_thread}})
+                        logger.debug("thread started for player " + online_player.name)
 
                         if player_observer_thread.is_alive():
                             # if they have health, we can assume the players are alive and can be manhandled by the bot!
@@ -199,33 +199,33 @@ class ChraniBot():
                 m = re.search(self.match_types_system["telnet_events_player_gmsg"], self.telnet_line)
                 if m:
                     if m.group("command") == "died":
-                        for player_name, player_object in self.players_dict.iteritems():
-                            if player_name == m.group("player_name"):
-                                if player_name in self.active_player_threads_dict:
+                        for player_steamid, player_object in self.players_dict.iteritems():
+                            if player_object.name == m.group("player_name"):
+                                if player_steamid in self.active_player_threads_dict:
                                     player_object.switch_off("main")
 
                     if m.group("command") == "joined the game":
-                        for player_name, player_object in self.players_dict.iteritems():
-                            if player_name == m.group("player_name"):
-                                if player_name in self.active_player_threads_dict:
+                        for player_steamid, player_object in self.players_dict.iteritems():
+                            if player_object.name == m.group("player_name"):
+                                if player_steamid in self.active_player_threads_dict:
                                     player_object.switch_on("main")
 
                 m = re.search(self.match_types_system["telnet_events_playerspawn"], self.telnet_line)
                 if m:
                     if m.group("command") == "Died" or m.group("command") == "Teleport":
-                        for player_name, online_player in self.players_dict.iteritems():
-                            if player_name == m.group("player_name"):
+                        for player_steamid, player_object in self.players_dict.iteritems():
+                            if player_object.name == m.group("player_name"):
                                 try:
-                                    player_object = self.players_dict[player_name]
+                                    player_object = self.players_dict[player_steamid]
                                     player_object.switch_on("main")
                                 except KeyError:
                                     pass
 
-                for player_name, player_object in self.players_dict.iteritems():
+                for player_steamid, player_object in self.players_dict.iteritems():
                     possible_action_for_player = re.search(player_object.name, self.telnet_line)
                     if possible_action_for_player:
-                        if player_name in self.active_player_threads_dict:
-                            active_player_thread = self.active_player_threads_dict[player_name]
+                        if player_steamid in self.active_player_threads_dict:
+                            active_player_thread = self.active_player_threads_dict[player_steamid]
                             active_player_thread["thread"].trigger_action(self.telnet_line)
 
             if time.time() - log_main_loop_start > log_main_loop_timeout:
