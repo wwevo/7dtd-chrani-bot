@@ -5,11 +5,23 @@ class Location(object):
     owner = str
     name = str
     description = str
+
+    # the center of the shape
     pos_x = float
     pos_y = float
     pos_z = float
+
+    # sphere and cube so far
     shape = str
+
+    # spheres and cubes
     radius = float
+
+    # cuboids (rooms)
+    width = int
+    length = int
+    height = int
+
     boundary_percentage = 33
     # Todo: region should be a list as a location nd it's effect can spawn several regions. capture all regions if empty
     region = list
@@ -25,6 +37,13 @@ class Location(object):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
 
+    def set_shape(self, shape):
+        allowed_shapes = ['cube', 'sphere']
+        if shape in allowed_shapes:
+            self.shape = shape
+            return True
+        return False
+
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
 
@@ -35,7 +54,7 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
-        is_inside_boundary = 0
+        player_is_inside_boundary = 0
         if self.shape == "sphere":
             """ we determine the location by the locations radius and the distance of the player from it's center,
             spheres make this especially easy, so I picked them first ^^
@@ -44,31 +63,28 @@ class Location(object):
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                     float(self.pos_z) - float(player_object.pos_z)) ** 2))
-            is_inside_boundary = distance_to_location_center <= float(self.radius)
-
-        if self.shape == "room":
-            """ we determine the location by the locations radius and the distance of the player from it's center,
-            spheres make this especially easy, so I picked them first ^^
+            player_is_inside_boundary = distance_to_location_center <= float(self.radius)
+        if self.shape == "cube":
+            """ we determine the are of the location by the locations center, it's width, height and length ^^
             """
-            distance_to_location_center = 0
-            is_inside_boundary = distance_to_location_center <= float(self.radius)
+            if float(player_object.pos_x) >= (float(self.pos_x) - float(self.radius)) and float(player_object.pos_x) <= (float(self.pos_x) + float(self.radius)) and float(player_object.pos_y) >= (float(self.pos_y)) and float(player_object.pos_y) <= (float(self.pos_y) + (float(self.radius) * 2)) and float(player_object.pos_z) >= (float(self.pos_z) - float(self.radius)) and float(player_object.pos_z) <= (float(self.pos_z) + float(self.radius)):
+                player_is_inside_boundary = True
 
-        player_is_inside_boundary = is_inside_boundary
-        # print "player_is_inside_boundary: {} of {}".format(player_is_inside_boundary, self.name)
         return player_is_inside_boundary
 
     def player_is_inside_core(self, player_object):
-        distance_to_location_center = 0
+        player_is_inside_core = 0
         if self.shape == "sphere":
             distance_to_location_center = float(math.sqrt(
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                     float(self.pos_z) - float(player_object.pos_z)) ** 2))
-        # pretty much the same as player_is_inside_boundary(), but we subtract the boundary_percentage from the radius
-        distance_to_core_boundary = (float(self.radius) / 100) * (100 - float(self.boundary_percentage))
-        player_is_inside_core = distance_to_location_center <= distance_to_core_boundary
+            distance_to_core_boundary = (float(self.radius) / 100) * (100 - float(self.boundary_percentage))
+            player_is_inside_core = distance_to_location_center <= distance_to_core_boundary
+        if self.shape == "cube":
+            if float(player_object.pos_x) >= (float(self.pos_x) - ((float(self.radius) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_x) <= (float(self.pos_x) + ((((float(self.radius) / 100) * (100 - float(self.boundary_percentage))) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_y) >= (float(self.pos_y)) and float(player_object.pos_y) <= (float(self.pos_y) + (((float(self.radius) * 2) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_z) >= (float(self.pos_z) - ((float(self.radius) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_z) <= (float(self.pos_z) + ((float(self.radius) / 100) * (100 - float(self.boundary_percentage)))):
+                player_is_inside_core = True
 
-        # print "player_is_inside_core: {} of {}".format(player_is_inside_core, self.name)
         return player_is_inside_core
 
     def player_crossed_outside_boundary_from_outside(self, player_object):

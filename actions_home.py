@@ -10,6 +10,7 @@ def make_this_my_home(self, player_object, locations):
         location_dict = dict(
             name='home',
             owner=player_object.name,
+            description=player_object.name + "\'s home",
             pos_x=int(player_object.pos_x),
             pos_y=int(player_object.pos_y),
             pos_z=int(player_object.pos_z),
@@ -89,6 +90,31 @@ def set_up_home_perimeter(self, player_object, locations):
 
 
 actions_home.append(("isequal", "my estate ends here", set_up_home_perimeter, "(self, player_object, locations)"))
+
+
+def make_my_home_a_shape(self, player_object, locations, command):
+    print "command issued : " + command
+    p = re.search(r"make my home a (.+)", command)
+    if p:
+        shape = p.group(1)
+        if player_object.authenticated:
+            try:
+                location_object = locations[player_object.steamid]["home"]
+                if location_object.set_shape(shape):
+                    self.tn.send_message_to_player(player_object,"{}'s home is a {} now.".format(player_object.name, shape))
+                    return True
+                else:
+                    self.tn.send_message_to_player(player_object,"{} is not an allowed shape at this time!".format(shape))
+                    return False
+
+            except KeyError:
+                self.tn.send_message_to_player(player_object, "{} can not change that which you do not own!!".format(player_object.name))
+        else:
+            self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+
+
+actions_home.append(("startswith", "make my home a", make_my_home_a_shape, "(self, player_object, locations, command)"))
+
 
 """
 here come the observers
