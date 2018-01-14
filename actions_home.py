@@ -127,7 +127,7 @@ def player_crossed_inside_core_from_boundary(self, player_object, locations):
         for owner, player_locations_dict in locations.iteritems():
             if "home" in player_locations_dict:
                 if player_locations_dict["home"].player_crossed_inside_core_from_boundary(player_object):
-                    self.tn.send_message_to_player(player_object, "you have entered {}'s private-area".format(player_locations_dict["home"].owner))
+                    self.tn.send_message_to_player(player_object, "you have entered {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
     except TypeError:
         pass
 
@@ -140,7 +140,7 @@ def player_crossed_inside_boundary_from_core(self, player_object, locations):
         for owner, player_locations_dict in locations.iteritems():
             if "home" in player_locations_dict:
                 if player_locations_dict["home"].player_crossed_inside_boundary_from_core(player_object):
-                    self.tn.send_message_to_player(player_object, "you have left {}'s private-area".format(player_locations_dict["home"].owner))
+                    self.tn.send_message_to_player(player_object, "you have left {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
     except TypeError:
         pass
 

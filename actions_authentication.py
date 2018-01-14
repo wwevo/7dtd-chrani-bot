@@ -31,7 +31,7 @@ def on_player_join(self, player_object, locations):
     :return:
     """
     try:
-        location = locations[player_object.name]['spawn']
+        location = locations[player_object.steamid]['spawn']
         self.tn.send_message_to_player(player_object, "Welcome back " + player_object.name + " o/")
     except KeyError:
         self.tn.send_message_to_player(player_object, "this servers bot says Hi to " + player_object.name + " o/")
@@ -45,7 +45,7 @@ def on_player_join(self, player_object, locations):
             radius=None,
             region=[player_object.region]
         )
-        locations.update({player_object.name: {'spawn': Location(**location_dict)}})
+        locations.update({player_object.steamid: {'spawn': Location(**location_dict)}})
 
     if not player_object.authenticated:
         self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/rules")

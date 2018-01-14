@@ -29,7 +29,7 @@ def set_up_homes(self, player_object, locations):
     location_dict = dict(
         owner='ecv',
         name="home",
-        description="Ecv's Casa",
+        description="Ecv\'s Casa",
         pos_x=int(246),
         pos_y=int(62),
         pos_z=int(825),
@@ -43,7 +43,7 @@ def set_up_homes(self, player_object, locations):
     location_dict = dict(
         owner='LadyAni',
         name="home",
-        description="LadyAni's crib",
+        description="LadyAni\'s crib",
         pos_x=int(116),
         pos_y=int(77),
         pos_z=int(-428),
@@ -67,6 +67,20 @@ def set_up_homes(self, player_object, locations):
         region=['0.1.7rg']
     )
     locations.update({'76561198010873208': {"home": Location(**location_dict)}})
+
+    location_dict = dict(
+        owner='evoisat',
+        name="home",
+        description="Admin\'s retreat",
+        pos_x=int(159),
+        pos_y=int(77),
+        pos_z=int(1175),
+        shape='sphere',
+        radius=10,
+        boundary_percentage=50,
+        region=['0.1.7rg']
+    )
+    locations.update({'76561198349777120': {"home": Location(**location_dict)}})
 
     self.tn.send_message_to_player(player_object, "some homes have been set up for testing!")
 
