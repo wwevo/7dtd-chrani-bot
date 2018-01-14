@@ -151,6 +151,7 @@ class ChraniBot():
                 logger.debug(log_message)
 
             # TODO telnet_line could be a local variable instead of an attribute as it's not use in another method, not sure to be confirmed
+            # it is in fact passed with 'self' to the player-thread so it has access to the current telnet-line
             self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
             if self.telnet_line is not None and self.telnet_line != b"\r\n":
                 telnet_line_stripped = self.telnet_line.rstrip()
@@ -173,6 +174,7 @@ class ChraniBot():
                         logger.debug("thread started for player " + player_name)
 
                         if player_observer_thread.is_alive():
+                            # if they have health, we can assume the players are alive and can be manhandled by the bot!
                             online_player.switch_on()
 
             self.prune_active_player_threads_dict()
@@ -194,21 +196,6 @@ class ChraniBot():
                 
                 here we check any telnet response relevant for setting the 'responsive' status of a player
                 """
-                # """ check if a player is being teleported
-                #
-                # and discontinue all further execution at the earliest point
-                # """
-                # m = re.search(self.match_types_system["telnet_commands"], self.telnet_line)
-                # if m:
-                #     if m.group("telnet_command").startswith("tele "):
-                #         c = re.search(r"^tele (?P<player_name>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
-                #         if c:
-                #             try:
-                #                 player_object = self.players_dict[c.group('player_name')]
-                #                 player_object.switch_off("main")
-                #             except KeyError:
-                #                 pass
-
                 m = re.search(self.match_types_system["telnet_events_player_gmsg"], self.telnet_line)
                 if m:
                     if m.group("command") == "died":

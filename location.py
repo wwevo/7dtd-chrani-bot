@@ -26,9 +26,19 @@ class Location(object):
             setattr(self, k, v)
 
     def player_is_inside_boundary(self, player_object):
+        """ calculate the position of a player against a location
+
+        for now we have only a sphere
+
+        next will be cubes and rooms, then polygons for more exotic bases. the goal is to use exactly the
+        space one needs instead of arbitrary shapes dictated by my lack of math-skills!
+
+        got some math-skills? contact me :)
+        """
         distance_to_location_center = 0
         if self.shape == "sphere":
-            # Todo: i also want cube, room, country (bottom to top), maybe later polygon ^^
+            """ we determine the location by the locations radius and the distance of the player from it's center
+            """
             distance_to_location_center = float(math.sqrt(
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
@@ -45,6 +55,7 @@ class Location(object):
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                     float(self.pos_z) - float(player_object.pos_z)) ** 2))
+        # pretty much the same as player_is_inside_boundary(), but we subtract the boundary_percentage from the radius
         distance_to_core_boundary = (float(self.radius) / 100) * (100 - float(self.boundary_percentage))
         player_is_inside_core = distance_to_location_center <= distance_to_core_boundary
 
@@ -52,6 +63,13 @@ class Location(object):
         return player_is_inside_core
 
     def player_crossed_outside_boundary_from_outside(self, player_object):
+        """ determine if the given player is inside a locations perimeter, and check if the previously stored
+        player-position, if any, was outside of the locations perimeter.
+
+        update the last known state for use in the next call
+
+        this is used to trigger events on entering a locations perimeter for example
+        """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
             player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_outside_boundary_from_outside"]
@@ -74,6 +92,13 @@ class Location(object):
                 return False
 
     def player_crossed_outside_boundary_from_inside(self, player_object):
+        """ determine if the given player is outside a locations perimeter, and check if the previously stored
+        player-position, if any, was inside of the locations perimeter.
+
+        update the last known state for use in the next call
+
+        this is used to trigger events on exiting a locations perimeter for example
+        """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
             player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_outside_boundary_from_inside"]
@@ -96,6 +121,13 @@ class Location(object):
                 return False
 
     def player_crossed_inside_core_from_boundary(self, player_object):
+        """ determine if the given player is inside a locations core, and check if the previously stored
+        player-position, if any, was outside of the locations core.
+
+        update the last known state for use in the next call
+
+        this is used to trigger events on entering a locations core-area for example
+        """
         player_is_inside_boundary = self.player_is_inside_core(player_object)
         try:
             player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_inside_core_from_boundary"]
@@ -118,6 +150,13 @@ class Location(object):
                 return False
 
     def player_crossed_inside_boundary_from_core(self, player_object):
+        """ determine if the given player is outside a locations core, and check if the previously stored
+        player-position, if any, was inside of the locations core.
+
+        update the last known state for use in the next call
+
+        this is used to trigger events on leaving a locations core-area for example
+        """
         player_is_inside_boundary = self.player_is_inside_core(player_object)
         try:
             player_was_inside_boundary = self.last_player_activity_dict[player_object.name][self.owner]["player_crossed_inside_boundary_from_core"]

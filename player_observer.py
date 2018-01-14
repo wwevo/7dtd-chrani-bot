@@ -52,19 +52,6 @@ class PlayerObserver(Thread):
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
-            profile_start = time.time()
-            """ monitor player movement
-            
-            make sure a moving player is accepted as responsive, in case the bot got started when players where already
-            in the game, making us unable to read the telnet-logs regarding player-spawn
-            this is just a fail-safe and has a considerable delay/lag and is depending on the listplayers poll interval
-            in the main loop! we still have to use the games telnet responses in the main loop to react 'directly'
-            this is ONLY for detecting players already online before the bot got started!!
-            
-            a wish for a17? enhance the listplayer command and include death-state (alive, bedroll-screen, dead) """
-            # if player.is_responsive and player.is_dead():
-            #     player.switch_off("observer")
-
             if self.observers and player.is_responsive:
                 """ execute real-time observers
 
@@ -87,9 +74,6 @@ class PlayerObserver(Thread):
                         command[0](*command[1])
                     else:
                         break
-
-            # if not player.is_responsive and player.check_if_lifesigns_have_changed():
-            #     player.switch_on("observer")
 
             execution_time = time.time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
