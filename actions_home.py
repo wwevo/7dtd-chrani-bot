@@ -123,52 +123,48 @@ observers_home = []
 
 
 def player_crossed_outside_boundary_from_outside(self, player_object, locations):
-    try:
-        for owner, player_locations_dict in locations.iteritems():
-            if "home" in player_locations_dict:
-                if player_locations_dict["home"].player_crossed_outside_boundary_from_outside(player_object):
-                    self.tn.send_message_to_player(player_object, "you have entered the lands of {}".format(player_locations_dict["home"].owner))
-    except TypeError:
-        pass
+    for owner, player_locations_dict in locations.iteritems():
+        try:
+            if player_locations_dict["home"].player_crossed_outside_boundary_from_outside(player_object):
+                self.tn.send_message_to_player(player_object, "you have entered the lands of {}".format(player_locations_dict["home"].owner))
+        except Exception:
+            pass
 
 
 observers_home.append(("player crossed home boundary from outside", player_crossed_outside_boundary_from_outside, "(self, player_object, locations)"))
 
 
 def player_crossed_outside_boundary_from_inside(self, player_object, locations):
-    try:
-        for owner, player_locations_dict in locations.iteritems():
-            if "home" in player_locations_dict:
-                if player_locations_dict["home"].player_crossed_outside_boundary_from_inside(player_object):
-                    self.tn.send_message_to_player(player_object, "you have left the lands of {}".format(player_locations_dict["home"].owner))
-    except TypeError:
-        pass
+    for owner, player_locations_dict in locations.iteritems():
+        try:
+            if player_locations_dict["home"].player_crossed_outside_boundary_from_inside(player_object):
+                self.tn.send_message_to_player(player_object, "you have left the lands of {}".format(player_locations_dict["home"].owner))
+        except Exception:
+            pass
 
 
 observers_home.append(("player crossed home boundary from inside", player_crossed_outside_boundary_from_inside, "(self, player_object, locations)"))
 
 
 def player_crossed_inside_core_from_boundary(self, player_object, locations):
-    try:
-        for owner, player_locations_dict in locations.iteritems():
-            if "home" in player_locations_dict:
-                if player_locations_dict["home"].player_crossed_inside_core_from_boundary(player_object):
-                    self.tn.send_message_to_player(player_object, "you have entered {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
-    except TypeError:
-        pass
+    for owner, player_locations_dict in locations.iteritems():
+        try:
+            if player_locations_dict["home"].player_crossed_inside_core_from_boundary(player_object):
+                self.tn.send_message_to_player(player_object, "you have entered {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
+        except Exception:
+            pass
 
 
 observers_home.append(("player crossed home-core boundary from outside", player_crossed_inside_core_from_boundary, "(self, player_object, locations)"))
 
 
 def player_crossed_inside_boundary_from_core(self, player_object, locations):
-    try:
-        for owner, player_locations_dict in locations.iteritems():
-            if "home" in player_locations_dict:
-                if player_locations_dict["home"].player_crossed_inside_boundary_from_core(player_object):
-                    self.tn.send_message_to_player(player_object, "you have left {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
-    except TypeError:
-        pass
+    for owner, player_locations_dict in locations.iteritems():
+        try:
+            if player_locations_dict["home"].player_crossed_inside_boundary_from_core(player_object):
+                self.tn.send_message_to_player(player_object, "you have left {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
+        except Exception:
+            pass
 
 
 observers_home.append(("player crossed home-core boundary from inside", player_crossed_inside_boundary_from_core, "(self, player_object, locations)"))

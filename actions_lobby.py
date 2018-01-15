@@ -49,7 +49,7 @@ def set_up_lobby_perimeter(self, player_object, locations):
         self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
-actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self, player_object, locations)"))
+actions_lobby.append(("isequal", "the lobby ends here", set_up_lobby_perimeter, "(self, player_object, locations)"))
 
 
 def remove_lobby(self, player_object, locations):
