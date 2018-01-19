@@ -1,7 +1,13 @@
 # 7dtd-chrani-bot
 A seven days to die Server-Bot to manage players and game-events
 
-this will be added shortly. for now I'll just make a checklist of what I believe works already
+this bot is aimed towards providing simple, hassle-free communities.
+we don't try to be the most feature complete bot, nor do we try to be better than the others or
+anything.
+
+we do try to be easy to set up and use. basic lobby and base-building,
+controlling the influx of new players, auto-kicking and banning the bad apples. Most of this
+should happen automagically.
 
 bot will start with command-line options for server-configuration
 server-data and debug level can be passed (quick and dirty so it 'works for now')
@@ -13,6 +19,7 @@ server-data and debug level can be passed (quick and dirty so it 'works for now'
   * a game-server crash,
   * game-server reboot
   * loss of network connection
+  * a LOT of lag, tested with up to 70 seconds
 
 **bot handles following game-events (I believe are needed for a basic bot)**
 
@@ -33,15 +40,13 @@ with these objects you can write simple and complex actions quickly but still re
   * lobby
   * home
 
-*i have hardcoded a lobby suited for Navezgane, so if you want to take this for a spin,
-it's best to use the Navezgane map for now*
 
 since i haven't decided on a database yet, all data is lost on bot restart, it will survive
 a game-server restart / game-server-crash though, so you can test it out for a few days.
 nothing for a production server of course ^^
 
 ###installation:
-download files. put on a server or run it at home in a python terminal
+download files. put them on a server or run them at home in a python terminal
 
 to start the bot with full debug output use:
 

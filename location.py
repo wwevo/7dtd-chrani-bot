@@ -23,7 +23,7 @@ class Location(object):
     height = int
 
     boundary_percentage = 33
-    # Todo: region should be a list as a location nd it's effect can spawn several regions. capture all regions if empty
+    # Todo: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     region = list
 
     last_player_activity_dict = {}
@@ -33,9 +33,9 @@ class Location(object):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
 
-    def update(self, **kwargs):
-        for (k, v) in kwargs.iteritems():
-            setattr(self, k, v)
+    # def update(self, **kwargs):
+    #     for (k, v) in kwargs.iteritems():
+    #         setattr(self, k, v)
 
     def set_shape(self, shape):
         allowed_shapes = ['cube', 'sphere']
@@ -43,6 +43,17 @@ class Location(object):
             self.shape = shape
             return True
         return False
+
+    def set_radius(self, radius):
+        allowed_range = range(5, 100 + 1)
+        if int(radius * 2) in allowed_range:
+            self.radius = radius
+            return True
+        return False
+
+    def set_description(self, description):
+        self.description = description
+        return True
 
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
@@ -202,3 +213,5 @@ class Location(object):
                 return True
             else:
                 return False
+
+

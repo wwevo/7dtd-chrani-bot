@@ -38,6 +38,7 @@ class TelnetConnection:
         :return:
         """
         # TODO method could be replace by __exit__ instead of using atexit
+        # i have tried it with __exit__ it never got called. ever. in any class. thats why i got atexit in the first place
         if self.connection is not None:
             self.connection.close()
             self.logger.debug("telnet connection closed: " + str(self.connection))
@@ -50,7 +51,6 @@ class TelnetConnection:
         :param password: (str) password of the server
         :return:
         """
-        # TODO remove the main try, as everyting is cover by the 2 other, and add a generic except for the first one
         try:
             connection = telnetlib.Telnet(ip, port)
             self.connection = connection
@@ -155,15 +155,25 @@ class TelnetConnection:
         except:
             return False
 
+    def kick(self, player_object, reason='just because'):
+        command = "kick " + player_object.name + " \"" + reason + b"\"\r\n"
+        try:
+            connection = self.connection
+            connection.write(command)
+        except:
+            return False
+
     def say(self, message):
         """
         Say something on the chat.
         :param message: (str) message to send
         :return: bool for success
         """
+        message = str(message)
         try:
             connection = self.connection
-            connection.write("say \"" + message + b"\"\r\n")
+            telnet_command = "say \"" + message + "\"" + b"\r\n"
+            connection.write(telnet_command)
         except Exception:
             return False
 
@@ -193,9 +203,11 @@ class TelnetConnection:
         :param message: (str) message to send
         :return: bool for success
         """
+        message = str(message)
         try:
             connection = self.connection
-            connection.write("sayplayer " + player_object.name + " \"" + message + b"\"\r\n")
+            message = "sayplayer " + player_object.name + " \"" + message + b"\"\r\n"
+            connection.write(message)
         except Exception:
             return False
 
@@ -224,7 +236,7 @@ class TelnetConnection:
         :param location_object: coordinate
         :return: bool for success
         """
-        print (time.time() - self.last_teleport)
+        # print (time.time() - self.last_teleport)
         if (time.time() - self.last_teleport) < 2:
             return False
         try:

@@ -22,9 +22,8 @@ class Player(object):
     ip = str
     ping = int
     region = str
-
-    authenticated = False
-    is_responsive = False
+    authenticated = bool
+    is_responsive = bool
 
     lifesigns_dict_old = {}
 
@@ -53,6 +52,10 @@ class Player(object):
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
+
+    def set_authenticated(self, authenticated):
+        self.authenticated = authenticated
+        return True
 
     def store_player_lifesigns(self):
         self.lifesigns_dict_old.update({

@@ -6,10 +6,11 @@ from location import Location
 actions_lobby = []
 
 
-def set_up_lobby(self, player_object, locations):
+def set_up_lobby(self, players, locations):
+    player_object = players.get(self.player_steamid)
     if player_object.authenticated:
         location_dict = dict(
-            owner=None,
+            owner='system',
             name='lobby',
             pos_x=int(player_object.pos_x),
             pos_y=int(player_object.pos_y),
@@ -19,79 +20,85 @@ def set_up_lobby(self, player_object, locations):
             boundary_percentage=33,
             region=[player_object.region]
         )
-        locations.update({'lobby': Location(**location_dict)})
+        locations.add(Location(**location_dict), save=True)
         self.tn.send_message_to_player(player_object, player_object.name + " has set up a lobby. Good job! set up the perimeter (default is 10 blocks) with /set up lobby perimeter, while standing on the edge of it.")
     else:
         self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to sweet commands!")
 
 
-actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self, player_object, locations)"))
+actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self, players, locations)"))
 
 
-def set_up_lobby_perimeter(self, player_object, locations):
+def set_up_lobby_perimeter(self, players, locations):
+    player_object = players.get(self.player_steamid)
     if player_object.authenticated:
         try:
-            location = locations['lobby']
+            location_object = locations.get('system', 'lobby')
         except KeyError:
             self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby")
             return False
 
         radius = float(
             math.sqrt(
-                (float(location.pos_x) - float(player_object.pos_x)) ** 2 + (
-                        float(location.pos_y) - float(player_object.pos_y)) ** 2 + (
-                        float(location.pos_z) - float(player_object.pos_z)) ** 2)
+                (float(location_object.pos_x) - float(player_object.pos_x)) ** 2 + (
+                        float(location_object.pos_y) - float(player_object.pos_y)) ** 2 + (
+                        float(location_object.pos_z) - float(player_object.pos_z)) ** 2)
         )
-        location.radius = radius
-        locations.update({"lobby": location})
+        location_object.radius = radius
+        locations.add(location_object, save=True)
+
         self.tn.send_message_to_player(player_object, "the lobby ends here and spawns " + str(int(radius * 2)) + " meters :)")
     else:
         self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
-actions_lobby.append(("isequal", "the lobby ends here", set_up_lobby_perimeter, "(self, player_object, locations)"))
+actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self, players, locations)"))
 
 
-def remove_lobby(self, player_object, locations):
+def remove_lobby(self, players, locations):
+    player_object = players.get(self.player_steamid)
     if player_object.authenticated:
         try:
-            del locations['lobby']
+            locations.remove('system', 'lobby')
         except KeyError:
-            self.tn.send_message_to_player(player_object, " no lobby found oO")
+            self.tn.send_message_to_player(player_object, "no lobby found oO")
             return False
     else:
         self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
-actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self, player_object, locations)"))
+actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self, players, locations)"))
 
 
-def on_player_join(self, player_object, locations):
+def on_player_join(self, players, locations):
+    player_object = players.get(self.player_steamid)
     if not player_object.authenticated:
         try:
-            location = locations["lobby"]
+            location_dict = locations.get('system', "lobby")
             self.tn.send_message_to_player(player_object, "yo ass will be deported to our lobby plus tha command-shit is restricted yo")
         except KeyError:
             return False
 
 
-actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, player_object, locations)"))
+actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, players, locations)"))
 
 
-def password(self, player_object, locations, command):
+def password(self, players, locations, command):
+    player_object = players.get(self.player_steamid)
     p = re.search(r"password (.+)", command)
     if p:
         password = p.group(1)
         if password == "openup":
             try:
-                location = locations[player_object.name]['spawn']
+                location = locations.get(player_object.steamid, 'spawn')
+                self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!")
                 self.tn.teleportplayer(player_object, location)
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i'm terribly sorry, i seem to have misplaced your spawn, " + player_object.name)
                 return False
 
 
-actions_lobby.append(("startswith", "password", password, "(self, player_object, locations, command)"))
+actions_lobby.append(("startswith", "password", password, "(self, players, locations, command)"))
 
 """
 here come the observers
@@ -99,25 +106,27 @@ here come the observers
 observers_lobby = []
 
 
-def player_is_outside_boundary(self, player_object, locations):
+def player_is_outside_boundary(self, players, locations):
+    player_object = players.get(self.player_steamid)
     try:
-        location = locations["lobby"]
+        location_object = locations.get('system', "lobby")
     except KeyError:
         return False
 
-    if not player_object.authenticated and player_object.is_responsive:
-        if not location.player_is_inside_boundary(player_object):
-            if self.tn.teleportplayer(player_object, location):
+    if player_object.authenticated is not True and player_object.is_responsive:
+        if not location_object.player_is_inside_boundary(player_object):
+            if self.tn.teleportplayer(player_object, location_object):
                 self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>")
             time.sleep(2)  # possibly not the best way to avoid mutliple teleports in a row
 
 
-observers_lobby.append(("player left lobby", player_is_outside_boundary, "(self, player_object, locations)"))
+observers_lobby.append(("player left lobby", player_is_outside_boundary, "(self, players, locations)"))
 
 
-def player_crossed_outside_boundary_from_outside(self, player_object, locations):
+def player_crossed_outside_boundary_from_outside(self, players, locations):
+    player_object = players.get(self.player_steamid)
     try:
-        location_object = locations["lobby"]
+        location_object = locations.get('system', "lobby")
     except KeyError:
         return False
 
@@ -125,12 +134,13 @@ def player_crossed_outside_boundary_from_outside(self, player_object, locations)
         self.tn.send_message_to_player(player_object, "you are entering " + location_object.name)
 
 
-observers_lobby.append(("player crossed lobby boundary from outside", player_crossed_outside_boundary_from_outside, "(self, player_object, locations)"))
+observers_lobby.append(("player crossed lobby boundary from outside", player_crossed_outside_boundary_from_outside, "(self, players, locations)"))
 
 
-def player_crossed_outside_boundary_from_inside(self, player_object, locations):
+def player_crossed_outside_boundary_from_inside(self, players, locations):
+    player_object = players.get(self.player_steamid)
     try:
-        location_object = locations["lobby"]
+        location_object = locations.get('system', "lobby")
     except KeyError:
         return False
 
@@ -138,12 +148,13 @@ def player_crossed_outside_boundary_from_inside(self, player_object, locations):
         self.tn.send_message_to_player(player_object, "you have left " + location_object.name)
 
 
-observers_lobby.append(("player crossed lobby boundary from inside", player_crossed_outside_boundary_from_inside, "(self, player_object, locations)"))
+observers_lobby.append(("player crossed lobby boundary from inside", player_crossed_outside_boundary_from_inside, "(self, players, locations)"))
 
 
-def player_crossed_inside_core_from_boundary(self, player_object, locations):
+def player_crossed_inside_core_from_boundary(self, players, locations):
+    player_object = players.get(self.player_steamid)
     try:
-        location_object = locations["lobby"]
+        location_object = locations.get('system', "lobby")
     except KeyError:
         return False
 
@@ -151,12 +162,13 @@ def player_crossed_inside_core_from_boundary(self, player_object, locations):
         self.tn.send_message_to_player(player_object, "you have entered " + location_object.name)
 
 
-observers_lobby.append(("player crossed lobby-core boundary from outside", player_crossed_inside_core_from_boundary, "(self, player_object, locations)"))
+observers_lobby.append(("player crossed lobby-core boundary from outside", player_crossed_inside_core_from_boundary, "(self, players, locations)"))
 
 
-def player_crossed_inside_boundary_from_core(self, player_object, locations):
+def player_crossed_inside_boundary_from_core(self, players, locations):
+    player_object = players.get(self.player_steamid)
     try:
-        location_object = locations["lobby"]
+        location_object = locations.get('system', "lobby")
     except KeyError:
         return False
 
@@ -165,4 +177,4 @@ def player_crossed_inside_boundary_from_core(self, player_object, locations):
             self.tn.send_message_to_player(player_object, "you can not leave the lobby. Authenticate first! Taking you back...")
 
 
-observers_lobby.append(("player crossed lobby-core boundary from inside", player_crossed_inside_boundary_from_core, "(self, player_object, locations)"))
+observers_lobby.append(("player crossed lobby-core boundary from inside", player_crossed_inside_boundary_from_core, "(self, players, locations)"))

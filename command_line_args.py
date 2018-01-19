@@ -17,7 +17,7 @@ class CommandLineArgs():
                             default="12345678")
         parser.add_argument("Database-file", help="SQLite3 Database to be used for storing information (dummy.db)",
                             nargs='?',
-                            default="dummy.sqlite")
+                            default="dummy")
         parser.add_argument("--verbosity", help="what messages would you like to see? (INFO)", default="INFO")
         args = parser.parse_args()
         args_dict = vars(args)
