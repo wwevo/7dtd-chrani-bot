@@ -24,6 +24,7 @@ class Player(object):
     region = str
     authenticated = bool
     is_responsive = bool
+    last_teleport = None
 
     lifesigns_dict_old = {}
 

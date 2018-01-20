@@ -177,23 +177,23 @@ class TelnetConnection:
         except Exception:
             return False
 
-        telnet_response = ""
-        message_got_through = False
-        sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
-        timeout = time.time()
-        while message_got_through is not True and not timeout_occurred(2, timeout):
-            """
-            fetches the response of the games telnet 'say' command
-            we are waiting for the games telnet to echo the actual message
-            """
-            telnet_response = connection.read_until(b"\r\n")
-            m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
-            if m:
-                message_got_through = True
-
-        return telnet_response
-
-    last_teleport = 0
+        # telnet_response = ""
+        # message_got_through = False
+        # sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
+        # timeout = time.time()
+        # while message_got_through is not True and not timeout_occurred(2, timeout):
+        #     """
+        #     fetches the response of the games telnet 'say' command
+        #     we are waiting for the games telnet to echo the actual message
+        #     """
+        #     try:
+        #         telnet_response = connection.read_until(b"\r\n")
+        #         m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
+        #         if m:
+        #             message_got_through = True
+        #     except IndexError:
+        #         pass
+        # return telnet_response
 
     def send_message_to_player(self, player_object, message):
         """
@@ -211,9 +211,9 @@ class TelnetConnection:
         except Exception:
             return False
 
-        telnet_response = ""
-        message_got_through = False
-        sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
+        # telnet_response = ""
+        # message_got_through = False
+        # sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
         # timeout = time.time()
         # while message_got_through is not True and not timeout_occurred(2, timeout):
         #     """
@@ -224,10 +224,8 @@ class TelnetConnection:
         #     m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
         #     if m:
         #         message_got_through = True
-
-        return telnet_response
-
-    last_teleport = 0
+        #
+        # return telnet_response
 
     def teleportplayer(self, player_object, location_object):
         """
@@ -237,12 +235,12 @@ class TelnetConnection:
         :return: bool for success
         """
         # print (time.time() - self.last_teleport)
-        if (time.time() - self.last_teleport) < 2:
+        if player_object.last_teleport is not None and (time.time() - player_object.last_teleport) < 2:
             return False
         try:
             connection = self.connection
             command = "teleportplayer " + player_object.steamid + " " + str(int(float(location_object.pos_x))) + " " + str(int(float(location_object.pos_y))) + " " + str(int(float(location_object.pos_z))) + b"\r\n"
-            self.logger.debug(command)
+            self.logger.info(command)
             connection.write(command)
         except Exception:
             return False
@@ -255,7 +253,7 @@ class TelnetConnection:
                 if m:
                     if m.group("command") == "Teleport":
                         if player_object.name == m.group("player_name"):
-                            self.last_teleport = time.time()
+                            player_object.last_teleport = time.time()
                             teleport_succeeded = True
         except Exception:
             return False
