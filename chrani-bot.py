@@ -31,7 +31,7 @@ if __name__ == '__main__':
                 bot.shutdown()
             wait_until_reconnect = 5
             logger.warn(error)
-            log_message = 'will try again in ' + str(wait_until_reconnect) + " seconds"
+            log_message = "will try again in {} seconds".format(str(wait_until_reconnect))
             logger.info(log_message)
             time.sleep(wait_until_reconnect)
             pass

@@ -38,7 +38,7 @@ class ChraniBot():
     tn = None  # telnet connection to use
     telnet_line = None
 
-    listplayers_interval = 1.25
+    listplayers_interval = 1.5
 
     # players_dict = {}  # contains all player_objects of online players
     active_player_threads_dict = {}  # contains link to the players observer-thread
@@ -161,7 +161,12 @@ class ChraniBot():
 
             # TODO telnet_line could be a local variable instead of an attribute as it's not use in another method, not sure to be confirmed
             # it is in fact passed with 'self' to the player-thread so it has access to the current telnet-line
-            self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
+            try:
+                self.telnet_line = self.tn.read_line(timeout=listplayers_timeout)  # get the current global telnet-response
+            except Exception as e:
+                logger.error(e)
+                raise IOError
+
             if self.telnet_line is not None and self.telnet_line != b"\r\n":
                 telnet_line_stripped = self.telnet_line.rstrip()
                 logger.info(telnet_line_stripped)

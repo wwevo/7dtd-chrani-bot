@@ -6,6 +6,13 @@ class Location(object):
     name = str
     description = str
 
+    messages_dict = {
+        "leaving_core": "leaving core",
+        "leaving_boundary": "leaving boundary",
+        "entering_boundary": "entering boundary",
+        "entering_core": "entering core"
+    }
+
     # the center of the shape
     pos_x = float
     pos_y = float
@@ -16,6 +23,7 @@ class Location(object):
 
     # spheres and cubes
     radius = float
+    boundary_radius = float
 
     # cuboids (rooms)
     width = int
@@ -33,9 +41,23 @@ class Location(object):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
 
-    # def update(self, **kwargs):
-    #     for (k, v) in kwargs.iteritems():
-    #         setattr(self, k, v)
+    def set_owner(self, owner):
+        self.owner = owner
+        return True
+
+    def set_name(self, name):
+        self.name = name
+        return True
+
+    def set_description(self, description):
+        self.description = description
+        return True
+
+    def set_coordinates(self, pos_x, pos_y, pos_z):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.pos_z = pos_z
+        return True
 
     def set_shape(self, shape):
         allowed_shapes = ['cube', 'sphere']
@@ -44,23 +66,53 @@ class Location(object):
             return True
         return False
 
-    def set_radius(self, radius):
+    def set_radius(self, player_object):
+        radius = float(
+            math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                        float(self.pos_z) - float(player_object.pos_z)) ** 2)
+        )
         allowed_range = range(5, 100 + 1)
         if int(radius * 2) in allowed_range:
             self.radius = radius
             return True
         return False
 
-    def set_description(self, description):
-        self.description = description
+    def set_boundary_radius(self, player_object):
+        radius = float(
+            math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                        float(self.pos_z) - float(player_object.pos_z)) ** 2)
+        )
+        allowed_range = range(5, self.radius + 1)
+        if int(radius) in allowed_range:
+            self.radius = radius
+            return True
+        return False
+
+    def set_width(self, width):
+        self.width = width
         return True
+
+    def set_length(self, length):
+        self.length = length
+        return True
+
+    def set_height(self, height):
+        self.height = height
+        return True
+
+    def set_messages(self, messages_dict):
+        self.messages_dict = messages_dict
 
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
 
-        for now we have only a sphere
+        for now we have only a sphere and cube
 
-        next will be cubes and rooms, then polygons for more exotic bases. the goal is to use exactly the
+        next will be rooms, then polygons for more exotic bases. the goal is to use exactly the
         space one needs instead of arbitrary shapes dictated by my lack of math-skills!
 
         got some math-skills? contact me :)
@@ -108,16 +160,18 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_outside_boundary_from_outside"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.name][self.owner]["player_crossed_outside_boundary_from_outside"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
         if player_object.steamid not in self.last_player_activity_dict:
             self.last_player_activity_dict[player_object.steamid] = {}
-        if self.owner not in self.last_player_activity_dict[player_object.steamid]:
-            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
+        if self.name not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.name] = {}
+        if self.owner not in self.last_player_activity_dict[player_object.steamid][self.name]:
+            self.last_player_activity_dict[player_object.steamid][self.name][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_outside_boundary_from_outside": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.name][self.owner].update({"player_crossed_outside_boundary_from_outside": player_is_inside_boundary})
 
         if player_was_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -137,16 +191,18 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_outside_boundary_from_inside"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.name][self.owner]["player_crossed_outside_boundary_from_inside"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
         if player_object.steamid not in self.last_player_activity_dict:
             self.last_player_activity_dict[player_object.steamid] = {}
-        elif self.owner not in self.last_player_activity_dict[player_object.steamid]:
-            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
+        if self.name not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.name] = {}
+        if self.owner not in self.last_player_activity_dict[player_object.steamid][self.name]:
+            self.last_player_activity_dict[player_object.steamid][self.name][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_outside_boundary_from_inside": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.name][self.owner].update({"player_crossed_outside_boundary_from_inside": player_is_inside_boundary})
 
         if player_is_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -166,16 +222,18 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_core(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_inside_core_from_boundary"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.name][self.owner]["player_crossed_inside_core_from_boundary"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
         if player_object.steamid not in self.last_player_activity_dict:
             self.last_player_activity_dict[player_object.steamid] = {}
-        elif self.owner not in self.last_player_activity_dict[player_object.steamid]:
-            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
+        if self.name not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.name] = {}
+        if self.owner not in self.last_player_activity_dict[player_object.steamid][self.name]:
+            self.last_player_activity_dict[player_object.steamid][self.name][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_inside_core_from_boundary": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.name][self.owner].update({"player_crossed_inside_core_from_boundary": player_is_inside_boundary})
 
         if player_was_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -195,16 +253,18 @@ class Location(object):
         """
         player_is_inside_boundary = self.player_is_inside_core(player_object)
         try:
-            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.owner]["player_crossed_inside_boundary_from_core"]
+            player_was_inside_boundary = self.last_player_activity_dict[player_object.steamid][self.name][self.owner]["player_crossed_inside_boundary_from_core"]
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
         if player_object.steamid not in self.last_player_activity_dict:
             self.last_player_activity_dict[player_object.steamid] = {}
-        elif self.owner not in self.last_player_activity_dict[player_object.steamid]:
-            self.last_player_activity_dict[player_object.steamid][self.owner] = {}
+        if self.name not in self.last_player_activity_dict[player_object.steamid]:
+            self.last_player_activity_dict[player_object.steamid][self.name] = {}
+        if self.owner not in self.last_player_activity_dict[player_object.steamid][self.name]:
+            self.last_player_activity_dict[player_object.steamid][self.name][self.owner] = {}
 
-        self.last_player_activity_dict[player_object.steamid][self.owner].update({"player_crossed_inside_boundary_from_core": player_is_inside_boundary})
+        self.last_player_activity_dict[player_object.steamid][self.name][self.owner].update({"player_crossed_inside_boundary_from_core": player_is_inside_boundary})
 
         if player_is_inside_boundary:  # no need to do anything if player was already in
             return False
@@ -213,5 +273,4 @@ class Location(object):
                 return True
             else:
                 return False
-
 

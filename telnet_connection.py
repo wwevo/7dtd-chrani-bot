@@ -52,7 +52,7 @@ class TelnetConnection:
         :return:
         """
         try:
-            connection = telnetlib.Telnet(ip, port)
+            connection = telnetlib.Telnet(ip, port, timeout=2)
             self.connection = connection
         except Exception:
             log_message = 'could not establish connection to the host. check ip and port'
@@ -122,8 +122,9 @@ class TelnetConnection:
         player_count = 0
         telnet_response = ""
         poll_is_finished = False
-        timeout = time.time()
-        while poll_is_finished is not True and not timeout_occurred(2, timeout):
+        timeout_start = time.time()
+        timeout_after_n_seconds = 2
+        while poll_is_finished is not True and not timeout_occurred(timeout_after_n_seconds, timeout_start):
             """
             fetches the response of the games telnet 'lp' command
             (lp = list players)
@@ -206,7 +207,7 @@ class TelnetConnection:
         message = str(message)
         try:
             connection = self.connection
-            message = "sayplayer " + player_object.name + " \"" + message + b"\"\r\n"
+            message = "sayplayer " + player_object.steamid + " \"" + message + b"\"\r\n"
             connection.write(message)
         except Exception:
             return False
@@ -236,26 +237,28 @@ class TelnetConnection:
         """
         # print (time.time() - self.last_teleport)
         if player_object.last_teleport is not None and (time.time() - player_object.last_teleport) < 2:
+            self.logger.debug(time.time() - player_object.last_teleport)
             return False
         try:
             connection = self.connection
             command = "teleportplayer " + player_object.steamid + " " + str(int(float(location_object.pos_x))) + " " + str(int(float(location_object.pos_y))) + " " + str(int(float(location_object.pos_z))) + b"\r\n"
             self.logger.info(command)
             connection.write(command)
+            player_object.last_teleport = time.time()
         except Exception:
             return False
-        try:
-            teleport_succeeded = False
-            timeout = time.time()
-            while teleport_succeeded is not True and not timeout_occurred(2, timeout):
-                telnet_response = connection.read_until(b"\r\n")
-                m = re.search(self.bot.match_types_system["telnet_events_playerspawn"], telnet_response)
-                if m:
-                    if m.group("command") == "Teleport":
-                        if player_object.name == m.group("player_name"):
-                            player_object.last_teleport = time.time()
-                            teleport_succeeded = True
-        except Exception:
-            return False
+        # try:
+        #     teleport_succeeded = False
+        #     timeout = time.time()
+        #     while teleport_succeeded is not True and not timeout_occurred(2, timeout):
+        #         telnet_response = connection.read_until(b"\r\n")
+        #         m = re.search(self.bot.match_types_system["telnet_events_playerspawn"], telnet_response)
+        #         if m:
+        #             if m.group("command") == "Teleport":
+        #                 if player_object.name == m.group("player_name"):
+        #                     player_object.last_teleport = time.time()
+        #                     teleport_succeeded = True
+        # except Exception:
+        #     return False
 
         return True

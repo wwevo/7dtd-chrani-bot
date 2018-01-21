@@ -8,8 +8,9 @@ import re
 import pprint
 
 from actions_authentication import actions_authentication
-from actions_home import actions_home, observers_home
+from actions_home import actions_home
 from actions_lobby import actions_lobby, observers_lobby
+from actions_locations import observers_locations
 from actions_whitelist import actions_whitelist, observers_whitelist
 
 
@@ -23,7 +24,7 @@ class PlayerObserver(Thread):
     logger = None
 
     player_actions = actions_whitelist + actions_authentication + actions_home + actions_lobby
-    observers = observers_whitelist + observers_lobby + observers_home
+    observers = observers_whitelist + observers_lobby + observers_locations
 
     def __init__(self, bot, event, player_steamid):
         """ using a telnet connection for every thread. shouldn't be that bad on a 24 player server """

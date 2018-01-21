@@ -11,7 +11,13 @@ def make_this_my_home(self, players, locations):
         location_dict = dict(
             name='home',
             owner=player_object.steamid,
-            description=player_object.name + "\'s home",
+            description="{}\'s home".format(player_object.name),
+            messages_dict={
+                "leaving_core": None,
+                "leaving_boundary": "you are leaving {}\'s estate".format(player_object.name),
+                "entering_boundary": "you are entering {}\'s estate".format(player_object.name),
+                "entering_core": None
+            },
             pos_x=int(player_object.pos_x),
             pos_y=int(player_object.pos_y),
             pos_z=int(player_object.pos_z),
@@ -20,7 +26,8 @@ def make_this_my_home(self, players, locations):
             boundary_percentage=33,
             region=[player_object.region]
         )
-        locations.add(Location(**location_dict))
+        location_object = Location(**location_dict)
+        locations.add(location_object)
         self.tn.say("{} has decided to settle down!".format(player_object.name))
     else:
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
@@ -77,15 +84,11 @@ def set_up_home_perimeter(self, players, locations):
             self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
             return False
 
-        radius = float(
-            math.sqrt(
-                (float(location_object.pos_x) - float(player_object.pos_x)) ** 2 + (float(location_object.pos_y) - float(player_object.pos_y)) ** 2 + (float(location_object.pos_z) - float(player_object.pos_z)) ** 2)
-            )
-        if location_object.set_radius(radius):
+        if location_object.set_radius(player_object):
             locations.add(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your estate ends here and spawns {} meters ^^".format(int(radius * 2)))
+            self.tn.send_message_to_player(player_object, "your estate ends here and spawns {} meters ^^".format(int(location_object.radius * 2)))
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(radius * 2)))
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
 
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
@@ -122,56 +125,4 @@ actions_home.append(("startswith", "make my home a", make_my_home_a_shape, "(sel
 """
 here come the observers
 """
-observers_home = []
-
-
-def player_crossed_outside_boundary_from_outside(self, players, locations):
-    player_object = players.get(self.player_steamid)
-    for owner, player_locations_dict in locations.locations_dict.iteritems():
-        try:
-            if player_locations_dict["home"].player_crossed_outside_boundary_from_outside(player_object):
-                self.tn.send_message_to_player(player_object, "you have entered the lands of {}".format(player_locations_dict["home"].owner))
-        except Exception:
-            pass
-
-
-observers_home.append(("player crossed home boundary from outside", player_crossed_outside_boundary_from_outside, "(self, players, locations)"))
-
-
-def player_crossed_outside_boundary_from_inside(self, players, locations):
-    player_object = players.get(self.player_steamid)
-    for owner, player_locations_dict in locations.locations_dict.iteritems():
-        try:
-            if player_locations_dict["home"].player_crossed_outside_boundary_from_inside(player_object):
-                self.tn.send_message_to_player(player_object, "you have left the lands of {}".format(player_locations_dict["home"].owner))
-        except Exception:
-            pass
-
-
-observers_home.append(("player crossed home boundary from inside", player_crossed_outside_boundary_from_inside, "(self, players, locations)"))
-
-
-def player_crossed_inside_core_from_boundary(self, players, locations):
-    player_object = players.get(self.player_steamid)
-    for owner, player_locations_dict in locations.locations_dict.iteritems():
-        try:
-            if player_locations_dict["home"].player_crossed_inside_core_from_boundary(player_object):
-                self.tn.send_message_to_player(player_object, "you have entered {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
-        except Exception:
-            pass
-
-
-observers_home.append(("player crossed home-core boundary from outside", player_crossed_inside_core_from_boundary, "(self, players, locations)"))
-
-
-def player_crossed_inside_boundary_from_core(self, players, locations):
-    player_object = players.get(self.player_steamid)
-    for owner, player_locations_dict in locations.locations_dict.iteritems():
-        try:
-            if player_locations_dict["home"].player_crossed_inside_boundary_from_core(player_object):
-                self.tn.send_message_to_player(player_object, "you have left {}'s private-area: {}".format(player_locations_dict["home"].owner, player_locations_dict["home"].description))
-        except Exception:
-            pass
-
-
-observers_home.append(("player crossed home-core boundary from inside", player_crossed_inside_boundary_from_core, "(self, players, locations)"))
+# no observers, they are all generic and found in actions_locations
