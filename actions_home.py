@@ -23,7 +23,7 @@ def make_this_my_home(self, players, locations):
             pos_z=int(player_object.pos_z),
             shape='sphere',
             radius=12,
-            boundary_percentage=33,
+            boundary_radius=8,
             region=[player_object.region]
         )
         location_object = Location(**location_dict)
@@ -95,6 +95,28 @@ def set_up_home_perimeter(self, players, locations):
 
 
 actions_home.append(("isequal", "my estate ends here", set_up_home_perimeter, "(self, players, locations)"))
+
+
+def set_up_home_warning_perimeter(self, players, locations):
+    player_object = players.get(self.player_steamid)
+    if player_object.authenticated:
+        try:
+            location_object = locations.get(player_object.steamid, "home")
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
+            return False
+
+        if location_object.set_boundary_radius(player_object):
+            locations.add(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "your private area ends here and spawns {} meters ^^".format(int(location_object.boundary_radius * 2)))
+        else:
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.boundary_radius * 2)))
+
+    else:
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+
+
+actions_home.append(("isequal", "set up inner sanctum perimeter", set_up_home_warning_perimeter, "(self, players, locations)"))
 
 
 def make_my_home_a_shape(self, players, locations, command):

@@ -9,13 +9,15 @@ actions_lobby = []
 def set_up_lobby(self, players, locations):
     player_object = players.get(self.player_steamid)
     if player_object.authenticated:
+        """ full dictionary setup. These settings can all be set individually on a set_{option} basis
+        """
         location_dict = dict(
             owner='system',
             name='lobby',
             description='The \"there\'s no escape\" Lobby',
             messages_dict={
                 "leaving_core": "leaving the lobby, you better be authenticated!!",
-                "leaving_boundary": None,
+                "leaving_boundary": "freedom at last!",
                 "entering_boundary": None,
                 "entering_core": None
             },
@@ -24,10 +26,10 @@ def set_up_lobby(self, players, locations):
             pos_z=int(player_object.pos_z),
             shape='sphere',
             radius=12,
-            boundary_percentage=33,
+            boundary_radius=8,
             region=[player_object.region]
         )
-        locations.add(Location(**location_dict), save=True)
+        locations.add(Location(**location_dict), save=True)  # leave the save flag if you want to work with the object first and then .save later
         self.tn.send_message_to_player(player_object, player_object.name + " has set up a lobby. Good job! set up the perimeter (default is 10 blocks) with /set up lobby perimeter, while standing on the edge of it.")
     else:
         self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to sweet commands!")
@@ -47,14 +49,35 @@ def set_up_lobby_perimeter(self, players, locations):
 
         if location_object.set_radius(player_object):
             locations.add(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The Lobby ends here and spawns {} meters ^^".format(int(location_object.radius * 2)))
+            self.tn.send_message_to_player(player_object, "The lobby ends here and spawns {} meters ^^".format(int(location_object.radius * 2)))
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
+            self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
     else:
         self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
 actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self, players, locations)"))
+
+
+def set_up_lobby_warning_perimeter(self, players, locations):
+    player_object = players.get(self.player_steamid)
+    if player_object.authenticated:
+        try:
+            location_object = locations.get('system', 'lobby')
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby")
+            return False
+
+        if location_object.set_boundary_radius(player_object):
+            locations.add(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "The lobby-warnings will be issued from this point on")
+        else:
+            self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?")
+    else:
+        self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
+
+
+actions_lobby.append(("isequal", "set up lobby warning perimeter", set_up_lobby_warning_perimeter, "(self, players, locations)"))
 
 
 def remove_lobby(self, players, locations):
@@ -108,6 +131,7 @@ here come the observers
 observers_lobby = []
 
 
+# the only lobby specific observer. since it is a location, generic observers can be found in actions_locations
 def player_is_outside_boundary(self, players, locations):
     player_object = players.get(self.player_steamid)
     try:
@@ -119,7 +143,6 @@ def player_is_outside_boundary(self, players, locations):
         if not location_object.player_is_inside_boundary(player_object):
             if self.tn.teleportplayer(player_object, location_object):
                 self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>")
-            time.sleep(2)  # possibly not the best way to avoid mutliple teleports in a row
 
 
 observers_lobby.append(("player left lobby", player_is_outside_boundary, "(self, players, locations)"))

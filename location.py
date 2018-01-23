@@ -31,7 +31,8 @@ class Location(object):
     height = int
 
     boundary_percentage = 33
-    # Todo: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
+
+    # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     region = list
 
     last_player_activity_dict = {}
@@ -86,9 +87,9 @@ class Location(object):
                         float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                         float(self.pos_z) - float(player_object.pos_z)) ** 2)
         )
-        allowed_range = range(5, self.radius + 1)
+        allowed_range = range(2, int(self.radius + 1))
         if int(radius) in allowed_range:
-            self.radius = radius
+            self.boundary_radius = radius
             return True
         return False
 
@@ -142,10 +143,10 @@ class Location(object):
                 (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
                     float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                     float(self.pos_z) - float(player_object.pos_z)) ** 2))
-            distance_to_core_boundary = (float(self.radius) / 100) * (100 - float(self.boundary_percentage))
-            player_is_inside_core = distance_to_location_center <= distance_to_core_boundary
+            # distance_to_core_boundary = (float(self.radius) / 100) * (100 - float(self.boundary_percentage))
+            player_is_inside_core = distance_to_location_center <= float(self.boundary_radius)
         if self.shape == "cube":
-            if float(player_object.pos_x) >= (float(self.pos_x) - ((float(self.radius) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_x) <= (float(self.pos_x) + ((((float(self.radius) / 100) * (100 - float(self.boundary_percentage))) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_y) >= (float(self.pos_y)) and float(player_object.pos_y) <= (float(self.pos_y) + (((float(self.radius) * 2) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_z) >= (float(self.pos_z) - ((float(self.radius) / 100) * (100 - float(self.boundary_percentage)))) and float(player_object.pos_z) <= (float(self.pos_z) + ((float(self.radius) / 100) * (100 - float(self.boundary_percentage)))):
+            if float(player_object.pos_x) >= (float(self.pos_x) - float(self.boundary_radius)) and float(player_object.pos_x) <= (float(self.pos_x) + float(self.boundary_radius)) and float(player_object.pos_y) >= (float(self.pos_y)) and float(player_object.pos_y) <= (float(self.pos_y) + (float(self.boundary_radius) * 2)) and float(player_object.pos_z) >= (float(self.pos_z) - float(self.boundary_radius)) and float(player_object.pos_z) <= (float(self.pos_z) + float(self.boundary_radius)):
                 player_is_inside_core = True
 
         return player_is_inside_core
@@ -156,7 +157,7 @@ class Location(object):
 
         update the last known state for use in the next call
 
-        this is used to trigger events on entering a locations perimeter for example
+        this is used to trigger events on entering a locations outer perimeter for example
         """
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         try:
@@ -164,6 +165,7 @@ class Location(object):
         except (TypeError, KeyError):
             player_was_inside_boundary = player_is_inside_boundary
 
+        # TODO: there's got to be a better way to do this:
         if player_object.steamid not in self.last_player_activity_dict:
             self.last_player_activity_dict[player_object.steamid] = {}
         if self.name not in self.last_player_activity_dict[player_object.steamid]:

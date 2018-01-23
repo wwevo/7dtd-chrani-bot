@@ -244,6 +244,7 @@ class TelnetConnection:
             command = "teleportplayer " + player_object.steamid + " " + str(int(float(location_object.pos_x))) + " " + str(int(float(location_object.pos_y))) + " " + str(int(float(location_object.pos_z))) + b"\r\n"
             self.logger.info(command)
             connection.write(command)
+            player_object.switch_off("telnet")
             player_object.last_teleport = time.time()
         except Exception:
             return False
