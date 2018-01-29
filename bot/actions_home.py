@@ -9,7 +9,8 @@ def make_this_my_home(self, players, locations):
     player_object = players.get(self.player_steamid)
     if player_object.authenticated:
         location_dict = dict(
-            name='home',
+            name='My Home',
+            identifier='home',
             owner=player_object.steamid,
             description="{}\'s home".format(player_object.name),
             messages_dict={
@@ -18,22 +19,43 @@ def make_this_my_home(self, players, locations):
                 "entering_boundary": "you are entering {}\'s estate".format(player_object.name),
                 "entering_core": None
             },
-            pos_x=int(player_object.pos_x),
-            pos_y=int(player_object.pos_y),
-            pos_z=int(player_object.pos_z),
             shape='sphere',
-            radius=12,
-            boundary_radius=8,
-            region=[player_object.region]
+            radius=4,
+            warning_boundary=8,
+            region=[player_object.region],
+            list_of_players_inside=[player_object.steamid]
         )
         location_object = Location(**location_dict)
-        locations.add(location_object)
+        location_object.set_coordinates(player_object)
+        locations.upsert(location_object, save=True)
         self.tn.say("{} has decided to settle down!".format(player_object.name))
     else:
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
 
 
 actions_home.append(("isequal", "make this my home", make_this_my_home, "(self, players, locations)"))
+
+
+def set_up_home_teleport(self, players, locations):
+    player_object = players.get(self.player_steamid)
+    if player_object.authenticated:
+        try:
+            location_object = locations.get(player_object.steamid, "home")
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
+            return False
+
+        if location_object.set_teleport_coordinates(player_object):
+            locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "your teleport has been set up!")
+        else:
+            self.tn.send_message_to_player(player_object, "your position seems to be outside your home")
+
+    else:
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+
+
+actions_home.append(("isequal", "set up home teleport", set_up_home_teleport, "(self, players, locations)"))
 
 
 def name_my_home(self, players, locations, command):
@@ -45,7 +67,7 @@ def name_my_home(self, players, locations, command):
             try:
                 location_object = locations.get(player_object.steamid, "home")
                 location_object.set_description(description)
-                locations.add(location_object, save=True)
+                locations.upsert(location_object, save=True)
                 self.tn.say("{} called their home {}".format(player_object.name, location_object.description))
                 return True
 
@@ -85,8 +107,8 @@ def set_up_home_perimeter(self, players, locations):
             return False
 
         if location_object.set_radius(player_object):
-            locations.add(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your estate ends here and spawns {} meters ^^".format(int(location_object.radius * 2)))
+            locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)))
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
 
@@ -106,9 +128,9 @@ def set_up_home_warning_perimeter(self, players, locations):
             self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
             return False
 
-        if location_object.set_boundary_radius(player_object):
-            locations.add(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your private area ends here and spawns {} meters ^^".format(int(location_object.boundary_radius * 2)))
+        if location_object.set_warning_boundary(player_object):
+            locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.boundary_radius * 2)))
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.boundary_radius * 2)))
 
@@ -128,7 +150,7 @@ def make_my_home_a_shape(self, players, locations, command):
             try:
                 location_object = locations.get(player_object.steamid, "home")
                 if location_object.set_shape(shape):
-                    locations.add(location_object, save=True)
+                    locations.upsert(location_object, save=True)
                     self.tn.send_message_to_player(player_object,"{}'s home is a {} now.".format(player_object.name, shape))
                     return True
                 else:

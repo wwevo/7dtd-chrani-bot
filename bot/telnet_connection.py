@@ -5,17 +5,19 @@ import telnetlib
 import re
 import atexit
 import time
+import math
 from logger import logger
 from timeout import timeout_occurred
 
 
 class TelnetConnection:
-    bot = None
-    connection = None
-    logger = None
-    ip = None
-    port = None
-    password = None
+    connection = object
+    logger = object
+    ip = str
+    port = str
+    password = str
+
+    telnet_response = str
 
     def __init__(self, ip, port, password):
         """
@@ -28,6 +30,7 @@ class TelnetConnection:
         self.ip = ip
         self.port = port
         self.password = password
+        self.telnet_response = ""
         # TODO : instead of arguments you could use the attribute defined earlier for the method bellow
         self.__get_telnet_connection(ip, port, password)
         atexit.register(self.__cleanup)
@@ -96,15 +99,12 @@ class TelnetConnection:
         self.logger.debug("telnet connection established: " + str(connection))
         return connection
 
-    def read_line(self, message=b"\r\n", timeout=1):
+    def read_line(self, message=b"\r\n"):
         try:
             connection = self.connection
-            telnet_response = connection.read_until(message, timeout)
-            if telnet_response:
-                # self.logger.info(telnet_response)
-                return telnet_response
-            else:
-                return None
+            telnet_response = connection.read_very_eager()
+            if telnet_response and telnet_response != "\r\n":
+                return telnet_response.splitlines()
         except Exception:
             raise
 
@@ -235,19 +235,22 @@ class TelnetConnection:
         :param location_object: coordinate
         :return: bool for success
         """
-        # print (time.time() - self.last_teleport)
-        if player_object.last_teleport is not None and (time.time() - player_object.last_teleport) < 2:
-            self.logger.debug(time.time() - player_object.last_teleport)
-            return False
-        try:
-            connection = self.connection
-            command = "teleportplayer " + player_object.steamid + " " + str(int(float(location_object.pos_x))) + " " + str(int(float(location_object.pos_y))) + " " + str(int(float(location_object.pos_z))) + b"\r\n"
-            self.logger.info(command)
-            connection.write(command)
-            player_object.switch_off("telnet")
-            player_object.last_teleport = time.time()
-        except Exception:
-            return False
+        # current_time = time.time()
+        # last_teleport = player_object.last_teleport
+        # diff = current_time - last_teleport
+        # if player_object.last_teleport is not None and (current_time - int(player_object.last_teleport)) < 2:
+        #     self.logger.debug(time.time() - player_object.last_teleport)
+        #     return False
+        if player_object.is_responsive:
+            try:
+                connection = self.connection
+                command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(location_object.tele_x)))) + " " + str(int(math.ceil(float(location_object.tele_y)))) + " " + str(int(math.ceil(float(location_object.tele_z)))) + b"\r\n"
+                self.logger.info(command)
+                # player_object.last_teleport = time.time()
+                connection.write(command)
+                # player_object.switch_off("telnet")
+            except Exception:
+                return False
         # try:
         #     teleport_succeeded = False
         #     timeout = time.time()
@@ -263,3 +266,60 @@ class TelnetConnection:
         #     return False
 
         return True
+
+    def debuffplayer(self, player_object, buff):
+        """
+        issues a debuff for a player
+        :param player_object: player
+        :buff the buff to be removed
+        :return:
+        """
+        debuff_list = [
+            "bleeding",
+            "foodPoisoning",
+            "brokenLeg",
+            "sprainedLeg"
+        ]
+        if buff not in debuff_list:
+            return False
+        try:
+            connection = self.connection
+            command = "debuffplayer " + player_object.steamid + " " + str(buff) + "\r\n"
+            self.logger.info(command)
+            connection.write(command)
+        except Exception:
+            return False
+
+    def buffplayer(self, player_object, buff):
+        """
+        issues a debuff for a player
+        :param player_object: player
+        :buff the buff to be removed
+        :return:
+        """
+        buff_list = [
+            "firstAidLarge"
+        ]
+        if buff not in buff_list:
+            return False
+        try:
+            connection = self.connection
+            command = "buffplayer " + player_object.steamid + " " + str(buff) + "\r\n"
+            self.logger.info(command)
+            connection.write(command)
+        except Exception:
+            return False
+
+    def set_admin_level(self, player_object, level):
+        allowed_levels = [
+            "2", "4"
+        ]
+        if level not in allowed_levels:
+            return False
+        try:
+            connection = self.connection
+            command = "add admin " + player_object.steamid + " " + str(level) + "\r\n"
+            self.logger.info(command)
+            connection.write(command)
+        except Exception:
+            return False

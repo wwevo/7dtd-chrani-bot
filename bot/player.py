@@ -24,15 +24,18 @@ class Player(object):
     region = str
     authenticated = bool
     is_responsive = bool
-    last_teleport = None
-
-    lifesigns_dict_old = {}
+    last_teleport = int
 
     def __init__(self, **kwargs):
+        self.last_teleport = 0
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
-        self.region = self.__get_region_string(self.pos_x, self.pos_z)
+
+        try:
+            self.region = self.__get_region_string(self.pos_x, self.pos_z)
+        except:
+            pass
 
     def __get_region_string(self, pos_x, pos_z):
         grid_x = int(math.floor(pos_x / 512))
@@ -58,26 +61,6 @@ class Player(object):
         self.authenticated = authenticated
         return True
 
-    def store_player_lifesigns(self):
-        self.lifesigns_dict_old.update({
-            "rot_x": self.rot_x, "rot_y": self.rot_y, "rot_z": self.rot_z, "pos_x": self.pos_x, "pos_y": self.pos_y, "pos_z": self.pos_z}
-        )
-
-    def check_if_lifesigns_have_changed(self):
-        """ compares playerdata that is bound to change often
-
-        i was having troubles with rounding, in fact, i still do. converting this to integers does help a litle,
-        but i believe in boundary cases it can still misfire
-        """
-        if self.rot_x != self.lifesigns_dict_old["rot_x"]\
-                or int(self.rot_y) != int(self.lifesigns_dict_old["rot_y"])\
-                or int(self.rot_z) != int(self.lifesigns_dict_old["rot_z"])\
-                or int(self.pos_x) != int(self.lifesigns_dict_old["pos_x"])\
-                or int(self.pos_y) != int(self.lifesigns_dict_old["pos_y"])\
-                or int(self.pos_z) != int(self.lifesigns_dict_old["pos_z"]):
-            return True
-        return False
-
     def is_alive(self):
         if self.health is not 0:
             return True
@@ -89,12 +72,3 @@ class Player(object):
             return True
         else:
             return False
-
-    def get_lifesigns_dict(self):
-        lifesigns_dict = {
-            "rot_x": self.rot_x, "rot_y": self.rot_y, "rot_z": self.rot_z, "pos_x": self.pos_x, "pos_y": self.pos_y, "pos_z": self.pos_z
-        }
-        return lifesigns_dict
-
-    def get_lifesigns_old_dict(self):
-        return self.lifesigns_dict_old

@@ -8,28 +8,29 @@ actions_lobby = []
 
 def set_up_lobby(self, players, locations):
     player_object = players.get(self.player_steamid)
-    if player_object.authenticated:
+    if player_object.authenticated is True:
         """ full dictionary setup. These settings can all be set individually on a set_{option} basis
         """
         location_dict = dict(
             owner='system',
-            name='lobby',
-            description='The \"there\'s no escape\" Lobby',
+            name='The Lobby',
+            identifier='lobby',
+            description='The \"there is no escape\" Lobby',
             messages_dict={
-                "leaving_core": "leaving the lobby, you better be authenticated!!",
-                "leaving_boundary": "freedom at last!",
-                "entering_boundary": None,
+                "leaving_core": None,
+                "leaving_boundary": "leaving the lobby, you better be authenticated!!",
+                "entering_boundary": "entering the lobby, Why?",
                 "entering_core": None
             },
-            pos_x=int(player_object.pos_x),
-            pos_y=int(player_object.pos_y),
-            pos_z=int(player_object.pos_z),
             shape='sphere',
             radius=12,
-            boundary_radius=8,
-            region=[player_object.region]
+            warning_boundary=8,
+            region=[player_object.region],
+            list_of_players_inside=[player_object.steamid]
         )
-        locations.add(Location(**location_dict), save=True)  # leave the save flag if you want to work with the object first and then .save later
+        location_object = Location(**location_dict)
+        location_object.set_coordinates(player_object)
+        locations.upsert(location_object, save=True)
         self.tn.send_message_to_player(player_object, player_object.name + " has set up a lobby. Good job! set up the perimeter (default is 10 blocks) with /set up lobby perimeter, while standing on the edge of it.")
     else:
         self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to sweet commands!")
@@ -40,7 +41,7 @@ actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self, players, 
 
 def set_up_lobby_perimeter(self, players, locations):
     player_object = players.get(self.player_steamid)
-    if player_object.authenticated:
+    if player_object.authenticated is True:
         try:
             location_object = locations.get('system', 'lobby')
         except KeyError:
@@ -48,8 +49,8 @@ def set_up_lobby_perimeter(self, players, locations):
             return False
 
         if location_object.set_radius(player_object):
-            locations.add(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The lobby ends here and spawns {} meters ^^".format(int(location_object.radius * 2)))
+            locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)))
         else:
             self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
     else:
@@ -61,15 +62,15 @@ actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimete
 
 def set_up_lobby_warning_perimeter(self, players, locations):
     player_object = players.get(self.player_steamid)
-    if player_object.authenticated:
+    if player_object.authenticated is True:
         try:
             location_object = locations.get('system', 'lobby')
         except KeyError:
             self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby")
             return False
 
-        if location_object.set_boundary_radius(player_object):
-            locations.add(location_object, save=True)
+        if location_object.set_warning_boundary(player_object):
+            locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "The lobby-warnings will be issued from this point on")
         else:
             self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?")
@@ -82,7 +83,7 @@ actions_lobby.append(("isequal", "set up lobby warning perimeter", set_up_lobby_
 
 def remove_lobby(self, players, locations):
     player_object = players.get(self.player_steamid)
-    if player_object.authenticated:
+    if player_object.authenticated is True:
         try:
             locations.remove('system', 'lobby')
         except KeyError:
@@ -97,7 +98,7 @@ actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self,
 
 def on_player_join(self, players, locations):
     player_object = players.get(self.player_steamid)
-    if not player_object.authenticated:
+    if player_object.authenticated is not True:
         try:
             location_dict = locations.get('system', "lobby")
             self.tn.send_message_to_player(player_object, "yo ass will be deported to our lobby plus tha command-shit is restricted yo")
@@ -109,6 +110,11 @@ actions_lobby.append(("isequal", "joined the game", on_player_join, "(self, play
 
 
 def password(self, players, locations, command):
+    try:
+        location_dict = locations.get('system', "lobby")
+    except KeyError:
+        return False
+
     player_object = players.get(self.player_steamid)
     p = re.search(r"password (.+)", command)
     if p:

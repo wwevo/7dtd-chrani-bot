@@ -18,7 +18,7 @@ def password(self, players, command):
         else:
             player_object.set_authenticated(False)
             self.tn.say(player_object.name + " has entered a wrong password oO!")
-        players.save(player_object)
+        players.upsert(player_object, save=True)
 
 
 actions_authentication.append(("startswith", "password", password, "(self, players, command)"))
@@ -38,18 +38,18 @@ def on_player_join(self, players, locations):
     except KeyError:
         self.tn.send_message_to_player(player_object, "this servers bot says Hi to " + player_object.name + " o/")
         location_dict = dict(
-            name='spawn',
+            identifier='spawn',
+            name='Place of Birth',
             owner=player_object.steamid,
-            pos_x=int(player_object.pos_x),
-            pos_y=int(player_object.pos_y),
-            pos_z=int(player_object.pos_z),
             shape='point',
             radius=None,
             region=[player_object.region]
         )
-        locations.add(Location(**location_dict), save=True)
+        location_object = Location(**location_dict)
+        location_object.set_coordinates(player_object)
+        locations.upsert(location_object, save=True)
 
-    if not player_object.authenticated:
+    if player_object.authenticated is not True:
         self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot")
 
 

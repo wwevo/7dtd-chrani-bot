@@ -5,33 +5,32 @@ from threading import Thread, Event
 from logger import logger
 import time
 import re
-import pprint
 
 from actions_authentication import actions_authentication
+from actions_dev import actions_dev
 from actions_home import actions_home
 from actions_lobby import actions_lobby, observers_lobby
-from actions_locations import observers_locations
+from actions_locations import actions_locations, observers_locations
 from actions_whitelist import actions_whitelist, observers_whitelist
 
 
 class PlayerObserver(Thread):
-    tn = None
-    bot = None
+    tn = object
+    bot = object
 
-    run_observers_interval = 1  # loop this every run_observers_interval seconds
+    run_observers_interval = int  # loop this every run_observers_interval seconds
 
-    player_steamid = None
-    logger = None
+    player_steamid = str
+    logger = object
 
-    player_actions = actions_whitelist + actions_authentication + actions_home + actions_lobby
+    player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
     observers = observers_whitelist + observers_lobby + observers_locations
 
     def __init__(self, bot, event, player_steamid):
         """ using a telnet connection for every thread. shouldn't be that bad on a 24 player server """
+        self.run_observers_interval = 1
         self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
-        self.tn.bot = bot
         self.bot = bot
-
         self.stopped = event
         self.player_steamid = str(player_steamid)
 
@@ -40,25 +39,19 @@ class PlayerObserver(Thread):
     def run(self):
         next_cycle = 0
 
-        log_status_interval = 5  # print player status ever ten seconds or so
+        log_status_interval = 1  # print player status ever ten seconds or so
         log_status_start = 0
         log_status_timeout = 0  # should log first, then timeout ^^
-        self.bot.players.players_dict[self.player_steamid].store_player_lifesigns()  # save the starting-values of our player's vitals / position
+
         self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "bot " + self.bot.name + " is ready and listening")
-        self.bot.players.load(self.player_steamid)
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
             profile_start = time.time()
             player = self.bot.players.get(self.player_steamid)
-            if self.observers and player is not False and player.is_responsive:
+
+            if self.observers and player.is_alive():
                 """ execute real-time observers
-
-                if a player gets teleported while dead, he will get a black screen and has to relog
-                upon respawn he will immediately die again. this can lead to a nasty death-loop
-                so I switch the player off in the main loop after death and switch him back on after respawn ^^
-                this is my third attempt at getting to a logic that actually works. promising so far!
-
                 these are run regardless of telnet activity!
                 """
                 command_queue = []
@@ -74,31 +67,27 @@ class PlayerObserver(Thread):
                     else:
                         break
 
-            # if not player.is_responsive and player.check_if_lifesigns_have_changed():
-            #     player.switch_on("observer")
+                execution_time = time.time() - profile_start
+                next_cycle = self.run_observers_interval - execution_time
 
-            execution_time = time.time() - profile_start
-            next_cycle = self.run_observers_interval - execution_time
+                if time.time() - log_status_start > log_status_timeout:
+                    """ prepare log-output
+    
+                    so we don't have it clogged with endless meaningless lines
+                    """
+                    log_message = "executed player_observer loop. that took me like totally less than {} seconds!!".format(execution_time)
+                    logger.debug(log_message)
 
-            if time.time() - log_status_start > log_status_timeout:
-                """ prepare log-output
+                    log_status_start = time.time()
+                    log_status_timeout = (log_status_interval - 1)
+                    if self.player_steamid in self.bot.players.players_dict and self.bot.players.players_dict[self.player_steamid].is_responsive:
+                        status = "active"
+                    else:
+                        status = "suspended"
 
-                so we don't have it clogged with endless meaningless lines
-                """
-                log_message = "executed player_observer loop. that took me like totally less than {} seconds!!".format(
-                    execution_time)
-                logger.debug(log_message)
-
-                log_status_start = time.time()
-                log_status_timeout = (log_status_interval - 1)
-                if self.bot.players.players_dict[self.player_steamid].is_responsive:
-                    status = "active"
-                else:
-                    status = "suspended"
-
-                log_message = "thread is {}, player is in region {} (I scan every {} seconds and log this every {} seconds)".format(
-                    status, self.bot.players.players_dict[self.player_steamid].region, str(self.run_observers_interval), str(log_status_interval))
-                logger.debug(log_message)
+                    log_message = "thread is {}, player is in region {} (I scan every {} seconds and log this every {} seconds)".format(
+                        status, self.bot.players.players_dict[self.player_steamid].region, str(self.run_observers_interval), str(log_status_interval))
+                    logger.debug(log_message)
 
         logger.debug("thread has stopped")
 
