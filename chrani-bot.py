@@ -11,7 +11,7 @@ let there be bot:
 if __name__ == '__main__':
     while True:
         try:
-            bot = ChraniBot()  # leaving this here while we have no database so the location data (lobby, base etc.) is kept in memory
+            bot = ChraniBot()
             bot.run()
         except IOError as error:
             """ clean up bot to have a clean restart when a new connection can be established """
