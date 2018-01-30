@@ -46,12 +46,12 @@ class Player(object):
     def switch_on(self, source=""):
         self.is_responsive = True
         # self.store_player_lifesigns()
-        logger.debug("switched on player " + self.name + " " + source)
+        logger.info("switched on player " + self.name + " " + source)
 
     def switch_off(self, source=""):
         self.is_responsive = False
         # self.store_player_lifesigns()
-        logger.debug("switched off player " + self.name + " " + source)
+        logger.info("switched off player " + self.name + " " + source)
 
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():

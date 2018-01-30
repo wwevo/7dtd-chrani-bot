@@ -2,6 +2,7 @@ from command_line_args import args_dict
 from byteify import byteify
 import json
 import os
+from logger import logger
 from location import Location
 
 
@@ -54,14 +55,26 @@ class Locations(object):
                 raise
         else:
             try:
-                location = self.locations_dict[location_owner][location_identifier]
-                return location
+                location_object = self.locations_dict[location_owner][location_identifier]
+                return location_object
             except KeyError:
                 raise
 
-
-    def remove(self):
-        pass
+    def remove(self, location_owner, location_identifier):
+        try:
+            location_object = self.locations_dict[location_owner][location_identifier]
+            filename = self.root + self.prefix + '_' + location_object.owner + '_' + location_object.identifier + '.json'
+            if os.path.exists(filename):
+                try:
+                    os.remove(filename)
+                    del self.locations_dict[location_owner][location_identifier]
+                except OSError, e:
+                    logger.error("Error: {} - {}.".format(e.filename, e.strerror))
+            else:
+                print("Sorry, I can not find {} file.".format(filename))
+            pass
+        except KeyError:
+            raise
 
     def save(self, location_object):
         dict_to_save = location_object.__dict__

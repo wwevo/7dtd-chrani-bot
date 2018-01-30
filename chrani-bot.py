@@ -17,8 +17,9 @@ if __name__ == '__main__':
             """ clean up bot to have a clean restart when a new connection can be established """
             if bot.is_active:
                 bot.shutdown()
-            wait_until_reconnect = 5
             logger.warn(error)
+
+            wait_until_reconnect = 5
             log_message = "will try again in {} seconds".format(str(wait_until_reconnect))
             logger.info(log_message)
             time.sleep(wait_until_reconnect)

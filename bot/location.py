@@ -30,9 +30,6 @@ class Location(object):
     length = int
     height = int
 
-    boundary_percentage = int
-
-    # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     region = list
 
     last_player_activity_dict = {}
@@ -46,6 +43,7 @@ class Location(object):
             "entering_core": "entering core"
         }
         self.radius = 10
+        self.warning_boundary = 6
         self.width = self.radius * 2
         self.length = self.radius * 2
         self.height = self.radius * 2
@@ -61,11 +59,10 @@ class Location(object):
         self.name = name
         return True
 
-    def set_identifier(self, name):
-        keepcharacters = '_'
-        identifier = "".join(c for c in name if c.isalnum() or c in keepcharacters).rstrip()
-        self.identifier = identifier
-        return identifier
+    def set_identifier(self, identifier):
+        sanitized_identifier = "".join(i for i in identifier if i not in r' \/:*?"<>|!.,;')
+        self.identifier = sanitized_identifier
+        return sanitized_identifier
 
     def set_description(self, description):
         self.description = description
@@ -85,7 +82,7 @@ class Location(object):
         return True
 
     def set_teleport_coordinates(self, player_object):
-        if self.name == 'spawn' or self.player_is_inside_boundary(player_object):
+        if self.shape == 'point' or self.player_is_inside_boundary(player_object):
             self.tele_x = player_object.pos_x
             self.tele_y = player_object.pos_y
             self.tele_z = player_object.pos_z
@@ -97,7 +94,7 @@ class Location(object):
         allowed_shapes = ['cube', 'sphere', 'room']
         if shape in allowed_shapes:
             self.shape = shape
-            if shape == 'sphere':
+            if shape in ['sphere', 'cube']:
                 self.radius = max(
                     self.width / 2,
                     self.length / 2
@@ -155,6 +152,7 @@ class Location(object):
     def get_messages_dict(self):
         return self.messages_dict
 
+    # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     def set_region(self, regions_list):
         self.region = regions_list
 
