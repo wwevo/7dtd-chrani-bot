@@ -1,7 +1,6 @@
 import telnetlib
 import re, time, math
 from logger import logger
-from timeout import timeout_occurred
 
 
 class TelnetConnection:

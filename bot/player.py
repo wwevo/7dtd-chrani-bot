@@ -53,14 +53,18 @@ class Player(object):
     def set_country_code(self, country_code):
         self.country_code = country_code
 
+    def get_country_code(self):
+        if isinstance(self.country_code, basestring):
+            return str(self.country_code)
+        else:
+            return None
+
     def switch_on(self, source=""):
         self.is_responsive = True
-        # self.store_player_lifesigns()
         logger.info("switched on player " + self.name + " " + source)
 
     def switch_off(self, source=""):
         self.is_responsive = False
-        # self.store_player_lifesigns()
         logger.info("switched off player " + self.name + " " + source)
 
     def update(self, **kwargs):

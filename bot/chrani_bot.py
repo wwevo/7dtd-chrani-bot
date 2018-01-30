@@ -82,7 +82,7 @@ class ChraniBot():
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
         }
 
-        self.banned_counties_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+        self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
 
     def poll_players(self):
         online_players_dict = {}
@@ -225,6 +225,7 @@ class ChraniBot():
                             if player_steamid in self.active_player_threads_dict and player_object.is_responsive == True:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]
                                 active_player_thread["thread"].trigger_action(telnet_line)
+            time.sleep(0.05)  # to limit the speed a bit ^^
 
     def shutdown(self):
         self.is_active = False

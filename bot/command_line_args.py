@@ -15,13 +15,15 @@ class CommandLineArgs():
                             type=int)
         parser.add_argument("Telnet-password", help="Telnet-password of your 7dtd game-server (12345678)", nargs='?',
                             default="12345678")
-        parser.add_argument("Database-file", help="SQLite3 Database to be used for storing information (dummy.db)",
+        parser.add_argument("Database-file", help="prefix for the json files",
+                            nargs='?',
+                            default="dummy")
+        parser.add_argument("IP-Token", help="access token for country codes (ipinfo.io)",
                             nargs='?',
                             default="dummy")
         parser.add_argument("--verbosity", help="what messages would you like to see? (INFO)", default="INFO")
         args = parser.parse_args()
         args_dict = vars(args)
         return args_dict
-
 
 args_dict = CommandLineArgs.get_args_dict()

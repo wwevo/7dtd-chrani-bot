@@ -1,3 +1,4 @@
+from bot.command_line_args import args_dict
 from player import Player
 from logger import logger
 import re, urllib
@@ -79,12 +80,18 @@ observers_whitelist.append(("set to online", check_if_player_has_url_name, "(sel
 
 
 def check_ip_country(self):
+    if str(args_dict['IP-Token']) == 'dummy':
+        logger.info("IP check disabled for local testing")
+        return
     player_object = self.bot.players.get(self.player_steamid)
-    if not self.bot.whitelist.player_is_allowed(player_object):
+    users_country = player_object.get_country_code()
+    if self.bot.whitelist.player_is_allowed(player_object) or (users_country is not None and users_country not in self.bot.banned_countries_list):
+        pass
+    else:
         try:
-            f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country")
+            f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(args_dict['IP-Token']))
             users_country = f.read().rstrip()
-            if users_country in self.bot.banned_counties_list:
+            if users_country in self.bot.banned_countries_list:
                 logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
                 self.tn.say("{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country))
                 self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
@@ -93,6 +100,7 @@ def check_ip_country(self):
                 self.bot.players.upsert(player_object, save=True)
         except Exception:
             pass
+
 
 observers_whitelist.append(("set to online", check_ip_country, "(self)"))
 
