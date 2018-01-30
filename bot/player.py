@@ -11,6 +11,9 @@ class Player(object):
     rot_x = float
     rot_y = float
     rot_z = float
+    death_x = float
+    death_y = float
+    death_z = float
     remote = bool
     health = int
     deaths = int
@@ -22,6 +25,7 @@ class Player(object):
     ip = str
     ping = int
     region = str
+    country_code = str
     authenticated = bool
     is_responsive = bool
     last_teleport = int
@@ -43,6 +47,12 @@ class Player(object):
 
         return str(grid_x) + "." + str(grid_z) + ".7rg"
 
+    def set_name(self, name):
+        self.name = name
+
+    def set_country_code(self, country_code):
+        self.country_code = country_code
+
     def switch_on(self, source=""):
         self.is_responsive = True
         # self.store_player_lifesigns()
@@ -59,6 +69,12 @@ class Player(object):
 
     def set_authenticated(self, authenticated):
         self.authenticated = authenticated
+        return True
+
+    def set_coordinates(self,location_object):
+        self.pos_x = location_object.tele_x
+        self.pos_y = location_object.tele_y
+        self.pos_z = location_object.tele_z
         return True
 
     def is_alive(self):

@@ -9,7 +9,6 @@ class TelnetConnection:
     bot = object
 
     def __init__(self, ip, port, password):
-
         connection = self.get_telnet_connection(ip, port)
         self.tn = self.authenticate(connection, password)
 
@@ -77,7 +76,7 @@ class TelnetConnection:
         poll_is_finished = False
         timeout_start = time.time()
         timeout_after_n_seconds = 2
-        while poll_is_finished is not True and not timeout_occurred(timeout_after_n_seconds, timeout_start):
+        while poll_is_finished is not True:
             try:
                 telnet_response = telnet_response + connection.read_until(b"\r\n")
             except Exception:
@@ -98,7 +97,7 @@ class TelnetConnection:
             return False
 
     def kick(self, player_object, reason='just because'):
-        command = "kick " + player_object.name + " \"" + reason + b"\"\r\n"
+        command = "kick " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"
         try:
             connection = self.tn
             connection.write(command)

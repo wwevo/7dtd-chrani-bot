@@ -1,5 +1,6 @@
 from player import Player
-import re
+from logger import logger
+import re, urllib
 
 
 actions_whitelist = []
@@ -11,10 +12,12 @@ def add_player_to_whitelist(self, command):
         p = re.search(r"add\s(?P<steamid>.+)\sto whitelist", command)
         if p:
             steamid_to_whitelist = p.group("steamid")
-            player_object_to_whitelist = self.bot.players.get(steamid_to_whitelist)
-            if player_object_to_whitelist is False:
+            try:
+                player_object_to_whitelist = self.bot.players.get(steamid_to_whitelist)
+            except KeyError:
                 player_dict = {'steamid': steamid_to_whitelist, "name": 'unknown offline player'}
                 player_object_to_whitelist = Player(**player_dict)
+
             if self.bot.whitelist.upsert(player_object, player_object_to_whitelist, save=True):
                 self.tn.send_message_to_player(player_object_to_whitelist, "you have been whitelisted by {}".format(player_object.name))
             else:
@@ -45,7 +48,7 @@ here come the observers
 observers_whitelist = []
 
 
-def player_set_to_online(self):
+def check_if_player_is_on_whitelist(self):
     """
     When a player trying to join
     :param self:
@@ -54,7 +57,44 @@ def player_set_to_online(self):
     """
     player_object = self.bot.players.get(self.player_steamid)
     if self.bot.whitelist.is_active() and not self.bot.whitelist.player_is_allowed(player_object):
-        self.tn.kick(player_object, "You are not on our whitelist! Visit chrani.net/chrani-bot to find out what that means!")
+        logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
+        self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name))
+        self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
 
 
-observers_whitelist.append(("set to online", player_set_to_online, "(self)"))
+observers_whitelist.append(("set to online", check_if_player_is_on_whitelist, "(self)"))
+
+
+def check_if_player_has_url_name(self):
+    player_object = self.bot.players.get(self.player_steamid)
+    if not self.bot.whitelist.player_is_allowed(player_object):
+        p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}", player_object.name, re.IGNORECASE)
+        if p:
+            logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
+            self.tn.say("{} has been kicked. crappy url-name!".format(player_object.steamid))
+            self.tn.kick(player_object, "We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
+
+
+observers_whitelist.append(("set to online", check_if_player_has_url_name, "(self)"))
+
+
+def check_ip_country(self):
+    player_object = self.bot.players.get(self.player_steamid)
+    if not self.bot.whitelist.player_is_allowed(player_object):
+        try:
+            f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country")
+            users_country = f.read().rstrip()
+            if users_country in self.bot.banned_counties_list:
+                logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
+                self.tn.say("{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country))
+                self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
+            else:
+                player_object.set_country_code(users_country)
+                self.bot.players.upsert(player_object, save=True)
+        except Exception:
+            pass
+
+observers_whitelist.append(("set to online", check_ip_country, "(self)"))
+
+
+

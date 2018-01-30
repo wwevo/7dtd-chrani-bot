@@ -26,6 +26,7 @@ class ChraniBot():
 
     match_types = dict
     match_types_system = dict
+    banned_countries_list = list
 
     tn = object  # telnet connection to use for everything except player-actions and player-poll
     poll_tn = object
@@ -81,10 +82,12 @@ class ChraniBot():
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
         }
 
+        self.banned_counties_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+
     def poll_players(self):
         online_players_dict = {}
         for m in re.finditer(self.match_types_system["listplayers_result_regexp"], self.poll_tn.listplayers()):
-            online_players_dict = {m.group(16): {
+            online_players_dict.update({m.group(16): {
                 "id":       m.group(1),
                 "name":     str(m.group(2)),
                 "pos_x":    float(m.group(3)),
@@ -103,7 +106,7 @@ class ChraniBot():
                 "steamid":  m.group(16),
                 "ip":       str(m.group(17)),
                 "ping":     int(m.group(18))
-            }}
+            }})
         return online_players_dict
 
     def run(self):
@@ -232,5 +235,5 @@ class ChraniBot():
             stop_flag.stopped.set()
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = None
-        self.tn.close()
+        self.tn.tn.close()
 

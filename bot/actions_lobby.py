@@ -1,7 +1,6 @@
-import math
 import re
-import time
 from location import Location
+from logger import logger
 
 actions_lobby = []
 
@@ -142,10 +141,9 @@ def player_is_outside_boundary(self):
     if player_object.authenticated is not True and player_object.is_responsive:
         if not location_object.player_is_inside_boundary(player_object):
             if self.tn.teleportplayer(player_object, location_object):
-                player_object.pos_x = location_object.pos_x
-                player_object.pos_y = location_object.pos_y
-                player_object.pos_z = location_object.pos_z
+                player_object.set_coordinates(location_object)
                 self.bot.players.upsert(player_object)
+                logger.info("{} has been ported to the lobby!".format(player_object.name))
                 self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>")
 
 
