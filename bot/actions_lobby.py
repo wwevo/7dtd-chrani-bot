@@ -124,6 +124,66 @@ def password(self, command):
 
 actions_lobby.append(("startswith", "password", password, "(self, command)"))
 
+
+def set_up_lobby_area(self, command):
+    player_object = self.bot.players.get(self.player_steamid)
+    if player_object.authenticated is True:
+        p = re.search(r"set up the lobby as a room starting from south west going north (.+)and east (.+) and up (.+)", command)
+        if p:
+            length = p.group(1)
+            width = p.group(2)
+            height = p.group(3)
+            try:
+                location_object = self.bot.locations.get('system', 'lobby')
+            except KeyError:
+                self.tn.send_message_to_player(player_object, "I can not find a location called {}".format('lobby'))
+                return False
+
+            set_width, allowed_range = location_object.set_width(width)
+            set_length, allowed_range = location_object.set_length(length)
+            set_height, allowed_range = location_object.set_height(height)
+            if set_width is True and set_length is True and set_height is True:
+                location_object.set_shape("room")
+                location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
+                self.bot.locations.upsert(location_object, save=True)
+                self.tn.send_message_to_player(player_object,
+                                               "the location {} ends here and spans {} meters ^^".format('lobby',
+                                                   int(location_object.radius * 2)))
+            else:
+                self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid")
+
+
+    else:
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+
+
+actions_lobby.append(("startswith", "set up the lobby", set_up_lobby_area, "(self, command)"))
+
+
+def set_up_lobby_teleport(self, command):
+    player_object = self.bot.players.get(self.player_steamid)
+    if player_object.authenticated is True:
+        p = re.search(r"set up teleport for lobby", command)
+        if p:
+            try:
+                location_object = self.bot.locations.get('system', 'lobby')
+            except KeyError:
+                self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the lobby first!")
+                return False
+
+            if location_object.set_teleport_coordinates(player_object):
+                self.bot.locations.upsert(location_object, save=True)
+                self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'))
+            else:
+                self.tn.send_message_to_player(player_object, "your position seems to be outside the location")
+
+    else:
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+
+
+actions_lobby.append(("startswith", "set up teleport for lobby", set_up_lobby_teleport, "(self, command)"))
+
+
 """
 here come the observers
 """
