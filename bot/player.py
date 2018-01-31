@@ -32,6 +32,7 @@ class Player(object):
 
     def __init__(self, **kwargs):
         self.last_teleport = 0
+        self.is_responsive = False
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -61,11 +62,11 @@ class Player(object):
 
     def switch_on(self, source=""):
         self.is_responsive = True
-        logger.info("switched on player " + self.name + " " + source)
+        logger.info("switched on player '{}' - {}".format(self.name, source))
 
     def switch_off(self, source=""):
         self.is_responsive = False
-        logger.info("switched off player " + self.name + " " + source)
+        logger.info("switched off player '{}' - {}".format(self.name, source))
 
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():
@@ -81,7 +82,7 @@ class Player(object):
         self.pos_z = location_object.tele_z
         return True
 
-    def is_alive(self):
+    def has_health(self):
         if self.health is not 0:
             return True
         else:

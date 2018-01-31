@@ -81,7 +81,6 @@ observers_whitelist.append(("set to online", check_if_player_has_url_name, "(sel
 
 def check_ip_country(self):
     if str(args_dict['IP-Token']) == 'dummy':
-        logger.info("IP check disabled for local testing")
         return
     player_object = self.bot.players.get(self.player_steamid)
     users_country = player_object.get_country_code()

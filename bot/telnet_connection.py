@@ -6,17 +6,16 @@ from logger import logger
 class TelnetConnection:
     tn = object
     bot = object
+    show_log_init = bool
 
-    def __init__(self, ip, port, password):
-        connection = self.get_telnet_connection(ip, port)
-        self.tn = self.authenticate(connection, password)
-
-    def get_telnet_connection(self, ip, port):
+    def __init__(self, ip, port, password, show_log_init=False):
         try:
-            return telnetlib.Telnet(ip, port, timeout=2)
+            connection = telnetlib.Telnet(ip, port, timeout=2)
         except Exception:
             log_message = 'could not establish connection to the host. check ip and port'
             raise IOError(log_message)
+        self.show_log_init = show_log_init
+        self.tn = self.authenticate(connection, password)
 
     def authenticate(self, connection, password):
         try:
@@ -28,10 +27,12 @@ class TelnetConnection:
                     found_prompt = True
 
             # Sending password.
-            connection.write(password.encode('ascii') + b"\r\n")
+            full_auth_response = ''
             authenticated = False
+            connection.write(password.encode('ascii') + b"\r\n")
             while authenticated is not True:  # loop until authenticated, it's required
                 telnet_response = connection.read_until(b"\r\n")
+                full_auth_response += telnet_response.rstrip()
                 # last 'welcome' line from the games telnet. it might change with a new game-version
                 if re.match(r"Password incorrect, please enter password:\r\n", telnet_response) is not None:
                     log_message = 'incorrect telnet password'
@@ -39,15 +40,20 @@ class TelnetConnection:
                     raise ValueError
                 if re.match(r"Logon successful.\r\n", telnet_response) is not None:
                     authenticated = True
-                    logger.debug(telnet_response)
+            if self.show_log_init is True and full_auth_response != '':
+                logger.info(full_auth_response)
 
             # Waiting for banner.
+            full_banner = ''
             displayed_welcome = False
             while displayed_welcome is not True:  # loop until ready, it's required
                 telnet_response = connection.read_until(b"\r\n")
+                full_banner += telnet_response.rstrip(b"\n")
                 if re.match(r"Press 'help' to get a list of all commands. Press 'exit' to end session.", telnet_response):
                     displayed_welcome = True
-                    logger.debug(telnet_response)
+
+            if self.show_log_init is True and full_banner != '':
+                logger.info(full_banner)
 
         except Exception:
             raise

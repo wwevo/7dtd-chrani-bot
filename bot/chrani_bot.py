@@ -45,7 +45,8 @@ class ChraniBot():
 
     def __init__(self):
         self.name = "chrani-bot"
-        self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+        logger.info("{} started".format(self.name))
+        self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'], show_log_init=True)
         self.poll_tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
 
         self.players = Players()  # players will be loaded on a need-to-load basis
@@ -110,7 +111,6 @@ class ChraniBot():
         return online_players_dict
 
     def run(self):
-        logger.info("chrani-bot started")
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.tn.togglechatcommandhide("/")
 
@@ -160,13 +160,7 @@ class ChraniBot():
                         player_observer_thread.isDaemon()
                         player_observer_thread.start()
                         self.players.upsert(player_object, save=True)
-
                         self.active_player_threads_dict.update({player_steamid: {"event": stop_flag, "thread": player_observer_thread}})
-                        logger.info("thread started for player " + player_object.name)
-
-                        if player_object.is_alive() is True:
-                            # if they have health, we can assume the players are alive and can be manhandled by the bot!
-                            player_object.switch_on("main - initial switch-on")
 
                 for player_steamid in set(self.active_player_threads_dict) - set(self.players.players_dict.keys()):
                     """ prune all active_player_threads from players no longer online """
@@ -204,7 +198,8 @@ class ChraniBot():
                             for player_steamid, player_object in self.players.players_dict.iteritems():
                                 if player_object.name == m.group("player_name"):
                                     if player_steamid in self.active_player_threads_dict:
-                                        player_object.switch_on("main - joined the game")
+                                        if player_object.has_health() is True:
+                                            player_object.switch_on("main - joined the game")
 
                     m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
                     if m:
@@ -222,9 +217,11 @@ class ChraniBot():
                     for player_steamid, player_object in self.players.players_dict.iteritems():
                         possible_action_for_player = re.search(player_object.name, telnet_line)
                         if possible_action_for_player:
-                            if player_steamid in self.active_player_threads_dict and player_object.is_responsive == True:
+                            logger.info(telnet_line)
+                            if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]
                                 active_player_thread["thread"].trigger_action(telnet_line)
+
             time.sleep(0.05)  # to limit the speed a bit ^^
 
     def shutdown(self):
