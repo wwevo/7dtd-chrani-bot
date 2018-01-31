@@ -32,7 +32,7 @@ def set_up_location(self, command):
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "set up a location named", set_up_location, "(self, command)"))
+actions_locations.append(("startswith", "set up a location named", set_up_location, "(self, command)", "locations"))
 
 
 def set_up_location_teleport(self, command):
@@ -57,7 +57,7 @@ def set_up_location_teleport(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "set up teleport for location", set_up_location_teleport, "(self, command)"))
+actions_locations.append(("startswith", "set up teleport for location", set_up_location_teleport, "(self, command)", "locations"))
 
 
 def name_my_location(self, command):
@@ -85,7 +85,7 @@ def name_my_location(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "set up the name for location", name_my_location, "(self, command)"))
+actions_locations.append(("startswith", "set up the name for location", name_my_location, "(self, command)", "locations"))
 
 
 def set_up_location_boundary(self, command):
@@ -114,7 +114,7 @@ def set_up_location_boundary(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "set up the boundary for location ", set_up_location_boundary, "(self, command)"))
+actions_locations.append(("startswith", "set up the boundary for location ", set_up_location_boundary, "(self, command)", "locations"))
 
 
 def set_up_location_area(self, command):
@@ -150,7 +150,7 @@ def set_up_location_area(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "set up the location", set_up_location_area, "(self, command)"))
+actions_locations.append(("startswith", "set up the location", set_up_location_area, "(self, command)", "locations"))
 
 
 def set_up_location_warning_boundary(self, command):
@@ -179,7 +179,7 @@ def set_up_location_warning_boundary(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "set up a warning boundary for location ", set_up_location_warning_boundary, "(self, command)"))
+actions_locations.append(("startswith", "set up a warning boundary for location ", set_up_location_warning_boundary, "(self, command)", "locations"))
 
 
 def make_location_a_shape(self, command):
@@ -204,7 +204,7 @@ def make_location_a_shape(self, command):
             self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "make the location", make_location_a_shape, "(self, command)"))
+actions_locations.append(("startswith", "make the location", make_location_a_shape, "(self, command)", "locations"))
 
 
 def list_players_locations(self):
@@ -221,7 +221,7 @@ def list_players_locations(self):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("isequal", "list my locations", list_players_locations, "(self)"))
+actions_locations.append(("isequal", "list my locations", list_players_locations, "(self)", "locations"))
 
 
 def goto_location(self, command):
@@ -241,7 +241,7 @@ def goto_location(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "goto location", goto_location, "(self, command)"))
+actions_locations.append(("startswith", "goto location", goto_location, "(self, command)", "locations"))
 
 
 def remove_location(self, command):
@@ -261,7 +261,7 @@ def remove_location(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_locations.append(("startswith", "remove location", remove_location, "(self, command)"))
+actions_locations.append(("startswith", "remove location", remove_location, "(self, command)", "locations"))
 """
 here come the observers
 """

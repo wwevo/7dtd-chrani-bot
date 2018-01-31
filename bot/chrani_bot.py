@@ -6,6 +6,7 @@ from timeout import timeout_occurred
 from bot.command_line_args import args_dict
 from bot.telnet_connection import TelnetConnection
 from bot.logger import logger
+from bot.permissions import Permissions
 from bot.locations import Locations
 from bot.whitelist import Whitelist
 from bot.player import Player
@@ -39,6 +40,7 @@ class ChraniBot():
     players = object
     locations = object
     whitelist = object
+    permission = object
 
     observers = list
     player_actions = list
@@ -61,6 +63,9 @@ class ChraniBot():
 
         self.player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
         self.observers = observers_whitelist + observers_lobby + observers_locations
+
+        self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', 'all']
+        self.permissions = Permissions(self.player_actions, self.permission_levels_list)
 
         self.match_types = {
             # matches any command a player issues in game-chat

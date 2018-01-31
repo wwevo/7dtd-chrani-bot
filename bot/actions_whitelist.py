@@ -28,7 +28,7 @@ def add_player_to_whitelist(self, command):
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
 
 
-actions_whitelist.append(("startswith", "add", add_player_to_whitelist, "(self, command)"))
+actions_whitelist.append(("startswith", "add", add_player_to_whitelist, "(self, command)", "whitelist"))
 
 
 def activate_whitelist(self):
@@ -40,7 +40,7 @@ def activate_whitelist(self):
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
 
 
-actions_whitelist.append(("isequal", "activate whitelist", activate_whitelist, "(self)"))
+actions_whitelist.append(("isequal", "activate whitelist", activate_whitelist, "(self)", "whitelist"))
 
 
 """

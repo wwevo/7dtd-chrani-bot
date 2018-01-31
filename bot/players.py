@@ -65,4 +65,4 @@ class Players(object):
     def save(self, player_object):
         dict_to_save = player_object.__dict__
         with open(self.root + self.prefix + '_' + dict_to_save['steamid'] + '.json', 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write)
+            json.dump(dict_to_save, file_to_write, indent=4)

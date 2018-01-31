@@ -11,32 +11,26 @@ def password(self, command):
         pwd = p.group(1)
         if pwd == "openup":
             if player_object.authenticated is True:
-                self.tn.send_message_to_player(player_object, player_object.name + ", we trust you already <3")
+                self.tn.send_message_to_player(player_object, "{} we trust you already <3".format(player_object.name))
             else:
-                self.tn.send_message_to_player(player_object, player_object.name + " joined the ranks of literate people. Welcome!")
+                self.tn.send_message_to_player(player_object, "{} joined the ranks of literate people. Welcome!".format(player_object.name))
                 player_object.set_authenticated(True)
         else:
             player_object.set_authenticated(False)
-            self.tn.say(player_object.name + " has entered a wrong password oO!")
+            self.tn.say("{} has entered a wrong password oO!".format(player_object.name))
         self.bot.players.upsert(player_object, save=True)
 
 
-actions_authentication.append(("startswith", "password", password, "(self, command)"))
+actions_authentication.append(("startswith", "password", password, "(self, command)", "authentication"))
 
 
 def on_player_join(self):
     player_object = self.bot.players.get(self.player_steamid)
-    """
-    When a player is joining
-    :param self:
-    :param locations:
-    :return:
-    """
     try:
         location = self.bot.locations.get(player_object.steamid, 'spawn')
-        self.tn.send_message_to_player(player_object, "Welcome back " + player_object.name + " o/")
+        self.tn.send_message_to_player(player_object, "Welcome back {} o/".format(player_object.name))
     except KeyError:
-        self.tn.send_message_to_player(player_object, "this servers bot says Hi to " + player_object.name + " o/")
+        self.tn.send_message_to_player(player_object, "this servers bot says Hi to {} o/".format(player_object.name))
         location_dict = dict(
             identifier='spawn',
             name='Place of Birth',
@@ -53,6 +47,6 @@ def on_player_join(self):
         self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot")
 
 
-actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)"))
+actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication"))
 
 

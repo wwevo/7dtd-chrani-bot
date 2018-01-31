@@ -29,7 +29,7 @@ def set_up_lobby(self):
         self.tn.send_message_to_player(player_object, "You need to enter the password to get access to sweet commands!")
 
 
-actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self)"))
+actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self)", "lobby"))
 
 
 def set_up_lobby_perimeter(self):
@@ -50,7 +50,7 @@ def set_up_lobby_perimeter(self):
         self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
-actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self)"))
+actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self)", "lobby"))
 
 
 def set_up_lobby_warning_perimeter(self):
@@ -71,7 +71,7 @@ def set_up_lobby_warning_perimeter(self):
         self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
-actions_lobby.append(("isequal", "set up lobby warning perimeter", set_up_lobby_warning_perimeter, "(self)"))
+actions_lobby.append(("isequal", "set up lobby warning perimeter", set_up_lobby_warning_perimeter, "(self)", "lobby"))
 
 
 def remove_lobby(self):
@@ -86,7 +86,7 @@ def remove_lobby(self):
         self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to commands!")
 
 
-actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self)"))
+actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self)", "lobby"))
 
 
 def on_player_join(self):
@@ -99,7 +99,7 @@ def on_player_join(self):
             return False
 
 
-actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)"))
+actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
 
 
 def password(self, command):
@@ -122,7 +122,7 @@ def password(self, command):
                 return False
 
 
-actions_lobby.append(("startswith", "password", password, "(self, command)"))
+actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby"))
 
 
 def set_up_lobby_area(self, command):
@@ -157,7 +157,7 @@ def set_up_lobby_area(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_lobby.append(("startswith", "set up the lobby", set_up_lobby_area, "(self, command)"))
+actions_lobby.append(("startswith", "set up the lobby", set_up_lobby_area, "(self, command)", "lobby"))
 
 
 def set_up_lobby_teleport(self, command):
@@ -181,7 +181,7 @@ def set_up_lobby_teleport(self, command):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
 
 
-actions_lobby.append(("startswith", "set up teleport for lobby", set_up_lobby_teleport, "(self, command)"))
+actions_lobby.append(("startswith", "set up teleport for lobby", set_up_lobby_teleport, "(self, command)", "lobby"))
 
 
 """

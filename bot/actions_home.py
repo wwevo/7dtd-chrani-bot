@@ -39,7 +39,7 @@ def make_this_my_home(self):
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
 
 
-actions_home.append(("isequal", "make this my home", make_this_my_home, "(self)"))
+actions_home.append(("isequal", "make this my home", make_this_my_home, "(self)", "home"))
 
 
 def set_up_home_teleport(self):
@@ -61,7 +61,7 @@ def set_up_home_teleport(self):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
 
 
-actions_home.append(("isequal", "set up home teleport", set_up_home_teleport, "(self)"))
+actions_home.append(("isequal", "set up home teleport", set_up_home_teleport, "(self)", "home"))
 
 
 def name_my_home(self, command):
@@ -83,7 +83,7 @@ def name_my_home(self, command):
             self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_home.append(("startswith", "i call my home", name_my_home, "(self, command)"))
+actions_home.append(("startswith", "i call my home", name_my_home, "(self, command)", "home"))
 
 
 def take_me_home(self):
@@ -91,16 +91,18 @@ def take_me_home(self):
     if player_object.authenticated is True:
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
-            self.tn.teleportplayer(player_object, location_object)
-            self.tn.say("{} got homesick".format(player_object.name))
-            return True
+            if location_object.player_is_inside_boundary(player_object):
+                self.tn.send_message_to_player(player_object, "eh, you already ARE home oO".format(player_object.name))
+            else:
+                self.tn.teleportplayer(player_object, location_object)
+                self.tn.say("{} got homesick".format(player_object.name))
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} is apparently homeless...".format(player_object.name))
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_home.append(("isequal", "take me home", take_me_home, "(self)"))
+actions_home.append(("isequal", "take me home", take_me_home, "(self)", "home"))
 
 
 def set_up_home_perimeter(self):
@@ -122,7 +124,7 @@ def set_up_home_perimeter(self):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
 
 
-actions_home.append(("isequal", "my estate ends here", set_up_home_perimeter, "(self)"))
+actions_home.append(("isequal", "my estate ends here", set_up_home_perimeter, "(self)", "home"))
 
 
 def set_up_home_warning_perimeter(self):
@@ -144,7 +146,7 @@ def set_up_home_warning_perimeter(self):
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
 
 
-actions_home.append(("isequal", "set up inner sanctum perimeter", set_up_home_warning_perimeter, "(self)"))
+actions_home.append(("isequal", "set up inner sanctum perimeter", set_up_home_warning_perimeter, "(self)", "home"))
 
 
 def make_my_home_a_shape(self, command):
@@ -169,7 +171,7 @@ def make_my_home_a_shape(self, command):
             self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
 
 
-actions_home.append(("startswith", "make my home a", make_my_home_a_shape, "(self, command)"))
+actions_home.append(("startswith", "make my home a", make_my_home_a_shape, "(self, command)", "home"))
 
 
 """

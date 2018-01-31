@@ -13,12 +13,11 @@ class Whitelist(object):
 
     whitelist_active = bool
 
-    def __init__(self):  # add at least myself *g*
+    def __init__(self):
         self.root = 'data/whitelist/'
         self.prefix = args_dict['Database-file']
         self.whitelisted_players_dict = {}
         self.whitelist_active = False
-        pass
 
     def load_all(self):
         for root, dirs, files in os.walk(self.root):
@@ -59,4 +58,4 @@ class Whitelist(object):
     def save(self, player_object):
         dict_to_save = vars(player_object)
         with open(self.root + self.prefix + '_' + dict_to_save['steamid'] + '.json', 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write)
+            json.dump(dict_to_save, file_to_write, indent=4)

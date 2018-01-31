@@ -25,7 +25,6 @@ class Locations(object):
         self.root = 'data/locations/'
         self.prefix = args_dict['Database-file']
         self.locations_dict = {}
-        pass
 
     def load_all(self):
         for root, dirs, files in os.walk(self.root):
@@ -79,4 +78,4 @@ class Locations(object):
     def save(self, location_object):
         dict_to_save = location_object.__dict__
         with open(self.root + self.prefix + '_' + location_object.owner + '_' + location_object.identifier + '.json', 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write)
+            json.dump(dict_to_save, file_to_write, indent=4)
