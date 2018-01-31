@@ -12,7 +12,7 @@ should happen automagically. that's about it really. the system is quite easy to
 free to develop more elaborate features. this bot will stay simple though.
 
 the bot will start with command-line options for server-configuration.
-server-data, debug level and a prfix can be passed, you can run multiple bots from one directory
+server-data, debug level and a prefix can be passed, you can run multiple bots from one directory
 
 ### what works:
 
@@ -59,7 +59,7 @@ chrani-bot.py 127.0.0.1 8081 12345678 storage-prefix --verbosity=DEBUG
 
 if you want it to be mostly silent use
 
-chrani-bot.py 127.0.0.1 8081 12345678 storage-prefix (ipinfo_token) --verbosity=INFO
+chrani-bot.py 127.0.0.1 8081 12345678 storage-prefix (ipinfo.io_token) --verbosity=INFO
  
 exchange ip, port, telnet password and prefix with your servers data :) the prefix allows for
 several different servers with their own data

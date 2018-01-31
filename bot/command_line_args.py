@@ -1,7 +1,7 @@
 import argparse  # used for passing configurations to the bot
 
 
-class CommandLineArgs():
+class CommandLineArgs:
     def __init__(self):
         pass
 
@@ -23,7 +23,7 @@ class CommandLineArgs():
                             default="dummy")
         parser.add_argument("--verbosity", help="what messages would you like to see? (INFO)", default="INFO")
         args = parser.parse_args()
-        args_dict = vars(args)
-        return args_dict
+        return vars(args)
+
 
 args_dict = CommandLineArgs.get_args_dict()

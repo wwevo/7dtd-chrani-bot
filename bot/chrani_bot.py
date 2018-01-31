@@ -1,17 +1,6 @@
-import time, re
-
+import re
+import time
 from threading import Event
-from timeout import timeout_occurred
-
-from bot.command_line_args import args_dict
-from bot.telnet_connection import TelnetConnection
-from bot.logger import logger
-from bot.permissions import Permissions
-from bot.locations import Locations
-from bot.whitelist import Whitelist
-from bot.player import Player
-from bot.players import Players
-from bot.player_observer import PlayerObserver
 
 from bot.actions_authentication import actions_authentication
 from bot.actions_dev import actions_dev
@@ -19,9 +8,19 @@ from bot.actions_home import actions_home
 from bot.actions_lobby import actions_lobby, observers_lobby
 from bot.actions_locations import actions_locations, observers_locations
 from bot.actions_whitelist import actions_whitelist, observers_whitelist
+from bot.command_line_args import args_dict
+from bot.locations import Locations
+from bot.logger import logger
+from bot.permissions import Permissions
+from bot.player import Player
+from bot.player_observer import PlayerObserver
+from bot.players import Players
+from bot.telnet_connection import TelnetConnection
+from bot.whitelist import Whitelist
+from timeout import timeout_occurred
 
 
-class ChraniBot():
+class ChraniBot:
     name = str
     is_active = bool  # used for restarting the bot safely after connection loss
 
@@ -78,9 +77,9 @@ class ChraniBot():
         self.match_types_system = {
             # captures the response for telnet commands. used for example to capture teleport response
             'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
-            # the game logs several playerevents with additional information (for now i only capture the one i need, but there are several more useful ones
+            # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
             'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<steamid>.*), OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
-            # isolates the diconnected log entry to get the total session time of a player easily
+            # isolates the disconnected log entry to get the total session time of a player easily
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(\d+\.\d+\.\d+\.\d+), ping=(\d+)\r\n",

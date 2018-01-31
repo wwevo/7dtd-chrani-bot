@@ -1,5 +1,7 @@
+import math
+import re
 import telnetlib
-import re, time, math
+
 from logger import logger
 
 
@@ -79,8 +81,6 @@ class TelnetConnection:
 
         telnet_response = ""
         poll_is_finished = False
-        timeout_start = time.time()
-        timeout_after_n_seconds = 2
         while poll_is_finished is not True:
             try:
                 telnet_response = telnet_response + connection.read_until(b"\r\n")
@@ -98,7 +98,7 @@ class TelnetConnection:
         try:
             connection = self.tn
             connection.write(command)
-        except:
+        except Exception:
             return False
 
     def kick(self, player_object, reason='just because'):
@@ -106,7 +106,7 @@ class TelnetConnection:
         try:
             connection = self.tn
             connection.write(command)
-        except:
+        except Exception:
             return False
 
     def say(self, message):
@@ -174,13 +174,13 @@ class TelnetConnection:
         return False
 
     def debuffplayer(self, player_object, buff):
-        debuff_list = [
+        buff_list = [
             "bleeding",
             "foodPoisoning",
             "brokenLeg",
             "sprainedLeg"
         ]
-        if buff not in debuff_list:
+        if buff not in buff_list:
             return False
         try:
             connection = self.tn

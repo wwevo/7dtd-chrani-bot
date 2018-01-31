@@ -1,5 +1,5 @@
-import math
 import re
+
 from location import Location
 
 actions_home = []
@@ -159,10 +159,10 @@ def make_my_home_a_shape(self, command):
                 location_object = self.bot.locations.get(player_object.steamid, "home")
                 if location_object.set_shape(shape):
                     self.bot.locations.upsert(location_object, save=True)
-                    self.tn.send_message_to_player(player_object,"{}'s home is a {} now.".format(player_object.name, shape))
+                    self.tn.send_message_to_player(player_object, "{}'s home is a {} now.".format(player_object.name, shape))
                     return True
                 else:
-                    self.tn.send_message_to_player(player_object,"{} is not an allowed shape at this time!".format(shape))
+                    self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape))
                     return False
 
             except KeyError:

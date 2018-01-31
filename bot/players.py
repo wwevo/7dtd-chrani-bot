@@ -51,7 +51,7 @@ class Players(object):
                 player_object = Player(**player_dict)
                 self.players_dict[str(player_dict['steamid'])] = player_object
                 return player_object
-        except:
+        except Exception:
             raise KeyError
 
     def upsert(self, player_object, save=False):

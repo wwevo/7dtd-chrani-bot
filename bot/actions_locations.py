@@ -103,12 +103,9 @@ def set_up_location_boundary(self, command):
             set_radius, allowed_range = location_object.set_radius(player_object)
             if set_radius is True:
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object,
-                                               "the location {} ends here and spans {} meters ^^".format(identifier,
-                                                   int(location_object.radius * 2)))
+                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)))
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])))
-
 
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
@@ -139,12 +136,9 @@ def set_up_location_area(self, command):
                 location_object.set_shape("room")
                 location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object,
-                                               "the location {} ends here and spans {} meters ^^".format(identifier,
-                                                   int(location_object.radius * 2)))
+                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)))
             else:
                 self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid")
-
 
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
@@ -168,12 +162,9 @@ def set_up_location_warning_boundary(self, command):
             set_radius, allowed_range = location_object.set_warning_boundary(player_object)
             if set_radius is True:
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object,
-                                               "the warning boundary {} ends here and spans {} meters ^^".format(identifier,
-                                                   int(location_object.warning_boundary * 2)))
+                self.tn.send_message_to_player(player_object, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)))
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])))
-
 
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
@@ -193,9 +184,9 @@ def make_location_a_shape(self, command):
                 location_object = self.bot.locations.get(player_object.steamid, name)
                 if location_object.set_shape(shape):
                     self.bot.locations.upsert(location_object, save=True)
-                    self.tn.send_message_to_player(player_object,"{} is a {} now.".format(location_object.name, shape))
+                    self.tn.send_message_to_player(player_object, "{} is a {} now.".format(location_object.name, shape))
                 else:
-                    self.tn.send_message_to_player(player_object,"{} is not an allowed shape at this time!".format(shape))
+                    self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape))
                     return False
 
             except KeyError:
@@ -213,7 +204,7 @@ def list_players_locations(self):
         try:
             location_objects_dict = self.bot.locations.get(player_object.steamid)
             for name, location_object in location_objects_dict.iteritems():
-                self.tn.send_message_to_player(player_object,"{} @ ({} x:{}, y:{}, z:{})".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z))
+                self.tn.send_message_to_player(player_object, "{} @ ({} x:{}, y:{}, z:{})".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z))
 
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} can not list that which he does not have!".format(player_object.name))
@@ -244,6 +235,7 @@ def goto_location(self, command):
 actions_locations.append(("startswith", "goto location", goto_location, "(self, command)", "locations"))
 
 
+# noinspection PyUnusedLocal
 def remove_location(self, command):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:

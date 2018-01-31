@@ -39,7 +39,7 @@ class Player(object):
 
         try:
             self.region = self.__get_region_string(self.pos_x, self.pos_z)
-        except:
+        except Exception:
             pass
 
     def __get_region_string(self, pos_x, pos_z):
@@ -76,7 +76,7 @@ class Player(object):
         self.authenticated = authenticated
         return True
 
-    def set_coordinates(self,location_object):
+    def set_coordinates(self, location_object):
         self.pos_x = location_object.tele_x
         self.pos_y = location_object.tele_y
         self.pos_z = location_object.tele_z

@@ -1,5 +1,5 @@
 def is_alpha(word):
     try:
         return word.encode('ascii').isalpha()
-    except:
+    except Exception:
         return False

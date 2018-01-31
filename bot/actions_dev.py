@@ -1,4 +1,3 @@
-from permissions import Permissions
 actions_dev = []
 
 
@@ -43,7 +42,7 @@ def make_player_admin(self):
 actions_dev.append(("isequal", "make me all powerful!", make_player_admin, "(self)", "testing"))
 
 
-def create_permissisons_file(self):
+def create_permissions_file(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
         try:
@@ -53,5 +52,4 @@ def create_permissisons_file(self):
             self.tn.send_message_to_player(player_object, "either the file already exists or it's creation failed")
 
 
-
-actions_dev.append(("isequal", "create permissions-file", create_permissisons_file, "(self)", "testing"))
+actions_dev.append(("isequal", "create permissions file", create_permissions_file, "(self)", "testing"))

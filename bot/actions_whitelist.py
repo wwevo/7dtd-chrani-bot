@@ -1,8 +1,9 @@
-from bot.command_line_args import args_dict
-from player import Player
-from logger import logger
-import re, urllib
+import re
+import urllib
 
+from bot.command_line_args import args_dict
+from logger import logger
+from player import Player
 
 actions_whitelist = []
 
@@ -50,12 +51,6 @@ observers_whitelist = []
 
 
 def check_if_player_is_on_whitelist(self):
-    """
-    When a player trying to join
-    :param self:
-    :param player_object:
-    :return:
-    """
     player_object = self.bot.players.get(self.player_steamid)
     if self.bot.whitelist.is_active() and not self.bot.whitelist.player_is_allowed(player_object):
         logger.info("kicked player {} for not being on the whitelist".format(player_object.name))

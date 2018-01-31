@@ -1,7 +1,7 @@
-from command_line_args import args_dict
-from bot.byteify import byteify
+import json
+import os
 
-import json, os
+from command_line_args import args_dict
 
 
 class Permissions(object):

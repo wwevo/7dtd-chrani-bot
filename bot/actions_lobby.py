@@ -93,6 +93,7 @@ def on_player_join(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is not True:
         try:
+            # noinspection PyUnusedLocal
             location_dict = self.bot.locations.get('system', "lobby")
             self.tn.send_message_to_player(player_object, "yo ass will be deported to our lobby plus tha command-shit is restricted yo")
         except KeyError:
@@ -146,12 +147,9 @@ def set_up_lobby_area(self, command):
                 location_object.set_shape("room")
                 location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object,
-                                               "the location {} ends here and spans {} meters ^^".format('lobby',
-                                                   int(location_object.radius * 2)))
+                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format('lobby', int(location_object.radius * 2)))
             else:
                 self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid")
-
 
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))

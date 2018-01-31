@@ -1,10 +1,10 @@
-from command_line_args import args_dict
-from telnet_connection import TelnetConnection
-from timeout import timeout_occurred
-from threading import Thread, Event
-from logger import logger
+import re
+import time
+from threading import Thread
 
-import time, re
+from command_line_args import args_dict
+from logger import logger
+from telnet_connection import TelnetConnection
 
 
 class PlayerObserver(Thread):
@@ -56,7 +56,7 @@ class PlayerObserver(Thread):
                             break
                 else:
                     if player_object.has_health():
-                        player_object.switch_on("caught you alive and kickin'")
+                        player_object.switch_on("caught you alive and kicking")
 
                 execution_time = time.time() - profile_start
                 next_cycle = self.run_observers_interval - execution_time

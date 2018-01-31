@@ -1,6 +1,7 @@
 import math
 
 
+# noinspection SpellCheckingInspection
 class Location(object):
     identifier = str
     owner = str
@@ -75,6 +76,7 @@ class Location(object):
         self.set_teleport_coordinates(player_object)
         return True
 
+    # noinspection PyUnusedLocal
     def set_center(self, player_object, width, length, height):
         self.pos_x = player_object.pos_x + (float(width) / 2)
         self.pos_y = player_object.pos_y
@@ -187,14 +189,14 @@ class Location(object):
         if self.shape == "room":
             """ we determine the area of the location by the locations center, it's width, height and length. height will be calculated from ground level (-1) upwards 
             """
-            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) /2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
+            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) / 2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
                 player_is_inside_boundary = True
 
         return player_is_inside_boundary
 
     def get_player_status(self, player_object):
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
-        if player_is_inside_boundary == True:
+        if player_is_inside_boundary is True:
             # player is inside
             if player_object.steamid in self.list_of_players_inside:
                 # and already was inside the location

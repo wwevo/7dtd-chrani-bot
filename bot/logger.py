@@ -1,10 +1,10 @@
 import logging
 import logging.handlers
-import time
+
 from command_line_args import args_dict
 
 
-class Logger():
+class Logger:
     root = str
     prefix = str
 
