@@ -2,7 +2,7 @@ import math
 import re
 import telnetlib
 
-from logger import logger
+from bot.logger import logger
 
 
 class TelnetConnection:
@@ -13,8 +13,8 @@ class TelnetConnection:
     def __init__(self, ip, port, password, show_log_init=False):
         try:
             connection = telnetlib.Telnet(ip, port, timeout=2)
-        except Exception:
-            log_message = 'could not establish connection to the host. check ip and port'
+        except Exception as e:
+            log_message = 'trying to establish telnet connection failed: {}'.format(e)
             raise IOError(log_message)
         self.show_log_init = show_log_init
         self.tn = self.authenticate(connection, password)
@@ -57,8 +57,9 @@ class TelnetConnection:
             if self.show_log_init is True and full_banner != '':
                 logger.info(full_banner)
 
-        except Exception:
-            raise
+        except Exception as e:
+            log_message = 'trying to authenticate telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
 
         logger.debug("telnet connection established: " + str(connection))
         return connection
@@ -69,23 +70,26 @@ class TelnetConnection:
             telnet_response = connection.read_very_eager()
             if telnet_response and telnet_response != "\r\n":
                 return telnet_response.splitlines()
-        except Exception:
-            raise
+        except Exception as e:
+            log_message = 'trying to read_eager from telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
 
     def listplayers(self):
         try:
             connection = self.tn
             connection.write("lp" + b"\r\n")
-        except Exception:
-            raise
+        except Exception as e:
+            log_message = 'trying to listplayers on telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
 
         telnet_response = ""
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
                 telnet_response = telnet_response + connection.read_until(b"\r\n")
-            except Exception:
-                pass
+            except Exception as e:
+                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                raise IOError(log_message)
 
             m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_response)
             if m:
@@ -118,24 +122,6 @@ class TelnetConnection:
         except Exception:
             return False
 
-        # telnet_response = ""
-        # message_got_through = False
-        # sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
-        # timeout = time.time()
-        # while message_got_through is not True and not timeout_occurred(2, timeout):
-        #     """
-        #     fetches the response of the games telnet 'say' command
-        #     we are waiting for the games telnet to echo the actual message
-        #     """
-        #     try:
-        #         telnet_response = connection.read_until(b"\r\n")
-        #         m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
-        #         if m:
-        #             message_got_through = True
-        #     except IndexError:
-        #         pass
-        # return telnet_response
-
     def send_message_to_player(self, player_object, message):
         message = str(message)
         try:
@@ -144,22 +130,6 @@ class TelnetConnection:
             connection.write(message)
         except Exception:
             return False
-
-        # telnet_response = ""
-        # message_got_through = False
-        # sanitized_message = re.escape(re.sub(r"\[.*?\]", "", message))
-        # timeout = time.time()
-        # while message_got_through is not True and not timeout_occurred(2, timeout):
-        #     """
-        #     fetches the response of the games telnet 'say' command
-        #     we are waiting for the games telnet to echo the actual message
-        #     """
-        #     telnet_response = connection.read_until(b"\r\n")
-        #     m = re.search(r"^(.+?) (.+?) INF Chat: \'.*\':.* " + sanitized_message + "\r", telnet_response, re.MULTILINE)
-        #     if m:
-        #         message_got_through = True
-        #
-        # return telnet_response
 
     def teleportplayer(self, player_object, location_object):
         if player_object.is_responsive:

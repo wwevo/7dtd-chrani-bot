@@ -1,6 +1,6 @@
 import re
-from location import Location
-from logger import logger
+from bot.location import Location
+from bot.logger import logger
 
 actions_lobby = []
 
@@ -129,7 +129,7 @@ actions_lobby.append(("startswith", "password", password, "(self, command)", "lo
 def set_up_lobby_area(self, command):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
-        p = re.search(r"set up the lobby as a room starting from south west going north (.+)and east (.+) and up (.+)", command)
+        p = re.search(r"set up the lobby as a room starting from south west going north (.+) and east (.+) and up (.+)", command)
         if p:
             length = p.group(1)
             width = p.group(2)

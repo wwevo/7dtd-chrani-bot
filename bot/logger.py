@@ -1,7 +1,7 @@
 import logging
 import logging.handlers
 
-from command_line_args import args_dict
+from bot.command_line_args import args_dict
 
 
 class Logger:

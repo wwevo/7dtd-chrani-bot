@@ -1,6 +1,6 @@
 import re
 
-from location import Location
+from bot.location import Location
 
 actions_home = []
 

@@ -1,9 +1,9 @@
-from command_line_args import args_dict
-from byteify import byteify
+from bot.command_line_args import args_dict
+from bot.assorted_functions import byteify
 import json
 import os
-from logger import logger
-from location import Location
+from bot.logger import logger
+from bot.location import Location
 
 
 class Locations(object):

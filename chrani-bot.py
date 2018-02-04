@@ -13,14 +13,18 @@ if __name__ == '__main__':
         try:
             bot = ChraniBot()  # leaving this here while we have no database so the location data (lobby, base etc.) is kept in memory
             bot.run()
-        except IOError as error:
+        except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
-            if bot.is_active:
-                bot.shutdown()
-            logger.warn(error)
+            try:
+                bot.shutdown()  # bot was probably running, restart
+                wait_until_reconnect = 20
+                log_message = "connection lost, server-restart?"
+            except NameError:  # probably started the bot before the server was up
+                wait_until_reconnect = 45
+                log_message = "can't connect to telnet, is the server running?"
+                pass
 
-            wait_until_reconnect = 5
-            log_message = "will try again in {} seconds".format(str(wait_until_reconnect))
+            log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
             logger.info(log_message)
             time.sleep(wait_until_reconnect)
             pass

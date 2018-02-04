@@ -1,5 +1,5 @@
-from command_line_args import args_dict
-from bot.byteify import byteify
+from bot.command_line_args import args_dict
+from bot.assorted_functions import byteify
 import json
 import os
 

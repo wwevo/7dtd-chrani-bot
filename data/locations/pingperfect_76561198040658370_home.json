@@ -1,1 +1,30 @@
-{"pos_z": 896.1, "list_of_players_inside": [], "pos_x": 735.0, "pos_y": 73.2, "description": "ecv's home", "tele_z": 885.9, "region": ["1.1.7rg"], "tele_y": 78.2, "length": 36.257964642268604, "height": 36.257964642268604, "shape": "sphere", "width": 36.257964642268604, "messages_dict": {"entering_core": null, "entering_boundary": "you are entering ecv's estate", "leaving_boundary": "you are leaving ecv's estate", "leaving_core": null}, "tele_x": 735.0, "radius": 18.128982321134302, "owner": "76561198040658370", "warning_boundary": 8, "identifier": "home", "name": "My Home"}
+{
+    "pos_z": 896.1, 
+    "list_of_players_inside": [
+        "76561198040658370"
+    ], 
+    "pos_x": 735.0, 
+    "pos_y": 73.2, 
+    "description": "ecv's home", 
+    "tele_z": 885.9, 
+    "region": [
+        "1.1.7rg"
+    ], 
+    "tele_y": 78.2, 
+    "length": 36.257964642268604, 
+    "height": 36.257964642268604, 
+    "shape": "sphere", 
+    "width": 36.257964642268604, 
+    "messages_dict": {
+        "entering_core": null, 
+        "entering_boundary": "you are entering ecv's estate", 
+        "leaving_boundary": "you are leaving ecv's estate", 
+        "leaving_core": null
+    }, 
+    "tele_x": 735.0, 
+    "radius": 18.128982321134302, 
+    "owner": "76561198040658370", 
+    "warning_boundary": 8, 
+    "identifier": "home", 
+    "name": "My Home"
+}

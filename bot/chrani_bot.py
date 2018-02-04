@@ -17,7 +17,7 @@ from bot.player_observer import PlayerObserver
 from bot.players import Players
 from bot.telnet_connection import TelnetConnection
 from bot.whitelist import Whitelist
-from timeout import timeout_occurred
+from bot.assorted_functions import timeout_occurred
 
 
 class ChraniBot:
@@ -50,21 +50,14 @@ class ChraniBot:
         self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'], show_log_init=True)
         self.poll_tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
 
+        self.player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
+        self.observers = observers_whitelist + observers_lobby + observers_locations
+
         self.players = Players()  # players will be loaded on a need-to-load basis
         self.listplayers_interval = 1.5
         self.active_player_threads_dict = {}
 
-        self.locations = Locations()
-        self.locations.load_all()  # load all location data
-
-        self.whitelist = Whitelist()
-        self.whitelist.load_all()  # load all whitelisted players
-
-        self.player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
-        self.observers = observers_whitelist + observers_lobby + observers_locations
-
-        self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', 'all']
-        self.permissions = Permissions(self.player_actions, self.permission_levels_list)
+        self.load_from_db()
 
         self.match_types = {
             # matches any command a player issues in game-chat
@@ -88,6 +81,17 @@ class ChraniBot:
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+
+    def load_from_db(self):
+        self.locations = Locations()
+        self.locations.load_all()  # load all location data
+
+        self.whitelist = Whitelist()
+        self.whitelist.load_all()  # load all whitelisted players
+
+        self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', None]
+        self.permissions = Permissions(self.player_actions, self.permission_levels_list)
+        self.permissions.load_all()
 
     def poll_players(self):
         online_players_dict = {}

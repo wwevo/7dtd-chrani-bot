@@ -2,9 +2,9 @@ import re
 import time
 from threading import Thread
 
-from command_line_args import args_dict
-from logger import logger
-from telnet_connection import TelnetConnection
+from bot.command_line_args import args_dict
+from bot.logger import logger
+from bot.telnet_connection import TelnetConnection
 
 
 class PlayerObserver(Thread):
@@ -74,17 +74,27 @@ class PlayerObserver(Thread):
                         player_object = self.bot.players.players_dict[player_steamid]
 
                         command = m.group('command')
+                        command_queue = []
                         if self.bot.player_actions is not None:
-                            for action in self.bot.player_actions:
-                                if player_object.is_responsive:
-                                    if (action[0] == "isequal" and action[1] == command) or (action[0] == "startswith" and command.startswith(action[1])):
-                                        function_name = action[2]
-                                        function_parameters = eval(action[3])  # yes. Eval. It's my own data, chill out!
-                                        try:
-                                            function_name(*function_parameters)
-                                        except TypeError:
-                                            function_name(function_parameters)
+                            for player_action in self.bot.player_actions:
+                                if player_object.is_responsive:  # TODO: integrate permission check here
+                                    function_category = player_action[4]
+                                    function_name = getattr(player_action[2], 'func_name')
+                                    if (player_action[0] == "isequal" and player_action[1] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1])):
+                                        function_object = player_action[2]
+                                        function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
+                                        command_queue.append([function_object, function_parameters, function_name, function_category])
                                 else:
                                     break
+                            for command in command_queue:
+                                has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
+                                if isinstance(has_permission, bool) and has_permission is True:
+                                    try:
+                                        command[0](*command[1])
+                                    except TypeError:
+                                        command[0](command[1])
+                                else:
+                                    self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
+                                    logger.info("Player {} denied trying to execute {}".format(player_object.name, command[2]))
 
                         break

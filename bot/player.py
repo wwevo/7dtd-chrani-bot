@@ -1,10 +1,11 @@
 import math
-from logger import logger
+from bot.logger import logger
 
 
 class Player(object):
     id = long
     name = str
+    permission_levels = list
     pos_x = float
     pos_y = float
     pos_z = float
@@ -33,6 +34,7 @@ class Player(object):
     def __init__(self, **kwargs):
         self.last_teleport = 0
         self.is_responsive = False
+        self.permission_levels = []
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -76,6 +78,13 @@ class Player(object):
         self.authenticated = authenticated
         return True
 
+    def set_permission_levels(self, level_list):
+        self.permission_levels = level_list
+
+    def add_permission_level(self, level):
+        if level not in self.permission_levels:
+            self.permission_levels.append(level)
+
     def set_coordinates(self, location_object):
         self.pos_x = location_object.tele_x
         self.pos_y = location_object.tele_y
@@ -83,13 +92,13 @@ class Player(object):
         return True
 
     def has_health(self):
-        if self.health is not 0:
+        if int(self.health) is not 0:
             return True
         else:
             return False
 
     def is_dead(self):
-        if self.health == 0:
+        if int(self.health) == 0:
             return True
         else:
             return False

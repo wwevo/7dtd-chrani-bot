@@ -1,8 +1,8 @@
-from command_line_args import args_dict
-from byteify import byteify
+from bot.command_line_args import args_dict
+from bot.assorted_functions import byteify
 import json
 import os
-from player import Player
+from bot.player import Player
 
 
 class Players(object):

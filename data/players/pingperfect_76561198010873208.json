@@ -1,1 +1,26 @@
-{"deaths": 0, "ip": "176.33.211.141", "last_teleport": 0, "country_code": "TR", "id": "101605", "steamid": "76561198010873208", "authenticated": true, "ping": 69, "score": "88", "health": 120, "rot_z": 0.0, "rot_y": -270.0, "rot_x": -30.9, "pos_z": 855.5, "pos_x": 635.6, "pos_y": 82.1, "remote": true, "name": "ReflexTR", "level": "8", "region": "1.1.7rg", "players": 0, "is_responsive": true, "zombies": 88}
+{
+    "deaths": 1, 
+    "ip": "176.33.211.141", 
+    "last_teleport": 0, 
+    "country_code": "TR", 
+    "id": "101605", 
+    "steamid": "76561198010873208", 
+    "authenticated": true, 
+    "ping": 58, 
+    "score": "83", 
+    "health": 115, 
+    "rot_z": 0.0, 
+    "rot_y": 243.3, 
+    "rot_x": -13.2, 
+    "pos_z": 837.8, 
+    "pos_x": 894.6, 
+    "pos_y": 62.1, 
+    "remote": true, 
+    "name": "ReflexTR", 
+    "level": "14", 
+    "region": "1.1.7rg", 
+    "players": 0, 
+    "is_responsive": true, 
+    "zombies": 88, 
+    "permission_level": null
+}

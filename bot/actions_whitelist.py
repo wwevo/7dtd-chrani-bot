@@ -2,8 +2,8 @@ import re
 import urllib
 
 from bot.command_line_args import args_dict
-from logger import logger
-from player import Player
+from bot.logger import logger
+from bot.player import Player
 
 actions_whitelist = []
 
