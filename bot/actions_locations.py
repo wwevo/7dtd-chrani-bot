@@ -235,7 +235,6 @@ def goto_location(self, command):
 actions_locations.append(("startswith", "goto location", goto_location, "(self, command)", "locations"))
 
 
-# noinspection PyUnusedLocal
 def remove_location(self, command):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:

@@ -88,7 +88,7 @@ class PlayerObserver(Thread):
                                     break
                             for command in command_queue:
                                 has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
-                                if isinstance(has_permission, bool) and has_permission is True:
+                                if has_permission == None or isinstance(has_permission, bool) and has_permission is True:
                                     try:
                                         command[0](*command[1])
                                     except TypeError:

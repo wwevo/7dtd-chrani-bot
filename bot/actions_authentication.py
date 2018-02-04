@@ -32,11 +32,13 @@ def add_player_to_permission_group(self, command):
     p = re.search(r"add (.+) to (.+) group", command)
     if p:
         try:
-            player_object_to_modify = self.bot.players.get(str(p.group(1)))
+            steamid_to_modify = str(p.group(1))
+            player_object_to_modify = self.bot.players.get(steamid_to_modify)
             group = str(p.group(2))
             player_object_to_modify.add_permission_level(group)
+            self.tn.send_message_to_player(player_object, "{} has been added to the group {}".format(player_object.name, group))
         except Exception:
-            pass
+            self.tn.send_message_to_player(player_object,"could not find a player with steamid {}".format(steamid_to_modify))
 
         self.bot.players.upsert(player_object_to_modify, save=True)
 
