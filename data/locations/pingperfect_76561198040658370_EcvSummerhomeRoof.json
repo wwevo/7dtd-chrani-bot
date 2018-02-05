@@ -1,6 +1,8 @@
 {
     "pos_z": 926.6, 
-    "list_of_players_inside": [], 
+    "list_of_players_inside": [
+        "76561198040658370"
+    ], 
     "pos_x": 700.5, 
     "pos_y": 72.1, 
     "name": "Ecv Summer-home Roof", 

@@ -1,1 +1,27 @@
-{"pos_z": 923.5, "pos_x": 700.4, "pos_y": 62.1, "name": "Ecv Summer-home Basement", "tele_z": 923.0, "region": ["1.1.7rg"], "tele_y": 62.1, "length": "10 ", "height": "5", "shape": "room", "width": "10", "messages_dict": {"entering_core": "entering Ecv Summer-home Basement's core", "entering_boundary": "entering Ecv Summer-home Basement", "leaving_boundary": "leaving Ecv Summer-home Basement", "leaving_core": "leaving Ecv Summer-home Basement's core"}, "tele_x": 698.8, "radius": 10, "owner": "76561198040658370", "list_of_players_inside": [], "identifier": "EcvSummerhomeBasement"}
+{
+    "pos_z": 923.5, 
+    "list_of_players_inside": [], 
+    "pos_x": 700.4, 
+    "pos_y": 62.1, 
+    "name": "Ecv Summer-home Basement", 
+    "tele_z": 923.0, 
+    "region": [
+        "1.1.7rg"
+    ], 
+    "tele_y": 62.1, 
+    "length": "10 ", 
+    "height": "5", 
+    "shape": "room", 
+    "width": "10", 
+    "messages_dict": {
+        "entering_core": "entering Ecv Summer-home Basement's core", 
+        "entering_boundary": "entering Ecv Summer-home Basement", 
+        "leaving_boundary": "leaving Ecv Summer-home Basement", 
+        "leaving_core": "leaving Ecv Summer-home Basement's core"
+    }, 
+    "tele_x": 698.8, 
+    "radius": 10, 
+    "owner": "76561198040658370", 
+    "warning_boundary": 6, 
+    "identifier": "EcvSummerhomeBasement"
+}

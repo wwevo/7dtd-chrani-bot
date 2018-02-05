@@ -55,7 +55,13 @@ class ChraniBot:
 
         self.players = Players()  # players will be loaded on a need-to-load basis
         self.listplayers_interval = 1.5
+        self.listplayers_interval_idle = self.listplayers_interval * 10
         self.active_player_threads_dict = {}
+
+        self.locations = Locations()
+        self.whitelist = Whitelist()
+        self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', None]
+        self.permissions = Permissions(self.player_actions, self.permission_levels_list)
 
         self.load_from_db()
 
@@ -83,14 +89,8 @@ class ChraniBot:
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
 
     def load_from_db(self):
-        self.locations = Locations()
         self.locations.load_all()  # load all location data
-
-        self.whitelist = Whitelist()
         self.whitelist.load_all()  # load all whitelisted players
-
-        self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', None]
-        self.permissions = Permissions(self.player_actions, self.permission_levels_list)
         self.permissions.load_all()
 
     def poll_players(self):
@@ -124,11 +124,23 @@ class ChraniBot:
 
         listplayers_dict = {}
         list_players_timeout_start = 0
+        listplayers_interval = self.listplayers_interval
         while self.is_active:
-            if timeout_occurred(self.listplayers_interval, list_players_timeout_start):
+            try:
+                self.telnet_lines_list = self.tn.read_line()  # get the current global telnet-response
+            except Exception as e:
+                logger.error(e)
+                raise IOError
+
+            if timeout_occurred(listplayers_interval, list_players_timeout_start):
                 # get all currently online players and store them in a dictionary
                 last_listplayers_dict = listplayers_dict
                 listplayers_dict = self.poll_players()
+                if len(listplayers_dict) == 0:  # adjust poll frequency
+                    listplayers_interval = self.listplayers_interval_idle
+                else:
+                    listplayers_interval = self.listplayers_interval
+
                 list_players_timeout_start = time.time()
 
                 # prune players not online anymore
@@ -176,12 +188,6 @@ class ChraniBot:
                     stop_flag = active_player_thread["thread"]
                     stop_flag.stopped.set()
                     del self.active_player_threads_dict[player_steamid]
-
-            try:
-                self.telnet_lines_list = self.tn.read_line()  # get the current global telnet-response
-            except Exception as e:
-                logger.error(e)
-                raise IOError
 
             if self.telnet_lines_list is not None:
                 for telnet_line in self.telnet_lines_list:

@@ -93,8 +93,12 @@ class PlayerObserver(Thread):
                                         command[0](*command[1])
                                     except TypeError:
                                         command[0](command[1])
+
+                                    logger.info("Player {} has executed {}".format(player_object.name, command[2]))
                                 else:
                                     self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
                                     logger.info("Player {} denied trying to execute {}".format(player_object.name, command[2]))
+                            if len(command_queue) == 0:
+                                self.bot.tn.send_message_to_player(player_object, "The command '/{}' is unknown to me. Maybe a typo?".format(command))
 
                         break
