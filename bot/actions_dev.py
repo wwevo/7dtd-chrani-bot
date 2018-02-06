@@ -8,7 +8,7 @@ def fix_players_legs(self):
         self.tn.debuffplayer(player_object, "sprainedLeg")
         self.tn.send_message_to_player(player_object, "your legs have been taken care of ^^")
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_dev.append(("isequal", "fix my legs please", fix_players_legs, "(self)", "testing"))
@@ -20,7 +20,7 @@ def stop_the_bleeding(self):
         self.tn.debuffplayer(player_object, "bleeding")
         self.tn.send_message_to_player(player_object, "your wounds have been bandaided ^^")
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_dev.append(("isequal", "make me stop leaking", stop_the_bleeding, "(self)", "testing"))
@@ -32,7 +32,7 @@ def apply_first_aid(self):
         self.tn.buffplayer(player_object, "firstAidLarge")
         self.tn.send_message_to_player(player_object, "feel the power flowing through you!! ^^")
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_dev.append(("isequal", "heal me up scotty", apply_first_aid, "(self)", "testing"))
@@ -44,7 +44,7 @@ def make_player_admin(self):
         self.tn.set_admin_level(player_object, "2")
         self.tn.send_message_to_player(player_object, "and He said 'Let there be unlimited POWER!'. hit F1 and type cm <enter>, dm <enter>. exit console. press 'q' to fly, 'u' for items.")
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_dev.append(("isequal", "make me all powerful!", make_player_admin, "(self)", "testing"))
@@ -59,7 +59,7 @@ def reload_from_db(self):
         except IOError:
             pass
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_dev.append(("isequal", "reinitialize", reload_from_db, "(self)", "testing"))

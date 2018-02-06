@@ -28,7 +28,7 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening".format(self.bot.name))
+        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening".format(self.bot.name), 'db8b0b')
 
         player_object = self.bot.players.get(self.player_steamid)
 

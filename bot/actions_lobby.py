@@ -26,7 +26,7 @@ def set_up_lobby(self):
         self.bot.locations.upsert(location_object, save=True)
         self.tn.send_message_to_player(player_object, "{} has set up a lobby. Good job! set up the perimeter (default is 10 blocks) with /set up lobby perimeter, while standing on the edge of it.".format(player_object.name))
     else:
-        self.tn.send_message_to_player(player_object, "You need to enter the password to get access to sweet commands!")
+        self.tn.send_message_to_player(player_object, "You need to enter the password to get access to sweet commands!", color='db500a')
 
 
 actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self)", "lobby"))
@@ -38,16 +38,16 @@ def set_up_lobby_perimeter(self):
         try:
             location_object = self.bot.locations.get('system', 'lobby')
         except KeyError:
-            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby")
+            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby", color='db500a')
             return False
 
         if location_object.set_radius(player_object):
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)))
         else:
-            self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
+            self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color='db500a')
     else:
-        self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
+        self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!", color='db500a')
 
 
 actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self)", "lobby"))
@@ -59,16 +59,16 @@ def set_up_lobby_warning_perimeter(self):
         try:
             location_object = self.bot.locations.get('system', 'lobby')
         except KeyError:
-            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby")
+            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby", color='db500a')
             return False
 
         if location_object.set_warning_boundary(player_object):
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "The lobby-warnings will be issued from this point on")
         else:
-            self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?")
+            self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?", color='db500a')
     else:
-        self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!")
+        self.tn.say(player_object, player_object.name + " needs to enter the password to get access to commands!", color='db500a')
 
 
 actions_lobby.append(("isequal", "set up lobby warning perimeter", set_up_lobby_warning_perimeter, "(self)", "lobby"))
@@ -80,10 +80,10 @@ def remove_lobby(self):
         try:
             self.bot.locations.remove('system', 'lobby')
         except KeyError:
-            self.tn.send_message_to_player(player_object, "no lobby found oO")
+            self.tn.send_message_to_player(player_object, "no lobby found oO", color='db500a')
             return False
     else:
-        self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to commands!")
+        self.tn.send_message_to_player(player_object, player_object.name + " needs to enter the password to get access to commands!", color='db500a')
 
 
 actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self)", "lobby"))
@@ -119,7 +119,7 @@ def password(self, command):
                 self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!")
                 self.tn.teleportplayer(player_object, location_object)
             except KeyError:
-                self.tn.send_message_to_player(player_object, "i'm terribly sorry, i seem to have misplaced your spawn, " + player_object.name)
+                self.tn.send_message_to_player(player_object, "I am terribly sorry, I seem to have misplaced your spawn, {}".format(player_object.name), color='db500a')
                 return False
 
 
@@ -137,7 +137,7 @@ def set_up_lobby_area(self, command):
             try:
                 location_object = self.bot.locations.get('system', 'lobby')
             except KeyError:
-                self.tn.send_message_to_player(player_object, "I can not find a location called {}".format('lobby'))
+                self.tn.send_message_to_player(player_object, "I can not find a location called {}".format('lobby'), color='db500a')
                 return False
 
             set_width, allowed_range = location_object.set_width(width)
@@ -149,10 +149,10 @@ def set_up_lobby_area(self, command):
                 self.bot.locations.upsert(location_object, save=True)
                 self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format('lobby', int(location_object.radius * 2)))
             else:
-                self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid")
+                self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color='db500a')
 
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_lobby.append(("startswith", "set up the lobby", set_up_lobby_area, "(self, command)", "lobby"))
@@ -173,10 +173,10 @@ def set_up_lobby_teleport(self, command):
                 self.bot.locations.upsert(location_object, save=True)
                 self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'))
             else:
-                self.tn.send_message_to_player(player_object, "your position seems to be outside the location")
+                self.tn.send_message_to_player(player_object, "your position seems to be outside of the location", color='db500a')
 
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name), color='db500a')
 
 
 actions_lobby.append(("startswith", "set up teleport for lobby", set_up_lobby_teleport, "(self, command)", "lobby"))

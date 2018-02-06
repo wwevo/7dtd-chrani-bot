@@ -113,21 +113,19 @@ class TelnetConnection:
         except Exception:
             return False
 
-    def say(self, message):
-        message = str(message)
+    def say(self, message, color='ffffff'):
         try:
             connection = self.tn
-            telnet_command = "say \"" + message + "\"" + b"\r\n"
+            telnet_command = "say \"[{}]{}[-]\"\r\n".format(color, str(message))
             connection.write(telnet_command)
         except Exception:
             return False
 
-    def send_message_to_player(self, player_object, message):
-        message = str(message)
+    def send_message_to_player(self, player_object, message, color='ffffff'):
         try:
             connection = self.tn
-            message = "sayplayer " + player_object.steamid + " \"" + message + b"\"\r\n"
-            connection.write(message)
+            telnet_command = "sayplayer {} \"[{}]{}[-]\"\r\n".format(player_object.steamid, color, str(message))
+            connection.write(telnet_command)
         except Exception:
             return False
 

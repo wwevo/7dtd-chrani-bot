@@ -48,17 +48,17 @@ def set_up_home_teleport(self):
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
         except KeyError:
-            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color='db500a')
             return False
 
         if location_object.set_teleport_coordinates(player_object):
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "your teleport has been set up!")
         else:
-            self.tn.send_message_to_player(player_object, "your position seems to be outside your home")
+            self.tn.send_message_to_player(player_object, "your position seems to be outside your home", color='db500a')
 
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name), color='db500a')
 
 
 actions_home.append(("isequal", "set up home teleport", set_up_home_teleport, "(self)", "home"))
@@ -78,9 +78,9 @@ def name_my_home(self, command):
                 return True
 
             except KeyError:
-                self.tn.send_message_to_player(player_object, "{} can't name which you don't have!!".format(player_object.name))
+                self.tn.send_message_to_player(player_object, "{} can't name that which you do not have!".format(player_object.name), color='db500a')
         else:
-            self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+            self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_home.append(("startswith", "i call my home", name_my_home, "(self, command)", "home"))
@@ -99,7 +99,7 @@ def take_me_home(self):
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} is apparently homeless...".format(player_object.name))
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_home.append(("isequal", "take me home", take_me_home, "(self)", "home"))
@@ -111,17 +111,17 @@ def set_up_home_perimeter(self):
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
         except KeyError:
-            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color='db500a')
             return False
 
         if location_object.set_radius(player_object):
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)))
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)))
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color='db500a')
 
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name), color='db500a')
 
 
 actions_home.append(("isequal", "my estate ends here", set_up_home_perimeter, "(self)", "home"))
@@ -133,17 +133,17 @@ def set_up_home_warning_perimeter(self):
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
         except KeyError:
-            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!")
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color='db500a')
             return False
 
         if location_object.set_warning_boundary(player_object):
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.boundary_radius * 2)))
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.boundary_radius * 2)))
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.boundary_radius * 2)), color='db500a')
 
     else:
-        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to commands!".format(player_object.name), color='db500a')
 
 
 actions_home.append(("isequal", "set up inner sanctum perimeter", set_up_home_warning_perimeter, "(self)", "home"))
@@ -162,13 +162,13 @@ def make_my_home_a_shape(self, command):
                     self.tn.send_message_to_player(player_object, "{}'s home is a {} now.".format(player_object.name, shape))
                     return True
                 else:
-                    self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape))
+                    self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape), color='db500a')
                     return False
 
             except KeyError:
-                self.tn.send_message_to_player(player_object, "{} can not change that which you do not own!!".format(player_object.name))
+                self.tn.send_message_to_player(player_object, "{} can not change that which you do not own!!".format(player_object.name), color='db500a')
         else:
-            self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name))
+            self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
 
 actions_home.append(("startswith", "make my home a", make_my_home_a_shape, "(self, command)", "home"))

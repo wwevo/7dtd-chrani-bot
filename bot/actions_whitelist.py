@@ -36,12 +36,24 @@ def activate_whitelist(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
         self.bot.whitelist.activate()
-        self.tn.say("whitelist is in effect! feeling safer already :)")
+        self.tn.say("Whitelist is in effect! Feeling safer already :)")
     else:
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
 
 
 actions_whitelist.append(("isequal", "activate whitelist", activate_whitelist, "(self)", "whitelist"))
+
+
+def deactivate_whitelist(self):
+    player_object = self.bot.players.get(self.player_steamid)
+    if player_object.authenticated is True:
+        self.bot.whitelist.deactivate()
+        self.tn.say("Whitelist has been disabled. We are feeling adventureous :)")
+    else:
+        self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
+
+
+actions_whitelist.append(("isequal", "deactivate whitelist", deactivate_whitelist, "(self)", "whitelist"))
 
 
 """
