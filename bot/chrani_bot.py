@@ -192,6 +192,8 @@ class ChraniBot:
             if self.telnet_lines_list is not None:
                 for telnet_line in self.telnet_lines_list:
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
+                    if not m or m and m.group('telnet_command') != 'lp':
+                        logger.debug(telnet_line)
                     if m:
                         if m.group("telnet_command").startswith("tele"):
                             c = re.search(r"^(tele|teleportplayer) (?P<player>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
@@ -231,7 +233,6 @@ class ChraniBot:
                     for player_steamid, player_object in self.players.players_dict.iteritems():
                         possible_action_for_player = re.search(player_object.name, telnet_line)
                         if possible_action_for_player:
-                            logger.info(telnet_line)
                             if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]
                                 active_player_thread["thread"].trigger_action(telnet_line)

@@ -67,7 +67,7 @@ def check_if_player_is_on_whitelist(self):
     if self.bot.whitelist.is_active() and not self.bot.whitelist.player_is_allowed(player_object):
         logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
         self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name))
-        self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
+        self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
 
 
 observers_whitelist.append(("set to online", check_if_player_is_on_whitelist, "(self)"))
@@ -80,7 +80,7 @@ def check_if_player_has_url_name(self):
         if p:
             logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
             self.tn.say("{} has been kicked. crappy url-name!".format(player_object.steamid))
-            self.tn.kick(player_object, "We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
+            self.tn.kick(player_object, "We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
 
 
 observers_whitelist.append(("set to online", check_if_player_has_url_name, "(self)"))
@@ -100,7 +100,7 @@ def check_ip_country(self):
             if users_country in self.bot.banned_countries_list:
                 logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
                 self.tn.say("{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country))
-                self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available for you!")
+                self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
             else:
                 player_object.set_country_code(users_country)
                 self.bot.players.upsert(player_object, save=True)

@@ -82,19 +82,20 @@ class PlayerObserver(Thread):
                                     function_name = getattr(player_action[2], 'func_name')
                                     if (player_action[0] == "isequal" and player_action[1] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1])):
                                         function_object = player_action[2]
+                                        chat_command = player_action[1]
                                         function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
-                                        command_queue.append([function_object, function_parameters, function_name, function_category])
+                                        command_queue.append([function_object, function_parameters, function_name, function_category, chat_command])
                                 else:
                                     break
                             for command in command_queue:
                                 has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
-                                if has_permission == None or isinstance(has_permission, bool) and has_permission is True:
+                                if has_permission is None or isinstance(has_permission, bool) and has_permission is True:
                                     try:
                                         command[0](*command[1])
                                     except TypeError:
                                         command[0](command[1])
 
-                                    logger.info("Player {} has executed {}".format(player_object.name, command[2]))
+                                    logger.info("Player {} has executed {} with '/{}'".format(player_object.name, command[2], command[4]))
                                 else:
                                     self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
                                     logger.info("Player {} denied trying to execute {}".format(player_object.name, command[2]))
