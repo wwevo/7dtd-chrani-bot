@@ -24,7 +24,7 @@ def set_up_lobby(self):
         location_object.set_messages(messages_dict)
         location_object.set_list_of_players_inside([player_object.steamid])
         self.bot.locations.upsert(location_object, save=True)
-        self.tn.send_message_to_player(player_object, "{} has set up a lobby. Good job! set up the perimeter (default is 10 blocks) with /set up lobby perimeter, while standing on the edge of it.".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "{} has set up a lobby. Good job! set up the perimeter (default is 10 blocks) with /set up lobby perimeter, while standing on the edge of it.".format(player_object.name), color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "You need to enter the password to get access to sweet commands!", color='db500a')
 
@@ -43,7 +43,7 @@ def set_up_lobby_perimeter(self):
 
         if location_object.set_radius(player_object):
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)))
+            self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color='22c927')
         else:
             self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color='db500a')
     else:
@@ -64,7 +64,7 @@ def set_up_lobby_warning_perimeter(self):
 
         if location_object.set_warning_boundary(player_object):
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The lobby-warnings will be issued from this point on")
+            self.tn.send_message_to_player(player_object, "The lobby-warnings will be issued from this point on", color='22c927')
         else:
             self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?", color='db500a')
     else:
@@ -116,7 +116,7 @@ def password(self, command):
         if password == "openup":
             try:
                 location_object = self.bot.locations.get(player_object.steamid, 'spawn')
-                self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!")
+                self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color='22c927')
                 self.tn.teleportplayer(player_object, location_object)
             except KeyError:
                 self.tn.send_message_to_player(player_object, "I am terribly sorry, I seem to have misplaced your spawn, {}".format(player_object.name), color='db500a')
@@ -147,7 +147,7 @@ def set_up_lobby_area(self, command):
                 location_object.set_shape("room")
                 location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format('lobby', int(location_object.radius * 2)))
+                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format('lobby', int(location_object.radius * 2)), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color='db500a')
 
@@ -171,7 +171,7 @@ def set_up_lobby_teleport(self, command):
 
             if location_object.set_teleport_coordinates(player_object):
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'))
+                self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "your position seems to be outside of the location", color='db500a')
 

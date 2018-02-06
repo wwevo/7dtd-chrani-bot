@@ -26,8 +26,8 @@ def set_up_location(self, command):
             location_object.set_messages(messages_dict)
             location_object.set_list_of_players_inside([player_object.steamid])
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)))
-            self.tn.send_message_to_player(player_object, "use {} to access it with commands like /set up name for {} as Whatever the name shall be".format(identifier, identifier))
+            self.tn.send_message_to_player(player_object, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color='22c927')
+            self.tn.send_message_to_player(player_object, "use {} to access it with commands like /set up name for {} as Whatever the name shall be".format(identifier, identifier), color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name), color='db500a')
 
@@ -49,7 +49,7 @@ def set_up_location_teleport(self, command):
 
             if location_object.set_teleport_coordinates(player_object):
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format(identifier))
+                self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format(identifier), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "your position seems to be outside the location", color='db500a')
 
@@ -77,7 +77,7 @@ def name_my_location(self, command):
                 messages_dict["leaving_boundary"] = "leaving {} ".format(name)
                 location_object.set_messages(messages_dict)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.say("{} called a location {}".format(player_object.name, name))
+                self.tn.say("{} called a location {}".format(player_object.name, name), color='22c927')
             except KeyError:
                 self.tn.send_message_to_player(player_object, "You can not name that which you do not have!!", color='db500a')
 
@@ -103,7 +103,7 @@ def set_up_location_boundary(self, command):
             set_radius, allowed_range = location_object.set_radius(player_object)
             if set_radius is True:
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)))
+                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color='db500a')
 
@@ -136,7 +136,7 @@ def set_up_location_area(self, command):
                 location_object.set_shape("room")
                 location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)))
+                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color='db500a')
 
@@ -162,7 +162,7 @@ def set_up_location_warning_boundary(self, command):
             set_radius, allowed_range = location_object.set_warning_boundary(player_object)
             if set_radius is True:
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)))
+                self.tn.send_message_to_player(player_object, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color='db500a')
 
@@ -184,7 +184,7 @@ def make_location_a_shape(self, command):
                 location_object = self.bot.locations.get(player_object.steamid, name)
                 if location_object.set_shape(shape):
                     self.bot.locations.upsert(location_object, save=True)
-                    self.tn.send_message_to_player(player_object, "{} is a {} now.".format(location_object.name, shape))
+                    self.tn.send_message_to_player(player_object, "{} is a {} now.".format(location_object.name, shape), color='22c927')
                 else:
                     self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape), color='db500a')
                     return False
@@ -223,7 +223,7 @@ def goto_location(self, command):
             name = p.group(1)
             try:
                 location_object = self.bot.locations.get(player_object.steamid, name)
-                self.tn.say("{} went to location {}".format(player_object.name, name))
+                self.tn.say("{} went to location {}".format(player_object.name, name), color='22c927')
                 self.tn.teleportplayer(player_object, location_object)
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i have never heard of {}".format(name), color='db500a')
@@ -244,7 +244,7 @@ def remove_location(self, command):
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
                 self.bot.locations.remove(player_object.steamid, identifier)
-                self.tn.say("{} deleted location {}".format(player_object.name, identifier))
+                self.tn.say("{} deleted location {}".format(player_object.name, identifier), color='22c927')
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i have never heard of {}".format(identifier), color='db500a')
 

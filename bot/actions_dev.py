@@ -6,7 +6,7 @@ def fix_players_legs(self):
     if player_object.authenticated is True:
         self.tn.debuffplayer(player_object, "brokenLeg")
         self.tn.debuffplayer(player_object, "sprainedLeg")
-        self.tn.send_message_to_player(player_object, "your legs have been taken care of ^^")
+        self.tn.send_message_to_player(player_object, "your legs have been taken care of ^^", color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
@@ -18,7 +18,7 @@ def stop_the_bleeding(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
         self.tn.debuffplayer(player_object, "bleeding")
-        self.tn.send_message_to_player(player_object, "your wounds have been bandaided ^^")
+        self.tn.send_message_to_player(player_object, "your wounds have been bandaided ^^", color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
@@ -30,7 +30,7 @@ def apply_first_aid(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
         self.tn.buffplayer(player_object, "firstAidLarge")
-        self.tn.send_message_to_player(player_object, "feel the power flowing through you!! ^^")
+        self.tn.send_message_to_player(player_object, "feel the power flowing through you!! ^^", color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
@@ -42,7 +42,7 @@ def make_player_admin(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
         self.tn.set_admin_level(player_object, "2")
-        self.tn.send_message_to_player(player_object, "and He said 'Let there be unlimited POWER!'. hit F1 and type cm <enter>, dm <enter>. exit console. press 'q' to fly, 'u' for items.")
+        self.tn.send_message_to_player(player_object, "and He said 'Let there be unlimited POWER!'. hit F1 and type cm <enter>, dm <enter>. exit console. press 'q' to fly, 'u' for items.", color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
@@ -55,7 +55,7 @@ def reload_from_db(self):
     if player_object.authenticated is True:
         try:
             self.bot.load_from_db()
-            self.tn.send_message_to_player(player_object, "loaded all from storage!")
+            self.tn.send_message_to_player(player_object, "loaded all from storage!", color='22c927')
         except IOError:
             pass
     else:

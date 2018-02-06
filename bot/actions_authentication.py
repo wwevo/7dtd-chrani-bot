@@ -11,9 +11,9 @@ def password(self, command):
         pwd = p.group(1)
         if pwd == "openup":
             if player_object.authenticated is True:
-                self.tn.send_message_to_player(player_object, "{} we trust you already <3".format(player_object.name))
+                self.tn.send_message_to_player(player_object, "{} we trust you already <3".format(player_object.name), color='22c927')
             else:
-                self.tn.send_message_to_player(player_object, "{} joined the ranks of literate people. Welcome!".format(player_object.name))
+                self.tn.send_message_to_player(player_object, "{} joined the ranks of literate people. Welcome!".format(player_object.name), color='22c927')
                 player_object.set_authenticated(True)
                 player_object.add_permission_level("authenticated")
         else:
@@ -36,7 +36,7 @@ def add_player_to_permission_group(self, command):
             player_object_to_modify = self.bot.players.get(steamid_to_modify)
             group = str(p.group(2))
             player_object_to_modify.add_permission_level(group)
-            self.tn.send_message_to_player(player_object, "{} has been added to the group {}".format(player_object.name, group))
+            self.tn.send_message_to_player(player_object, "{} has been added to the group {}".format(player_object.name, group), color='22c927')
         except Exception:
             self.tn.send_message_to_player(player_object,"could not find a player with steamid {}".format(steamid_to_modify))
 
@@ -50,9 +50,9 @@ def on_player_join(self):
     player_object = self.bot.players.get(self.player_steamid)
     try:
         location = self.bot.locations.get(player_object.steamid, 'spawn')
-        self.tn.send_message_to_player(player_object, "Welcome back {} o/".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "Welcome back {} o/".format(player_object.name), color='22c927')
     except KeyError:
-        self.tn.send_message_to_player(player_object, "this servers bot says Hi to {} o/".format(player_object.name))
+        self.tn.send_message_to_player(player_object, "this servers bot says Hi to {} o/".format(player_object.name), color='22c927')
         location_dict = dict(
             identifier='spawn',
             name='Place of Birth',
@@ -66,7 +66,7 @@ def on_player_join(self):
         self.bot.locations.upsert(location_object, save=True)
 
     if player_object.authenticated is not True:
-        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot")
+        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color='e5e110')
 
 
 actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication"))

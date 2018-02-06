@@ -53,7 +53,7 @@ def set_up_home_teleport(self):
 
         if location_object.set_teleport_coordinates(player_object):
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your teleport has been set up!")
+            self.tn.send_message_to_player(player_object, "your teleport has been set up!", color='22c927')
         else:
             self.tn.send_message_to_player(player_object, "your position seems to be outside your home", color='db500a')
 
@@ -74,7 +74,7 @@ def name_my_home(self, command):
                 location_object = self.bot.locations.get(player_object.steamid, "home")
                 location_object.set_description(description)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.say("{} called their home {}".format(player_object.name, location_object.description))
+                self.tn.say("{} called their home {}".format(player_object.name, location_object.description), color='22c927')
                 return True
 
             except KeyError:
@@ -92,12 +92,12 @@ def take_me_home(self):
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
             if location_object.player_is_inside_boundary(player_object):
-                self.tn.send_message_to_player(player_object, "eh, you already ARE home oO".format(player_object.name))
+                self.tn.send_message_to_player(player_object, "eh, you already ARE home oO".format(player_object.name), color='22c927')
             else:
                 self.tn.teleportplayer(player_object, location_object)
                 self.tn.say("{} got homesick".format(player_object.name))
         except KeyError:
-            self.tn.send_message_to_player(player_object, "{} is apparently homeless...".format(player_object.name))
+            self.tn.send_message_to_player(player_object, "{} is apparently homeless...".format(player_object.name), color='22c927')
     else:
         self.tn.send_message_to_player(player_object, "{} needs to enter the password to get access to sweet commands!".format(player_object.name), color='db500a')
 
@@ -116,7 +116,7 @@ def set_up_home_perimeter(self):
 
         if location_object.set_radius(player_object):
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)))
+            self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color='22c927')
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color='db500a')
 
@@ -138,7 +138,7 @@ def set_up_home_warning_perimeter(self):
 
         if location_object.set_warning_boundary(player_object):
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.boundary_radius * 2)))
+            self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.boundary_radius * 2)), color='22c927')
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.boundary_radius * 2)), color='db500a')
 
@@ -159,7 +159,7 @@ def make_my_home_a_shape(self, command):
                 location_object = self.bot.locations.get(player_object.steamid, "home")
                 if location_object.set_shape(shape):
                     self.bot.locations.upsert(location_object, save=True)
-                    self.tn.send_message_to_player(player_object, "{}'s home is a {} now.".format(player_object.name, shape))
+                    self.tn.send_message_to_player(player_object, "{}'s home is a {} now.".format(player_object.name, shape), color='22c927')
                     return True
                 else:
                     self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape), color='db500a')
