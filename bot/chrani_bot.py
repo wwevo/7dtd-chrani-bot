@@ -33,6 +33,8 @@ class ChraniBot:
     telnet_lines_list = list
 
     listplayers_interval = int
+    chat_colors = dict
+    passwords = dict
 
     active_player_threads_dict = dict  # contains link to the players observer-thread
 
@@ -47,8 +49,8 @@ class ChraniBot:
     def __init__(self):
         self.name = "chrani-bot"
         logger.info("{} started".format(self.name))
-        self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'], show_log_init=True)
-        self.poll_tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+        self.tn = TelnetConnection(self, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'], show_log_init=True)
+        self.poll_tn = TelnetConnection(self, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
 
         self.player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
         self.observers = observers_whitelist + observers_lobby + observers_locations
@@ -59,19 +61,35 @@ class ChraniBot:
         self.active_player_threads_dict = {}
 
         self.locations = Locations()
+        self.passwords = {
+            "player": 'openup',
+            "donator": 'blingbling',
+            "mod": 'hoopmeup',
+            "admin": 'ecvrules'
+        }
         self.whitelist = Whitelist()
         self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', None]
         self.permissions = Permissions(self.player_actions, self.permission_levels_list)
 
         self.load_from_db()
 
+        self.chat_colors = {
+            "standard": "ffffff",
+            "info": "4286f4",
+            "success": "00ff04",
+            "error": "8c0012",
+            "warning": "ffbf00",
+            "alert": "ba0085",
+            "background": "cccccc",
+        }
+
         self.match_types = {
             # matches any command a player issues in game-chat
-            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
+            # 'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
+            'chat_commands_coppi': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod 'Coppis command additions': Chat: '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
-            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
-        }
+            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"        }
 
         self.match_types_system = {
             # captures the response for telnet commands. used for example to capture teleport response
@@ -253,7 +271,7 @@ class ChraniBot:
                         player_object = Player(**player_dict)
                         command_queue = []
                         for observer in self.observers:
-                            if observer[0] == 'trigger':  # we only want the monitors here, the player is active, no triggers needed
+                            if observer[0] == 'trigger':  # we only want the triggers here
                                 observer_function_name = observer[2]
                                 observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
                                 command_queue.append([observer_function_name, observer_parameters])

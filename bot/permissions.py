@@ -35,7 +35,6 @@ class Permissions(object):
         except IOError:  # no permissions file available
             self.create_permissions_file()
 
-
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():

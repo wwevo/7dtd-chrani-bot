@@ -10,47 +10,58 @@ actions_whitelist = []
 
 def add_player_to_whitelist(self, command):
     player_object = self.bot.players.get(self.player_steamid)
-    if player_object.authenticated is True:
-        p = re.search(r"add\s(?P<steamid>.+)\sto whitelist", command)
-        if p:
-            steamid_to_whitelist = p.group("steamid")
-            try:
-                player_object_to_whitelist = self.bot.players.get(steamid_to_whitelist)
-            except KeyError:
-                player_dict = {'steamid': steamid_to_whitelist, "name": 'unknown offline player'}
-                player_object_to_whitelist = Player(**player_dict)
+    p = re.search(r"add\s(?P<steamid>.+)\sto whitelist", command)
+    if p:
+        steamid_to_whitelist = p.group("steamid")
+        try:
+            player_object_to_whitelist = self.bot.players.get(steamid_to_whitelist)
+        except KeyError:
+            player_dict = {'steamid': steamid_to_whitelist, "name": 'unknown offline player'}
+            player_object_to_whitelist = Player(**player_dict)
 
-            if self.bot.whitelist.add(player_object, player_object_to_whitelist, save=True):
-                self.tn.send_message_to_player(player_object_to_whitelist, "you have been whitelisted by {}".format(player_object.name))
-            else:
-                self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist))
-            self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(steamid_to_whitelist))
-    else:
-        self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
+        if self.bot.whitelist.add(player_object, player_object_to_whitelist, save=True):
+            self.tn.send_message_to_player(player_object_to_whitelist, "you have been whitelisted by {}".format(player_object.name))
+        else:
+            self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist))
+        self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(steamid_to_whitelist))
 
 
 actions_whitelist.append(("startswith", "add", add_player_to_whitelist, "(self, command)", "whitelist"))
 
 
-def activate_whitelist(self):
+def remove_player_from_whitelist(self, command):
     player_object = self.bot.players.get(self.player_steamid)
-    if player_object.authenticated is True:
-        self.bot.whitelist.activate()
-        self.tn.say("Whitelist is in effect! Feeling safer already :)")
-    else:
-        self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
+    p = re.search(r"remove\s(?P<steamid>.+)\sfrom whitelist", command)
+    if p:
+        steamid_to_dewhitelist = p.group("steamid")
+        try:
+            player_object_to_dewhitelist = self.bot.players.get(steamid_to_dewhitelist)
+        except KeyError:
+            player_dict = {'steamid': steamid_to_dewhitelist}
+            player_object_to_dewhitelist = Player(**player_dict)
+
+        if self.bot.whitelist.remove(player_object_to_dewhitelist):
+            self.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(player_object.name))
+        else:
+            self.tn.send_message_to_player(player_object, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist))
+            return False
+        self.tn.send_message_to_player(player_object, "you have de-whitelisted {}".format(steamid_to_dewhitelist))
+
+
+actions_whitelist.append(("startswith", "remove", remove_player_from_whitelist, "(self, command)", "whitelist"))
+
+
+def activate_whitelist(self):
+    self.bot.whitelist.activate()
+    self.tn.say("Whitelist is in effect! Feeling safer already :)")
 
 
 actions_whitelist.append(("isequal", "activate whitelist", activate_whitelist, "(self)", "whitelist"))
 
 
 def deactivate_whitelist(self):
-    player_object = self.bot.players.get(self.player_steamid)
-    if player_object.authenticated is True:
-        self.bot.whitelist.deactivate()
-        self.tn.say("Whitelist has been disabled. We are feeling adventureous :)")
-    else:
-        self.tn.send_message_to_player(player_object, "{} is no authorized no nope. should go read read!".format(player_object.name))
+    self.bot.whitelist.deactivate()
+    self.tn.say("Whitelist has been disabled. We are feeling adventureous :)")
 
 
 actions_whitelist.append(("isequal", "deactivate whitelist", deactivate_whitelist, "(self)", "whitelist"))

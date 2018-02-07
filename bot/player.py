@@ -85,6 +85,14 @@ class Player(object):
         if level not in self.permission_levels:
             self.permission_levels.append(level)
 
+    def has_permission_level(self, level):
+        if level in self.permission_levels:
+            return True
+
+    def remove_permission_level(self, level):
+        if level in self.permission_levels:
+            self.permission_levels.remove(level)
+
     def set_coordinates(self, location_object):
         self.pos_x = location_object.tele_x
         self.pos_y = location_object.tele_y

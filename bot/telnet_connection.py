@@ -10,12 +10,13 @@ class TelnetConnection:
     bot = object
     show_log_init = bool
 
-    def __init__(self, ip, port, password, show_log_init=False):
+    def __init__(self, bot, ip, port, password, show_log_init=False):
         try:
             connection = telnetlib.Telnet(ip, port, timeout=2)
         except Exception as e:
             log_message = 'trying to establish telnet connection failed: {}'.format(e)
             raise IOError(log_message)
+        self.bot = bot
         self.show_log_init = show_log_init
         self.tn = self.authenticate(connection, password)
 
@@ -105,6 +106,14 @@ class TelnetConnection:
         except Exception:
             return False
 
+    def muteplayerchat(self, player_object, flag=True):
+        command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
+        try:
+            connection = self.tn
+            connection.write(command)
+        except Exception:
+            return False
+
     def kick(self, player_object, reason='just because'):
         command = "kick " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"
         try:
@@ -113,17 +122,21 @@ class TelnetConnection:
         except Exception:
             return False
 
-    def say(self, message, color='ffffff'):
+    def say(self, message, color=None):
         try:
             connection = self.tn
+            if color is None:
+                color = self.bot.chat_colors['standard']
             telnet_command = "say \"[{}]{}[-]\"\r\n".format(color, str(message))
             connection.write(telnet_command)
         except Exception:
             return False
 
-    def send_message_to_player(self, player_object, message, color='ffffff'):
+    def send_message_to_player(self, player_object, message, color=None):
         try:
             connection = self.tn
+            if color is None:
+                color = self.bot.chat_colors['standard']
             telnet_command = "sayplayer {} \"[{}]{}[-]\"\r\n".format(player_object.steamid, color, str(message))
             connection.write(telnet_command)
         except Exception:

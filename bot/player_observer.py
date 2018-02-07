@@ -19,7 +19,7 @@ class PlayerObserver(Thread):
         self.player_steamid = str(player_steamid)
         logger.info("thread started for player " + self.player_steamid)
 
-        self.tn = TelnetConnection(args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+        self.tn = TelnetConnection(bot, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
         self.bot = bot
         self.run_observers_interval = 1
 
@@ -28,7 +28,7 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening".format(self.bot.name), 'db8b0b')
+        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening".format(self.bot.name), color=self.bot.chat_colors['info'])
 
         player_object = self.bot.players.get(self.player_steamid)
 
@@ -92,9 +92,9 @@ class PlayerObserver(Thread):
                                 has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
                                 if has_permission is None or isinstance(has_permission, bool) and has_permission is True:
                                     try:
-                                        command[0](*command[1])
-                                    except TypeError:
                                         command[0](command[1])
+                                    except TypeError:
+                                        command[0](*command[1])
 
                                     logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2], command[4]))
                                 else:

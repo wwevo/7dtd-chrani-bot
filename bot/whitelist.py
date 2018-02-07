@@ -49,18 +49,19 @@ class Whitelist(object):
             self.save(player_object_to_whitelist)
             return True
 
-    def remove(self, player_object):
+    def remove(self, player_object_to_dewhitelist):
         try:
-            filename = self.root + self.prefix + '_' + player_object.steamid + '.json'
+            filename = self.root + self.prefix + '_' + player_object_to_dewhitelist.steamid + '.json'
             if os.path.exists(filename):
                 try:
                     os.remove(filename)
-                    del self.whitelisted_players_dict[player_object.steamid]
+                    del self.whitelisted_players_dict[player_object_to_dewhitelist.steamid]
+                    return True
                 except OSError, e:
                     logger.error("Error: {} - {}.".format(e.filename, e.strerror))
             else:
                 logger.error("Sorry, I can not find {} file.".format(filename))
-            pass
+                return False
         except KeyError:
             raise
 
