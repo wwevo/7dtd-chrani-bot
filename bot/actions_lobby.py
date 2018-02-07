@@ -205,4 +205,4 @@ def player_is_outside_boundary(self):
                 self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>")
 
 
-observers_lobby.append(("player left lobby", player_is_outside_boundary, "(self)"))
+observers_lobby.append(("monitor", "player left lobby", player_is_outside_boundary, "(self)"))

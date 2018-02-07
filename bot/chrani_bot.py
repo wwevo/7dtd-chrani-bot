@@ -83,7 +83,11 @@ class ChraniBot:
             # to parse the telnets listplayers response
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(\d+\.\d+\.\d+\.\d+), ping=(\d+)\r\n",
             # player joined / died messages
-            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
+            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
+            # pretty much the firs usable line during a players login
+            'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
+            # player is 'valid' from here on
+            'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
@@ -236,6 +240,27 @@ class ChraniBot:
                             if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]
                                 active_player_thread["thread"].trigger_action(telnet_line)
+
+                    """ work through triggers caused by telnet_activity """
+                    m = re.search(self.match_types_system["eac_register_client"], telnet_line)
+                    if m:
+                        player_dict = {
+                            'steamid': m.group("player_id"),
+                            'name': m.group("player_name"),
+                            'ip': m.group("player_ip")
+                        }
+                        player_object = Player(**player_dict)
+                        command_queue = []
+                        for observer in self.observers:
+                            if observer[0] == 'trigger':  # we only want the monitors here, the player is active, no triggers needed
+                                observer_function_name = observer[2]
+                                observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
+                                command_queue.append([observer_function_name, observer_parameters])
+                        for command in command_queue:
+                            try:
+                                command[0](*command[1])
+                            except TypeError:
+                                command[0](command[1])
 
             time.sleep(0.05)  # to limit the speed a bit ^^
 

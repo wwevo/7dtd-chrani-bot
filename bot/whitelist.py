@@ -1,5 +1,6 @@
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
+from bot.logger import logger
 import json
 import os
 
@@ -53,7 +54,10 @@ class Whitelist(object):
             is_in_dict = self.whitelisted_players_dict[player_object.steamid]
             return True
         except KeyError:
-            return False
+            try:
+                return [i for i in ["admin", "mod", "donator"] if i in player_object.permission_levels]
+            except Exception:
+                return False
 
     def save(self, player_object):
         dict_to_save = vars(player_object)

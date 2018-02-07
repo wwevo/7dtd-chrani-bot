@@ -47,7 +47,7 @@ class Players(object):
     def load(self, steamid):
         try:
             with open(self.root + self.prefix + '_' + str(steamid) + '.json') as file_to_read:
-                player_dict = json.load(file_to_read)
+                player_dict = byteify(json.load(file_to_read))
                 player_object = Player(**player_dict)
                 self.players_dict[str(player_dict['steamid'])] = player_object
                 return player_object

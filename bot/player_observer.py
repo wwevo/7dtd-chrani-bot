@@ -43,9 +43,10 @@ class PlayerObserver(Thread):
                     """
                     command_queue = []
                     for observer in self.bot.observers:
-                        function_name = observer[1]
-                        function_parameters = eval(observer[2])  # yes. Eval. It's my own data, chill out!
-                        command_queue.append([function_name, function_parameters])
+                        if observer[0] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
+                            observer_function_name = observer[2]
+                            observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
+                            command_queue.append([observer_function_name, observer_parameters])
                     for command in command_queue:
                         if player_object.is_responsive:
                             try:

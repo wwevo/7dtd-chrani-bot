@@ -62,19 +62,35 @@ here come the observers
 observers_whitelist = []
 
 
-def check_if_player_is_on_whitelist(self):
-    player_object = self.bot.players.get(self.player_steamid)
-    if self.bot.whitelist.is_active() and not self.bot.whitelist.player_is_allowed(player_object):
-        logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
-        self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name))
-        self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
+def check_if_player_is_on_whitelist(self, player_object=None):
+    if player_object is None:
+        player_object = self.bot.players.get(self.player_steamid)
+    else:
+        called_by_trigger = True
+        self.bot = self
+        try:
+            player_object = self.bot.players.load(player_object.steamid)
+        except IOError:
+            pass
+
+    if self.bot.whitelist.is_active():
+        if not self.bot.whitelist.player_is_allowed(player_object):
+            logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
+            self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name))
+            self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
 
 
-observers_whitelist.append(("set to online", check_if_player_is_on_whitelist, "(self)"))
+observers_whitelist.append(("monitor", "set to online", check_if_player_is_on_whitelist, "(self)"))
+observers_whitelist.append(("trigger", "set to online", check_if_player_is_on_whitelist, "(self, player_object)"))
 
 
-def check_if_player_has_url_name(self):
-    player_object = self.bot.players.get(self.player_steamid)
+def check_if_player_has_url_name(self, player_object=None):
+    if player_object is None:
+        player_object = self.bot.players.get(self.player_steamid)
+    else:
+        called_by_trigger = True
+        self.bot = self
+
     if not self.bot.whitelist.player_is_allowed(player_object):
         p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}", player_object.name, re.IGNORECASE)
         if p:
@@ -83,13 +99,19 @@ def check_if_player_has_url_name(self):
             self.tn.kick(player_object, "We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
 
 
-observers_whitelist.append(("set to online", check_if_player_has_url_name, "(self)"))
+observers_whitelist.append(("monitor", "set to online", check_if_player_has_url_name, "(self)"))
+observers_whitelist.append(("trigger", "set to online", check_if_player_has_url_name, "(self, player_object)"))
 
 
-def check_ip_country(self):
+def check_ip_country(self, player_object=None):
     if str(args_dict['IP-Token']) == 'dummy':
         return
-    player_object = self.bot.players.get(self.player_steamid)
+    if player_object is None:
+        player_object = self.bot.players.get(self.player_steamid)
+    else:
+        called_by_trigger = True
+        self.bot = self
+
     users_country = player_object.get_country_code()
     if self.bot.whitelist.player_is_allowed(player_object) or (users_country is not None and users_country not in self.bot.banned_countries_list):
         pass
@@ -108,7 +130,6 @@ def check_ip_country(self):
             pass
 
 
-observers_whitelist.append(("set to online", check_ip_country, "(self)"))
-
-
+observers_whitelist.append(("monitor", "set to online", check_ip_country, "(self)"))
+observers_whitelist.append(("trigger", "set to online", check_ip_country, "(self, player_object)"))
 

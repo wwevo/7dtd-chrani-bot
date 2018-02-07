@@ -288,4 +288,4 @@ def player_crossed_boundary(self):
                 self.bot.locations.upsert(location_object, save=True)
 
 
-observers_locations.append(("player crossed boundary", player_crossed_boundary, "(self)"))
+observers_locations.append(("monitor", "player crossed boundary", player_crossed_boundary, "(self)"))
