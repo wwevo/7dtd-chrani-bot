@@ -269,6 +269,7 @@ class ChraniBot:
                             'ip': m.group("player_ip")
                         }
                         player_object = Player(**player_dict)
+                        logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
                         command_queue = []
                         for observer in self.observers:
                             if observer[0] == 'trigger':  # we only want the triggers here
