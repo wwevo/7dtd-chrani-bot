@@ -1,3 +1,6 @@
+import re
+from bot.player import Player
+
 actions_dev = []
 
 
@@ -68,3 +71,48 @@ def obliterate_player(self):
 
 
 actions_dev.append(("isequal", "obliterate me", obliterate_player, "(self)", "testing"))
+
+
+def ban_player(self, command):
+    player_object = self.bot.players.get(self.player_steamid)
+    p = re.search(r"ban\splayer\s(?P<steamid>.+)\sfor\s(?P<ban_reason>.+)", command)
+    if p:
+        steamid_to_ban = p.group("steamid")
+        reason_for_ban = p.group("ban_reason")
+        try:
+            player_object_to_ban = self.bot.players.get(steamid_to_ban)
+        except KeyError:
+            player_dict = {'steamid': steamid_to_ban, "name": 'unknown offline player'}
+            player_object_to_ban = Player(**player_dict)
+
+        if self.tn.ban(player_object_to_ban, reason_for_ban):
+            self.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(player_object.name))
+        else:
+            self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_ban))
+        self.tn.send_message_to_player(player_object, "you have banned {}".format(steamid_to_ban))
+
+
+actions_dev.append(("startswith", "ban player", ban_player, "(self, command)", "testing"))
+
+
+def kick_player(self, command):
+    player_object = self.bot.players.get(self.player_steamid)
+    p = re.search(r"kick\splayer\s(?P<steamid>.+)\sfor\s(?P<kick_reason>.+)", command)
+    if p:
+        steamid_to_kick = p.group("steamid")
+        reason_for_kick = p.group("kick_reason")
+        try:
+            player_object_to_kick = self.bot.players.get(steamid_to_kick)
+        except KeyError:
+            player_dict = {'steamid': steamid_to_kick, "name": 'unknown offline player'}
+            player_object_to_kick = Player(**player_dict)
+
+        if self.tn.kick(player_object_to_kick, reason_for_kick):
+            self.tn.send_message_to_player(player_object_to_kick, "you have been kicked by {}".format(player_object.name))
+        else:
+            self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_kick))
+        self.tn.send_message_to_player(player_object, "you have kicked {}".format(steamid_to_kick))
+
+
+actions_dev.append(("startswith", "kick player", kick_player, "(self, command)", "testing"))
+

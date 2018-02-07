@@ -119,6 +119,16 @@ class TelnetConnection:
         try:
             connection = self.tn
             connection.write(command)
+            return True
+        except Exception:
+            return False
+
+    def ban(self, player_object, reason='does there always need to be a reason?'):
+        command = "ban " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"
+        try:
+            connection = self.tn
+            connection.write(command)
+            return True
         except Exception:
             return False
 

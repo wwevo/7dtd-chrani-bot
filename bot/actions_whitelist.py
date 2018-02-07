@@ -10,7 +10,7 @@ actions_whitelist = []
 
 def add_player_to_whitelist(self, command):
     player_object = self.bot.players.get(self.player_steamid)
-    p = re.search(r"add\s(?P<steamid>.+)\sto whitelist", command)
+    p = re.search(r"add\splayer\s(?P<steamid>.+)\sto whitelist", command)
     if p:
         steamid_to_whitelist = p.group("steamid")
         try:
@@ -26,12 +26,12 @@ def add_player_to_whitelist(self, command):
         self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(steamid_to_whitelist))
 
 
-actions_whitelist.append(("startswith", "add", add_player_to_whitelist, "(self, command)", "whitelist"))
+actions_whitelist.append(("startswith", "add player", add_player_to_whitelist, "(self, command)", "whitelist"))
 
 
 def remove_player_from_whitelist(self, command):
     player_object = self.bot.players.get(self.player_steamid)
-    p = re.search(r"remove\s(?P<steamid>.+)\sfrom whitelist", command)
+    p = re.search(r"remove\splayer\s(?P<steamid>.+)\sfrom whitelist", command)
     if p:
         steamid_to_dewhitelist = p.group("steamid")
         try:
@@ -48,7 +48,7 @@ def remove_player_from_whitelist(self, command):
         self.tn.send_message_to_player(player_object, "you have de-whitelisted {}".format(steamid_to_dewhitelist))
 
 
-actions_whitelist.append(("startswith", "remove", remove_player_from_whitelist, "(self, command)", "whitelist"))
+actions_whitelist.append(("startswith", "remove player", remove_player_from_whitelist, "(self, command)", "whitelist"))
 
 
 def activate_whitelist(self):

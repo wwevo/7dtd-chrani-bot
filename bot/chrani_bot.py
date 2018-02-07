@@ -68,7 +68,7 @@ class ChraniBot:
             "admin": 'ecvrules'
         }
         self.whitelist = Whitelist()
-        self.permission_levels_list = ['admin', 'mod', 'donator', 'regular', None]
+        self.permission_levels_list = ['admin', 'mod', 'donator', None]
         self.permissions = Permissions(self.player_actions, self.permission_levels_list)
 
         self.load_from_db()
