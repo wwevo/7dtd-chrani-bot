@@ -37,7 +37,7 @@ class Whitelist(object):
     def deactivate(self):
         self.whitelist_active = False
 
-    def upsert(self, player_object, player_object_to_whitelist, save=False):
+    def add(self, player_object, player_object_to_whitelist, save=False):
         try:
             is_in_dict = self.whitelisted_players_dict[player_object_to_whitelist.steamid]
         except Exception:
@@ -48,6 +48,21 @@ class Whitelist(object):
         if save:
             self.save(player_object_to_whitelist)
             return True
+
+    def remove(self, player_object):
+        try:
+            filename = self.root + self.prefix + '_' + player_object.steamid + '.json'
+            if os.path.exists(filename):
+                try:
+                    os.remove(filename)
+                    del self.whitelisted_players_dict[player_object.steamid]
+                except OSError, e:
+                    logger.error("Error: {} - {}.".format(e.filename, e.strerror))
+            else:
+                print("Sorry, I can not find {} file.".format(filename))
+            pass
+        except KeyError:
+            raise
 
     def player_is_allowed(self, player_object):
         try:

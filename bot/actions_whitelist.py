@@ -20,7 +20,7 @@ def add_player_to_whitelist(self, command):
                 player_dict = {'steamid': steamid_to_whitelist, "name": 'unknown offline player'}
                 player_object_to_whitelist = Player(**player_dict)
 
-            if self.bot.whitelist.upsert(player_object, player_object_to_whitelist, save=True):
+            if self.bot.whitelist.add(player_object, player_object_to_whitelist, save=True):
                 self.tn.send_message_to_player(player_object_to_whitelist, "you have been whitelisted by {}".format(player_object.name))
             else:
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist))
@@ -70,7 +70,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
         self.bot = self
         try:
             player_object = self.bot.players.load(player_object.steamid)
-        except IOError:
+        except KeyError:
             pass
 
     if self.bot.whitelist.is_active():

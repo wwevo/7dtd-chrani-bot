@@ -1,5 +1,6 @@
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
+from bot.logger import logger
 import json
 import os
 from bot.player import Player
@@ -59,8 +60,20 @@ class Players(object):
         if save:
             self.save(player_object)
 
-    def remove(self):
-        pass
+    def remove(self, player_object):
+        try:
+            filename = self.root + self.prefix + '_' + player_object.steamid + '.json'
+            if os.path.exists(filename):
+                try:
+                    os.remove(filename)
+                    del self.players_dict[player_object.steamid]
+                except OSError, e:
+                    logger.error("Error: {} - {}.".format(e.filename, e.strerror))
+            else:
+                print("Sorry, I can not find {} file.".format(filename))
+            pass
+        except KeyError:
+            raise
 
     def save(self, player_object):
         dict_to_save = player_object.__dict__
