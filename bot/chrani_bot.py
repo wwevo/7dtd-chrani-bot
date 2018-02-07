@@ -197,7 +197,8 @@ class ChraniBot:
                 for telnet_line in self.telnet_lines_list:
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
                     if not m or m and m.group('telnet_command') != 'lp':
-                        logger.debug(telnet_line)
+                        if telnet_line != '':
+                            logger.debug(telnet_line)
                     if m:
                         if m.group("telnet_command").startswith("tele"):
                             c = re.search(r"^(tele|teleportplayer) (?P<player>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))

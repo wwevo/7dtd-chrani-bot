@@ -85,7 +85,7 @@ class PlayerObserver(Thread):
                                         function_object = player_action[2]
                                         chat_command = player_action[1]
                                         function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
-                                        command_queue.append([function_object, function_parameters, function_name, function_category, chat_command])
+                                        command_queue.append([function_object, function_parameters, function_name, function_category, command])
                                 else:
                                     break
                             for command in command_queue:
@@ -96,10 +96,10 @@ class PlayerObserver(Thread):
                                     except TypeError:
                                         command[0](command[1])
 
-                                    logger.info("Player {} has executed {} with '/{}'".format(player_object.name, command[2], command[4]))
+                                    logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2], command[4]))
                                 else:
                                     self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
-                                    logger.info("Player {} denied trying to execute {}".format(player_object.name, command[2]))
+                                    logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[3], command[2]))
                             if len(command_queue) == 0:
                                 self.bot.tn.send_message_to_player(player_object, "The command '/{}' is unknown to me. Maybe a typo?".format(command))
 

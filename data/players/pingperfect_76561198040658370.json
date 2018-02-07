@@ -6,24 +6,24 @@
     "steamid": "76561198040658370", 
     "authenticated": true, 
     "ping": 31, 
-    "score": "5", 
-    "health": 88, 
+    "score": "8", 
+    "health": 107, 
     "rot_z": 0.0, 
-    "rot_y": -347.9, 
-    "rot_x": -14.0, 
+    "rot_y": -545.6, 
+    "rot_x": -22.5, 
     "permission_levels": [
         "admin", 
-        "authenticated", 
-        "mod"
+        "mod", 
+        "authenticated"
     ], 
-    "pos_z": 922.1, 
-    "pos_x": 697.7, 
-    "pos_y": 62.1, 
+    "pos_z": 886.2, 
+    "pos_x": 732.7, 
+    "pos_y": 78.2, 
     "remote": true, 
     "name": "ecv", 
     "level": "4", 
     "region": "1.1.7rg", 
     "players": 0, 
     "is_responsive": true, 
-    "zombies": 22
+    "zombies": 25
 }
