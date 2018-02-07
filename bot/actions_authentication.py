@@ -14,8 +14,8 @@ def password(self, command):
                 self.tn.send_message_to_player(player_object, "{} we trust you already <3".format(player_object.name), color='22c927')
             else:
                 self.tn.send_message_to_player(player_object, "{} joined the ranks of literate people. Welcome!".format(player_object.name), color='22c927')
-                player_object.set_authenticated(True)
-                player_object.add_permission_level("authenticated")
+            player_object.set_authenticated(True)
+            player_object.add_permission_level("authenticated")
         else:
             player_object.set_authenticated(False)
             self.tn.say("{} has entered a wrong password oO!".format(player_object.name))

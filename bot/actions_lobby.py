@@ -89,20 +89,6 @@ def remove_lobby(self):
 actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self)", "lobby"))
 
 
-def on_player_join(self):
-    player_object = self.bot.players.get(self.player_steamid)
-    if player_object.authenticated is not True:
-        try:
-            # noinspection PyUnusedLocal
-            location_dict = self.bot.locations.get('system', "lobby")
-            self.tn.send_message_to_player(player_object, "yo ass will be deported to our lobby plus tha command-shit is restricted yo")
-        except KeyError:
-            return False
-
-
-actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
-
-
 def password(self, command):
     try:
         location_object = self.bot.locations.get('system', "lobby")

@@ -68,18 +68,17 @@ actions_dev.append(("isequal", "reinitialize", reload_from_db, "(self)", "testin
 def obliterate_player(self):
     player_object = self.bot.players.get(self.player_steamid)
     if player_object.authenticated is True:
+        player_object.switch_off("suicide")
+        self.tn.kick(player_object, "You wanted it! Time to be born again!!")
         try:
-            player_object.switch_off("suicide")
             location_objects_dict = self.bot.locations.get(player_object.steamid)
             locations_to_remove = []
             for name, location_object in location_objects_dict.iteritems():
                 locations_to_remove.append(location_object)
             for location_object in locations_to_remove:
                 self.bot.locations.remove(player_object.steamid, location_object.identifier)
-                self.tn.send_message_to_player(player_object, "removed {}".format(location_object.identifier))
         except KeyError:
             pass
-        self.tn.kick(player_object, "You wanted it! Time to be born again!!")
         self.bot.players.remove(player_object)
         self.bot.whitelist.remove(player_object)
 

@@ -59,7 +59,7 @@ class Whitelist(object):
                 except OSError, e:
                     logger.error("Error: {} - {}.".format(e.filename, e.strerror))
             else:
-                print("Sorry, I can not find {} file.".format(filename))
+                logger.error("Sorry, I can not find {} file.".format(filename))
             pass
         except KeyError:
             raise
