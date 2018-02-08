@@ -124,7 +124,16 @@ class TelnetConnection:
             return False
 
     def ban(self, player_object, reason='does there always need to be a reason?'):
-        command = "ban " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"
+        command = "ban add " + str(player_object.steamid) + " 1 year \"" + reason.rstrip() + b"\"\r\n"
+        try:
+            connection = self.tn
+            connection.write(command)
+            return True
+        except Exception:
+            return False
+
+    def unban(self, player_object):
+        command = "ban remove " + str(player_object.steamid) + b"\r\n"
         try:
             connection = self.tn
             connection.write(command)

@@ -107,7 +107,7 @@ def ban_player(self, command):
 
             if self.tn.ban(player_object_to_ban, reason_for_ban):
                 self.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(player_object.name), color=self.bot.chat_colors['alert'])
-                self.tn.send_message_to_player(player_object, "you have banned {}".format(steamid_to_ban), color=self.bot.chat_colors['success'])
+                self.tn.send_message_to_player(player_object, "you have banned player {}".format(steamid_to_ban), color=self.bot.chat_colors['success'])
                 self.tn.say("{} has been banned by {} for '{}'!".format(steamid_to_ban, player_object.name, reason_for_ban), color=self.bot.chat_colors['success'])
             else:
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_ban), color=self.bot.chat_colors['warning'])
@@ -117,6 +117,31 @@ def ban_player(self, command):
 
 
 actions_dev.append(("startswith", "ban player", ban_player, "(self, command)", "testing"))
+
+
+def unban_player(self, command):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        p = re.search(r"unban\splayer\s(?P<steamid>.+)", command)
+        if p:
+            steamid_to_unban = p.group("steamid")
+            try:
+                player_object_to_unban = self.bot.players.load(steamid_to_unban)
+            except KeyError:
+                player_dict = {'steamid': steamid_to_unban, "name": 'unknown offline player'}
+                player_object_to_unban = Player(**player_dict)
+
+            if self.tn.unban(player_object_to_unban):
+                self.tn.send_message_to_player(player_object, "you have unbanned player {}".format(steamid_to_unban), color=self.bot.chat_colors['success'])
+                self.tn.say("{} has been unbanned by {}.".format(steamid_to_unban, player_object.name), color=self.bot.chat_colors['success'])
+            else:
+                self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_unban), color=self.bot.chat_colors['warning'])
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_dev.append(("startswith", "unban player", unban_player, "(self, command)", "testing"))
 
 
 def kick_player(self, command):
