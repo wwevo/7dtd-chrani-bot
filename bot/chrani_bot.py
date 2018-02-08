@@ -268,7 +268,10 @@ class ChraniBot:
                             'name': m.group("player_name"),
                             'ip': m.group("player_ip")
                         }
-                        player_object = Player(**player_dict)
+                        try:
+                            player_object = self.players.load(player_dict['steamid'])
+                        except KeyError:
+                            player_object = Player(**player_dict)
                         logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
                         command_queue = []
                         for observer in self.observers:
