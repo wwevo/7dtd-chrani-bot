@@ -1,6 +1,6 @@
 import re
-
 from bot.location import Location
+from bot.logger import logger
 
 actions_home = []
 
@@ -35,7 +35,7 @@ def make_this_my_home(self):
         location_object = Location(**location_dict)
         self.bot.locations.upsert(location_object, save=True)
         self.tn.say("{} has decided to settle down!".format(player_object.name), color=self.bot.chat_colors['background'])
-        self.tn.send_message_to_player(player_object, "Home is where, your hat is!", color=self.bot.chat_colors['success'])
+        self.tn.send_message_to_player(player_object, "Home is where your hat is!", color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass

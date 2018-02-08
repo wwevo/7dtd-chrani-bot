@@ -172,7 +172,7 @@ def set_up_location_warning_boundary(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set up a warning boundary for location ", set_up_location_warning_boundary, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set up a warning boundary for location", set_up_location_warning_boundary, "(self, command)", "locations"))
 
 
 def make_location_a_shape(self, command):
