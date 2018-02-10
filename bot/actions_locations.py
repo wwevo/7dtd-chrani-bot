@@ -65,7 +65,7 @@ actions_locations.append(("startswith", "set up teleport for location", set_up_l
 def name_my_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up the name for location (.+)\sas\s(.+)", command)
+        p = re.search(r"set up the name for location (.+) as (.+)", command)
         if p:
             identifier = p.group(1)
             name = p.group(2)
@@ -222,7 +222,7 @@ actions_locations.append(("isequal", "list my locations", list_players_locations
 def goto_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"goto location\s(.+)", command)
+        p = re.search(r"goto location (.+)", command)
         if p:
             name = p.group(1)
             try:
@@ -242,7 +242,7 @@ actions_locations.append(("startswith", "goto location", goto_location, "(self, 
 def remove_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"remove location\s(.+)", command)
+        p = re.search(r"remove location (.+)", command)
         if p:
             identifier = p.group(1)
             try:

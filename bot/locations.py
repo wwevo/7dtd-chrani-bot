@@ -26,16 +26,20 @@ class Locations(object):
         self.prefix = args_dict['Database-file']
         self.locations_dict = {}
 
-    def load_all(self):
+    def load_all(self, store=False):
+        locations_dict = {}
         for root, dirs, files in os.walk(self.root):
             for filename in files:
                 if filename.startswith(self.prefix) and filename.endswith('.json'):
                     with open(self.root + filename) as file_to_read:
                         location_dict = byteify(json.load(file_to_read))
                         try:
-                            self.locations_dict[str(location_dict['owner'])].update({str(location_dict['identifier']): Location(**location_dict)})
+                            locations_dict[str(location_dict['owner'])].update({str(location_dict['identifier']): Location(**location_dict)})
                         except KeyError:
-                            self.locations_dict[str(location_dict['owner'])] = {str(location_dict['identifier']): Location(**location_dict)}
+                            locations_dict[str(location_dict['owner'])] = {str(location_dict['identifier']): Location(**location_dict)}
+            if store is True:
+                self.locations_dict = locations_dict
+            return locations_dict
 
     def upsert(self, location_object, save=False):
         try:

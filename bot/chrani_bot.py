@@ -62,13 +62,13 @@ class ChraniBot:
 
         self.locations = Locations()
         self.passwords = {
-            "player": 'openup',
+            "authenticated": 'openup',
             "donator": 'blingbling',
             "mod": 'hoopmeup',
             "admin": 'ecvrules'
         }
         self.whitelist = Whitelist()
-        self.permission_levels_list = ['admin', 'mod', 'donator', None]
+        self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
         self.permissions = Permissions(self.player_actions, self.permission_levels_list)
 
         self.load_from_db()
@@ -89,7 +89,8 @@ class ChraniBot:
             'chat_commands_coppi': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod 'Coppis command additions': Chat: '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
-            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"        }
+            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
+        }
 
         self.match_types_system = {
             # captures the response for telnet commands. used for example to capture teleport response
@@ -111,9 +112,9 @@ class ChraniBot:
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
 
     def load_from_db(self):
-        self.locations.load_all()  # load all location data
+        self.locations.load_all(store=True)  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
-        self.permissions.load_all()
+        self.permissions.load_all()  # get the permissions or create new permissions-file
 
     def poll_players(self):
         online_players_dict = {}
