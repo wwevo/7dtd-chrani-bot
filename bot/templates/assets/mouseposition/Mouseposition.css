@@ -1,0 +1,12 @@
+/* https://github.com/ardhi/Leaflet.MousePosition */
+.leaflet-container .leaflet-control-mouseposition {
+    font-size: 10px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    width: 140px;
+    z-index: 1000;
+    margin: 10px; padding: 0 6px;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 6px;
+}
