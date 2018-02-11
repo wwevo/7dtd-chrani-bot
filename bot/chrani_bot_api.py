@@ -131,9 +131,9 @@ class ChraniBotApi(Thread):
             flask_login.logout_user()
             return redirect('/')
 
-        # app.logger.disabled = True
-        # log = logging.getLogger('werkzeug')
-        # log.disabled = True
+        app.logger.disabled = True
+        log = logging.getLogger('werkzeug')
+        log.disabled = True
         app.run(host=self.bot.panel_url, port=self.bot.panel_port)
 
 
