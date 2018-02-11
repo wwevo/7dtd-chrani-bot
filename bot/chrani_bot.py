@@ -38,6 +38,9 @@ class ChraniBot:
     passwords = dict
     api_key = str
 
+    panel_protocol = str
+    panel_url = str
+    panel_port = int
     server_settings_dict = dict
     active_player_threads_dict = dict  # contains link to the players observer-thread
 
@@ -64,13 +67,20 @@ class ChraniBot:
         self.active_player_threads_dict = {}
 
         self.locations = Locations()
+
         self.passwords = {
             "authenticated": 'openup',
             "donator": 'blingbling',
             "mod": 'hoopmeup',
             "admin": 'ecvrules'
         }
+        self.panel_protocol = "http"
+        self.panel_url = "127.0.0.1"
+        self.panel_port = 26899
+
         self.api_key = 'chrani-api456'
+        self.chrani_api_key = "612e648bf9594adb50844cad6895f2cf"
+
         self.whitelist = Whitelist()
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
         self.permissions = Permissions(self.player_actions, self.permission_levels_list)

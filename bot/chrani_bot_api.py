@@ -1,11 +1,10 @@
 from threading import Thread
-from flask import Flask, request, redirect, session
-import flask_login
+from flask import Flask, request, redirect, render_template, send_from_directory, Response
 import requests
-from urllib import urlencode, quote
+import bot.flask_login as flask_login
+from urllib import urlencode
 import re
 from logger import logger
-
 import logging
 import json
 
@@ -26,9 +25,7 @@ class ChraniBotApi(Thread):
         login_manager.init_app(app)
 
         steam_openid_url = 'https://steamcommunity.com/openid/login'
-        server_ip = "0.0.0.0"
-        server_port = int(self.bot.server_settings_dict["Server-Port"]) -1
-        logger.info("chrani-api started on {}:{}".format(server_ip, server_port))
+        logger.info("chrani-api started on {}:{}".format(self.bot.panel_url, self.bot.panel_port))
 
         @login_manager.user_loader
         def load_user(login_steamid):
@@ -41,7 +38,21 @@ class ChraniBotApi(Thread):
             except KeyError:
                 return None
 
-        @app.route("/authorized")
+        @app.route("/auth")  # redirects users to the steam-login
+        def auth_with_steam():
+            params = {
+                'openid.ns': "http://specs.openid.net/auth/2.0",
+                'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
+                'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
+                'openid.mode': 'checkid_setup',
+                'openid.return_to': "{}://{}:{}/authorized".format(self.bot.panel_protocol, self.bot.panel_url, self.bot.panel_port),
+                'openid.realm': "{}://{}:{}".format(self.bot.panel_protocol, self.bot.panel_url, self.bot.panel_port)
+            }
+            query_string = urlencode(params)
+            auth_url = steam_openid_url + "?" + query_string
+            return redirect(auth_url)
+
+        @app.route("/authorized")  # exctracts users-info from steam-login response and checks if a local player exists
         @login_manager.request_loader
         def authorized(test=None):
             if test is not None:
@@ -50,82 +61,79 @@ class ChraniBotApi(Thread):
                 login_steamid = re.search(r'http://steamcommunity.com/openid/id/(?P<steamid>.*)', request.args["openid.identity"]).group('steamid')
                 player_object = self.bot.players.load(login_steamid)
                 flask_login.login_user(player_object)
-                return redirect('/panel')
+                return redirect('/')
             except Exception as e:
                 return None
 
-        @app.route("/auth")
-        def auth_with_steam():
-            params = {
-                'openid.ns': "http://specs.openid.net/auth/2.0",
-                'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
-                'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
-                'openid.mode': 'checkid_setup',
-                'openid.return_to': 'http://127.0.0.1:26899/authorized',
-                'openid.realm': 'http://127.0.0.1:26899'
-            }
-            query_string = urlencode(params)
-            auth_url = steam_openid_url + "?" + query_string
-            return redirect(auth_url)
+        @login_manager.unauthorized_handler  # yeah, we don't deal with unauthorized folk at all!
+        def unauthorized():
+            return redirect('/auth')
+
+        """ API-Endpoints """
+        @app.route("/me")
+        @flask_login.login_required
+        def whoami():
+            player_object = flask_login.current_user
+            return player_object.steamid
 
         @app.route("/players")
+        @flask_login.login_required
         def get_all_players():
-            key = request.headers.get('X-API-KEY')
-            if key == "612e648bf9594adb50844cad6895f2cf":
-                result = {}
-                for player_steamid, player_object in self.bot.players.load_all().iteritems():
-                    result.update({player_steamid: player_object.__dict__})
-                return json.dumps(result, indent=4)
-            else:
-                return "access denied"
+            result = {}
+            for player_steamid, player_object in self.bot.players.load_all().iteritems():
+                result.update({player_steamid: player_object.__dict__})
+            return json.dumps(result, indent=4)
 
         @app.route("/players/online")
+        @flask_login.login_required
         def get_online_players():
-            key = request.headers.get('X-API-KEY')
-            if key == "612e648bf9594adb50844cad6895f2cf":
-                result = {}
-                for player_steamid, player_object in self.bot.players.players_dict.iteritems():
-                    result.update({player_steamid: player_object.__dict__})
-                return json.dumps(result, indent=4)
-            else:
-                return "access denied"
+            result = {}
+            for player_steamid, player_object in self.bot.players.players_dict.iteritems():
+                result.update({player_steamid: player_object.__dict__})
+            return json.dumps(result, indent=4)
 
         @app.route("/bases")
+        @flask_login.login_required
         def get_player_bases():
-            key = request.headers.get('X-API-KEY')
-            if key == "612e648bf9594adb50844cad6895f2cf":
-                locations_dict = {}
-                for location_owner_steamid, location_objects_dict in self.bot.locations.locations_dict.iteritems():
-                    for location_identifier, location_object in location_objects_dict.iteritems():
-                        if location_identifier == 'home':
-                            locations_dict.update({location_owner_steamid: location_object.__dict__})
-                return json.dumps(locations_dict, indent=4)
-            else:
-                return "access denied"
+            locations_dict = {}
+            for location_owner_steamid, location_objects_dict in self.bot.locations.locations_dict.iteritems():
+                for location_identifier, location_object in location_objects_dict.iteritems():
+                    if location_identifier == 'home':
+                        locations_dict.update({location_owner_steamid: location_object.__dict__})
+            return json.dumps(locations_dict, indent=4)
+
+        """ Real Routes """
+        @app.route('/assets/<path:path>')
+        @flask_login.login_required
+        def static_assets(path):
+            return send_from_directory('templates/assets', path)
+
+        @app.route('/tiles/<path:path>')
+        @flask_login.login_required
+        def get_map_tiles(path):
+            request_path = 'http://panel.chrani-bot.notjustfor.me:8082/map/{}?adminuser={}&admintoken={}'.format(path, 'chrani_bot_panel', 'totally_secure_321')
+            pic = requests.get(request_path)
+            return Response(pic, mimetype="image/png")
 
         @app.route("/")
-        def chrani_bot():
-            return '<a href="/auth">Login with steam</a>'
-
-        @login_manager.unauthorized_handler
-        def unauthorized():
-            return "You need to have logged in on the server at least once and must also be an authenticated player to get access to the panel ^^"
-
-        @app.route("/panel")
         @flask_login.login_required
-        def chrani_panel():
+        def chrani_bot():
             player_object = flask_login.current_user
-            output = "Hello {}. It's good to see you!".format(player_object.name)
-            return output
+            if player_object.has_permission_level("authenticated"):
+                leaflet_head = render_template('leaflet_head.html')
+                leaflet_map = render_template('leaflet_map.html', panel_user_steamid=player_object.steamid)
+                return render_template('index.html', player_name=player_object.name, head=leaflet_head, main=leaflet_map)
+            return render_template('index.html', player_name=player_object.name)
 
         @app.route('/logout')
+        @flask_login.login_required
         def logout():
             flask_login.logout_user()
-            return 'Logged out'
+            return redirect('/')
 
         # app.logger.disabled = True
         # log = logging.getLogger('werkzeug')
         # log.disabled = True
-        app.run(host=server_ip, port=server_port)
+        app.run(host=self.bot.panel_url, port=self.bot.panel_port)
 
 
