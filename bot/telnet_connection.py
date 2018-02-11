@@ -10,6 +10,8 @@ class TelnetConnection:
     bot = object
     show_log_init = bool
 
+    full_banner = str
+
     def __init__(self, bot, ip, port, password, show_log_init=False):
         try:
             connection = telnetlib.Telnet(ip, port, timeout=2)
@@ -18,6 +20,7 @@ class TelnetConnection:
             raise IOError(log_message)
         self.bot = bot
         self.show_log_init = show_log_init
+        self.full_banner = ""
         self.tn = self.authenticate(connection, password)
 
     def authenticate(self, connection, password):
@@ -56,6 +59,7 @@ class TelnetConnection:
                     displayed_welcome = True
 
             if self.show_log_init is True and full_banner != '':
+                self.full_banner = full_banner
                 logger.info(full_banner)
 
         except Exception as e:
@@ -64,6 +68,31 @@ class TelnetConnection:
 
         logger.debug("telnet connection established: " + str(connection))
         return connection
+
+    def get_game_preferences(self):
+        try:
+            connection = self.tn
+            connection.write("gg" + b"\r\n")
+        except Exception as e:
+            log_message = 'trying to getgamepref on telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
+
+        telnet_line = ""
+        telnet_response = ""
+        poll_is_finished = False
+        while poll_is_finished is not True:
+            try:
+                telnet_line = connection.read_until(b"\r\n")
+                telnet_response += telnet_line
+            except Exception as e:
+                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                raise IOError(log_message)
+
+            m = re.search(r"GamePref.ZombiesRun = (\d{1,2})\r\n", telnet_line)
+            if m:
+                poll_is_finished = True
+
+        return telnet_response
 
     def read_line(self):
         try:
@@ -87,12 +116,13 @@ class TelnetConnection:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_response = telnet_response + connection.read_until(b"\r\n")
+                telnet_line = connection.read_until(b"\r\n")
+                telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
                 raise IOError(log_message)
 
-            m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_response)
+            m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_line)
             if m:
                 poll_is_finished = True
 

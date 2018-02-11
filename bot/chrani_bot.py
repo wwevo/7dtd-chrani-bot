@@ -2,6 +2,7 @@ import re
 import time
 from threading import Event
 
+from bot.chrani_bot_api import ChraniBotApi
 from bot.actions_authentication import actions_authentication
 from bot.actions_dev import actions_dev
 from bot.actions_home import actions_home
@@ -35,7 +36,9 @@ class ChraniBot:
     listplayers_interval = int
     chat_colors = dict
     passwords = dict
+    api_key = str
 
+    server_settings_dict = dict
     active_player_threads_dict = dict  # contains link to the players observer-thread
 
     players = object
@@ -67,6 +70,7 @@ class ChraniBot:
             "mod": 'hoopmeup',
             "admin": 'ecvrules'
         }
+        self.api_key = 'chrani-api456'
         self.whitelist = Whitelist()
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
         self.permissions = Permissions(self.player_actions, self.permission_levels_list)
@@ -101,6 +105,8 @@ class ChraniBot:
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(\d+\.\d+\.\d+\.\d+), ping=(\d+)\r\n",
+            # to parse the telnets getgameprefs response
+            'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
             # player joined / died messages
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
             # pretty much the firs usable line during a players login
@@ -110,6 +116,8 @@ class ChraniBot:
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+
+        self.server_settings_dict = self.get_game_preferences()
 
     def load_from_db(self):
         self.locations.load_all(store=True)  # load all location data to memory
@@ -141,9 +149,27 @@ class ChraniBot:
             }})
         return online_players_dict
 
+    def get_game_preferences(self):
+        game_preferences_dict = {}
+        game_preferences = self.tn.get_game_preferences()
+        logger.debug(game_preferences)
+
+        for m in re.finditer(self.match_types_system["getgameprefs_result_regexp"], self.tn.get_game_preferences()):
+            game_preferences_dict.update({
+                "Server-Port": m.group("server_port").rstrip(),
+                "Server-IP": m.group("server_ip").rstrip()
+            })
+        return game_preferences_dict
+
     def run(self):
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.tn.togglechatcommandhide("/")
+
+        stop_flag = Event()
+        chrani_api_thread = ChraniBotApi(self, stop_flag)  # I'm passing the bot (self) into it to have easy access to it's variables
+        chrani_api_thread.name = 'chrani-api'  # nice to have for the logs
+        chrani_api_thread.isDaemon()
+        chrani_api_thread.start()
 
         listplayers_dict = {}
         list_players_timeout_start = 0

@@ -1,8 +1,9 @@
 import math
 from bot.logger import logger
+import flask_login
 
 
-class Player(object):
+class Player(flask_login.UserMixin):
     id = long
     name = str
     permission_levels = list
@@ -28,13 +29,18 @@ class Player(object):
     region = str
     country_code = str
     authenticated = bool
+    web_auth = bool
     is_responsive = bool
     last_teleport = int
+
+    def get_id(self):
+        return unicode(self.steamid)
 
     def __init__(self, **kwargs):
         self.last_teleport = 0
         self.is_responsive = False
         self.permission_levels = []
+        self.web_auth = False
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)

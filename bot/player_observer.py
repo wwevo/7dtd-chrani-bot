@@ -101,6 +101,6 @@ class PlayerObserver(Thread):
                                     self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
                                     logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[3], command[2]))
                             if len(command_queue) == 0:
-                                logger.info("Player {} tried the command '{}' for which I have no handler.".format(command))
+                                logger.info("Player {} tried the command '{}' for which I have no handler.".format(player_object.name, command))
 
                         break
