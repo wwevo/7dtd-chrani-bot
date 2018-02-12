@@ -341,6 +341,7 @@ function initMap() {
     });
 }
 /*	fetch all map tiles and perform manual offset manipulation */
+var updateTilelayerTimeout = false
 function pollTileLayer() {
     var _tileLayer = L.tileLayer('/tiles/{z}/{x}/{y}.png', {
         tileSize: 128,
@@ -357,6 +358,8 @@ function pollTileLayer() {
         coords.y = (-coords.y) - 1;
         return L.TileLayer.prototype.getTileUrl.bind(_tileLayer)(coords);
     };
+
+    updateTilelayerTimeout = window.setTimeout(pollTileLayer, 5000); // if active or not, poll this function periodically
     return _tileLayer;
 }
 // </editor-fold>
@@ -367,9 +370,6 @@ var onlinePlayers = pollOnlinePlayers();
 var locations = pollLocations();
 var bases = pollBases();
 var lcb = pollLcb();
-
-var gametime = L.control.gameTime();
-var mouseposition = L.control.mousePosition();
 
 var baseMaps = {
     "World": tileLayer
@@ -387,9 +387,6 @@ overlayControl.addTo(map);
 tileLayer.addTo(map);
 onlinePlayers.addTo(map);
 locations.addTo(map);
-
-gametime.addTo(map);
-mouseposition.addTo(map); // needs Allocs projection code to show sensible data
 
 map.dragging.disable();
 map.touchZoom.disable();

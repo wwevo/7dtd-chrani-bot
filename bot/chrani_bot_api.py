@@ -6,6 +6,7 @@ from urllib import urlencode
 import re
 from logger import logger
 import logging
+import time
 import json
 
 
@@ -63,11 +64,11 @@ class ChraniBotApi(Thread):
                 flask_login.login_user(player_object)
                 return redirect('/')
             except Exception as e:
-                return None
+                return redirect('/unauthorized')
 
         @login_manager.unauthorized_handler  # yeah, we don't deal with unauthorized folk at all!
         def unauthorized():
-            return redirect('/auth')
+            return render_template('unauthorized.html')
 
         """ API-Endpoints """
         @app.route("/me")
@@ -83,6 +84,17 @@ class ChraniBotApi(Thread):
             for player_steamid, player_object in self.bot.players.load_all().iteritems():
                 result.update({player_steamid: player_object.__dict__})
             return json.dumps(result, indent=4)
+
+        @app.route("/players/<steamid>")
+        @flask_login.login_required
+        def get_player_by_steamid(steamid):
+            result = {}
+            try:
+                player_object = self.bot.players.load(steamid)
+                result.update({steamid: player_object.__dict__})
+                return json.dumps(result, indent=4)
+            except KeyError:
+                return "resource not found"
 
         @app.route("/players/online")
         @flask_login.login_required
@@ -118,12 +130,19 @@ class ChraniBotApi(Thread):
         @app.route("/")
         @flask_login.login_required
         def chrani_bot():
+            leaflet_head = ""
+            leaflet_map = ""
             player_object = flask_login.current_user
             if player_object.has_permission_level("authenticated"):
-                leaflet_head = render_template('leaflet_head.html')
-                leaflet_map = render_template('leaflet_map.html', panel_user_steamid=player_object.steamid)
-                return render_template('index.html', player_name=player_object.name, head=leaflet_head, main=leaflet_map)
-            return render_template('index.html', player_name=player_object.name)
+                leaflet_head = render_template('leaflet_head_tilelayer.html')
+                leaflet_map = render_template('leaflet_map_tilelayer.html', panel_user_steamid=player_object.steamid)
+                leaflet_map += render_template('leaflet_map_playerlayer.html')
+                leaflet_map += render_template('leaflet_map_baseslayer.html')
+            if player_object.has_permission_level("moderator") or player_object.has_permission_level("admin"):
+                leaflet_map += render_template('leaflet_map_locationlayer.html')
+                leaflet_map += render_template('leaflet_map_lcblayer.html')
+
+            return render_template('index.html', player_name=player_object.name, head=leaflet_head, main=leaflet_map)
 
         @app.route('/logout')
         @flask_login.login_required
@@ -131,9 +150,9 @@ class ChraniBotApi(Thread):
             flask_login.logout_user()
             return redirect('/')
 
-        app.logger.disabled = True
-        log = logging.getLogger('werkzeug')
-        log.disabled = True
+        # app.logger.disabled = True
+        # log = logging.getLogger('werkzeug')
+        # log.disabled = True
         app.run(host=self.bot.panel_url, port=self.bot.panel_port)
 
 
