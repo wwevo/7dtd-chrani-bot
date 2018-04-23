@@ -1,8 +1,10 @@
 import re
 import time
 from threading import Event
+import json
 
-from bot.chrani_bot_api import ChraniBotApi
+from bot.logger import logger
+from bot.assorted_functions import byteify, timeout_occurred
 from bot.actions_authentication import actions_authentication
 from bot.actions_dev import actions_dev
 from bot.actions_home import actions_home
@@ -11,18 +13,16 @@ from bot.actions_locations import actions_locations, observers_locations
 from bot.actions_whitelist import actions_whitelist, observers_whitelist
 from bot.command_line_args import args_dict
 from bot.locations import Locations
-from bot.logger import logger
 from bot.permissions import Permissions
 from bot.player import Player
 from bot.player_observer import PlayerObserver
 from bot.players import Players
 from bot.telnet_connection import TelnetConnection
 from bot.whitelist import Whitelist
-from bot.assorted_functions import timeout_occurred
 
 
 class ChraniBot:
-    name = str
+    bot_name = str
     is_active = bool  # used for restarting the bot safely after connection loss
 
     match_types = dict
@@ -38,10 +38,9 @@ class ChraniBot:
     passwords = dict
     api_key = str
 
-    panel_protocol = str
-    panel_url = str
-    panel_port = int
+    settings_dict = dict
     server_settings_dict = dict
+
     active_player_threads_dict = dict  # contains link to the players observer-thread
 
     players = object
@@ -52,11 +51,23 @@ class ChraniBot:
     observers = list
     player_actions = list
 
+    def load_bot_settings(self, prefix):
+        filename = "data/configurations/{}.json".format(prefix)
+        try:
+            with open(filename) as file_to_read:
+                settings_dict = byteify(json.load(file_to_read))
+        except IOError:  # no settings file available
+            settings_dict = None
+        return settings_dict
+
     def __init__(self):
-        self.name = "chrani-bot"
-        logger.info("{} started".format(self.name))
-        self.tn = TelnetConnection(self, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'], show_log_init=True)
-        self.poll_tn = TelnetConnection(self, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+        self.settings_dict = self.load_bot_settings(args_dict['Database-file'])
+
+        self.bot_name = self.settings_dict['bot_name']
+        logger.info("{} started".format(self.bot_name))
+
+        self.tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'], show_log_init=True)
+        self.poll_tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'])
 
         self.player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
         self.observers = observers_whitelist + observers_lobby + observers_locations
@@ -74,12 +85,6 @@ class ChraniBot:
             "mod": 'hoopmeup',
             "admin": 'ecvrules'
         }
-        self.panel_protocol = "http"
-        self.panel_url = "127.0.0.1"
-        self.panel_port = 26899
-
-        self.api_key = 'chrani-api456'
-        self.chrani_api_key = "612e648bf9594adb50844cad6895f2cf"
 
         self.whitelist = Whitelist()
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
@@ -114,7 +119,7 @@ class ChraniBot:
             # isolates the disconnected log entry to get the total session time of a player easily
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
-            'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(\d+\.\d+\.\d+\.\d+), ping=(\d+)\r\n",
+            'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n",
             # to parse the telnets getgameprefs response
             'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
             # player joined / died messages
@@ -175,12 +180,6 @@ class ChraniBot:
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.tn.togglechatcommandhide("/")
 
-        stop_flag = Event()
-        chrani_api_thread = ChraniBotApi(self, stop_flag)  # I'm passing the bot (self) into it to have easy access to it's variables
-        chrani_api_thread.name = 'chrani-api'  # nice to have for the logs
-        chrani_api_thread.isDaemon()
-        chrani_api_thread.start()
-
         listplayers_dict = {}
         list_players_timeout_start = 0
         listplayers_interval = self.listplayers_interval
@@ -233,13 +232,13 @@ class ChraniBot:
                 for player_steamid, player_object in self.players.players_dict.iteritems():
                     """ start player_observer_thread for each player not already being observed """
                     if player_steamid not in self.active_player_threads_dict:
-                        stop_flag = Event()
-                        player_observer_thread = PlayerObserver(self, stop_flag, str(player_steamid))  # I'm passing the bot (self) into it to have easy access to it's variables
+                        player_observer_thread_stop_flag = Event()
+                        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self, str(player_steamid))  # I'm passing the bot (self) into it to have easy access to it's variables
                         player_observer_thread.name = player_steamid  # nice to have for the logs
                         player_observer_thread.isDaemon()
                         player_observer_thread.start()
                         self.players.upsert(player_object, save=True)
-                        self.active_player_threads_dict.update({player_steamid: {"event": stop_flag, "thread": player_observer_thread}})
+                        self.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
                 for player_steamid in set(self.active_player_threads_dict) - set(self.players.players_dict.keys()):
                     """ prune all active_player_threads from players no longer online """

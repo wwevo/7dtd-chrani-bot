@@ -21,7 +21,7 @@ class Logger:
         self.root = 'data/logs'
         self.extension = "log"
 
-    def add_logging_level(level_name, level_num, method_name=None):
+    def add_logging_level(static, level_name, level_num, method_name=None):
         """ Example
         -------
         >>> add_logging_level('TRACE', logging.DEBUG - 5)

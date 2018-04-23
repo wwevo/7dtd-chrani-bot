@@ -1,5 +1,3 @@
-from types import NoneType
-
 from assorted_functions import byteify
 import json
 import os

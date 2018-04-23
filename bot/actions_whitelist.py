@@ -140,7 +140,7 @@ observers_whitelist.append(("trigger", "set to online", check_if_player_has_url_
 
 def check_ip_country(self, player_object=None):
     try:
-        if str(args_dict['IP-Token']) == 'dummy':
+        if self.bot.settings_dict['ipinfo.io_password'] is None:
             return
         if player_object is None:
             player_object = self.bot.players.get(self.player_steamid)
@@ -153,7 +153,7 @@ def check_ip_country(self, player_object=None):
             pass
         else:
             try:
-                f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(args_dict['IP-Token']))
+                f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings_dict['ipinfo.io_password']))
                 users_country = f.read().rstrip()
                 if users_country in self.bot.banned_countries_list:
                     logger.info("kicked player {} for being from {}".format(player_object.name, users_country))

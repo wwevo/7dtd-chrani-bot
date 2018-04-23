@@ -1,8 +1,7 @@
 import re
 import time
-from threading import Thread
+from threading import *
 
-from bot.command_line_args import args_dict
 from bot.logger import logger
 from bot.telnet_connection import TelnetConnection
 
@@ -10,16 +9,15 @@ from bot.telnet_connection import TelnetConnection
 class PlayerObserver(Thread):
     tn = object
     bot = object
-    logger = object
     run_observers_interval = int  # loop this every run_observers_interval seconds
 
     player_steamid = str
 
-    def __init__(self, bot, event, player_steamid):
+    def __init__(self, event, bot, player_steamid):
         self.player_steamid = str(player_steamid)
         logger.info("thread started for player " + self.player_steamid)
 
-        self.tn = TelnetConnection(bot, args_dict['IP-address'], args_dict['Telnet-port'], args_dict['Telnet-password'])
+        self.tn = TelnetConnection(bot, bot.settings_dict['telnet_ip'], bot.settings_dict['telnet_port'], bot.settings_dict['telnet_password'])
         self.bot = bot
         self.run_observers_interval = 1
 
@@ -28,7 +26,7 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening".format(self.bot.name), color=self.bot.chat_colors['info'])
+        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening".format(self.bot.bot_name), color=self.bot.chat_colors['info'])
 
         player_object = self.bot.players.get(self.player_steamid)
 

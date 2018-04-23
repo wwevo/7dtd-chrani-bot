@@ -1,6 +1,5 @@
 """ takes command line options like so:
-python chrani-bot.py 127.0.0.1 8081 12345678 local --verbosity=DEBUG
-nohup python chrani-bot.py 127.0.0.1 8081 12345678 local --verbosity=DEBUG > /dev/null 2>&1 &
+(nohup) python chrani-bot.py (ip) (port) (TelnetPass) (prefix) (ipinfo-pass) --verbosity=DEBUG > /dev/null 2>&1 &
 """
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
