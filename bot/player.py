@@ -1,9 +1,8 @@
 import math
 from bot.logger import logger
-import flask_login
 
 
-class Player(flask_login.UserMixin):
+class Player():
     id = long
     name = str
     permission_levels = list
