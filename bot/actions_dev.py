@@ -71,6 +71,19 @@ def reload_from_db(self):
 actions_dev.append(("isequal", "reinitialize", reload_from_db, "(self)", "testing"))
 
 
+def shutdown_bot(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        self.tn.send_message_to_player(player_object, "bot is shutting down...", color=self.bot.chat_colors['success'])
+        self.bot.shutdown_bot()
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_dev.append(("isequal", "shut down the matrix", shutdown_bot, "(self)", "testing"))
+
+
 def obliterate_player(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)

@@ -1,4 +1,5 @@
 import re
+import sys
 import time
 from threading import Event
 import json
@@ -138,6 +139,11 @@ class ChraniBot:
         self.locations.load_all(store=True)  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file
+
+    def shutdown_bot(self):
+        self.shutdown()
+
+        sys.exit()
 
     def poll_players(self):
         online_players_dict = {}
