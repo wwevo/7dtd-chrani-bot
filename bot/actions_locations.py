@@ -62,7 +62,7 @@ def set_up_location_teleport(self, command):
 actions_locations.append(("startswith", "set location teleport", set_up_location_teleport, "(self, command)", "locations"))
 
 
-def name_my_location(self, command):
+def set_up_location_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"set\slocation\sname\s([\w\s]{1,19})\s=\s([\w\s]{1,19})$", command)
@@ -87,10 +87,10 @@ def name_my_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set location name", name_my_location, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location name", set_up_location_name, "(self, command)", "locations"))
 
 
-def set_up_location_boundary(self, command):
+def set_up_location_outer_perimeter(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"set\slocation\souter\sperimeter\s(([\w\s]{1,19}))$", command)
@@ -113,7 +113,7 @@ def set_up_location_boundary(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set location outer perimeter", set_up_location_boundary, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location outer perimeter", set_up_location_outer_perimeter, "(self, command)", "locations"))
 
 
 # def set_up_location_area(self, command):
@@ -149,7 +149,7 @@ actions_locations.append(("startswith", "set location outer perimeter", set_up_l
 # actions_locations.append(("startswith", "set up the location", set_up_location_area, "(self, command)", "locations"))
 
 
-def set_up_location_warning_boundary(self, command):
+def set_up_location_inner_perimeter(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"set\slocation\sinner\sperimeter\s([\w\s]{1,19})$", command)
@@ -172,7 +172,7 @@ def set_up_location_warning_boundary(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set location inner perimeter", set_up_location_warning_boundary, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location inner perimeter", set_up_location_inner_perimeter, "(self, command)", "locations"))
 
 
 # def make_location_a_shape(self, command):
@@ -201,7 +201,7 @@ actions_locations.append(("startswith", "set location inner perimeter", set_up_l
 # actions_locations.append(("startswith", "make the location", make_location_a_shape, "(self, command)", "locations"))
 
 
-def list_players_locations(self):
+def list_locations(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
@@ -216,7 +216,7 @@ def list_players_locations(self):
         pass
 
 
-actions_locations.append(("isequal", "my locations", list_players_locations, "(self)", "locations"))
+actions_locations.append(("isequal", "my locations", list_locations, "(self)", "locations"))
 
 
 def goto_location(self, command):

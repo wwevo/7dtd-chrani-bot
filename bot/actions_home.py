@@ -5,7 +5,7 @@ from bot.logger import logger
 actions_home = []
 
 
-def make_this_my_home(self):
+def set_up_home(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         # if you know what you are doing, yuo can circumvent all checks and set up a location by dictionary
@@ -41,7 +41,7 @@ def make_this_my_home(self):
         pass
 
 
-actions_home.append(("isequal", "set home", make_this_my_home, "(self)", "home"))
+actions_home.append(("isequal", "set home", set_up_home, "(self)", "home"))
 
 
 def set_up_home_teleport(self):
@@ -66,7 +66,7 @@ def set_up_home_teleport(self):
 actions_home.append(("isequal", "set home teleport", set_up_home_teleport, "(self)", "home"))
 
 
-def name_my_home(self, command):
+def set_up_home_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"set\shome\sname\s([\w\s]{1,19})$", command)
@@ -86,7 +86,7 @@ def name_my_home(self, command):
         pass
 
 
-actions_home.append(("startswith", "set home name", name_my_home, "(self, command)", "home"))
+actions_home.append(("startswith", "set home name", set_up_home_name, "(self, command)", "home"))
 
 
 def take_me_home(self):
@@ -109,7 +109,7 @@ def take_me_home(self):
 actions_home.append(("isequal", "take me home", take_me_home, "(self)", "home"))
 
 
-def goto_playerhome(self, command):
+def goto_home(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"goto\shome\s(.+)", command)
@@ -129,10 +129,10 @@ def goto_playerhome(self, command):
         pass
 
 
-actions_home.append(("startswith", "goto home", goto_playerhome, "(self, command)", "home"))
+actions_home.append(("startswith", "goto home", goto_home, "(self, command)", "home"))
 
 
-def set_up_home_perimeter(self):
+def set_up_home_outer_perimeter(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
@@ -151,10 +151,10 @@ def set_up_home_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "set home outer perimeter", set_up_home_perimeter, "(self)", "home"))
+actions_home.append(("isequal", "set home outer perimeter", set_up_home_outer_perimeter, "(self)", "home"))
 
 
-def set_up_home_warning_perimeter(self):
+def set_up_home_inner_perimeter(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
@@ -173,7 +173,7 @@ def set_up_home_warning_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "set home inner perimeter", set_up_home_warning_perimeter, "(self)", "home"))
+actions_home.append(("isequal", "set home inner perimeter", set_up_home_inner_perimeter, "(self)", "home"))
 
 
 # def make_my_home_a_shape(self, command):

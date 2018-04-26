@@ -34,7 +34,7 @@ def set_up_lobby(self):
 actions_lobby.append(("isequal", "set lobby", set_up_lobby, "(self)", "lobby"))
 
 
-def set_up_lobby_perimeter(self):
+def set_up_lobby_outer_perimeter(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
@@ -53,10 +53,10 @@ def set_up_lobby_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", "set lobby outer perimeter", set_up_lobby_perimeter, "(self)", "lobby"))
+actions_lobby.append(("isequal", "set lobby outer perimeter", set_up_lobby_outer_perimeter, "(self)", "lobby"))
 
 
-def set_up_lobby_warning_perimeter(self):
+def set_up_lobby_inner_perimeter(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
@@ -75,7 +75,7 @@ def set_up_lobby_warning_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", "set lobby inner perimeter", set_up_lobby_warning_perimeter, "(self)", "lobby"))
+actions_lobby.append(("isequal", "set lobby inner perimeter", set_up_lobby_inner_perimeter, "(self)", "lobby"))
 
 
 def remove_lobby(self):
