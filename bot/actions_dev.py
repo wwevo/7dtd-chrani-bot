@@ -45,17 +45,17 @@ def apply_first_aid(self):
 actions_dev.append(("isequal", "heal me up scotty", apply_first_aid, "(self)", "testing"))
 
 
-def make_player_admin(self):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-        self.tn.set_admin_level(player_object, "2")
-        self.tn.send_message_to_player(player_object, "and He said 'Let there be unlimited POWER!'. hit F1 and type cm <enter>, dm <enter>. exit console. press 'q' to fly, 'u' for items.", color=self.bot.chat_colors['success'])
-    except Exception as e:
-        logger.error(e)
-        pass
-
-
-actions_dev.append(("isequal", "make me all powerful!", make_player_admin, "(self)", "testing"))
+# def make_player_admin(self):
+#     try:
+#         player_object = self.bot.players.get(self.player_steamid)
+#         self.tn.set_admin_level(player_object, "2")
+#         self.tn.send_message_to_player(player_object, "and He said 'Let there be unlimited POWER!'. hit F1 and type cm <enter>, dm <enter>. exit console. press 'q' to fly, 'u' for items.", color=self.bot.chat_colors['success'])
+#     except Exception as e:
+#         logger.error(e)
+#         pass
+#
+#
+# actions_dev.append(("isequal", "make me all powerful!", make_player_admin, "(self)", "testing"))
 
 
 def reload_from_db(self):

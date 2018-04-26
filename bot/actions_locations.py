@@ -8,7 +8,7 @@ actions_locations = []
 def set_up_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up a location named (.+)", command)
+        p = re.search(r"set\slocation\s([\w\s]{1,19})$", command)
         if p:
             name = p.group(1)
             location_object = Location()
@@ -28,19 +28,19 @@ def set_up_location(self, command):
             location_object.set_list_of_players_inside([player_object.steamid])
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
-            self.tn.send_message_to_player(player_object, "use {} to access it with commands like /set up name for {} as Whatever the name shall be".format(identifier, identifier), color=self.bot.chat_colors['success'])
+            self.tn.send_message_to_player(player_object, "use {} to access it with commands like /name for {} = Whatever the name shall be".format(identifier, identifier), color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass
 
 
-actions_locations.append(("startswith", "set up a location named", set_up_location, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location", set_up_location, "(self, command)", "locations"))
 
 
 def set_up_location_teleport(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up teleport for location (.+)", command)
+        p = re.search(r"set\slocation\steleport\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
             try:
@@ -59,13 +59,13 @@ def set_up_location_teleport(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set up teleport for location", set_up_location_teleport, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location teleport", set_up_location_teleport, "(self, command)", "locations"))
 
 
 def name_my_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up the name for location (.+) as (.+)", command)
+        p = re.search(r"set\slocation\sname\s([\w\s]{1,19})\s=\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
             name = p.group(2)
@@ -87,13 +87,13 @@ def name_my_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set up the name for location", name_my_location, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location name", name_my_location, "(self, command)", "locations"))
 
 
 def set_up_location_boundary(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up the boundary for location (.+)", command)
+        p = re.search(r"set\slocation\souter\sperimeter\s(([\w\s]{1,19}))$", command)
         if p:
             identifier = p.group(1)
             try:
@@ -113,46 +113,46 @@ def set_up_location_boundary(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set up the boundary for location ", set_up_location_boundary, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location outer perimeter", set_up_location_boundary, "(self, command)", "locations"))
 
 
-def set_up_location_area(self, command):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up the location (.+) as a room starting from south west going north (.+) and east (.+) and up (.+)", command)
-        if p:
-            identifier = p.group(1)
-            length = p.group(2)
-            width = p.group(3)
-            height = p.group(4)
-            try:
-                location_object = self.bot.locations.get(player_object.steamid, identifier)
-            except KeyError:
-                self.tn.send_message_to_player(player_object, "I can not find a location called {}".format(identifier), color=self.bot.chat_colors['warning'])
-                return False
-
-            set_width, allowed_range = location_object.set_width(width)
-            set_length, allowed_range = location_object.set_length(length)
-            set_height, allowed_range = location_object.set_height(height)
-            if set_width is True and set_length is True and set_height is True:
-                location_object.set_shape("room")
-                location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
-                self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
-            else:
-                self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color=self.bot.chat_colors['warning'])
-    except Exception as e:
-        logger.error(e)
-        pass
-
-
-actions_locations.append(("startswith", "set up the location", set_up_location_area, "(self, command)", "locations"))
+# def set_up_location_area(self, command):
+#     try:
+#         player_object = self.bot.players.get(self.player_steamid)
+#         p = re.search(r"set up the location (.+) as a room starting from south west going north (.+) and east (.+) and up (.+)", command)
+#         if p:
+#             identifier = p.group(1)
+#             length = p.group(2)
+#             width = p.group(3)
+#             height = p.group(4)
+#             try:
+#                 location_object = self.bot.locations.get(player_object.steamid, identifier)
+#             except KeyError:
+#                 self.tn.send_message_to_player(player_object, "I can not find a location called {}".format(identifier), color=self.bot.chat_colors['warning'])
+#                 return False
+#
+#             set_width, allowed_range = location_object.set_width(width)
+#             set_length, allowed_range = location_object.set_length(length)
+#             set_height, allowed_range = location_object.set_height(height)
+#             if set_width is True and set_length is True and set_height is True:
+#                 location_object.set_shape("room")
+#                 location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
+#                 self.bot.locations.upsert(location_object, save=True)
+#                 self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
+#             else:
+#                 self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color=self.bot.chat_colors['warning'])
+#     except Exception as e:
+#         logger.error(e)
+#         pass
+#
+#
+# actions_locations.append(("startswith", "set up the location", set_up_location_area, "(self, command)", "locations"))
 
 
 def set_up_location_warning_boundary(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up a warning boundary for location (.+)", command)
+        p = re.search(r"set\slocation\sinner\sperimeter\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
             try:
@@ -172,33 +172,33 @@ def set_up_location_warning_boundary(self, command):
         pass
 
 
-actions_locations.append(("startswith", "set up a warning boundary for location", set_up_location_warning_boundary, "(self, command)", "locations"))
+actions_locations.append(("startswith", "set location inner perimeter", set_up_location_warning_boundary, "(self, command)", "locations"))
 
 
-def make_location_a_shape(self, command):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"make the location (.+) a (.+)", command)
-        if p:
-            name = p.group(1)
-            shape = p.group(2)
-            try:
-                location_object = self.bot.locations.get(player_object.steamid, name)
-                if location_object.set_shape(shape):
-                    self.bot.locations.upsert(location_object, save=True)
-                    self.tn.send_message_to_player(player_object, "{} is a {} now.".format(location_object.name, shape), color=self.bot.chat_colors['success'])
-                else:
-                    self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape), color=self.bot.chat_colors['warning'])
-                    return False
-
-            except KeyError:
-                self.tn.send_message_to_player(player_object, "You can not change that which you do not own!", color=self.bot.chat_colors['warning'])
-    except Exception as e:
-        logger.error(e)
-        pass
-
-
-actions_locations.append(("startswith", "make the location", make_location_a_shape, "(self, command)", "locations"))
+# def make_location_a_shape(self, command):
+#     try:
+#         player_object = self.bot.players.get(self.player_steamid)
+#         p = re.search(r"make the location (.+) a (.+)", command)
+#         if p:
+#             name = p.group(1)
+#             shape = p.group(2)
+#             try:
+#                 location_object = self.bot.locations.get(player_object.steamid, name)
+#                 if location_object.set_shape(shape):
+#                     self.bot.locations.upsert(location_object, save=True)
+#                     self.tn.send_message_to_player(player_object, "{} is a {} now.".format(location_object.name, shape), color=self.bot.chat_colors['success'])
+#                 else:
+#                     self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape), color=self.bot.chat_colors['warning'])
+#                     return False
+#
+#             except KeyError:
+#                 self.tn.send_message_to_player(player_object, "You can not change that which you do not own!", color=self.bot.chat_colors['warning'])
+#     except Exception as e:
+#         logger.error(e)
+#         pass
+#
+#
+# actions_locations.append(("startswith", "make the location", make_location_a_shape, "(self, command)", "locations"))
 
 
 def list_players_locations(self):
@@ -210,19 +210,19 @@ def list_players_locations(self):
                 self.tn.send_message_to_player(player_object, "{} @ ({} x:{}, y:{}, z:{})".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z))
 
         except KeyError:
-            self.tn.send_message_to_player(player_object, "{} can not list that which he does not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "{} can not list that which you do not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass
 
 
-actions_locations.append(("isequal", "list my locations", list_players_locations, "(self)", "locations"))
+actions_locations.append(("isequal", "my locations", list_players_locations, "(self)", "locations"))
 
 
 def goto_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"goto location (.+)", command)
+        p = re.search(r"goto\slocation\s([\w\s]{1,19})$", command)
         if p:
             name = p.group(1)
             try:
@@ -242,7 +242,7 @@ actions_locations.append(("startswith", "goto location", goto_location, "(self, 
 def remove_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"remove location (.+)", command)
+        p = re.search(r"remove\slocation\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
             try:

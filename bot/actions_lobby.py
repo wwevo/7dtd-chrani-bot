@@ -31,7 +31,7 @@ def set_up_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", "set up lobby", set_up_lobby, "(self)", "lobby"))
+actions_lobby.append(("isequal", "set lobby", set_up_lobby, "(self)", "lobby"))
 
 
 def set_up_lobby_perimeter(self):
@@ -53,7 +53,7 @@ def set_up_lobby_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", "set up lobby perimeter", set_up_lobby_perimeter, "(self)", "lobby"))
+actions_lobby.append(("isequal", "set lobby outer perimeter", set_up_lobby_perimeter, "(self)", "lobby"))
 
 
 def set_up_lobby_warning_perimeter(self):
@@ -75,7 +75,7 @@ def set_up_lobby_warning_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", "set up lobby warning perimeter", set_up_lobby_warning_perimeter, "(self)", "lobby"))
+actions_lobby.append(("isequal", "set lobby inner perimeter", set_up_lobby_warning_perimeter, "(self)", "lobby"))
 
 
 def remove_lobby(self):
@@ -91,7 +91,7 @@ def remove_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", "make the lobby go away", remove_lobby, "(self)", "lobby"))
+actions_lobby.append(("isequal", "remove lobby", remove_lobby, "(self)", "lobby"))
 
 
 def password(self, command):
@@ -102,10 +102,10 @@ def password(self, command):
             return False
 
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"password (.+)", command)
+        p = re.search(r"password\s(\w+)$", command)
         if p:
-            password = p.group(1)
-            if password == "openup":
+            pwd = p.group(1)
+            if pwd in self.bot.passwords.values():
                 try:
                     location_object = self.bot.locations.get(player_object.steamid, 'spawn')
                     self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
@@ -121,42 +121,42 @@ def password(self, command):
 actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby"))
 
 
-def set_up_lobby_area(self, command):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up the lobby as a room starting from south west going north (.+) and east (.+) and up (.+)", command)
-        if p:
-            length = p.group(1)
-            width = p.group(2)
-            height = p.group(3)
-            try:
-                location_object = self.bot.locations.get('system', 'lobby')
-            except KeyError:
-                self.tn.send_message_to_player(player_object, "I can not find a location called {}".format('lobby'), color=self.bot.chat_colors['warning'])
-                return False
-
-            set_width, allowed_range = location_object.set_width(width)
-            set_length, allowed_range = location_object.set_length(length)
-            set_height, allowed_range = location_object.set_height(height)
-            if set_width is True and set_length is True and set_height is True:
-                location_object.set_shape("room")
-                location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
-                self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format('lobby', int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
-            else:
-                self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color=self.bot.chat_colors['warning'])
-    except Exception as e:
-        logger.error(e)
-        pass
-
-
-actions_lobby.append(("startswith", "set up the lobby", set_up_lobby_area, "(self, command)", "lobby"))
+# def set_up_lobby_area(self, command):
+#     try:
+#         player_object = self.bot.players.get(self.player_steamid)
+#         p = re.search(r"set up the lobby as a room starting from south west going north (.+) and east (.+) and up (.+)", command)
+#         if p:
+#             length = p.group(1)
+#             width = p.group(2)
+#             height = p.group(3)
+#             try:
+#                 location_object = self.bot.locations.get('system', 'lobby')
+#             except KeyError:
+#                 self.tn.send_message_to_player(player_object, "I can not find a location called {}".format('lobby'), color=self.bot.chat_colors['warning'])
+#                 return False
+#
+#             set_width, allowed_range = location_object.set_width(width)
+#             set_length, allowed_range = location_object.set_length(length)
+#             set_height, allowed_range = location_object.set_height(height)
+#             if set_width is True and set_length is True and set_height is True:
+#                 location_object.set_shape("room")
+#                 location_object.set_center(player_object, location_object.width, location_object.length, location_object.height)
+#                 self.bot.locations.upsert(location_object, save=True)
+#                 self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format('lobby', int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
+#             else:
+#                 self.tn.send_message_to_player(player_object, "you given coordinates seem to be invalid", color=self.bot.chat_colors['warning'])
+#     except Exception as e:
+#         logger.error(e)
+#         pass
+#
+#
+# actions_lobby.append(("startswith", "set up the lobby", set_up_lobby_area, "(self, command)", "lobby"))
 
 
 def set_up_lobby_teleport(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set up teleport for lobby", command)
+        p = re.search(r"set\slobby\steleport$", command)
         if p:
             try:
                 location_object = self.bot.locations.get('system', 'lobby')
@@ -174,7 +174,7 @@ def set_up_lobby_teleport(self, command):
         pass
 
 
-actions_lobby.append(("startswith", "set up teleport for lobby", set_up_lobby_teleport, "(self, command)", "lobby"))
+actions_lobby.append(("startswith", "set lobby teleport", set_up_lobby_teleport, "(self, command)", "lobby"))
 
 
 """
