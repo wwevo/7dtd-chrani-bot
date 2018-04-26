@@ -9,8 +9,9 @@ let there be bot:
 """
 if __name__ == '__main__':
     while True:
+        bot = ChraniBot()
+        bot.bot_version = "0.1a"
         try:
-            bot = ChraniBot()
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """

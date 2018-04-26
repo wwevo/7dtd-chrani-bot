@@ -66,7 +66,6 @@ class ChraniBot:
         self.settings_dict = self.load_bot_settings(args_dict['Database-file'])
 
         self.bot_name = self.settings_dict['bot_name']
-        self.bot_version = "0.1"
         logger.info("{} started".format(self.bot_name))
 
         self.tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'], show_log_init=True)
