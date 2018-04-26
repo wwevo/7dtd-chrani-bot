@@ -151,7 +151,7 @@ def set_up_home_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "set home inner perimeter", set_up_home_perimeter, "(self)", "home"))
+actions_home.append(("isequal", "set home outer perimeter", set_up_home_perimeter, "(self)", "home"))
 
 
 def set_up_home_warning_perimeter(self):
@@ -173,7 +173,7 @@ def set_up_home_warning_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "set home outer perimeter", set_up_home_warning_perimeter, "(self)", "home"))
+actions_home.append(("isequal", "set home inner perimeter", set_up_home_warning_perimeter, "(self)", "home"))
 
 
 # def make_my_home_a_shape(self, command):
