@@ -1,0 +1,14 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+# IntelliJ project files
+.idea/
+venv/
+# Unused data-files
+data/configurations/*.json
+data/locations/*.json
+data/permissions/*.json
+data/players/*.json
+/data/whitelist/*.json
+# logfiles
+data/logs/*.log
