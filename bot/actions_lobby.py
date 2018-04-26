@@ -78,6 +78,23 @@ def set_up_lobby_inner_perimeter(self):
 actions_lobby.append(("isequal", "set lobby inner perimeter", set_up_lobby_inner_perimeter, "(self)", "lobby"))
 
 
+def goto_lobby(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        try:
+            location_object = self.bot.locations.get('system', 'lobby')
+            self.tn.say("{} went back to the lobby".format(player_object.name), color=self.bot.chat_colors['background'])
+            self.tn.teleportplayer(player_object, location_object)
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "There is no lobby :(", color=self.bot.chat_colors['warning'])
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_lobby.append(("startswith", "goto lobby", goto_lobby, "(self)", "lobby"))
+
+
 def remove_lobby(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
