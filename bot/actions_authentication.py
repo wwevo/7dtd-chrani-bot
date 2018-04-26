@@ -127,3 +127,14 @@ def on_player_join(self):
 
 
 actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication"))
+
+
+def on_player_leave(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_authentication.append(("isequal", "left the game", on_player_leave, "(self)", "authentication"))
