@@ -4,11 +4,7 @@
 # IntelliJ project files
 .idea/
 venv/
-# Unused data-files
-data/configurations/*.json
-data/locations/*.json
-data/permissions/*.json
-data/players/*.json
-/data/whitelist/*.json
+# Unused data-files (** = any directory)
+data/**/*.json
 # logfiles
-data/logs/*.log
+data/**/*.log
