@@ -3,6 +3,7 @@ import sys
 import time
 from threading import Event
 import json
+from collections import deque
 
 from bot.logger import logger
 from bot.assorted_functions import byteify, timeout_occurred
@@ -33,7 +34,7 @@ class ChraniBot:
 
     tn = object  # telnet connection to use for everything except player-actions and player-poll
     poll_tn = object
-    telnet_lines_list = list
+    telnet_lines_list = deque
 
     listplayers_interval = int
     chat_colors = dict
@@ -190,9 +191,15 @@ class ChraniBot:
         listplayers_dict = {}
         list_players_timeout_start = 0
         listplayers_interval = self.listplayers_interval
+        telnet_line = None
+        self.telnet_lines_list = deque()
+
         while self.is_active:
             try:
-                self.telnet_lines_list = self.tn.read_line()  # get the current global telnet-response
+                telnet_lines = self.tn.read_line()
+                if telnet_lines is not None:
+                    for line in telnet_lines:
+                        self.telnet_lines_list.append(line)  # get the current global telnet-response
             except Exception as e:
                 logger.error(e)
                 raise IOError
@@ -254,79 +261,83 @@ class ChraniBot:
                     stop_flag.stopped.set()
                     del self.active_player_threads_dict[player_steamid]
 
-            if self.telnet_lines_list is not None:
-                for telnet_line in self.telnet_lines_list:
-                    m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                    if not m or m and m.group('telnet_command') != 'lp':
-                        if telnet_line != '':
-                            logger.debug(telnet_line)
-                    if m:
-                        if m.group("telnet_command").startswith("tele"):
-                            c = re.search(r"^(tele|teleportplayer) (?P<player>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
-                            if c:
-                                for player_steamid, player_object in self.players.players_dict.iteritems():
-                                    if c.group("player") in [player_object.name, player_object.steamid]:
-                                        player_object.switch_off("main - teleportplayer")
+            try:
+                telnet_line = self.telnet_lines_list.popleft()
+            except IndexError:
+                telnet_line = None
 
-                    m = re.search(self.match_types_system["telnet_events_player_gmsg"], telnet_line)
-                    if m:
-                        if m.group("command") == "died":
+            if telnet_line is not None:
+                m = re.search(self.match_types_system["telnet_commands"], telnet_line)
+                if not m or m and m.group('telnet_command') != 'lp':
+                    if telnet_line != '':
+                        logger.debug(telnet_line)
+                if m:
+                    if m.group("telnet_command").startswith("tele"):
+                        c = re.search(r"^(tele|teleportplayer) (?P<player>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
+                        if c:
                             for player_steamid, player_object in self.players.players_dict.iteritems():
-                                if player_object.name == m.group("player_name"):
-                                    if player_steamid in self.active_player_threads_dict:
-                                        player_object.switch_off("main - died")
+                                if c.group("player") in [player_object.name, player_object.steamid]:
+                                    player_object.switch_off("main - teleportplayer")
 
-                        if m.group("command") == "joined the game":
-                            for player_steamid, player_object in self.players.players_dict.iteritems():
-                                if player_object.name == m.group("player_name"):
-                                    if player_steamid in self.active_player_threads_dict:
-                                        if player_object.has_health() is True:
-                                            player_object.switch_on("main - joined the game")
+                m = re.search(self.match_types_system["telnet_events_player_gmsg"], telnet_line)
+                if m:
+                    if m.group("command") == "died":
+                        for player_steamid, player_object in self.players.players_dict.iteritems():
+                            if player_object.name == m.group("player_name"):
+                                if player_steamid in self.active_player_threads_dict:
+                                    player_object.switch_off("main - died")
 
-                    m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
-                    if m:
-                        if m.group("command") == "Died" or m.group("command") == "Teleport":
-                            for player_steamid, player_object in self.players.players_dict.iteritems():
-                                if player_object.name == m.group("player_name"):
-                                    try:
-                                        player_object.switch_on("main - respawned")
-                                    except KeyError:
-                                        pass
+                    if m.group("command") == "joined the game":
+                        for player_steamid, player_object in self.players.players_dict.iteritems():
+                            if player_object.name == m.group("player_name"):
+                                if player_steamid in self.active_player_threads_dict:
+                                    if player_object.has_health() is True:
+                                        player_object.switch_on("main - joined the game")
 
-                    """ send telnet_line to player-thread
-                    check any telnet-line for any known playername currently online
-                    """
-                    for player_steamid, player_object in self.players.players_dict.iteritems():
-                        possible_action_for_player = re.search(player_object.name, telnet_line)
-                        if possible_action_for_player:
-                            if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
-                                active_player_thread = self.active_player_threads_dict[player_steamid]
-                                active_player_thread["thread"].trigger_action(telnet_line)
+                m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
+                if m:
+                    if m.group("command") == "Died" or m.group("command") == "Teleport":
+                        for player_steamid, player_object in self.players.players_dict.iteritems():
+                            if player_object.name == m.group("player_name"):
+                                try:
+                                    player_object.switch_on("main - respawned")
+                                except KeyError:
+                                    pass
 
-                    """ work through triggers caused by telnet_activity """
-                    m = re.search(self.match_types_system["eac_register_client"], telnet_line)
-                    if m:
-                        player_dict = {
-                            'steamid': m.group("player_id"),
-                            'name': m.group("player_name"),
-                            'ip': m.group("player_ip")
-                        }
+                """ send telnet_line to player-thread
+                check any telnet-line for any known playername currently online
+                """
+                for player_steamid, player_object in self.players.players_dict.iteritems():
+                    possible_action_for_player = re.search(player_object.name, telnet_line)
+                    if possible_action_for_player:
+                        if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
+                            active_player_thread = self.active_player_threads_dict[player_steamid]
+                            active_player_thread["thread"].trigger_action(telnet_line)
+
+                """ work through triggers caused by telnet_activity """
+                m = re.search(self.match_types_system["eac_register_client"], telnet_line)
+                if m:
+                    player_dict = {
+                        'steamid': m.group("player_id"),
+                        'name': m.group("player_name"),
+                        'ip': m.group("player_ip")
+                    }
+                    try:
+                        player_object = self.players.load(player_dict['steamid'])
+                    except KeyError:
+                        player_object = Player(**player_dict)
+                    logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
+                    command_queue = []
+                    for observer in self.observers:
+                        if observer[0] == 'trigger':  # we only want the triggers here
+                            observer_function_name = observer[2]
+                            observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
+                            command_queue.append([observer_function_name, observer_parameters])
+                    for command in command_queue:
                         try:
-                            player_object = self.players.load(player_dict['steamid'])
-                        except KeyError:
-                            player_object = Player(**player_dict)
-                        logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
-                        command_queue = []
-                        for observer in self.observers:
-                            if observer[0] == 'trigger':  # we only want the triggers here
-                                observer_function_name = observer[2]
-                                observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
-                                command_queue.append([observer_function_name, observer_parameters])
-                        for command in command_queue:
-                            try:
-                                command[0](*command[1])
-                            except TypeError:
-                                command[0](command[1])
+                            command[0](*command[1])
+                        except TypeError:
+                            command[0](command[1])
 
             time.sleep(0.05)  # to limit the speed a bit ^^
 
