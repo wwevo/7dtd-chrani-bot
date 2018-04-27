@@ -10,8 +10,9 @@ def set_up_lobby(self):
         player_object = self.bot.players.get(self.player_steamid)
         location_object = Location()
         location_object.set_owner('system')
-        location_object.set_name('The Lobby')
-        identifier = location_object.set_identifier('lobby')
+        name = 'The Lobby'
+        location_object.set_name(name)
+        identifier = location_object.set_identifier(name)
         location_object.set_description('The \"there is no escape\" Lobby')
         location_object.set_shape("sphere")
         location_object.set_coordinates(player_object)
@@ -20,7 +21,7 @@ def set_up_lobby(self):
         messages_dict["entering_core"] = None
         messages_dict["leaving_core"] = None
         messages_dict["entering_boundary"] = None
-        messages_dict["leaving_boundary"] = "leaving {}, you better be authenticated!!".format(identifier)
+        messages_dict["leaving_boundary"] = None
         location_object.set_messages(messages_dict)
         location_object.set_list_of_players_inside([player_object.steamid])
         self.bot.locations.upsert(location_object, save=True)
@@ -128,7 +129,7 @@ def password(self, command):
                     self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
                     self.tn.teleportplayer(player_object, location_object)
                 except KeyError:
-                    self.tn.send_message_to_player(player_object, "I am terribly sorry, I seem to have misplaced your spawn, {}".format(player_object.name), color=self.bot.chat_colors['warning'])
+                    self.tn.send_message_to_player(player_object, "Sorry {}, but I do not have your original spawn on record oO".format(player_object.name), color=self.bot.chat_colors['warning'])
                     return False
     except Exception as e:
         logger.error(e)
@@ -194,6 +195,25 @@ def set_up_lobby_teleport(self, command):
 actions_lobby.append(("startswith", "set lobby teleport", set_up_lobby_teleport, "(self, command)", "lobby"))
 
 
+def on_player_join(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    if player_object.has_permission_level("authenticated") is True:
+        return False
+
+    self.tn.muteplayerchat(player_object, True)
+    self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
+
+    return True
+
+
+actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
+
+
 """
 here come the observers
 """
@@ -216,6 +236,9 @@ def player_is_outside_boundary(self):
                     self.bot.players.upsert(player_object)
                     logger.info("{} has been ported to the lobby!".format(player_object.name))
                     self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>", color=self.bot.chat_colors['alert'])
+                    self.tn.send_message_to_player(player_object, "see https://chrani.net/chrani-bot for more information!", color=self.bot.chat_colors['warning'])
+                    self.tn.muteplayerchat(player_object, True)
+                    self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass

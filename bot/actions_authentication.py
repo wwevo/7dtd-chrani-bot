@@ -15,22 +15,25 @@ def password(self, command):
     p = re.search(r"password\s(?P<password>\w+)$", command)
     try:
         pwd = p.group("password")
-    except IndexError:
-        raise ValueError
+    except (AttributeError, IndexError) as e:
+        return False
 
     if pwd not in self.bot.passwords.values() and player_object.authenticated is not True :
         return False
-    elif pwd in self.bot.passwords.values() and player_object.authenticated is True:
+    elif pwd not in self.bot.passwords.values() and player_object.authenticated is True:
         player_object.set_authenticated(False)
         player_object.remove_permission_level("authenticated")
+        self.bot.players.upsert(player_object, save=True)
         self.tn.muteplayerchat(player_object, True)
         self.tn.send_message_to_player(player_object, "You have entered a wrong password!", color=self.bot.chat_colors['warning'])
         self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
-    elif pwd not in self.bot.passwords.values() and player_object.authenticated is True:
+        return False
+    elif pwd in self.bot.passwords.values() and player_object.authenticated is True:
         return False
 
     player_object.set_authenticated(True)
     player_object.add_permission_level("authenticated")
+    self.bot.players.upsert(player_object, save=True)
     self.tn.say("{} joined the ranks of literate people. Welcome!".format(player_object.name), color=self.bot.chat_colors['background'])
     self.tn.muteplayerchat(player_object, False)
     self.tn.send_message_to_player(player_object, "Your chat has been enabled!", color=self.bot.chat_colors['success'])
@@ -40,16 +43,17 @@ def password(self, command):
     if pwd == self.bot.passwords['mod']:
         player_object.add_permission_level("mod")
         self.tn.send_message_to_player(player_object, "you are a Moderator", color=self.bot.chat_colors['success'])
-
-    if pwd == self.bot.passwords['admin']:
+    elif pwd == self.bot.passwords['admin']:
         player_object.add_permission_level("admin")
         self.tn.send_message_to_player(player_object, "you are an Admin", color=self.bot.chat_colors['success'])
-
-    if pwd == self.bot.passwords['donator']:
+    elif pwd == self.bot.passwords['donator']:
         player_object.add_permission_level("donator")
         self.tn.send_message_to_player(player_object, "you are a Donator. Thank you <3", color=self.bot.chat_colors['success'])
+    else:
+        return False
 
     self.bot.players.upsert(player_object, save=True)
+    return True
 
 
 actions_authentication.append(("startswith", "password", password, "(self, command)", "authentication"))

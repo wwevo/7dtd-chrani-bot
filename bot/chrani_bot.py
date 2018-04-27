@@ -314,7 +314,7 @@ class ChraniBot:
                     if possible_action_for_player:
                         if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
                             active_player_thread = self.active_player_threads_dict[player_steamid]
-                            active_player_thread["thread"].trigger_action(telnet_line)
+                            active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 """ work through triggers caused by telnet_activity """
                 m = re.search(self.match_types_system["eac_register_client"], telnet_line)

@@ -28,6 +28,8 @@ def on_player_join(self):
         self.bot.locations.upsert(location_object, save=True)
         self.tn.send_message_to_player(player_object, "Your place of birth has been recorded ^^", color=self.bot.chat_colors['background'])
 
+    return True
+
 
 actions_locations.append(("isequal", "joined the game", on_player_join, "(self)", "locations"))
 

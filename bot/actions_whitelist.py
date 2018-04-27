@@ -124,7 +124,7 @@ def check_if_player_has_url_name(self, player_object=None):
             self.bot = self
 
         if not self.bot.whitelist.player_is_allowed(player_object):
-            p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}", player_object.name, re.IGNORECASE)
+            p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
             if p:
                 logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
                 self.tn.say("{} has been kicked. crappy url-name!".format(player_object.steamid), color=self.bot.chat_colors['alert'])
