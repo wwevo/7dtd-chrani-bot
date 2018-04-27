@@ -5,6 +5,33 @@ from bot.logger import logger
 actions_locations = []
 
 
+def on_player_join(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    try:
+        location = self.bot.locations.get(player_object.steamid, 'spawn')
+    except KeyError:
+        location_dict = dict(
+            identifier='spawn',
+            name='Place of Birth',
+            owner=player_object.steamid,
+            shape='point',
+            radius=None,
+            region=[player_object.region]
+        )
+        location_object = Location(**location_dict)
+        location_object.set_coordinates(player_object)
+        self.bot.locations.upsert(location_object, save=True)
+        self.tn.send_message_to_player(player_object, "Your place of birth has been recorded ^^", color=self.bot.chat_colors['background'])
+
+
+actions_locations.append(("isequal", "joined the game", on_player_join, "(self)", "locations"))
+
+
 def set_up_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)

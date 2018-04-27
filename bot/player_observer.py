@@ -26,8 +26,6 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        self.tn.send_message_to_player(self.bot.players.players_dict[self.player_steamid], "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
-
         player_object = self.bot.players.get(self.player_steamid)
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
