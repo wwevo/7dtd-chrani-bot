@@ -10,7 +10,7 @@ let there be bot:
 if __name__ == '__main__':
     while True:
         bot = ChraniBot()
-        bot.bot_version = "0.1c"
+        bot.bot_version = "0.1d"
         try:
             bot.run()
         except (IOError, NameError) as error:

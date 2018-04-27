@@ -51,7 +51,7 @@ def remove_home(self):
             self.bot.locations.remove(player_object.steamid, 'home')
 
         except KeyError:
-            self.tn.send_message_to_player(player_object, "I could not find your home. Did you set one up with?", color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "I could not find your home. Did you set one up?", color=self.bot.chat_colors['warning'])
             raise KeyError
 
     except Exception as e:
