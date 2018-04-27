@@ -110,7 +110,7 @@ def on_player_join(self):
         logger.error(e)
         raise KeyError
 
-    if player_object.has_permission_level("authenticated") is False:
+    if player_object.has_permission_level("authenticated") is not True:
         self.tn.send_message_to_player(player_object, "this servers bot says Hi to {} o/".format(player_object.name), color=self.bot.chat_colors['info'])
         self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['alert'])
         return False
