@@ -25,7 +25,7 @@ def set_up_lobby(self):
         location_object.set_list_of_players_inside([player_object.steamid])
         self.bot.locations.upsert(location_object, save=True)
         self.tn.send_message_to_player(player_object, "You have set up a lobby", color=self.bot.chat_colors['success'])
-        self.tn.send_message_to_player(player_object, "Set up the perimeter with /set up lobby perimeter, while standing on the edge of it.".format(player_object.name), color=self.bot.chat_colors['success'])
+        self.tn.send_message_to_player(player_object, "Set up the perimeter with /set lobby outer perimeter, while standing on the edge of it.".format(player_object.name), color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass

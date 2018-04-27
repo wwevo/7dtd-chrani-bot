@@ -44,11 +44,34 @@ def set_up_home(self):
 actions_home.append(("isequal", "set home", set_up_home, "(self)", "home"))
 
 
+def remove_home(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        try:
+            self.bot.locations.remove(player_object.steamid, 'home')
+
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "I could not find your home. Did you set one up with?", color=self.bot.chat_colors['warning'])
+            raise KeyError
+
+    except Exception as e:
+        logger.error(e)
+        return False
+
+    self.tn.send_message_to_player(player_object, "Your home has been removed.", color=self.bot.chat_colors['warning'])
+
+    return True
+
+
+actions_home.append(("isequal", "remove home", remove_home, "(self)", "lobby"))
+
+
 def set_up_home_teleport(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
+
         except KeyError:
             self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color=self.bot.chat_colors['warning'])
             return False
@@ -58,6 +81,7 @@ def set_up_home_teleport(self):
             self.tn.send_message_to_player(player_object, "your teleport has been set up!", color=self.bot.chat_colors['success'])
         else:
             self.tn.send_message_to_player(player_object, "your position seems to be outside your home", color=self.bot.chat_colors['warning'])
+
     except Exception as e:
         logger.error(e)
         pass
@@ -74,17 +98,20 @@ def set_up_home_name(self, command):
             description = p.group(1)
             try:
                 location_object = self.bot.locations.get(player_object.steamid, "home")
-                location_object.set_description(description)
-                self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "Your home is called {} now \o/".format(location_object.description), color=self.bot.chat_colors['background'])
-                return True
 
             except KeyError:
                 self.tn.send_message_to_player(player_object, "{} can not name that which you do not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
+                raise KeyError
+
     except Exception as e:
         logger.error(e)
-        pass
+        return False
 
+    location_object.set_description(description)
+    self.bot.locations.upsert(location_object, save=True)
+    self.tn.send_message_to_player(player_object, "Your home is called {} now \o/".format(location_object.description), color=self.bot.chat_colors['background'])
+
+    return True
 
 actions_home.append(("startswith", "set home name", set_up_home_name, "(self, command)", "home"))
 
