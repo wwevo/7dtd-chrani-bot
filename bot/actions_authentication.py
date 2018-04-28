@@ -19,24 +19,25 @@ def password(self, command):
         return False
 
     if pwd not in self.bot.passwords.values() and player_object.authenticated is not True :
+        self.tn.send_message_to_player(player_object, "You have entered a wrong password!", color=self.bot.chat_colors['warning'])
         return False
     elif pwd not in self.bot.passwords.values() and player_object.authenticated is True:
         player_object.set_authenticated(False)
         player_object.remove_permission_level("authenticated")
+        self.tn.send_message_to_player(player_object, "You have lost your authentication!", color=self.bot.chat_colors['warning'])
+        if self.tn.muteplayerchat(player_object, True):
+            self.tn.send_message_to_player(player_object, "Your chat has been disabled!",color=self.bot.chat_colors['warning'])
+
         self.bot.players.upsert(player_object, save=True)
-        self.tn.muteplayerchat(player_object, True)
-        self.tn.send_message_to_player(player_object, "You have entered a wrong password!", color=self.bot.chat_colors['warning'])
-        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
         return False
     elif pwd in self.bot.passwords.values() and player_object.authenticated is True:
         return False
 
     player_object.set_authenticated(True)
     player_object.add_permission_level("authenticated")
-    self.bot.players.upsert(player_object, save=True)
     self.tn.say("{} joined the ranks of literate people. Welcome!".format(player_object.name), color=self.bot.chat_colors['background'])
-    self.tn.muteplayerchat(player_object, False)
-    self.tn.send_message_to_player(player_object, "Your chat has been enabled!", color=self.bot.chat_colors['success'])
+    if self.tn.muteplayerchat(player_object, False):
+        self.tn.send_message_to_player(player_object, "Your chat has been enabled!", color=self.bot.chat_colors['success'])
 
     """ makeshift promotion system """
     # TODO: well, this action should only care about general authentication. things like admin and mod should be handled somewhere else really
@@ -49,8 +50,6 @@ def password(self, command):
     elif pwd == self.bot.passwords['donator']:
         player_object.add_permission_level("donator")
         self.tn.send_message_to_player(player_object, "you are a Donator. Thank you <3", color=self.bot.chat_colors['success'])
-    else:
-        return False
 
     self.bot.players.upsert(player_object, save=True)
     return True
@@ -115,11 +114,10 @@ def on_player_join(self):
         raise KeyError
 
     if player_object.has_permission_level("authenticated") is not True:
-        self.tn.send_message_to_player(player_object, "this servers bot says Hi to {} o/".format(player_object.name), color=self.bot.chat_colors['info'])
-        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['alert'])
+        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['warning'])
+        self.tn.send_message_to_player(player_object, "this is a development server. you can play here, but there's no support or anything really.", color=self.bot.chat_colors['info'])
+        self.tn.send_message_to_player(player_object, "Enjoy!", color=self.bot.chat_colors['info'])
         return False
-
-    self.tn.send_message_to_player(player_object, "Welcome back {} o/".format(player_object.name), color=self.bot.chat_colors['info'])
 
     return True
 

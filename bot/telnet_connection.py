@@ -138,11 +138,17 @@ class TelnetConnection:
 
     def muteplayerchat(self, player_object, flag=True):
         command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
+        if player_object.is_muted == flag: # no sense in double (un)muting someone ^^
+            return False
+
         try:
             connection = self.tn
             connection.write(command)
         except Exception:
-            return False
+            raise IOError
+
+        player_object.set_muted(flag)
+        return True
 
     def kick(self, player_object, reason='just because'):
         command = "kick " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"

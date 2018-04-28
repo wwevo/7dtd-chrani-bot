@@ -93,10 +93,12 @@ def obliterate_player(self):
         locations_to_remove = []
         for name, location_object in location_objects_dict.iteritems():
             locations_to_remove.append(location_object)
+
         for location_object in locations_to_remove:
             self.bot.locations.remove(player_object.steamid, location_object.identifier)
-            self.bot.players.remove(player_object)
-            self.bot.whitelist.remove(player_object)
+
+        self.bot.players.remove(player_object)
+        self.bot.whitelist.remove(player_object)
     except Exception as e:
         logger.error(e)
         pass

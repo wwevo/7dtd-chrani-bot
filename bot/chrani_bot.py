@@ -7,6 +7,7 @@ from collections import deque
 
 from bot.logger import logger
 from bot.assorted_functions import byteify, timeout_occurred
+from bot.actions_spawn import actions_spawn
 from bot.actions_authentication import actions_authentication
 from bot.actions_dev import actions_dev
 from bot.actions_home import actions_home
@@ -72,7 +73,7 @@ class ChraniBot:
         self.tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'], show_log_init=True)
         self.poll_tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'])
 
-        self.player_actions = actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
+        self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
         self.observers = observers_whitelist + observers_lobby + observers_locations
 
         self.players = Players()  # players will be loaded on a need-to-load basis
@@ -127,10 +128,11 @@ class ChraniBot:
             'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
             # player joined / died messages
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
-            # pretty much the firs usable line during a players login
-            'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
+            # pretty much the first usable line during a players login
+            #'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
             # player is 'valid' from here on
-            'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
+            #'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
+            'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entitiy_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
@@ -197,15 +199,6 @@ class ChraniBot:
         self.telnet_lines_list = deque()
 
         while self.is_active:
-            try:
-                telnet_lines = self.tn.read_line()
-                if telnet_lines is not None:
-                    for line in telnet_lines:
-                        self.telnet_lines_list.append(line)  # get the current global telnet-response
-            except Exception as e:
-                logger.error(e)
-                raise IOError
-
             if timeout_occurred(listplayers_interval, list_players_timeout_start):
                 # get all currently online players and store them in a dictionary
                 last_listplayers_dict = listplayers_dict
@@ -263,6 +256,18 @@ class ChraniBot:
                     stop_flag.stopped.set()
                     del self.active_player_threads_dict[player_steamid]
 
+            """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
+            I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
+            try:
+                telnet_lines = self.tn.read_line()
+            except Exception as e:
+                logger.error(e)
+                raise IOError
+
+            if telnet_lines is not None:
+                for line in telnet_lines:
+                    self.telnet_lines_list.append(line)  # get the current global telnet-response
+
             try:
                 telnet_line = self.telnet_lines_list.popleft()
             except IndexError:
@@ -317,7 +322,7 @@ class ChraniBot:
                             active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 """ work through triggers caused by telnet_activity """
-                m = re.search(self.match_types_system["eac_register_client"], telnet_line)
+                m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
                 if m:
                     player_dict = {
                         'steamid': m.group("player_id"),

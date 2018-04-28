@@ -127,7 +127,7 @@ def check_if_player_has_url_name(self, player_object=None):
             p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
             if p:
                 logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
-                self.tn.say("{} has been kicked. crappy url-name!".format(player_object.steamid), color=self.bot.chat_colors['alert'])
+                self.tn.say("{} has been kicked. we do not allow url-names!".format(player_object.steamid), color=self.bot.chat_colors['alert'])
                 self.tn.kick(player_object, "We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
     except Exception as e:
         logger.error(e)

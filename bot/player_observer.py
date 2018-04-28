@@ -54,8 +54,7 @@ class PlayerObserver(Thread):
                 else:
                     if player_object.has_health():
                         player_object.switch_on("caught you alive and kicking")
-                        self.bot.tn.send_message_to_player(player_object, "...the bot is watching you...", color=self.bot.chat_colors['background'])
-                        # self.trigger_action(player_object, 'joined the game')
+                        # self.bot.tn.send_message_to_player(player_object, "...the bot is watching you...", color=self.bot.chat_colors['background'])
 
                 execution_time = time.time() - profile_start
                 next_cycle = self.run_observers_interval - execution_time
@@ -68,13 +67,11 @@ class PlayerObserver(Thread):
                 if player_object.is_responsive:  # TODO: integrate permission check here
                     function_category = player_action[4]
                     function_name = getattr(player_action[2], 'func_name')
-                    if (player_action[0] == "isequal" and player_action[1] == command) or (
-                            player_action[0] == "startswith" and command.startswith(player_action[1])):
+                    if (player_action[0] == "isequal" and player_action[1] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1])):
                         function_object = player_action[2]
                         chat_command = player_action[1]
                         function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
-                        command_queue.append(
-                            [function_object, function_parameters, function_name, function_category, command])
+                        command_queue.append([function_object, function_parameters, function_name, function_category, command])
                 else:
                     break
 

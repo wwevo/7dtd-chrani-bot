@@ -93,7 +93,7 @@ def goto_lobby(self):
         pass
 
 
-actions_lobby.append(("startswith", "goto lobby", goto_lobby, "(self)", "lobby"))
+actions_lobby.append(("isequal", "goto lobby", goto_lobby, "(self)", "lobby"))
 
 
 def remove_lobby(self):
@@ -123,13 +123,12 @@ def password(self, command):
         p = re.search(r"password\s(\w+)$", command)
         if p:
             pwd = p.group(1)
-            if pwd in self.bot.passwords.values():
+            if pwd in self.bot.passwords.values() and player_object.authenticated is not True:
                 try:
                     location_object = self.bot.locations.get(player_object.steamid, 'spawn')
                     self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
                     self.tn.teleportplayer(player_object, location_object)
                 except KeyError:
-                    self.tn.send_message_to_player(player_object, "Sorry {}, but I do not have your original spawn on record oO".format(player_object.name), color=self.bot.chat_colors['warning'])
                     return False
     except Exception as e:
         logger.error(e)
@@ -192,7 +191,7 @@ def set_up_lobby_teleport(self, command):
         pass
 
 
-actions_lobby.append(("startswith", "set lobby teleport", set_up_lobby_teleport, "(self, command)", "lobby"))
+actions_lobby.append(("isequal", "set lobby teleport", set_up_lobby_teleport, "(self, command)", "lobby"))
 
 
 def on_player_join(self):
@@ -205,8 +204,8 @@ def on_player_join(self):
     if player_object.has_permission_level("authenticated") is True:
         return False
 
-    self.tn.muteplayerchat(player_object, True)
-    self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
+    if self.tn.muteplayerchat(player_object, True):
+        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
 
     return True
 
@@ -237,8 +236,8 @@ def player_is_outside_boundary(self):
                     logger.info("{} has been ported to the lobby!".format(player_object.name))
                     self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>", color=self.bot.chat_colors['alert'])
                     self.tn.send_message_to_player(player_object, "see https://chrani.net/chrani-bot for more information!", color=self.bot.chat_colors['warning'])
-                    self.tn.muteplayerchat(player_object, True)
-                    self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
+                    if self.tn.muteplayerchat(player_object, True):
+                        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass

@@ -28,8 +28,8 @@ class Player():
     region = str
     country_code = str
     authenticated = bool
-    web_auth = bool
     is_responsive = bool
+    is_muted = bool
     last_teleport = int
 
     def get_id(self):
@@ -38,8 +38,8 @@ class Player():
     def __init__(self, **kwargs):
         self.last_teleport = 0
         self.is_responsive = False
+        self.is_muted = False
         self.permission_levels = []
-        self.web_auth = False
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -67,11 +67,11 @@ class Player():
         else:
             return None
 
-    def switch_on(self, source=""):
+    def switch_on(self, source="noSourceSpecified"):
         self.is_responsive = True
         logger.info("switched on player '{}' - {}".format(self.name, source))
 
-    def switch_off(self, source=""):
+    def switch_off(self, source="noSourceSpecified"):
         self.is_responsive = False
         logger.info("switched off player '{}' - {}".format(self.name, source))
 
@@ -105,13 +105,16 @@ class Player():
         return True
 
     def has_health(self):
-        if int(self.health) is not 0:
+        if self.health is not 0:
             return True
         else:
             return False
 
     def is_dead(self):
-        if int(self.health) == 0:
+        if self.health == 0:
             return True
         else:
             return False
+
+    def set_muted(self, flag):
+        self.is_muted = flag
