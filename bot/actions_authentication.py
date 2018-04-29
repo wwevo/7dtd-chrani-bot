@@ -5,6 +5,25 @@ from bot.logger import logger
 actions_authentication = []
 
 
+def on_player_join(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    if player_object.has_permission_level("authenticated") is not True:
+        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['warning'])
+        self.tn.send_message_to_player(player_object, "this is a development server. you can play here, but there's no support or anything really.", color=self.bot.chat_colors['info'])
+        self.tn.send_message_to_player(player_object, "Enjoy!", color=self.bot.chat_colors['info'])
+        return False
+
+    return True
+
+
+actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication"))
+
+
 def password(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
@@ -104,33 +123,3 @@ def remove_player_from_permission_group(self, command):
 
 
 actions_authentication.append(("startswith", "remove player", remove_player_from_permission_group, "(self, command)", "authentication"))
-
-
-def on_player_join(self):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-    except Exception as e:
-        logger.error(e)
-        raise KeyError
-
-    if player_object.has_permission_level("authenticated") is not True:
-        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['warning'])
-        self.tn.send_message_to_player(player_object, "this is a development server. you can play here, but there's no support or anything really.", color=self.bot.chat_colors['info'])
-        self.tn.send_message_to_player(player_object, "Enjoy!", color=self.bot.chat_colors['info'])
-        return False
-
-    return True
-
-
-actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication"))
-
-
-def on_player_leave(self):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-    except Exception as e:
-        logger.error(e)
-        pass
-
-
-actions_authentication.append(("isequal", "left the game", on_player_leave, "(self)", "authentication"))

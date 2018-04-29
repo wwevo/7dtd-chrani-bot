@@ -248,6 +248,7 @@ class ChraniBot:
                         player_observer_thread.start()
                         self.players.upsert(player_object, save=True)
                         self.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
+                        player_observer_thread.trigger_action(player_object, "entered the stream")
 
                 for player_steamid in set(self.active_player_threads_dict) - set(self.players.players_dict.keys()):
                     """ prune all active_player_threads from players no longer online """
@@ -312,27 +313,29 @@ class ChraniBot:
                                     pass
 
                 """ send telnet_line to player-thread
-                check any telnet-line for any known playername currently online
+                check 'chat' telnet-line for any known playername currently online
                 """
                 for player_steamid, player_object in self.players.players_dict.iteritems():
                     possible_action_for_player = re.search(player_object.name, telnet_line)
                     if possible_action_for_player:
-                        if player_steamid in self.active_player_threads_dict and player_object.is_responsive is True:
+                        if player_steamid in self.active_player_threads_dict:
                             active_player_thread = self.active_player_threads_dict[player_steamid]
                             active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 """ work through triggers caused by telnet_activity """
+                # telnet_player_connected is the earliest usable player-data line available, perfect spot to fire off triggers for whitelist and blacklist and such
                 m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
                 if m:
-                    player_dict = {
-                        'steamid': m.group("player_id"),
-                        'name': m.group("player_name"),
-                        'ip': m.group("player_ip")
-                    }
                     try:
-                        player_object = self.players.load(player_dict['steamid'])
+                        player_object = self.players.load(m.group("player_id"))
                     except KeyError:
+                        player_dict = {
+                            'steamid': m.group("player_id"),
+                            'name': m.group("player_name"),
+                            'ip': m.group("player_ip")
+                        }
                         player_object = Player(**player_dict)
+
                     logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
                     command_queue = []
                     for observer in self.observers:
@@ -340,6 +343,7 @@ class ChraniBot:
                             observer_function_name = observer[2]
                             observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
                             command_queue.append([observer_function_name, observer_parameters])
+
                     for command in command_queue:
                         try:
                             command[0](*command[1])

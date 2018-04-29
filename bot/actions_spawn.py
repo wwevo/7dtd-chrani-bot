@@ -20,17 +20,20 @@ def on_player_join(self):
             owner=player_object.steamid,
             shape='point',
             radius=None,
-            region=[player_object.region]
+            region=None
         )
         location_object = Location(**location_dict)
         location_object.set_coordinates(player_object)
-        self.bot.locations.upsert(location_object, save=True)
+        try:
+            self.bot.locations.upsert(location_object, save=True)
+        except:
+            pass
         self.tn.send_message_to_player(player_object, "your place of origin has been recorded ^^", color=self.bot.chat_colors['background'])
 
     return True
 
 
-actions_spawn.append(("isequal", "joined the game", on_player_join, "(self)", "spawn"))
+actions_spawn.append(("isequal", "entered the stream", on_player_join, "(self)", "spawn"))
 
 
 """

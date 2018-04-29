@@ -27,13 +27,14 @@ class PlayerObserver(Thread):
     def run(self):
         next_cycle = 0
         player_object = self.bot.players.get(self.player_steamid)
+        self.trigger_action(player_object, "joined the game")
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
             profile_start = time.time()
 
-            if self.bot.observers:
-                if player_object.is_responsive:
+            if player_object.is_responsive:
+                if self.bot.observers:
                     """ execute real-time observers
                     these are run regardless of telnet activity!
                     """
@@ -51,29 +52,26 @@ class PlayerObserver(Thread):
                                 command[0](command[1])
                         else:
                             break
-                else:
-                    if player_object.has_health():
-                        player_object.switch_on("caught you alive and kicking")
-                        # self.bot.tn.send_message_to_player(player_object, "...the bot is watching you...", color=self.bot.chat_colors['background'])
+            else:
+                if player_object.has_health():
+                     player_object.switch_on("caught you alive and kicking")
+                     # self.bot.tn.send_message_to_player(player_object, "...the bot is watching you...", color=self.bot.chat_colors['background'])
 
-                execution_time = time.time() - profile_start
-                next_cycle = self.run_observers_interval - execution_time
+            execution_time = time.time() - profile_start
+            next_cycle = self.run_observers_interval - execution_time
         logger.debug("thread has stopped")
 
     def trigger_action(self, player_object, command):
         command_queue = []
         if self.bot.player_actions is not None:
             for player_action in self.bot.player_actions:
-                if player_object.is_responsive:  # TODO: integrate permission check here
-                    function_category = player_action[4]
-                    function_name = getattr(player_action[2], 'func_name')
-                    if (player_action[0] == "isequal" and player_action[1] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1])):
-                        function_object = player_action[2]
-                        chat_command = player_action[1]
-                        function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
-                        command_queue.append([function_object, function_parameters, function_name, function_category, command])
-                else:
-                    break
+                function_category = player_action[4]
+                function_name = getattr(player_action[2], 'func_name')
+                if (player_action[0] == "isequal" and player_action[1] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1])):
+                    function_object = player_action[2]
+                    chat_command = player_action[1]
+                    function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
+                    command_queue.append([function_object, function_parameters, function_name, function_category, command])
 
             for command in command_queue:
                 has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
@@ -81,11 +79,12 @@ class PlayerObserver(Thread):
                     try:
                         command[0](command[1])
                     except TypeError:
-                        command[0](*command[1])
+                        try:
+                            command[0](*command[1])
+                        except:
+                            pass
 
-                    logger.info(
-                        "Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2],
-                                                                         command[4]))
+                    logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2], command[4]))
                 else:
                     self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
                     logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[3], command[2]))

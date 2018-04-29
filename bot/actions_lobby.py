@@ -5,6 +5,25 @@ from bot.logger import logger
 actions_lobby = []
 
 
+def on_player_join(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    if player_object.has_permission_level("authenticated") is True:
+        return False
+
+    if self.tn.muteplayerchat(player_object, True):
+        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
+
+    return True
+
+
+actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
+
+
 def set_up_lobby(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
@@ -123,11 +142,12 @@ def password(self, command):
         p = re.search(r"password\s(\w+)$", command)
         if p:
             pwd = p.group(1)
-            if pwd in self.bot.passwords.values() and player_object.authenticated is not True:
+            if pwd in self.bot.passwords.values():
                 try:
                     location_object = self.bot.locations.get(player_object.steamid, 'spawn')
                     self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
-                    self.tn.teleportplayer(player_object, location_object)
+                    if self.tn.teleportplayer(player_object, location_object):
+                        self.bot.locations.remove(player_object.steamid, 'spawn')
                 except KeyError:
                     return False
     except Exception as e:
@@ -192,25 +212,6 @@ def set_up_lobby_teleport(self, command):
 
 
 actions_lobby.append(("isequal", "set lobby teleport", set_up_lobby_teleport, "(self, command)", "lobby"))
-
-
-def on_player_join(self):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-    except Exception as e:
-        logger.error(e)
-        raise KeyError
-
-    if player_object.has_permission_level("authenticated") is True:
-        return False
-
-    if self.tn.muteplayerchat(player_object, True):
-        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
-
-    return True
-
-
-actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
 
 
 """
