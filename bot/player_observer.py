@@ -33,6 +33,11 @@ class PlayerObserver(Thread):
         while not self.stopped.wait(next_cycle):
             profile_start = time.time()
 
+            if player_object.has_health():
+                player_object.switch_on()
+            else:
+                player_object.switch_off()
+
             if player_object.is_responsive:
                 if self.bot.observers:
                     """ execute real-time observers
@@ -52,15 +57,15 @@ class PlayerObserver(Thread):
                                 command[0](command[1])
                         else:
                             break
-            else:
-                if player_object.has_health():
-                     player_object.switch_on("caught you alive and kicking")
-                     # self.bot.tn.send_message_to_player(player_object, "...the bot is watching you...", color=self.bot.chat_colors['background'])
 
             execution_time = time.time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
         logger.debug("thread has stopped")
 
+    """
+    loop through all available actions if they are a match for the given command and create a queue of actions to be fired
+    loop though the command queue
+    """
     def trigger_action(self, player_object, command):
         command_queue = []
         if self.bot.player_actions is not None:
@@ -82,6 +87,7 @@ class PlayerObserver(Thread):
                         try:
                             command[0](*command[1])
                         except:
+                            logger.debug("Player {} has executed {}:{} with '/{}', which lead to an unknown error".format(player_object.name, command[3], command[2], command[4]))
                             pass
 
                     logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2], command[4]))
@@ -91,11 +97,10 @@ class PlayerObserver(Thread):
             if len(command_queue) == 0:
                 logger.info("Player {} tried the command '{}' for which I have no handler.".format(player_object.name, command))
 
+    """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):
-        current_telnet_line = telnet_line
-
         for match_type in self.bot.match_types:
-            m = re.search(self.bot.match_types[match_type], current_telnet_line)
+            m = re.search(self.bot.match_types[match_type], telnet_line)
             if m:
                 player_name = m.group('player_name')
                 command = m.group('command')

@@ -22,15 +22,12 @@ class Logger:
         self.extension = "log"
 
     def add_logging_level(static, level_name, level_num, method_name=None):
-        """ Example
-        -------
-        >>> add_logging_level('TRACE', logging.DEBUG - 5)
-        >>> logging.getLogger(__name__).setLevel("TRACE")
-        >>> logging.getLogger(__name__).trace('that worked')
-        >>> logging.trace('so did this')
-        >>> logging.TRACE
-        5
-
+        """
+        add_logging_level('TRACE', logging.DEBUG - 5)
+        logging.getLogger(__name__).setLevel("TRACE")
+        logging.getLogger(__name__).trace('that worked')
+        logging.trace('so did this')
+        logging.TRACE
         """
         if not method_name:
             method_name = level_name.lower()

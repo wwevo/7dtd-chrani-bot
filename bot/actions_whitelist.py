@@ -84,6 +84,7 @@ actions_whitelist.append(("isequal", "deactivate whitelist", deactivate_whitelis
 
 """
 here come the observers
+# these whitelist functions are special because they run as a monitor AND are used as triggers during login, to catch players before they even enter the game
 """
 observers_whitelist = []
 

@@ -24,6 +24,33 @@ def on_player_join(self):
 actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
 
 
+def password(self, command):
+    try:
+        try:
+            location_object = self.bot.locations.get('system', "lobby")
+        except KeyError:
+            return False
+
+        player_object = self.bot.players.get(self.player_steamid)
+        p = re.search(r"password\s(\w+)$", command)
+        if p:
+            pwd = p.group(1)
+            if pwd in self.bot.passwords.values():
+                try:
+                    location_object = self.bot.locations.get(player_object.steamid, 'spawn')
+                    self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
+                    if self.tn.teleportplayer(player_object, location_object):
+                        self.bot.locations.remove(player_object.steamid, 'spawn')
+                except KeyError:
+                    return False
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby"))
+
+
 def set_up_lobby(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
@@ -129,33 +156,6 @@ def remove_lobby(self):
 
 
 actions_lobby.append(("isequal", "remove lobby", remove_lobby, "(self)", "lobby"))
-
-
-def password(self, command):
-    try:
-        try:
-            location_object = self.bot.locations.get('system', "lobby")
-        except KeyError:
-            return False
-
-        player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"password\s(\w+)$", command)
-        if p:
-            pwd = p.group(1)
-            if pwd in self.bot.passwords.values():
-                try:
-                    location_object = self.bot.locations.get(player_object.steamid, 'spawn')
-                    self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
-                    if self.tn.teleportplayer(player_object, location_object):
-                        self.bot.locations.remove(player_object.steamid, 'spawn')
-                except KeyError:
-                    return False
-    except Exception as e:
-        logger.error(e)
-        pass
-
-
-actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby"))
 
 
 # def set_up_lobby_area(self, command):

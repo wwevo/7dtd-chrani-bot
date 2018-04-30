@@ -67,13 +67,15 @@ class Player():
         else:
             return None
 
-    def switch_on(self, source="noSourceSpecified"):
+    def switch_on(self, source=None):
         self.is_responsive = True
-        logger.info("switched on player '{}' - {}".format(self.name, source))
+        if source is not None:
+            logger.info("switched on player '{}' - {}".format(self.name, source))
 
-    def switch_off(self, source="noSourceSpecified"):
+    def switch_off(self, source=None):
         self.is_responsive = False
-        logger.info("switched off player '{}' - {}".format(self.name, source))
+        if source is not None:
+            logger.info("switched off player '{}' - {}".format(self.name, source))
 
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():

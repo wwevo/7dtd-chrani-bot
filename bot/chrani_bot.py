@@ -279,41 +279,44 @@ class ChraniBot:
                 if not m or m and m.group('telnet_command') != 'lp':
                     if telnet_line != '':
                         logger.debug(telnet_line)
-                if m:
-                    if m.group("telnet_command").startswith("tele"):
-                        c = re.search(r"^(tele|teleportplayer) (?P<player>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
-                        if c:
-                            for player_steamid, player_object in self.players.players_dict.iteritems():
-                                if c.group("player") in [player_object.name, player_object.steamid]:
-                                    player_object.switch_off("main - teleportplayer")
-
-                m = re.search(self.match_types_system["telnet_events_player_gmsg"], telnet_line)
-                if m:
-                    if m.group("command") == "died":
-                        for player_steamid, player_object in self.players.players_dict.iteritems():
-                            if player_object.name == m.group("player_name"):
-                                if player_steamid in self.active_player_threads_dict:
-                                    player_object.switch_off("main - died")
-
-                    if m.group("command") == "joined the game":
-                        for player_steamid, player_object in self.players.players_dict.iteritems():
-                            if player_object.name == m.group("player_name"):
-                                if player_steamid in self.active_player_threads_dict:
-                                    if player_object.has_health() is True:
-                                        player_object.switch_on("main - joined the game")
-
-                m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
-                if m:
-                    if m.group("command") == "Died" or m.group("command") == "Teleport":
-                        for player_steamid, player_object in self.players.players_dict.iteritems():
-                            if player_object.name == m.group("player_name"):
-                                try:
-                                    player_object.switch_on("main - respawned")
-                                except KeyError:
-                                    pass
+                # this part might be obsolete now, it was for handling the black screen of death. i might have
+                # found a simpler solution ^^
+                #
+                # if m:
+                #     if m.group("telnet_command").startswith("tele"):
+                #         c = re.search(r"^(tele|teleportplayer) (?P<player>.*) (?P<pos_x>.*) (?P<pos_y>.*) (?P<pos_z>.*)", m.group("telnet_command"))
+                #         if c:
+                #             for player_steamid, player_object in self.players.players_dict.iteritems():
+                #                 if c.group("player") in [player_object.name, player_object.steamid]:
+                #                     player_object.switch_off("main - teleportplayer")
+                #
+                # m = re.search(self.match_types_system["telnet_events_player_gmsg"], telnet_line)
+                # if m:
+                #     if m.group("command") == "died":
+                #         for player_steamid, player_object in self.players.players_dict.iteritems():
+                #             if player_object.name == m.group("player_name"):
+                #                 if player_steamid in self.active_player_threads_dict:
+                #                     player_object.switch_off("main - died")
+                #
+                #     if m.group("command") == "joined the game":
+                #         for player_steamid, player_object in self.players.players_dict.iteritems():
+                #             if player_object.name == m.group("player_name"):
+                #                 if player_steamid in self.active_player_threads_dict:
+                #                     if player_object.has_health() is True:
+                #                         player_object.switch_on("main - joined the game")
+                #
+                # m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
+                # if m:
+                #     if m.group("command") == "Died" or m.group("command") == "Teleport":
+                #         for player_steamid, player_object in self.players.players_dict.iteritems():
+                #             if player_object.name == m.group("player_name"):
+                #                 try:
+                #                     player_object.switch_on("main - respawned")
+                #                 except KeyError:
+                #                     pass
 
                 """ send telnet_line to player-thread
-                check 'chat' telnet-line for any known playername currently online
+                check 'chat' telnet-line(s) for any known playername currently online
                 """
                 for player_steamid, player_object in self.players.players_dict.iteritems():
                     possible_action_for_player = re.search(player_object.name, telnet_line)
