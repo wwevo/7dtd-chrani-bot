@@ -29,7 +29,6 @@ def set_up_home(self):
             shape='sphere',
             radius=10,
             warning_boundary=6,
-            region=[player_object.region],
             list_of_players_inside=[player_object.steamid]
         )
         location_object = Location(**location_dict)
