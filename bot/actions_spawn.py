@@ -27,7 +27,8 @@ def on_player_join(self):
         try:
             self.bot.locations.upsert(location_object, save=True)
         except:
-            pass
+            return False
+
         self.tn.send_message_to_player(player_object, "your place of origin has been recorded ^^", color=self.bot.chat_colors['background'])
 
     return True
