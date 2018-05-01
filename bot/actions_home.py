@@ -135,10 +135,10 @@ def take_me_home(self):
 actions_home.append(("isequal", "take me home", take_me_home, "(self)", "home"))
 
 
-def goto_home(self, command):
+def goto_player_home(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"goto\shome\s(.+)", command)
+        p = re.search(r"goto\splayer\shome\s(.+)", command)
         if p:
             player_steamid = p.group(1)
             try:
@@ -155,7 +155,7 @@ def goto_home(self, command):
         pass
 
 
-actions_home.append(("startswith", "goto home", goto_home, "(self, command)", "home"))
+actions_home.append(("startswith", "goto player home", goto_player_home, "(self, command)", "home"))
 
 
 def set_up_home_outer_perimeter(self):

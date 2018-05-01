@@ -27,17 +27,17 @@ class Players(object):
         self.players_dict = {}
         pass
 
-    def load_all(self):
-        all_players_dict = {}
-        for root, dirs, files in os.walk(self.root):
-            for filename in files:
-                if filename.startswith(self.prefix) and filename.endswith('.json'):
-                    with open(self.root + filename) as file_to_read:
-                        player_dict = byteify(json.load(file_to_read))
-                        player_dict['health'] = 0
-                        all_players_dict[player_dict['steamid']] = Player(**player_dict)
-
-        return all_players_dict
+    # def load_all(self):
+    #     all_players_dict = {}
+    #     for root, dirs, files in os.walk(self.root):
+    #         for filename in files:
+    #             if filename.startswith(self.prefix) and filename.endswith('.json'):
+    #                 with open(self.root + filename) as file_to_read:
+    #                     player_dict = byteify(json.load(file_to_read))
+    #                     player_dict['health'] = 0
+    #                     all_players_dict[player_dict['steamid']] = Player(**player_dict)
+    #
+    #     return all_players_dict
 
     def get(self, player_steamid):
         try:

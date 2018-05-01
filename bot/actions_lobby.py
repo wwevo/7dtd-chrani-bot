@@ -229,7 +229,7 @@ def player_is_outside_boundary(self):
         except KeyError:
             return False
 
-        if player_object.authenticated is not True and player_object.is_responsive:
+        if player_object.authenticated is not True:
             if not location_object.player_is_inside_boundary(player_object):
                 if self.tn.teleportplayer(player_object, location_object):
                     player_object.set_coordinates(location_object)

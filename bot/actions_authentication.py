@@ -49,8 +49,8 @@ def password(self, command):
 
         self.bot.players.upsert(player_object, save=True)
         return False
-    elif pwd in self.bot.passwords.values() and player_object.authenticated is True:
-        return False
+    # elif pwd in self.bot.passwords.values() and player_object.authenticated is True:
+    #     return False
 
     player_object.set_authenticated(True)
     player_object.add_permission_level("authenticated")

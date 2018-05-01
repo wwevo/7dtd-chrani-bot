@@ -182,3 +182,20 @@ def kick_player(self, command):
 
 actions_dev.append(("startswith", "kick player", kick_player, "(self, command)", "testing"))
 
+
+def list_online_players(self):
+    try:
+        active_players_dict = self.bot.players.players_dict
+        players_to_list = []
+        for steamid, player_object in active_players_dict.iteritems():
+            players_to_list.append(player_object)
+
+        for player_object in players_to_list:
+            self.tn.say("{} - {} / authenticated: {}".format(player_object.steamid, player_object.name, str(player_object.authenticated)), color=self.bot.chat_colors['success'])
+
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_dev.append(("isequal", "online players", list_online_players, "(self)", "testing"))
