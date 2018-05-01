@@ -17,7 +17,7 @@ def set_up_location(self, command):
             location_object.set_owner(player_object.steamid)
             location_object.set_shape("sphere")
             location_object.set_coordinates(player_object)
-            location_object.set_region([player_object.region])
+            #location_object.set_region([player_object.region])
             # TODO: this seems like a crappy solution ^^ need a way more elegant... way
             messages_dict = location_object.get_messages_dict()
             messages_dict["entering_core"] = "entering {}'s core".format(name)

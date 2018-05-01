@@ -34,7 +34,7 @@ def on_player_join(self):
     return True
 
 
-actions_spawn.append(("isequal", "entered the stream", on_player_join, "(self)", "spawn"))
+actions_spawn.append(("isequal", "entered the stream", on_player_join, "(self)", "spawn", True))
 
 
 """

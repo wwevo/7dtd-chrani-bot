@@ -21,7 +21,7 @@ def on_player_join(self):
     return True
 
 
-actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby"))
+actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby", True))
 
 
 def password(self, command):
@@ -48,7 +48,7 @@ def password(self, command):
         pass
 
 
-actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby"))
+actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby", True))
 
 
 def set_up_lobby(self):

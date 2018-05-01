@@ -76,11 +76,14 @@ class PlayerObserver(Thread):
                     function_object = player_action[2]
                     chat_command = player_action[1]
                     function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
-                    command_queue.append([function_object, function_parameters, function_name, function_category, command])
+                    if len(player_action) >= 6:
+                        command_queue.append([function_object, function_parameters, function_name, function_category, command, player_action[5]])
+                    else:
+                        command_queue.append([function_object, function_parameters, function_name, function_category, command])
 
             for command in command_queue:
                 has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
-                if has_permission is None or isinstance(has_permission, bool) and has_permission is True:
+                if (isinstance(has_permission, bool) and has_permission is True) or (len(command) >= 6 and command[5] is True):
                     try:
                         command[0](command[1])
                     except TypeError:
@@ -92,7 +95,7 @@ class PlayerObserver(Thread):
 
                     logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2], command[4]))
                 else:
-                    self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
+                    # self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
                     logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[3], command[2]))
             if len(command_queue) == 0:
                 logger.info("Player {} tried the command '{}' for which I have no handler.".format(player_object.name, command))

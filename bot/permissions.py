@@ -45,7 +45,7 @@ class Permissions(object):
                 else:
                     return allowed_player_groups
             except (KeyError, TypeError):
-                return True  # for now
+                return False  # for now
 
     def create_permissions_file(self):
         filename = '{}/{}_permissions.json'.format(self.root, self.prefix)
@@ -54,10 +54,11 @@ class Permissions(object):
 
         available_actions_dict = {}
         for player_action in self.player_actions_list:
-            try:
-                available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): None})
-            except Exception:
-                available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): None}
+            if (len(player_action) == 5): # quick hack to get some system-functions in ^^
+                try:
+                    available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): None})
+                except Exception:
+                    available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): None}
         try:
             self.save(available_actions_dict)
             return filename
@@ -71,17 +72,18 @@ class Permissions(object):
 
         available_actions_dict = self.action_permissions_dict
         for player_action in self.player_actions_list:
-            try:
-                if getattr(player_action[2], 'func_name') in available_actions_dict[player_action[4]]:
-                    pass
-                else:
-                    available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): None})
-            except Exception:
+            if (len(player_action) == 5): # quick hack to get some system-functions in ^^
                 try:
-                    available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): None}
-                except IndexError:
-                    """ you will be getting index errors if you fuck up variables, like adding an action module with, instead of +"""
-                    pass
+                    if getattr(player_action[2], 'func_name') in available_actions_dict[player_action[4]]:
+                        pass
+                    else:
+                        available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): None})
+                except Exception:
+                    try:
+                        available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): None}
+                    except IndexError:
+                        """ you will be getting index errors if you fuck up variables, like adding an action module with, instead of +"""
+                        pass
 
         try:
             self.save(available_actions_dict)

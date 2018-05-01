@@ -21,7 +21,7 @@ def on_player_join(self):
     return True
 
 
-actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication"))
+actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication", True))
 
 
 def password(self, command):
@@ -74,7 +74,7 @@ def password(self, command):
     return True
 
 
-actions_authentication.append(("startswith", "password", password, "(self, command)", "authentication"))
+actions_authentication.append(("startswith", "password", password, "(self, command)", "authentication", True))
 
 
 def add_player_to_permission_group(self, command):
