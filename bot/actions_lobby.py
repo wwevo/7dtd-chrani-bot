@@ -58,7 +58,7 @@ def set_up_lobby(self):
         location_object.set_owner('system')
         name = 'The Lobby'
         location_object.set_name(name)
-        identifier = location_object.set_identifier(name)
+        identifier = location_object.set_identifier('lobby')
         location_object.set_description('The \"there is no escape\" Lobby')
         location_object.set_shape("sphere")
         location_object.set_coordinates(player_object)
@@ -72,7 +72,7 @@ def set_up_lobby(self):
         location_object.set_list_of_players_inside([player_object.steamid])
         self.bot.locations.upsert(location_object, save=True)
         self.tn.send_message_to_player(player_object, "You have set up a lobby", color=self.bot.chat_colors['success'])
-        self.tn.send_message_to_player(player_object, "Set up the perimeter with /set lobby outer perimeter, while standing on the edge of it.".format(player_object.name), color=self.bot.chat_colors['success'])
+        self.tn.send_message_to_player(player_object, "Set up the perimeter with /set lobby outer perimeter, while standing on the edge of it.".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass
