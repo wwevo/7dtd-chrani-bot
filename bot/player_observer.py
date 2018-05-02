@@ -1,5 +1,5 @@
 import re
-import time
+from time import time
 from threading import *
 
 from bot.logger import logger
@@ -31,7 +31,7 @@ class PlayerObserver(Thread):
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
-            profile_start = time.time()
+            profile_start = time()
 
             if player_object.has_health():
                 player_object.switch_on()
@@ -39,6 +39,7 @@ class PlayerObserver(Thread):
                 player_object.switch_off()
 
             if player_object.is_responsive:
+                player_object.last_seen = time()
                 if self.bot.observers:
                     """ execute real-time observers
                     these are run regardless of telnet activity!
@@ -58,7 +59,7 @@ class PlayerObserver(Thread):
                         else:
                             break
 
-            execution_time = time.time() - profile_start
+            execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
         logger.debug("thread has stopped")
 

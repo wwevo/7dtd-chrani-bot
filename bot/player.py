@@ -1,4 +1,5 @@
 import math
+from time import time
 from bot.logger import logger
 
 
@@ -31,6 +32,7 @@ class Player():
     is_responsive = bool
     is_muted = bool
     last_teleport = int
+    last_responsive = float
 
     def get_id(self):
         return unicode(self.steamid)
@@ -40,6 +42,7 @@ class Player():
         self.is_responsive = False
         self.is_muted = False
         self.permission_levels = []
+        self.last_responsive = time()
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)

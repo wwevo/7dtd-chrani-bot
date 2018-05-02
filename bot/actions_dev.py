@@ -1,4 +1,5 @@
 import re
+import datetime
 from bot.player import Player
 from bot.logger import logger
 
@@ -191,7 +192,7 @@ def list_online_players(self):
             players_to_list.append(player_object)
 
         for player_object in players_to_list:
-            self.tn.say("{} - {} / authenticated: {}".format(player_object.steamid, player_object.name, str(player_object.authenticated)), color=self.bot.chat_colors['success'])
+            self.tn.say("{} - {} / last responsive: {}, authenticated: {}".format(player_object.steamid, player_object.name, str(datetime.datetime.fromtimestamp(player_object.last_responsive)), str(player_object.authenticated)), color=self.bot.chat_colors['success'])
 
     except Exception as e:
         logger.error(e)

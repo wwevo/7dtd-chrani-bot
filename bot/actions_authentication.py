@@ -67,7 +67,6 @@ def password(self, command):
         self.tn.send_message_to_player(player_object, "you are an Admin", color=self.bot.chat_colors['success'])
     elif pwd == self.bot.passwords['mod']:
         player_object.add_permission_level("mod")
-        player_object.add_permission_level("donator")
         self.tn.send_message_to_player(player_object, "you are a Moderator", color=self.bot.chat_colors['success'])
     elif pwd == self.bot.passwords['donator']:
         player_object.add_permission_level("donator")
