@@ -38,9 +38,14 @@ def password(self, command):
             if pwd in self.bot.passwords.values():
                 try:
                     location_object = self.bot.locations.get(player_object.steamid, 'spawn')
-                    self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
-                    if self.tn.teleportplayer(player_object, location_object):
-                        self.bot.locations.remove(player_object.steamid, 'spawn')
+                    # if the spawn is enabled, do port the player and disable it.
+                    if location_object.enabled is True:
+                        self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
+                        if self.tn.teleportplayer(player_object, location_object):
+                            location_object.enabled = False
+                            self.bot.locations.upsert(location_object, save=True)
+                    else:
+                        return True
                 except KeyError:
                     return False
     except Exception as e:

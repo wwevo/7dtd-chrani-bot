@@ -3,6 +3,8 @@ import math
 
 # noinspection SpellCheckingInspection
 class Location(object):
+    enabled = bool
+
     identifier = str
     owner = str
     name = str
@@ -43,11 +45,12 @@ class Location(object):
             "entering_boundary": "entering boundary",
             "entering_core": "entering core"
         }
-        self.radius = 10
-        self.warning_boundary = 6
+        self.radius = 20
+        self.warning_boundary = 16
         self.width = self.radius * 2
         self.length = self.radius * 2
         self.height = self.radius * 2
+        self.enabled = True
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
