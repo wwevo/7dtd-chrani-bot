@@ -11,6 +11,8 @@ def on_player_join(self):
         logger.error(e)
         raise KeyError
 
+    self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
+
     try:
         location = self.bot.locations.get(player_object.steamid, 'spawn')
     except KeyError:

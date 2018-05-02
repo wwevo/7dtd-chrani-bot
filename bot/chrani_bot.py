@@ -190,8 +190,6 @@ class ChraniBot:
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.tn.togglechatcommandhide("/")
 
-        self.tn.say("{} is ready and listening (v{})".format(self.bot_name, self.bot_version), color=self.chat_colors['info'])
-
         listplayers_dict = {}
         list_players_timeout_start = 0
         listplayers_interval = self.listplayers_interval

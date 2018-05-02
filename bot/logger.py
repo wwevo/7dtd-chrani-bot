@@ -82,6 +82,14 @@ class Logger:
         file_logger_debug.setFormatter(formatter)
         logger_object.addHandler(file_logger_debug)
 
+        log_level = "ERROR"
+        filename_info = "{}/{}.{}".format(self.root, log_level.lower(), self.extension)
+        file_logger_info = logging.handlers.TimedRotatingFileHandler(filename_info, when='midnight', interval=1, backupCount=28)
+        file_logger_info.setLevel(logging.ERROR)
+        file_logger_info.addFilter(ExclusiveLevel(logging.ERROR))  # makes this display only INFO-level messages
+        file_logger_info.setFormatter(formatter)
+        logger_object.addHandler(file_logger_info)
+
         return logger_object
 
 
