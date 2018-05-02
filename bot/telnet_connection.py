@@ -18,6 +18,7 @@ class TelnetConnection:
         except Exception as e:
             log_message = 'trying to establish telnet connection failed: {}'.format(e)
             raise IOError(log_message)
+
         self.bot = bot
         self.show_log_init = show_log_init
         self.full_banner = ""

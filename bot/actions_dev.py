@@ -1,5 +1,6 @@
 import re
 import datetime
+from time import time
 from bot.player import Player
 from bot.logger import logger
 
@@ -200,3 +201,25 @@ def list_online_players(self):
 
 
 actions_dev.append(("isequal", "online players", list_online_players, "(self)", "testing"))
+
+
+"""
+here come the observers
+"""
+observers_dev = []
+
+
+def record_time_of_last_activity(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        if player_object.is_responsive is True:
+            player_object.last_seen = time()
+            self.bot.players.upsert(player_object, save=True)
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+observers_dev.append(("monitor", "player is active!", record_time_of_last_activity, "(self)"))
+
+

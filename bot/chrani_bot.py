@@ -9,7 +9,7 @@ from bot.logger import logger
 from bot.assorted_functions import byteify, timeout_occurred
 from bot.actions_spawn import actions_spawn
 from bot.actions_authentication import actions_authentication
-from bot.actions_dev import actions_dev
+from bot.actions_dev import actions_dev, observers_dev
 from bot.actions_home import actions_home
 from bot.actions_lobby import actions_lobby, observers_lobby
 from bot.actions_locations import actions_locations, observers_locations
@@ -74,7 +74,7 @@ class ChraniBot:
         self.poll_tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'])
 
         self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
-        self.observers = observers_whitelist + observers_lobby + observers_locations
+        self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations
 
         self.players = Players()  # players will be loaded on a need-to-load basis
         self.listplayers_interval = 1.5
@@ -245,7 +245,7 @@ class ChraniBot:
                         player_observer_thread.isDaemon()
                         player_observer_thread.trigger_action(player_object, "entered the stream")
                         player_observer_thread.start()
-                        self.players.upsert(player_object, save=True)
+                        # self.players.upsert(player_object, save=True)
                         self.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
                 for player_steamid in set(self.active_player_threads_dict) - set(self.players.players_dict.keys()):

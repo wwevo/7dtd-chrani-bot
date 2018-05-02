@@ -25,7 +25,6 @@ class Players(object):
         self.root = 'data/players/'
         self.prefix = args_dict['Database-file']
         self.players_dict = {}
-        pass
 
     # def load_all(self):
     #     all_players_dict = {}
@@ -56,9 +55,12 @@ class Players(object):
             raise KeyError
 
     def upsert(self, player_object, save=False):
-        self.players_dict[player_object.steamid] = player_object
-        if save:
-            self.save(player_object)
+        try:
+            self.players_dict[player_object.steamid] = player_object
+            if save:
+                self.save(player_object)
+        except Exception as e:
+            logger.error(e)
 
     def remove(self, player_object):
         try:

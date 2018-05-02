@@ -39,7 +39,6 @@ class PlayerObserver(Thread):
                 player_object.switch_off()
 
             if player_object.is_responsive:
-                player_object.last_seen = time()
                 if self.bot.observers:
                     """ execute real-time observers
                     these are run regardless of telnet activity!

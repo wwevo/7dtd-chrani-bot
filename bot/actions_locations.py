@@ -93,7 +93,7 @@ actions_locations.append(("startswith", "set location name", set_up_location_nam
 def set_up_location_outer_perimeter(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set\slocation\souter\sperimeter\s(([\w\s]{1,19}))$", command)
+        p = re.search(r"set\slocation\souter\sperimeter\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
             try:
