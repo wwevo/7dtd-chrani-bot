@@ -62,8 +62,6 @@ def password(self, command):
     # TODO: well, this action should only care about general authentication. things like admin and mod should be handled somewhere else really
     if pwd == self.bot.passwords['admin']:
         player_object.add_permission_level("admin")
-        player_object.add_permission_level("mod")
-        player_object.add_permission_level("donator")
         self.tn.send_message_to_player(player_object, "you are an Admin", color=self.bot.chat_colors['success'])
     elif pwd == self.bot.passwords['mod']:
         player_object.add_permission_level("mod")

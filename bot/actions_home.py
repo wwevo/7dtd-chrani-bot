@@ -62,7 +62,7 @@ def remove_home(self):
     return True
 
 
-actions_home.append(("isequal", "remove home", remove_home, "(self)", "lobby"))
+actions_home.append(("isequal", "remove home", remove_home, "(self)", "home"))
 
 
 def set_up_home_teleport(self):
