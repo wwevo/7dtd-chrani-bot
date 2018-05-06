@@ -191,9 +191,9 @@ def set_up_home_inner_perimeter(self):
 
         if location_object.set_warning_boundary(player_object):
             self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.boundary_radius * 2)), color=self.bot.chat_colors['success'])
+            self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['success'])
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.boundary_radius * 2)), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass

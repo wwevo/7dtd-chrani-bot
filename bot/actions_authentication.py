@@ -80,7 +80,7 @@ actions_authentication.append(("startswith", "password", password, "(self, comma
 def add_player_to_permission_group(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"add\splayer\s(.+)\sto\s(\w+)$", command)
+        p = re.search(r"add\splayer\s(.+)\sto\sgroup\s(\w+)$", command)
         if p:
             steamid_to_modify = str(p.group(1))
             group = str(p.group(2))
@@ -104,7 +104,7 @@ actions_authentication.append(("startswith", "add player", add_player_to_permiss
 def remove_player_from_permission_group(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"remove\splayer\s(.+)\sfrom\s(\w+)$", command)
+        p = re.search(r"remove\splayer\s(.+)\sfrom\sgroup\s(\w+)$", command)
         if p:
             steamid_to_modify = str(p.group(1))
             group = str(p.group(2))

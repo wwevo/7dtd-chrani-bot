@@ -276,6 +276,8 @@ def player_crossed_boundary(self):
                 None = do nothing
                 is inside
                 has entered
+                has entered core
+                has left core
                 has left
                 """
                 get_player_status = location_object.get_player_status(player_object)
@@ -290,6 +292,14 @@ def player_crossed_boundary(self):
                 if get_player_status == "has entered":
                     if location_object.messages_dict["entering_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_boundary"], color=self.bot.chat_colors['warning'])
+                    self.bot.locations.upsert(location_object, save=True)
+                if get_player_status == "has left core":
+                    if location_object.messages_dict["leaving_core"] is not None:
+                        self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
+                    self.bot.locations.upsert(location_object, save=True)
+                if get_player_status == "has entered core":
+                    if location_object.messages_dict["entering_core"] is not None:
+                        self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_core"], color=self.bot.chat_colors['warning'])
                     self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
         logger.error(e)

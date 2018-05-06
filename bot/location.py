@@ -36,7 +36,8 @@ class Location(object):
     region = list
 
     last_player_activity_dict = {}
-    list_of_players_inside = []
+    list_of_players_inside = list
+    list_of_players_inside_core = list
 
     def __init__(self, **kwargs):
         self.messages_dict = {
@@ -51,6 +52,8 @@ class Location(object):
         self.length = self.radius * 2
         self.height = self.radius * 2
         self.enabled = True
+        self.list_of_players_inside = []
+        self.list_of_players_inside_core = []
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -164,6 +167,9 @@ class Location(object):
     def set_list_of_players_inside(self, list_of_players_inside):
         self.list_of_players_inside = list_of_players_inside
 
+    def set_list_of_players_inside_core(self, list_of_players_inside_core):
+        self.list_of_players_inside_core = list_of_players_inside_core
+
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
 
@@ -197,23 +203,61 @@ class Location(object):
 
         return player_is_inside_boundary
 
+    def player_is_inside_core(self, player_object):
+        player_is_inside_core = False
+        if self.shape == "sphere":
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+            player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
+        if self.shape == "cube":
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
+                player_is_inside_core = True
+        if self.shape == "room":
+            # TODO: this has to be adjusted. it's just copied from the boundary function
+            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) / 2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
+                player_is_inside_core = True
+
+        return player_is_inside_core
+
     def get_player_status(self, player_object):
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
+        player_is_inside_core = self.player_is_inside_core(player_object)
+
         if player_is_inside_boundary is True:
             # player is inside
             if player_object.steamid in self.list_of_players_inside:
                 # and already was inside the location
-                return 'is inside'
+                player_status = 'is inside'
             else:
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
-                return 'has entered'
+                player_status = 'has entered'
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
                 # and was inside before, so he left the location
                 self.list_of_players_inside.remove(player_object.steamid)
-                return 'has left'
+                player_status = 'has left'
             else:
                 # and already was outside before
-                return None
+                player_status = None
+
+        if player_is_inside_core is True:
+            # player is inside core
+            if player_object.steamid in self.list_of_players_inside_core:
+                # and already was inside the location
+                player_status = 'is inside core'
+            else:
+                # newly entered the location
+                self.list_of_players_inside_core.append(player_object.steamid)
+                player_status = 'has entered core'
+        else:
+            # player is outside
+            if player_object.steamid in self.list_of_players_inside_core:
+                # and was inside before, so he left the location
+                self.list_of_players_inside_core.remove(player_object.steamid)
+                player_status = 'has left core'
+
+        return player_status
