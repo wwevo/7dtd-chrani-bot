@@ -24,15 +24,6 @@ class Permissions(object):
         self.available_actions_dict = {}
         self.action_permissions_dict = {}
 
-    def load_all(self):
-        filename = "{}/{}_permissions.json".format(self.root, self.prefix)
-        try:
-            with open(filename) as file_to_read:
-                self.action_permissions_dict = byteify(json.load(file_to_read))
-            self.upgrade_permissions_file()
-        except IOError:  # no permissions file available
-            self.create_permissions_file()
-
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():
@@ -47,44 +38,31 @@ class Permissions(object):
             except (KeyError, TypeError):
                 return False  # for now
 
-    def create_permissions_file(self):
+    def load_all(self):
+        filename = "{}/{}_permissions.json".format(self.root, self.prefix)
+        try:
+            with open(filename) as file_to_read:
+                self.action_permissions_dict = byteify(json.load(file_to_read))
+            self.update_permissions_file()
+        except IOError:  # no permissions file available
+            self.update_permissions_file()
+
+    def update_permissions_file(self):
         filename = '{}/{}_permissions.json'.format(self.root, self.prefix)
-        if os.path.isfile(filename):  # already exists, abort! this is just for first setup
-            raise IOError
 
         available_actions_dict = {}
         for player_action in self.player_actions_list:
             if (len(player_action) == 5): # quick hack to get some system-functions in ^^
+                # if it were '6', it would be a system action not requiring permission, they are available to all
                 try:
-                    available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): None})
-                except Exception:
-                    available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): None}
-        try:
-            self.save(available_actions_dict)
-            return filename
-        except Exception:
-            raise IOError
+                    permission_groups = self.action_permissions_dict[player_action[4]][getattr(player_action[2], 'func_name')]
+                except KeyError:
+                    permission_groups = None
 
-    def upgrade_permissions_file(self):
-        filename = '{}/{}_permissions.json'.format(self.root, self.prefix)
-        if not os.path.isfile(filename):  # does not already exists, abort!
-            raise IOError
-
-        available_actions_dict = self.action_permissions_dict
-        for player_action in self.player_actions_list:
-            if (len(player_action) == 5): # quick hack to get some system-functions in ^^
                 try:
-                    if getattr(player_action[2], 'func_name') in available_actions_dict[player_action[4]]:
-                        pass
-                    else:
-                        available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): None})
+                    available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): permission_groups})
                 except Exception:
-                    try:
-                        available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): None}
-                    except IndexError:
-                        """ you will be getting index errors if you fuck up variables, like adding an action module with, instead of +"""
-                        pass
-
+                    available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): permission_groups}
         try:
             self.save(available_actions_dict)
             return filename

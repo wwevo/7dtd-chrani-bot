@@ -201,8 +201,6 @@ def list_online_players(self):
 
 
 actions_dev.append(("isequal", "online players", list_online_players, "(self)", "testing"))
-
-
 """
 here come the observers
 """
