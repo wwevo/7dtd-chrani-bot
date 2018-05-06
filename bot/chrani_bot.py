@@ -14,6 +14,8 @@ from bot.actions_home import actions_home
 from bot.actions_lobby import actions_lobby, observers_lobby
 from bot.actions_locations import actions_locations, observers_locations
 from bot.actions_whitelist import actions_whitelist, observers_whitelist
+from bot.actions_backpack import actions_backpack
+
 from bot.command_line_args import args_dict
 from bot.locations import Locations
 from bot.permissions import Permissions
@@ -73,7 +75,7 @@ class ChraniBot:
         self.tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'], show_log_init=True)
         self.poll_tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'])
 
-        self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_lobby + actions_dev
+        self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_backpack + actions_lobby + actions_dev
         self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations
 
         self.players = Players()  # players will be loaded on a need-to-load basis

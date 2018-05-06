@@ -43,9 +43,10 @@ class Permissions(object):
         try:
             with open(filename) as file_to_read:
                 self.action_permissions_dict = byteify(json.load(file_to_read))
-            self.update_permissions_file()
         except IOError:  # no permissions file available
-            self.update_permissions_file()
+            pass
+
+        self.update_permissions_file()
 
     def update_permissions_file(self):
         filename = '{}/{}_permissions.json'.format(self.root, self.prefix)
@@ -55,13 +56,16 @@ class Permissions(object):
             if (len(player_action) == 5): # quick hack to get some system-functions in ^^
                 # if it were '6', it would be a system action not requiring permission, they are available to all
                 try:
+                    # see if this exact action already has permission groups attached
                     permission_groups = self.action_permissions_dict[player_action[4]][getattr(player_action[2], 'func_name')]
                 except KeyError:
                     permission_groups = None
 
                 try:
+                    # permission group already exists, update it
                     available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): permission_groups})
                 except Exception:
+                    # the whole permission group is new, set it up!
                     available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): permission_groups}
         try:
             self.save(available_actions_dict)

@@ -3,6 +3,7 @@ import datetime
 from time import time
 from bot.player import Player
 from bot.logger import logger
+from bot.location import Location
 
 actions_dev = []
 
@@ -201,7 +202,40 @@ def list_online_players(self):
 
 
 actions_dev.append(("isequal", "online players", list_online_players, "(self)", "testing"))
-"""
+
+
+def on_player_death(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    try:
+        location = self.bot.locations.get(player_object.steamid, 'death')
+    except KeyError:
+        location_dict = dict(
+            identifier='death',
+            name='Place of Death',
+            owner=player_object.steamid,
+            shape='point',
+            radius=None,
+            region=None
+        )
+        location_object = Location(**location_dict)
+        location_object.set_coordinates(player_object)
+        try:
+            self.bot.locations.upsert(location_object, save=True)
+        except:
+            return False
+
+        self.tn.send_message_to_player(player_object, "your place of death has been recorded ^^", color=self.bot.chat_colors['background'])
+
+    return True
+
+
+actions_dev.append(("isequal", "died", on_player_death, "(self)", "backpack", True))
+""" 
 here come the observers
 """
 observers_dev = []
