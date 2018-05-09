@@ -21,10 +21,10 @@ def set_up_home(self):
             tele_z=player_object.pos_z,
             description="{}\'s home".format(player_object.name),
             messages_dict={
-                "leaving_core": None,
+                "leaving_core": "you are leaving {}\'s private area".format(player_object.name),
                 "leaving_boundary": "you are leaving {}\'s estate".format(player_object.name),
                 "entering_boundary": "you are entering {}\'s estate".format(player_object.name),
-                "entering_core": None
+                "entering_core": "you are entering {}\'s private area".format(player_object.name)
             },
             shape='sphere',
             radius=10,
@@ -92,7 +92,7 @@ actions_home.append(("isequal", "set home teleport", set_up_home_teleport, "(sel
 def set_up_home_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set\shome\sname\s([\w\s]{1,19})$", command)
+        p = re.search(r"set\shome\sname\s([\W\w\s]{1,19})$", command)
         if p:
             description = p.group(1)
             try:
@@ -107,6 +107,13 @@ def set_up_home_name(self, command):
         return False
 
     location_object.set_description(description)
+    messages_dict = {
+        "leaving_core": "you are leaving {}\'s core".format(description),
+        "leaving_boundary": "you are leaving {}".format(description),
+        "entering_boundary": "you are entering {}".format(description),
+        "entering_core": "you are entering {}\'s core".format(description)
+    }
+    location_object.set_messages(messages_dict)
     self.bot.locations.upsert(location_object, save=True)
     self.tn.send_message_to_player(player_object, "Your home is called {} now \o/".format(location_object.description), color=self.bot.chat_colors['background'])
 
