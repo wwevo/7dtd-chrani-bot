@@ -66,14 +66,22 @@ class ChraniBot:
             settings_dict = None
         return settings_dict
 
+    def get_setting_by_name(self, setting_name):
+        try:
+            setting_value = self.settings_dict[setting_name]
+        except KeyError:
+            return None
+
+        return setting_value
+
     def __init__(self):
         self.settings_dict = self.load_bot_settings(args_dict['Database-file'])
 
-        self.bot_name = self.settings_dict['bot_name']
+        self.bot_name = self.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.bot_name))
 
-        self.tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'], show_log_init=True)
-        self.poll_tn = TelnetConnection(self, self.settings_dict['telnet_ip'], self.settings_dict['telnet_port'], self.settings_dict['telnet_password'])
+        self.tn = TelnetConnection(self, self.get_setting_by_name('telnet_ip'), self.get_setting_by_name('telnet_port'), self.get_setting_by_name('telnet_password'), show_log_init=True)
+        self.poll_tn = TelnetConnection(self, self.get_setting_by_name('telnet_ip'), self.get_setting_by_name('telnet_port'), self.get_setting_by_name('telnet_password'))
 
         self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_backpack + actions_lobby + actions_dev
         self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations
@@ -84,6 +92,9 @@ class ChraniBot:
         self.active_player_threads_dict = {}
 
         self.whitelist = Whitelist()
+        if self.get_setting_by_name('whitelist_active') is not None:
+            self.whitelist.activate()
+
         self.locations = Locations()
 
         self.passwords = {

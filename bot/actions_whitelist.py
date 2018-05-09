@@ -10,9 +10,15 @@ actions_whitelist = []
 def add_player_to_whitelist(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"add\splayer\s(?P<steamid>.+)\sto whitelist", command)
+        p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sto whitelist", command)
         if p:
             steamid_to_whitelist = p.group("steamid")
+            entityid_to_whitelist = p.group("entityid")
+            if steamid_to_whitelist is None:
+                steamid_to_whitelist = self.bot.players.entityid_to_steamid(entityid_to_whitelist)
+                if steamid_to_whitelist is False:
+                    raise KeyError
+
             try:
                 player_object_to_whitelist = self.bot.players.get(steamid_to_whitelist)
             except KeyError:
@@ -23,7 +29,7 @@ def add_player_to_whitelist(self, command):
                 self.tn.send_message_to_player(player_object_to_whitelist, "you have been whitelisted by {}".format(player_object.name), color=self.bot.chat_colors['alert'])
             else:
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist), color=self.bot.chat_colors['warning'])
-            self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(steamid_to_whitelist), color=self.bot.chat_colors['success'])
+            self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(player_object_to_whitelist.name), color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass
@@ -35,9 +41,15 @@ actions_whitelist.append(("startswith", "add player", add_player_to_whitelist, "
 def remove_player_from_whitelist(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"remove\splayer\s(?P<steamid>.+)\sfrom whitelist", command)
+        p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom whitelist", command)
         if p:
             steamid_to_dewhitelist = p.group("steamid")
+            entityid_to_dewhitelist = p.group("entityid")
+            if steamid_to_dewhitelist is None:
+                steamid_to_whitelist = self.bot.players.entityid_to_steamid(entityid_to_dewhitelist)
+                if steamid_to_whitelist is False:
+                    raise KeyError
+
             try:
                 player_object_to_dewhitelist = self.bot.players.get(steamid_to_dewhitelist)
             except KeyError:
@@ -49,7 +61,7 @@ def remove_player_from_whitelist(self, command):
             else:
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=self.bot.chat_colors['warning'])
                 return False
-            self.tn.send_message_to_player(player_object, "you have de-whitelisted {}".format(steamid_to_dewhitelist), color=self.bot.chat_colors['success'])
+            self.tn.send_message_to_player(player_object, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass
