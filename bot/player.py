@@ -44,6 +44,8 @@ class Player():
         self.is_muted = False
         self.permission_levels = []
         self.last_responsive = time()
+        self.entityid = None
+
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)

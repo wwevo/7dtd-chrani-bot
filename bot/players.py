@@ -1,6 +1,7 @@
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.logger import logger
+import re
 import json
 import os
 from bot.player import Player
@@ -26,24 +27,45 @@ class Players(object):
         self.prefix = args_dict['Database-file']
         self.players_dict = {}
 
-    # def load_all(self):
-    #     all_players_dict = {}
-    #     for root, dirs, files in os.walk(self.root):
-    #         for filename in files:
-    #             if filename.startswith(self.prefix) and filename.endswith('.json'):
-    #                 with open(self.root + filename) as file_to_read:
-    #                     player_dict = byteify(json.load(file_to_read))
-    #                     player_dict['health'] = 0
-    #                     all_players_dict[player_dict['steamid']] = Player(**player_dict)
-    #
-    #     return all_players_dict
+    def load_all(self):
+        # TODO: this need to be cached or whatever!
+        all_players_dict = {}
+        for root, dirs, files in os.walk(self.root):
+            for filename in files:
+                if filename.startswith(self.prefix) and filename.endswith('.json'):
+                    with open(self.root + filename) as file_to_read:
+                        player_dict = byteify(json.load(file_to_read))
+                        player_dict['health'] = 0
+                        all_players_dict[player_dict['steamid']] = Player(**player_dict)
 
-    def get(self, player_steamid):
+        return all_players_dict
+
+    def entityid_to_steamid(self, entityid):
+        for steamid, player_object in self.players_dict.iteritems():
+            if player_object.entityid == entityid:
+                return steamid
+
+        all_players_dict = self.load_all()
+
+        for steamid, player_object in all_players_dict.iteritems():
+            if player_object.entityid == entityid or player_object.id == entityid:
+                return steamid
+
+        return False
+
+    def get(self, steamid):
         try:
-            player = self.players_dict[player_steamid]
-            return player
+            player_object = self.players_dict[steamid]
+            return player_object
+        except KeyError:
+            pass
+
+        try:
+            player_object = self.load(steamid)
+            return player_object
         except KeyError:
             raise
+
 
     def load(self, steamid):
         try:

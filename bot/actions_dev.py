@@ -113,9 +113,15 @@ actions_dev.append(("isequal", "obliterate me", obliterate_player, "(self)", "te
 def ban_player(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"ban\splayer\s(?P<steamid>.+)\sfor\s(?P<ban_reason>.+)", command)
+        p = re.search(r"ban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<ban_reason>.+)", command)
         if p:
             steamid_to_ban = p.group("steamid")
+            entityid_to_ban = p.group("entityid")
+            if steamid_to_ban is None:
+                steamid_to_ban = self.bot.players.entityid_to_steamid(entityid_to_ban)
+                if steamid_to_ban is False:
+                    raise KeyError
+
             reason_for_ban = p.group("ban_reason")
             try:
                 player_object_to_ban = self.bot.players.get(steamid_to_ban)
@@ -125,10 +131,10 @@ def ban_player(self, command):
 
             if self.tn.ban(player_object_to_ban, reason_for_ban):
                 self.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(player_object.name), color=self.bot.chat_colors['alert'])
-                self.tn.send_message_to_player(player_object, "you have banned player {}".format(steamid_to_ban), color=self.bot.chat_colors['success'])
-                self.tn.say("{} has been banned by {} for '{}'!".format(steamid_to_ban, player_object.name, reason_for_ban), color=self.bot.chat_colors['success'])
+                self.tn.send_message_to_player(player_object, "you have banned player {}".format(player_object_to_ban.name), color=self.bot.chat_colors['success'])
+                self.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, player_object.name, reason_for_ban), color=self.bot.chat_colors['success'])
             else:
-                self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_ban), color=self.bot.chat_colors['warning'])
+                self.tn.send_message_to_player(player_object, "could not find a player with id {}".format(steamid_to_ban), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass
@@ -140,9 +146,13 @@ actions_dev.append(("startswith", "ban player", ban_player, "(self, command)", "
 def unban_player(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"unban\splayer\s(?P<steamid>.+)", command)
+        p = re.search(r"unban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
         if p:
             steamid_to_unban = p.group("steamid")
+            entityid_to_unban = p.group("entityid")
+            if steamid_to_unban is None:
+                steamid_to_unban = self.bot.players.entityid_to_steamid(entityid_to_unban)
+
             try:
                 player_object_to_unban = self.bot.players.load(steamid_to_unban)
             except KeyError:
@@ -150,8 +160,8 @@ def unban_player(self, command):
                 player_object_to_unban = Player(**player_dict)
 
             if self.tn.unban(player_object_to_unban):
-                self.tn.send_message_to_player(player_object, "you have unbanned player {}".format(steamid_to_unban), color=self.bot.chat_colors['success'])
-                self.tn.say("{} has been unbanned by {}.".format(steamid_to_unban, player_object.name), color=self.bot.chat_colors['success'])
+                self.tn.send_message_to_player(player_object, "you have unbanned player {}".format(player_object_to_unban.name), color=self.bot.chat_colors['success'])
+                self.tn.say("{} has been unbanned by {}.".format(player_object_to_unban.name, player_object.name), color=self.bot.chat_colors['success'])
             else:
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_unban), color=self.bot.chat_colors['warning'])
     except Exception as e:
@@ -165,19 +175,23 @@ actions_dev.append(("startswith", "unban player", unban_player, "(self, command)
 def kick_player(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"kick\splayer\s(?P<steamid>.+)\sfor\s(?P<kick_reason>.+)", command)
+        p = re.search(r"kick\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<kick_reason>.+)", command)
         if p:
             steamid_to_kick = p.group("steamid")
+            entityid_to_kick = p.group("entityid")
+            if steamid_to_kick is None:
+                steamid_to_kick = self.bot.players.entityid_to_steamid(entityid_to_kick)
+
             reason_for_kick = p.group("kick_reason")
             try:
                 player_object_to_kick = self.bot.players.get(steamid_to_kick)
             except KeyError:
-                self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_kick), color=self.bot.chat_colors['warning'])
+                self.tn.send_message_to_player(player_object, "could not find a player with id {}".format(steamid_to_kick), color=self.bot.chat_colors['warning'])
                 return
 
             if self.tn.kick(player_object_to_kick, reason_for_kick):
-                self.tn.send_message_to_player(player_object, "you have kicked {}".format(steamid_to_kick), color=self.bot.chat_colors['success'])
-                self.tn.say("{} has been kicked by {} for '{}'!".format(steamid_to_kick, player_object.name, reason_for_kick), color=self.bot.chat_colors['success'])
+                self.tn.send_message_to_player(player_object, "you have kicked {}".format(player_object_to_kick.name), color=self.bot.chat_colors['success'])
+                self.tn.say("{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, player_object.name, reason_for_kick), color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass
@@ -194,7 +208,7 @@ def list_online_players(self):
             players_to_list.append(player_object)
 
         for player_object in players_to_list:
-            self.tn.say("{} - {} / last responsive: {}, authenticated: {}".format(player_object.steamid, player_object.name, str(datetime.datetime.fromtimestamp(player_object.last_responsive)), str(player_object.authenticated)), color=self.bot.chat_colors['success'])
+            self.tn.say("{} ([ffffff]{}[-]) / authenticated: {}".format(player_object.name, player_object.entityid, str(player_object.authenticated)), color=self.bot.chat_colors['success'])
 
     except Exception as e:
         logger.error(e)
