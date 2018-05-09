@@ -24,6 +24,7 @@ class Player():
     score = int
     level = int
     steamid = str
+    entityid = str
     ip = str
     ping = int
     region = str

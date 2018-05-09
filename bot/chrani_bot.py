@@ -83,6 +83,7 @@ class ChraniBot:
         self.listplayers_interval_idle = self.listplayers_interval * 10
         self.active_player_threads_dict = {}
 
+        self.whitelist = Whitelist()
         self.locations = Locations()
 
         self.passwords = {
@@ -92,7 +93,6 @@ class ChraniBot:
             "admin": 'ecvrules'
         }
 
-        self.whitelist = Whitelist()
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
         self.permissions = Permissions(self.player_actions, self.permission_levels_list)
 
@@ -155,7 +155,7 @@ class ChraniBot:
         online_players_dict = {}
         for m in re.finditer(self.match_types_system["listplayers_result_regexp"], self.poll_tn.listplayers()):
             online_players_dict.update({m.group(16): {
-                "id":       m.group(1),
+                "entityid": m.group(1),
                 "name":     str(m.group(2)),
                 "pos_x":    float(m.group(3)),
                 "pos_y":    float(m.group(4)),
@@ -333,6 +333,7 @@ class ChraniBot:
                         player_object = self.players.load(m.group("player_id"))
                     except KeyError:
                         player_dict = {
+                            'entityid': m.group("entity_id"),
                             'steamid': m.group("player_id"),
                             'name': m.group("player_name"),
                             'ip': m.group("player_ip")
