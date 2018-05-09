@@ -80,10 +80,20 @@ actions_authentication.append(("startswith", "password", password, "(self, comma
 def add_player_to_permission_group(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"add\splayer\s(.+)\sto\sgroup\s(\w+)$", command)
+        p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sto\sgroup\s(?P<group_name>\w+)$", command)
         if p:
-            steamid_to_modify = str(p.group(1))
-            group = str(p.group(2))
+            steamid_to_modify = p.group("steamid")
+            entityid_to_modify = p.group("entityid")
+            if steamid_to_modify is None:
+                steamid_to_modify = self.bot.players.entityid_to_steamid(entityid_to_modify)
+                if steamid_to_modify is False:
+                    raise KeyError
+
+            group = str(p.group("group_name"))
+            if group not in self.bot.permission_levels_list:
+                self.tn.send_message_to_player(player_object, "the group {} does not exist!".format(group), color=self.bot.chat_colors['success'])
+                return False
+
             try:
                 player_object_to_modify = self.bot.players.get(steamid_to_modify)
                 player_object_to_modify.add_permission_level(group)
@@ -104,10 +114,20 @@ actions_authentication.append(("startswith", "add player", add_player_to_permiss
 def remove_player_from_permission_group(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"remove\splayer\s(.+)\sfrom\sgroup\s(\w+)$", command)
+        p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom\sgroup\s(?P<group_name>\w+)$", command)
         if p:
-            steamid_to_modify = str(p.group(1))
-            group = str(p.group(2))
+            steamid_to_modify = p.group("steamid")
+            entityid_to_modify = p.group("entityid")
+            if steamid_to_modify is None:
+                steamid_to_modify = self.bot.players.entityid_to_steamid(entityid_to_modify)
+                if steamid_to_modify is False:
+                    raise KeyError
+
+            group = str(p.group("group_name"))
+            if group not in self.bot.permission_levels_list:
+                self.tn.send_message_to_player(player_object, "the group {} does not exist!".format(group), color=self.bot.chat_colors['success'])
+                return False
+
             try:
                 player_object_to_modify = self.bot.players.get(steamid_to_modify)
                 player_object_to_modify.remove_permission_level(group)
