@@ -8,7 +8,7 @@ actions_locations = []
 def set_up_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set\slocation\s([\w\s]{1,19})$", command)
+        p = re.search(r"set\slocation\s([\W\w\s]{1,19})$", command)
         if p:
             name = p.group(1)
             location_object = Location()
@@ -65,10 +65,10 @@ actions_locations.append(("startswith", "set location teleport", set_up_location
 def set_up_location_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set\slocation\sname\s([\w\s]{1,19})\s=\s([\w\s]{1,19})$", command)
+        p = re.search(r"set\slocation\sname\s(?P<identifier>[\W\w\s]{1,19})\s=\s(?P<name>[\W\w\s]{1,19})$", command)
         if p:
-            identifier = p.group(1)
-            name = p.group(2)
+            identifier = p.group("identifier")
+            name = p.group("name")
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
                 location_object.set_name(name)
@@ -79,7 +79,7 @@ def set_up_location_name(self, command):
                 messages_dict["leaving_boundary"] = "leaving {} ".format(name)
                 location_object.set_messages(messages_dict)
                 self.bot.locations.upsert(location_object, save=True)
-                self.tn.say("{} called a location {}".format(player_object.name, name), color=self.bot.chat_colors['background'])
+                self.tn.send_message_to_player(player_object, "You called your location {}".format(name), color=self.bot.chat_colors['background'])
             except KeyError:
                 self.tn.send_message_to_player(player_object, "You can not name that which you do not have!!", color=self.bot.chat_colors['warning'])
     except Exception as e:
