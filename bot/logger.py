@@ -19,6 +19,7 @@ class Logger:
 
     def __init__(self):
         self.root = 'data/logs'
+        self.prefix = args_dict['Database-file']
         self.extension = "log"
 
     def add_logging_level(static, level_name, level_num, method_name=None):
@@ -68,7 +69,7 @@ class Logger:
         logger_object.addHandler(console_logger)
 
         log_level = "INFO"
-        filename_info = "{}/{}.{}".format(self.root, log_level.lower(), self.extension)
+        filename_info = "{}/{}_{}.{}".format(self.root, self.prefix, log_level.lower(), self.extension)
         file_logger_info = logging.handlers.TimedRotatingFileHandler(filename_info, when='midnight', interval=1, backupCount=28)
         file_logger_info.setLevel(logging.DEBUG)
         file_logger_info.addFilter(ExclusiveLevel(logging.INFO))  # makes this display only INFO-level messages
@@ -76,14 +77,14 @@ class Logger:
         logger_object.addHandler(file_logger_info)
 
         log_level = "DEBUG"
-        filename_debug = "{}/{}.{}".format(self.root, log_level.lower(), self.extension)
+        filename_debug = "{}/{}_{}.{}".format(self.root, self.prefix, log_level.lower(), self.extension)
         file_logger_debug = logging.handlers.TimedRotatingFileHandler(filename_debug, when='midnight', interval=1, backupCount=28)
         file_logger_debug.setLevel(logging.DEBUG)
         file_logger_debug.setFormatter(formatter)
         logger_object.addHandler(file_logger_debug)
 
         log_level = "ERROR"
-        filename_info = "{}/{}.{}".format(self.root, log_level.lower(), self.extension)
+        filename_info = "{}/{}_{}.{}".format(self.root, self.prefix, log_level.lower(), self.extension)
         file_logger_info = logging.handlers.TimedRotatingFileHandler(filename_info, when='midnight', interval=1, backupCount=28)
         file_logger_info.setLevel(logging.ERROR)
         file_logger_info.addFilter(ExclusiveLevel(logging.ERROR))  # makes this display only INFO-level messages
