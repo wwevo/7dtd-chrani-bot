@@ -40,7 +40,7 @@ def set_up_home(self):
         pass
 
 
-actions_home.append(("isequal", "set home", set_up_home, "(self)", "home"))
+actions_home.append(("isequal", "add home", set_up_home, "(self)", "home"))
 
 
 def remove_home(self):
@@ -86,13 +86,13 @@ def set_up_home_teleport(self):
         pass
 
 
-actions_home.append(("isequal", "set home teleport", set_up_home_teleport, "(self)", "home"))
+actions_home.append(("isequal", "edit home teleport", set_up_home_teleport, "(self)", "home"))
 
 
 def set_up_home_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"set\shome\sname\s([\W\w\s]{1,19})$", command)
+        p = re.search(r"edit\shome\sname\s([\W\w\s]{1,19})$", command)
         if p:
             description = p.group(1)
             try:
@@ -119,7 +119,7 @@ def set_up_home_name(self, command):
 
     return True
 
-actions_home.append(("startswith", "set home name", set_up_home_name, "(self, command)", "home"))
+actions_home.append(("startswith", "edit home name", set_up_home_name, "(self, command)", "home"))
 
 
 def take_me_home(self):
@@ -145,9 +145,14 @@ actions_home.append(("isequal", "take me home", take_me_home, "(self)", "home"))
 def goto_player_home(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"goto\splayer\shome\s(.+)", command)
+        p = re.search(r"take\sme\sto\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\shome", command)
         if p:
-            player_steamid = p.group(1)
+            player_steamid = p.group("steamid")
+            player_entityid = p.group("entityid")
+            if player_steamid is None:
+                player_steamid = self.bot.players.entityid_to_steamid(player_entityid)
+                if player_steamid is False:
+                    raise KeyError
             try:
                 player_object_to_port_to = self.bot.players.load(player_steamid)
                 location_object = self.bot.locations.get(player_object_to_port_to.steamid, "home")
@@ -162,7 +167,7 @@ def goto_player_home(self, command):
         pass
 
 
-actions_home.append(("startswith", "goto player home", goto_player_home, "(self, command)", "home"))
+actions_home.append(("startswith", "take me to player", goto_player_home, "(self, command)", "home"))
 
 
 def set_up_home_outer_perimeter(self):
@@ -184,7 +189,7 @@ def set_up_home_outer_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "set home outer perimeter", set_up_home_outer_perimeter, "(self)", "home"))
+actions_home.append(("isequal", "edit home outer perimeter", set_up_home_outer_perimeter, "(self)", "home"))
 
 
 def set_up_home_inner_perimeter(self):
@@ -206,36 +211,9 @@ def set_up_home_inner_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "set home inner perimeter", set_up_home_inner_perimeter, "(self)", "home"))
-
-
-# def make_my_home_a_shape(self, command):
-#     try:
-#         player_object = self.bot.players.get(self.player_steamid)
-#         p = re.search(r"make\smy\shome\sa\s(.+)", command)
-#         if p:
-#             shape = p.group(1)
-#             try:
-#                 location_object = self.bot.locations.get(player_object.steamid, "home")
-#                 if location_object.set_shape(shape):
-#                     self.bot.locations.upsert(location_object, save=True)
-#                     self.tn.send_message_to_player(player_object, "{}'s home is a {} now.".format(player_object.name, shape), color=self.bot.chat_colors['success'])
-#                     return True
-#                 else:
-#                     self.tn.send_message_to_player(player_object, "{} is not an allowed shape at this time!".format(shape), color=self.bot.chat_colors['warning'])
-#                     return False
-#
-#             except KeyError:
-#                 self.tn.send_message_to_player(player_object, "{} can not change that which you do not own!!".format(player_object.name), color=self.bot.chat_colors['warning'])
-#     except Exception as e:
-#         logger.error(e)
-#         pass
-#
-#
-# actions_home.append(("startswith", "make my home a", make_my_home_a_shape, "(self, command)", "home"))
-
+actions_home.append(("isequal", "edit home inner perimeter", set_up_home_inner_perimeter, "(self)", "home"))
 
 """
 here come the observers
 """
-# no observers, they are all generic and found in actions_locations
+# no observers as of now
