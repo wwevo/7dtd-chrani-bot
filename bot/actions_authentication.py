@@ -35,6 +35,9 @@ def password(self, command):
 
     example:
     /password openup
+
+    notes:
+    the password must exist in the password dictionary
     """
     try:
         player_object = self.bot.players.get(self.player_steamid)
@@ -98,6 +101,9 @@ def add_player_to_permission_group(self, command):
 
     example:
     /add player 76561198040658370 to group admin
+
+    notes:
+    the group must exist
     """
     try:
         player_object = self.bot.players.get(self.player_steamid)
@@ -145,6 +151,9 @@ def remove_player_from_permission_group(self, command):
 
     example:
     /remove player 76561198040658370 from group admin
+
+    notes:
+    the group must exist
     """
     try:
         player_object = self.bot.players.get(self.player_steamid)

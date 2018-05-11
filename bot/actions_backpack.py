@@ -4,6 +4,22 @@ actions_backpack = []
 
 
 def take_me_to_my_backpack(self):
+    """Teleports a player to their place of death
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /take me to my pack
+
+    example:
+    /take me to my pack
+
+    notes:
+    a place of death must exist
+    will not port if already near the pack
+    the place of death will be removed after a successful teleport
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
