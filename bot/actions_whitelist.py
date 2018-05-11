@@ -46,8 +46,8 @@ def remove_player_from_whitelist(self, command):
             steamid_to_dewhitelist = p.group("steamid")
             entityid_to_dewhitelist = p.group("entityid")
             if steamid_to_dewhitelist is None:
-                steamid_to_whitelist = self.bot.players.entityid_to_steamid(entityid_to_dewhitelist)
-                if steamid_to_whitelist is False:
+                steamid_to_dewhitelist = self.bot.players.entityid_to_steamid(entityid_to_dewhitelist)
+                if steamid_to_dewhitelist is False:
                     raise KeyError
 
             try:

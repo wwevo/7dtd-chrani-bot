@@ -9,22 +9,25 @@ class Whitelist(object):
 
     root = str
     prefix = str
+    extension = str
 
     whitelisted_players_dict = dict
 
     whitelist_active = bool
 
     def __init__(self):
-        self.root = 'data/whitelist/'
+        self.root = 'data/whitelist'
         self.prefix = args_dict['Database-file']
+        self.extension = "json"
+
         self.whitelisted_players_dict = {}
         self.whitelist_active = False
 
     def load_all(self):
         for root, dirs, files in os.walk(self.root):
             for filename in files:
-                if filename.startswith(self.prefix) and filename.endswith('.json'):
-                    with open(self.root + filename) as file_to_read:
+                if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
+                    with open("{}/{}".format(self.root, filename)) as file_to_read:
                         whitelisted_player = byteify(json.load(file_to_read))
                         self.whitelisted_players_dict[whitelisted_player['steamid']] = whitelisted_player
 
@@ -51,7 +54,7 @@ class Whitelist(object):
 
     def remove(self, player_object_to_dewhitelist):
         try:
-            filename = self.root + self.prefix + '_' + player_object_to_dewhitelist.steamid + '.json'
+            filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object_to_dewhitelist.steamid, self.extension)
             if os.path.exists(filename):
                 try:
                     os.remove(filename)
@@ -77,5 +80,5 @@ class Whitelist(object):
 
     def save(self, player_object):
         dict_to_save = vars(player_object)
-        with open(self.root + self.prefix + '_' + dict_to_save['steamid'] + '.json', 'w+') as file_to_write:
+        with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
             json.dump(dict_to_save, file_to_write, indent=4)

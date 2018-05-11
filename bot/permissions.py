@@ -9,6 +9,7 @@ class Permissions(object):
 
     root = str
     prefix = str
+    extension = str
 
     player_actions_list = list
     permission_levels_list = list
@@ -19,6 +20,8 @@ class Permissions(object):
     def __init__(self, player_actions_list, permission_levels_list):
         self.root = 'data/permissions'
         self.prefix = args_dict['Database-file']
+        self.extension = "json"
+
         self.permission_levels_list = permission_levels_list
         self.player_actions_list = player_actions_list
         self.available_actions_dict = {}
@@ -39,7 +42,7 @@ class Permissions(object):
                 return False  # for now
 
     def load_all(self):
-        filename = "{}/{}_permissions.json".format(self.root, self.prefix)
+        filename = "{}/{}_permissions.{}".format(self.root, self.prefix, self.extension)
         try:
             with open(filename) as file_to_read:
                 self.action_permissions_dict = byteify(json.load(file_to_read))
@@ -49,7 +52,7 @@ class Permissions(object):
         self.update_permissions_file()
 
     def update_permissions_file(self):
-        filename = '{}/{}_permissions.json'.format(self.root, self.prefix)
+        filename = '{}/{}_permissions.{}'.format(self.root, self.prefix, self.extension)
 
         available_actions_dict = {}
         for player_action in self.player_actions_list:
@@ -75,6 +78,6 @@ class Permissions(object):
 
     def save(self, available_actions_dict):
         dict_to_save = available_actions_dict
-        filename = '{}/{}_permissions.json'.format(self.root, self.prefix)
+        filename = '{}/{}_permissions.{}'.format(self.root, self.prefix, self.extension)
         with open(filename, 'w+') as file_to_write:
             json.dump(dict_to_save, file_to_write, indent=4)
