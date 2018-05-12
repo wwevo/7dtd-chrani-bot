@@ -38,7 +38,7 @@ def set_up_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", "add location", set_up_location, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["add location", "/add location <location name>"], set_up_location, "(self, command)", "locations"))
 
 
 def set_up_location_teleport(self, command):
@@ -63,7 +63,7 @@ def set_up_location_teleport(self, command):
         pass
 
 
-actions_locations.append(("startswith", "edit location teleport", set_up_location_teleport, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["edit location teleport", "/edit location teleport"], set_up_location_teleport, "(self, command)", "locations"))
 
 
 def set_up_location_name(self, command):
@@ -91,7 +91,7 @@ def set_up_location_name(self, command):
         pass
 
 
-actions_locations.append(("startswith", "edit location name", set_up_location_name, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["edit location name", "/edit location name <identifier> = <location name>"], set_up_location_name, "(self, command)", "locations"))
 
 
 def set_up_location_outer_perimeter(self, command):
@@ -117,7 +117,7 @@ def set_up_location_outer_perimeter(self, command):
         pass
 
 
-actions_locations.append(("startswith", "edit location outer perimeter", set_up_location_outer_perimeter, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["edit location outer perimeter", "/edit location outer perimeter <identifier>"], set_up_location_outer_perimeter, "(self, command)", "locations"))
 
 
 def set_up_location_inner_perimeter(self, command):
@@ -143,7 +143,7 @@ def set_up_location_inner_perimeter(self, command):
         pass
 
 
-actions_locations.append(("startswith", "edit location inner perimeter", set_up_location_inner_perimeter, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["edit location inner perimeter", "/edit location inner perimeter <identifier>"], set_up_location_inner_perimeter, "(self, command)", "locations"))
 
 
 def list_locations(self):
@@ -161,7 +161,7 @@ def list_locations(self):
         pass
 
 
-actions_locations.append(("isequal", "my locations", list_locations, "(self)", "locations"))
+actions_locations.append(("isequal", ["my locations", "/my locations"], list_locations, "(self)", "locations"))
 
 
 def goto_location(self, command):
@@ -181,7 +181,7 @@ def goto_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", "goto location", goto_location, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["goto location", "/goto location <identifier>"], goto_location, "(self, command)", "locations"))
 
 
 def remove_location(self, command):
@@ -205,7 +205,7 @@ def remove_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", "remove location", remove_location, "(self, command)", "locations"))
+actions_locations.append(("startswith", ["remove location", "/remove location <identifier>"], remove_location, "(self, command)", "locations"))
 """
 here come the observers
 """

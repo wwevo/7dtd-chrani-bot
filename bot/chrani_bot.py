@@ -145,7 +145,7 @@ class ChraniBot:
             #'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
             # player is 'valid' from here on
             #'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
-            'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entitiy_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
+            'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']

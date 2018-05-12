@@ -21,7 +21,7 @@ def on_player_join(self):
     return True
 
 
-actions_lobby.append(("isequal", "joined the game", on_player_join, "(self)", "lobby", True))
+actions_lobby.append(("isequal", ["joined the game", "joined the game"], on_player_join, "(self)", "lobby", True))
 
 
 def password(self, command):
@@ -53,7 +53,7 @@ def password(self, command):
         pass
 
 
-actions_lobby.append(("startswith", "password", password, "(self, command)", "lobby", True))
+actions_lobby.append(("startswith", ["password", "/password <password>"], password, "(self, command)", "lobby", True))
 
 
 def set_up_lobby(self):
@@ -83,7 +83,7 @@ def set_up_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", "add lobby", set_up_lobby, "(self)", "lobby"))
+actions_lobby.append(("isequal", ["add lobby", "/add lobby"], set_up_lobby, "(self)", "lobby"))
 
 
 def set_up_lobby_outer_perimeter(self):
@@ -105,7 +105,7 @@ def set_up_lobby_outer_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", "edit lobby outer perimeter", set_up_lobby_outer_perimeter, "(self)", "lobby"))
+actions_lobby.append(("isequal", ["edit lobby outer perimeter", "/edit lobby outer perimeter"], set_up_lobby_outer_perimeter, "(self)", "lobby"))
 
 
 def set_up_lobby_inner_perimeter(self):
@@ -127,7 +127,7 @@ def set_up_lobby_inner_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", "edit lobby inner perimeter", set_up_lobby_inner_perimeter, "(self)", "lobby"))
+actions_lobby.append(("isequal", ["edit lobby inner perimeter", "/edit lobby inner perimeter"], set_up_lobby_inner_perimeter, "(self)", "lobby"))
 
 
 def goto_lobby(self):
@@ -144,7 +144,7 @@ def goto_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", "goto lobby", goto_lobby, "(self)", "lobby"))
+actions_lobby.append(("isequal", ["goto lobby", "/goto lobby"], goto_lobby, "(self)", "lobby"))
 
 
 def remove_lobby(self):
@@ -160,7 +160,7 @@ def remove_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", "remove lobby", remove_lobby, "(self)", "lobby"))
+actions_lobby.append(("isequal", ["remove lobby", "/remove lobby"], remove_lobby, "(self)", "lobby"))
 
 
 def set_up_lobby_teleport(self, command):
@@ -184,7 +184,7 @@ def set_up_lobby_teleport(self, command):
         pass
 
 
-actions_lobby.append(("isequal", "edit lobby teleport", set_up_lobby_teleport, "(self, command)", "lobby"))
+actions_lobby.append(("isequal", ["edit lobby teleport", "/edit lobby teleport"], set_up_lobby_teleport, "(self, command)", "lobby"))
 
 
 """

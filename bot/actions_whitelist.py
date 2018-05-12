@@ -35,7 +35,7 @@ def add_player_to_whitelist(self, command):
         pass
 
 
-actions_whitelist.append(("startswith", "add player", add_player_to_whitelist, "(self, command)", "whitelist"))
+actions_whitelist.append(("startswith", ["add player", "/add player <steamid/entityid> to whitelist"], add_player_to_whitelist, "(self, command)", "whitelist"))
 
 
 def remove_player_from_whitelist(self, command):
@@ -67,7 +67,7 @@ def remove_player_from_whitelist(self, command):
         pass
 
 
-actions_whitelist.append(("startswith", "remove player", remove_player_from_whitelist, "(self, command)", "whitelist"))
+actions_whitelist.append(("startswith", ["remove player", "/remove player <steamid/entityid> from whitelist"], remove_player_from_whitelist, "(self, command)", "whitelist"))
 
 
 def activate_whitelist(self):
@@ -79,7 +79,7 @@ def activate_whitelist(self):
         pass
 
 
-actions_whitelist.append(("isequal", "activate whitelist", activate_whitelist, "(self)", "whitelist"))
+actions_whitelist.append(("isequal", ["activate whitelist", "/activate whitelist"], activate_whitelist, "(self)", "whitelist"))
 
 
 def deactivate_whitelist(self):
@@ -91,7 +91,7 @@ def deactivate_whitelist(self):
         pass
 
 
-actions_whitelist.append(("isequal", "deactivate whitelist", deactivate_whitelist, "(self)", "whitelist"))
+actions_whitelist.append(("isequal", ["deactivate whitelist", "/deactivate whitelist"], deactivate_whitelist, "(self)", "whitelist"))
 
 
 """

@@ -39,6 +39,6 @@ def take_me_to_my_backpack(self):
         pass
 
 
-actions_backpack.append(("isequal", "take me to my pack", take_me_to_my_backpack, "(self)", "backpack"))
+actions_backpack.append(("isequal", ["take me to my pack", "/take me to my pack"], take_me_to_my_backpack, "(self)", "backpack"))
 
 

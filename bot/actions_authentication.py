@@ -20,7 +20,7 @@ def on_player_join(self):
     return True
 
 
-actions_authentication.append(("isequal", "joined the game", on_player_join, "(self)", "authentication", True))
+actions_authentication.append(("isequal", ["joined the game", None], on_player_join, "(self)", "authentication", True))
 
 
 def password(self, command):
@@ -86,7 +86,7 @@ def password(self, command):
     return True
 
 
-actions_authentication.append(("startswith", "password", password, "(self, command)", "authentication", True))
+actions_authentication.append(("startswith", ["password", "/password <password>"], password, "(self, command)", "authentication", True))
 
 
 def add_player_to_permission_group(self, command):
@@ -136,7 +136,7 @@ def add_player_to_permission_group(self, command):
         self.bot.players.upsert(player_object_to_modify, save=True)
 
 
-actions_authentication.append(("startswith", "add player", add_player_to_permission_group, "(self, command)", "authentication"))
+actions_authentication.append(("startswith", ["add player", "/add player <steamid/entityid> to group <group name>"], add_player_to_permission_group, "(self, command)", "authentication"))
 
 
 def remove_player_from_permission_group(self, command):
@@ -186,4 +186,4 @@ def remove_player_from_permission_group(self, command):
         self.bot.players.upsert(player_object_to_modify, save=True)
 
 
-actions_authentication.append(("startswith", "remove player", remove_player_from_permission_group, "(self, command)", "authentication"))
+actions_authentication.append(("startswith", ["remove player", "/remove player <steamid/entityid> from group <group name>"], remove_player_from_permission_group, "(self, command)", "authentication"))

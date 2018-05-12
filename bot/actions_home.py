@@ -40,7 +40,7 @@ def set_up_home(self):
         pass
 
 
-actions_home.append(("isequal", "add home", set_up_home, "(self)", "home"))
+actions_home.append(("isequal", ["add home", "/add home"], set_up_home, "(self)", "home"))
 
 
 def remove_home(self):
@@ -62,7 +62,7 @@ def remove_home(self):
     return True
 
 
-actions_home.append(("isequal", "remove home", remove_home, "(self)", "home"))
+actions_home.append(("isequal", ["remove home", "/remove home"], remove_home, "(self)", "home"))
 
 
 def set_up_home_teleport(self):
@@ -86,7 +86,7 @@ def set_up_home_teleport(self):
         pass
 
 
-actions_home.append(("isequal", "edit home teleport", set_up_home_teleport, "(self)", "home"))
+actions_home.append(("isequal", ["edit home teleport", "/edit home teleport"], set_up_home_teleport, "(self)", "home"))
 
 
 def set_up_home_name(self, command):
@@ -119,7 +119,7 @@ def set_up_home_name(self, command):
 
     return True
 
-actions_home.append(("startswith", "edit home name", set_up_home_name, "(self, command)", "home"))
+actions_home.append(("startswith", ["edit home name", "/edit home name <name>"], set_up_home_name, "(self, command)", "home"))
 
 
 def take_me_home(self):
@@ -139,7 +139,7 @@ def take_me_home(self):
         pass
 
 
-actions_home.append(("isequal", "take me home", take_me_home, "(self)", "home"))
+actions_home.append(("isequal", ["take me home", "/take me home"], take_me_home, "(self)", "home"))
 
 
 def goto_player_home(self, command):
@@ -167,7 +167,7 @@ def goto_player_home(self, command):
         pass
 
 
-actions_home.append(("startswith", "take me to player", goto_player_home, "(self, command)", "home"))
+actions_home.append(("startswith", ["take me to player", "/take me to player <steamid/entityid> home"], goto_player_home, "(self, command)", "home"))
 
 
 def set_up_home_outer_perimeter(self):
@@ -189,7 +189,7 @@ def set_up_home_outer_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "edit home outer perimeter", set_up_home_outer_perimeter, "(self)", "home"))
+actions_home.append(("isequal", ["edit home outer perimeter", "/edit home outer perimeter"], set_up_home_outer_perimeter, "(self)", "home"))
 
 
 def set_up_home_inner_perimeter(self):
@@ -211,7 +211,7 @@ def set_up_home_inner_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", "edit home inner perimeter", set_up_home_inner_perimeter, "(self)", "home"))
+actions_home.append(("isequal", ["edit home inner perimeter", "/edit home inner perimeter"], set_up_home_inner_perimeter, "(self)", "home"))
 
 """
 here come the observers

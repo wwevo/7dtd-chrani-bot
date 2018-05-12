@@ -1,5 +1,4 @@
 import re
-import datetime
 from time import time
 from bot.player import Player
 from bot.logger import logger
@@ -9,6 +8,20 @@ actions_dev = []
 
 
 def fix_players_legs(self):
+    """Fixes the legs of the player isuing this action
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /fix my legs please
+
+    example:
+    /fix my legs please
+
+    notes:
+    does not check if the player is injured at all
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         self.tn.debuffplayer(player_object, "brokenLeg")
@@ -19,7 +32,7 @@ def fix_players_legs(self):
         pass
 
 
-actions_dev.append(("isequal", "fix my legs please", fix_players_legs, "(self)", "testing"))
+actions_dev.append(("isequal", ["fix my legs please", "/fix my legs please"], fix_players_legs, "(self)", "testing"))
 
 
 def stop_the_bleeding(self):
@@ -32,7 +45,7 @@ def stop_the_bleeding(self):
         pass
 
 
-actions_dev.append(("isequal", "make me stop leaking", stop_the_bleeding, "(self)", "testing"))
+actions_dev.append(("isequal", ["make me stop leaking", "/make me stop leaking"], stop_the_bleeding, "(self)", "testing"))
 
 
 def apply_first_aid(self):
@@ -45,7 +58,7 @@ def apply_first_aid(self):
         pass
 
 
-actions_dev.append(("isequal", "heal me up scotty", apply_first_aid, "(self)", "testing"))
+actions_dev.append(("isequal", ["heal me up scotty", "/heal me up scotty"], apply_first_aid, "(self)", "testing"))
 
 
 def reload_from_db(self):
@@ -58,7 +71,7 @@ def reload_from_db(self):
         pass
 
 
-actions_dev.append(("isequal", "reinitialize", reload_from_db, "(self)", "testing"))
+actions_dev.append(("isequal", ["reinitialize", "/reinitialize"], reload_from_db, "(self)", "testing"))
 
 
 def shutdown_bot(self):
@@ -71,7 +84,7 @@ def shutdown_bot(self):
         pass
 
 
-actions_dev.append(("isequal", "shut down the matrix", shutdown_bot, "(self)", "testing"))
+actions_dev.append(("isequal", ["shut down the matrix", "/shut down the matrix"], shutdown_bot, "(self)", "testing"))
 
 
 def obliterate_player(self):
@@ -94,10 +107,26 @@ def obliterate_player(self):
         pass
 
 
-actions_dev.append(("isequal", "obliterate me", obliterate_player, "(self)", "testing"))
+actions_dev.append(("isequal", ["obliterate me", "/obliterate me"], obliterate_player, "(self)", "testing"))
 
 
 def ban_player(self, command):
+    """Bans a player
+
+    Keyword arguments:
+    self -- the bot
+    command -- the entire chatline (bot command)
+
+    expected bot command:
+    /ban player <steamid/entityid> for <ban_reason>
+
+    example:
+    /ban player 76561198040658370 for Being an asshat
+
+    notes:
+    both the ban-er and the ban-ee will be mentioned in the ban-message
+    there is no timeframe, bans are permanent for now
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"ban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<ban_reason>.+)", command)
@@ -116,7 +145,7 @@ def ban_player(self, command):
                 player_dict = {'steamid': steamid_to_ban, "name": 'unknown offline player'}
                 player_object_to_ban = Player(**player_dict)
 
-            if self.tn.ban(player_object_to_ban, reason_for_ban):
+            if self.tn.ban(player_object_to_ban, "{} banned {} for {}".format(player_object.name, player_object_to_ban.name, reason_for_ban)):
                 self.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(player_object.name), color=self.bot.chat_colors['alert'])
                 self.tn.send_message_to_player(player_object, "you have banned player {}".format(player_object_to_ban.name), color=self.bot.chat_colors['success'])
                 self.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, player_object.name, reason_for_ban), color=self.bot.chat_colors['success'])
@@ -127,10 +156,22 @@ def ban_player(self, command):
         pass
 
 
-actions_dev.append(("startswith", "ban player", ban_player, "(self, command)", "testing"))
+actions_dev.append(("startswith", ["ban player", "/ban player <steamid/entityid> for <reason>"], ban_player, "(self, command)", "testing"))
 
 
 def unban_player(self, command):
+    """Unbans a player
+
+    Keyword arguments:
+    self -- the bot
+    command -- the entire chatline (bot command)
+
+    expected bot command:
+    /unban player <steamid/entityid>
+
+    example:
+    /unban player 76561198040658370
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"unban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
@@ -140,23 +181,20 @@ def unban_player(self, command):
             if steamid_to_unban is None:
                 steamid_to_unban = self.bot.players.entityid_to_steamid(entityid_to_unban)
 
-            try:
-                player_object_to_unban = self.bot.players.load(steamid_to_unban)
-            except KeyError:
-                player_dict = {'steamid': steamid_to_unban, "name": 'unknown offline player'}
-                player_object_to_unban = Player(**player_dict)
+            player_object_to_unban = self.bot.players.load(steamid_to_unban)
 
             if self.tn.unban(player_object_to_unban):
                 self.tn.send_message_to_player(player_object, "you have unbanned player {}".format(player_object_to_unban.name), color=self.bot.chat_colors['success'])
                 self.tn.say("{} has been unbanned by {}.".format(player_object_to_unban.name, player_object.name), color=self.bot.chat_colors['success'])
-            else:
-                self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_unban), color=self.bot.chat_colors['warning'])
+                return True
+
+            self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_unban), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass
 
 
-actions_dev.append(("startswith", "unban player", unban_player, "(self, command)", "testing"))
+actions_dev.append(("startswith", ["unban player", "/unban player <steamid/entityid>"], unban_player, "(self, command)", "testing"))
 
 
 def kick_player(self, command):
@@ -184,7 +222,7 @@ def kick_player(self, command):
         pass
 
 
-actions_dev.append(("startswith", "kick player", kick_player, "(self, command)", "testing"))
+actions_dev.append(("startswith", ["kick player", "/kick player <steamid/entityid> for <reason>"], kick_player, "(self, command)", "testing"))
 
 
 def list_online_players(self):
@@ -202,7 +240,34 @@ def list_online_players(self):
         pass
 
 
-actions_dev.append(("isequal", "online players", list_online_players, "(self)", "testing"))
+actions_dev.append(("isequal", ["online players", "/online players"], list_online_players, "(self)", "testing"))
+
+
+def list_available_player_actions(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    available_player_actions = []
+    if self.bot.player_actions is not None:
+        for player_action in self.bot.player_actions:
+            function_category = player_action[4]
+            function_name = getattr(player_action[2], 'func_name')
+            action_string = player_action[1][1]
+            has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
+            if isinstance(has_permission, bool) and has_permission is True:
+                available_player_actions.append(action_string)
+
+        self.tn.send_message_to_player(player_object, "The following actions are available to you:", color=self.bot.chat_colors['success'])
+        for player_action in available_player_actions:
+            self.tn.send_message_to_player(player_object, "{}".format(player_action), color=self.bot.chat_colors['warning'])
+
+    return False
+
+
+actions_dev.append(("isequal", ["list actions", "/list actions"], list_available_player_actions, "(self)", "testing"))
 
 
 def on_player_death(self):
@@ -235,7 +300,7 @@ def on_player_death(self):
     return True
 
 
-actions_dev.append(("isequal", "died", on_player_death, "(self)", "backpack", True))
+actions_dev.append(("isequal", ["died", "died"], on_player_death, "(self)", "backpack", True))
 """ 
 here come the observers
 """

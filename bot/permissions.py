@@ -39,7 +39,7 @@ class Permissions(object):
                 else:
                     return allowed_player_groups
             except (KeyError, TypeError):
-                return False  # for now
+                return None  # as in no permission required
 
     def load_all(self):
         filename = "{}/{}_permissions.{}".format(self.root, self.prefix, self.extension)

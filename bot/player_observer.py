@@ -72,7 +72,7 @@ class PlayerObserver(Thread):
             for player_action in self.bot.player_actions:
                 function_category = player_action[4]
                 function_name = getattr(player_action[2], 'func_name')
-                if (player_action[0] == "isequal" and player_action[1] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1])):
+                if (player_action[0] == "isequal" and player_action[1][0] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1][0])):
                     function_object = player_action[2]
                     chat_command = player_action[1]
                     function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
