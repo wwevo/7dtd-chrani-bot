@@ -8,7 +8,7 @@ actions_dev = []
 
 
 def fix_players_legs(self):
-    """Fixes the legs of the player isuing this action
+    """Fixes the legs of the player issuing this action
 
     Keyword arguments:
     self -- the bot
@@ -36,6 +36,20 @@ actions_dev.append(("isequal", ["fix my legs please", "/fix my legs please"], fi
 
 
 def stop_the_bleeding(self):
+    """Removes the 'bleeding' buff from the player issuing this action
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /make me stop leaking
+
+    example:
+    /make me stop leaking
+
+    notes:
+    does not check if the player is injured at all
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         self.tn.debuffplayer(player_object, "bleeding")
@@ -49,6 +63,20 @@ actions_dev.append(("isequal", ["make me stop leaking", "/make me stop leaking"]
 
 
 def apply_first_aid(self):
+    """Applies the 'firstAidLarge' buff to the player issuing this action
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /heal me up scotty
+
+    example:
+    /heal me up scotty
+
+    notes:
+    does not check if the player is injured at all
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         self.tn.buffplayer(player_object, "firstAidLarge")
@@ -62,6 +90,17 @@ actions_dev.append(("isequal", ["heal me up scotty", "/heal me up scotty"], appl
 
 
 def reload_from_db(self):
+    """Reloads config and location files from storage
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /reinitialize
+
+    example:
+    /reinitialize
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         self.bot.load_from_db()
@@ -75,6 +114,21 @@ actions_dev.append(("isequal", ["reinitialize", "/reinitialize"], reload_from_db
 
 
 def shutdown_bot(self):
+    """Shuts down the bot
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /shut down the matrix
+
+    example:
+    /shut down the matrix
+
+    notes:
+    Together with a cronjob starting the bot every minute, this can be
+    used for restarting it from within the game
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         self.tn.send_message_to_player(player_object, "bot is shutting down...", color=self.bot.chat_colors['success'])
@@ -88,6 +142,21 @@ actions_dev.append(("isequal", ["shut down the matrix", "/shut down the matrix"]
 
 
 def obliterate_player(self):
+    """Kicks the player and removes all bot-accessible datafor the player issuing this action
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /obliterate me
+
+    example:
+    /obliterate me
+
+    notes:
+    it will delete all locations and all playerdata plus the whitelist entry. Currently it does NOT remove references,
+    like if the player is inside a location while obliterated, the location file will not be purged. YET.
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         player_object.switch_off("suicide")
@@ -198,6 +267,18 @@ actions_dev.append(("startswith", ["unban player", "/unban player <steamid/entit
 
 
 def kick_player(self, command):
+    """Kicks a player
+
+    Keyword arguments:
+    self -- the bot
+    command -- the entire chatline (bot command)
+
+    expected bot command:
+    /kick player <steamid/entityid> for <kick_reason>
+
+    example:
+    /kick player 76561198040658370 for Stinking up the room!
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"kick\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<kick_reason>.+)", command)
@@ -226,6 +307,20 @@ actions_dev.append(("startswith", ["kick player", "/kick player <steamid/entityi
 
 
 def list_online_players(self):
+    """Lists all currently online players
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /online players
+
+    example:
+    /online players
+
+    notes:
+    Will list players and show their entityId
+    """
     try:
         active_players_dict = self.bot.players.players_dict
         players_to_list = []
@@ -244,6 +339,20 @@ actions_dev.append(("isequal", ["online players", "/online players"], list_onlin
 
 
 def list_available_player_actions(self):
+    """Lists all available actions and their usage for the player issuing this action
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /list actions
+
+    example:
+    /list actions
+
+    notes:
+    It will only show the commands the player has access to.
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
