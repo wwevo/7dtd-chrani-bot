@@ -206,15 +206,13 @@ class ChraniBot:
         listplayers_dict = {}
         list_players_timeout_start = 0
         listplayers_interval = self.listplayers_interval
-        telnet_line = None
-        self.telnet_lines_list = deque()
 
         while self.is_active:
             if timeout_occurred(listplayers_interval, list_players_timeout_start):
                 # get all currently online players and store them in a dictionary
                 last_listplayers_dict = listplayers_dict
                 listplayers_dict = self.poll_players()
-                if len(listplayers_dict) == 0:  # adjust poll frequency
+                if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
                     listplayers_interval = self.listplayers_interval_idle
                 else:
                     listplayers_interval = self.listplayers_interval
@@ -275,6 +273,8 @@ class ChraniBot:
             except Exception as e:
                 logger.error(e)
                 raise IOError
+
+            self.telnet_lines_list = deque()
 
             if telnet_lines is not None:
                 for line in telnet_lines:
