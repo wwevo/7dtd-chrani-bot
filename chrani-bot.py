@@ -1,7 +1,6 @@
-""" takes command line options like so:
-python chrani-bot.py 127.0.0.1 8081 12345678 local --verbosity=DEBUG
-nohup python chrani-bot.py 127.0.0.1 8081 12345678 local --verbosity=DEBUG > /dev/null 2>&1 &
-"""
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 import time
 from bot.logger import logger
 from bot.chrani_bot import ChraniBot
@@ -11,15 +10,21 @@ let there be bot:
 if __name__ == '__main__':
     while True:
         try:
-            bot = ChraniBot()  # leaving this here while we have no database so the location data (lobby, base etc.) is kept in memory
+            bot = ChraniBot()
+            bot.bot_version = "0.1i"
             bot.run()
-        except IOError as error:
+        except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
-            if bot.is_active:
-                bot.shutdown()
-            wait_until_reconnect = 5
-            logger.warn(error)
-            log_message = "will try again in {} seconds".format(str(wait_until_reconnect))
+            try:
+                bot.shutdown()  # bot was probably running, restart
+                wait_until_reconnect = 20
+                log_message = "connection lost, server-restart?"
+            except NameError:  # probably started the bot before the server was up
+                wait_until_reconnect = 45
+                log_message = "can't connect to telnet, is the server running?"
+                pass
+
+            log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
             logger.info(log_message)
             time.sleep(wait_until_reconnect)
             pass

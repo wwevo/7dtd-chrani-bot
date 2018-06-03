@@ -1,7 +1,10 @@
 import math
 
 
+# noinspection SpellCheckingInspection
 class Location(object):
+    enabled = bool
+
     identifier = str
     owner = str
     name = str
@@ -30,13 +33,11 @@ class Location(object):
     length = int
     height = int
 
-    boundary_percentage = int
-
-    # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     region = list
 
     last_player_activity_dict = {}
-    list_of_players_inside = []
+    list_of_players_inside = list
+    list_of_players_inside_core = list
 
     def __init__(self, **kwargs):
         self.messages_dict = {
@@ -45,10 +46,14 @@ class Location(object):
             "entering_boundary": "entering boundary",
             "entering_core": "entering core"
         }
-        self.radius = 10
+        self.radius = 20
+        self.warning_boundary = 16
         self.width = self.radius * 2
         self.length = self.radius * 2
         self.height = self.radius * 2
+        self.enabled = True
+        self.list_of_players_inside = []
+        self.list_of_players_inside_core = []
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -61,11 +66,10 @@ class Location(object):
         self.name = name
         return True
 
-    def set_identifier(self, name):
-        keepcharacters = '_'
-        identifier = "".join(c for c in name if c.isalnum() or c in keepcharacters).rstrip()
-        self.identifier = identifier
-        return identifier
+    def set_identifier(self, identifier):
+        sanitized_identifier = "".join(i for i in identifier if i not in r' \/:*?"<>|!.,;')
+        self.identifier = sanitized_identifier
+        return sanitized_identifier
 
     def set_description(self, description):
         self.description = description
@@ -78,6 +82,7 @@ class Location(object):
         self.set_teleport_coordinates(player_object)
         return True
 
+    # noinspection PyUnusedLocal
     def set_center(self, player_object, width, length, height):
         self.pos_x = player_object.pos_x + (float(width) / 2)
         self.pos_y = player_object.pos_y
@@ -85,7 +90,7 @@ class Location(object):
         return True
 
     def set_teleport_coordinates(self, player_object):
-        if self.name == 'spawn' or self.player_is_inside_boundary(player_object):
+        if self.shape == 'point' or self.player_is_inside_boundary(player_object):
             self.tele_x = player_object.pos_x
             self.tele_y = player_object.pos_y
             self.tele_z = player_object.pos_z
@@ -97,7 +102,7 @@ class Location(object):
         allowed_shapes = ['cube', 'sphere', 'room']
         if shape in allowed_shapes:
             self.shape = shape
-            if shape == 'sphere':
+            if shape in ['sphere', 'cube']:
                 self.radius = max(
                     self.width / 2,
                     self.length / 2
@@ -155,11 +160,15 @@ class Location(object):
     def get_messages_dict(self):
         return self.messages_dict
 
+    # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     def set_region(self, regions_list):
         self.region = regions_list
 
     def set_list_of_players_inside(self, list_of_players_inside):
         self.list_of_players_inside = list_of_players_inside
+
+    def set_list_of_players_inside_core(self, list_of_players_inside_core):
+        self.list_of_players_inside_core = list_of_players_inside_core
 
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
@@ -189,28 +198,66 @@ class Location(object):
         if self.shape == "room":
             """ we determine the area of the location by the locations center, it's width, height and length. height will be calculated from ground level (-1) upwards 
             """
-            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) /2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
+            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) / 2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
                 player_is_inside_boundary = True
 
         return player_is_inside_boundary
 
+    def player_is_inside_core(self, player_object):
+        player_is_inside_core = False
+        if self.shape == "sphere":
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+            player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
+        if self.shape == "cube":
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
+                player_is_inside_core = True
+        if self.shape == "room":
+            # TODO: this has to be adjusted. it's just copied from the boundary function
+            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) / 2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
+                player_is_inside_core = True
+
+        return player_is_inside_core
+
     def get_player_status(self, player_object):
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
-        if player_is_inside_boundary == True:
+        player_is_inside_core = self.player_is_inside_core(player_object)
+
+        if player_is_inside_boundary is True:
             # player is inside
             if player_object.steamid in self.list_of_players_inside:
                 # and already was inside the location
-                return 'is inside'
+                player_status = 'is inside'
             else:
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
-                return 'has entered'
+                player_status = 'has entered'
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
                 # and was inside before, so he left the location
                 self.list_of_players_inside.remove(player_object.steamid)
-                return 'has left'
+                player_status = 'has left'
             else:
                 # and already was outside before
-                return None
+                player_status = None
+
+        if player_is_inside_core is True:
+            # player is inside core
+            if player_object.steamid in self.list_of_players_inside_core:
+                # and already was inside the location
+                player_status = 'is inside core'
+            else:
+                # newly entered the location
+                self.list_of_players_inside_core.append(player_object.steamid)
+                player_status = 'has entered core'
+        else:
+            # player is outside
+            if player_object.steamid in self.list_of_players_inside_core:
+                # and was inside before, so he left the location
+                self.list_of_players_inside_core.remove(player_object.steamid)
+                player_status = 'has left core'
+
+        return player_status
