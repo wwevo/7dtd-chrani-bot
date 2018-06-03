@@ -45,7 +45,7 @@ def password(self, command):
                             location_object.enabled = False
                             self.bot.locations.upsert(location_object, save=True)
                     else:
-                        return True
+                        return False
                 except KeyError:
                     return False
     except Exception as e:

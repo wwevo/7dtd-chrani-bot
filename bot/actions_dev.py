@@ -328,7 +328,7 @@ def list_online_players(self):
             players_to_list.append(player_object)
 
         for player_object in players_to_list:
-            self.tn.say("{} ([ffffff]{}[-]) / authenticated: {}".format(player_object.name, player_object.entityid, str(player_object.authenticated)), color=self.bot.chat_colors['success'])
+            self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: {}".format(player_object.name, player_object.entityid, str(player_object.authenticated)), color=self.bot.chat_colors['success'])
 
     except Exception as e:
         logger.error(e)

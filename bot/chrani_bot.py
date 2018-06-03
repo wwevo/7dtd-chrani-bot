@@ -309,7 +309,7 @@ class ChraniBot:
                         player_object = self.players.load(m.group("player_id"))
                     except KeyError:
                         player_dict = {
-                            'entityid': m.group("entity_id"),
+                            'entityid': int(m.group("entity_id")),
                             'steamid': m.group("player_id"),
                             'name': m.group("player_name"),
                             'ip': m.group("player_ip")
