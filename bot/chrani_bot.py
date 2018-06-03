@@ -121,8 +121,8 @@ class ChraniBot:
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            # 'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
-            'chat_commands_coppi': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod 'Coppis command additions': Chat: '(?P<player_name>.*)': /(?P<command>.*)",
+            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
+            'chat_commands_coppi': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat: '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"

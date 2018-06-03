@@ -70,20 +70,17 @@ class PlayerObserver(Thread):
         command_queue = []
         if self.bot.player_actions is not None:
             for player_action in self.bot.player_actions:
-                function_category = player_action[4]
-                function_name = getattr(player_action[2], 'func_name')
-                if (player_action[0] == "isequal" and player_action[1][0] == command) or (player_action[0] == "startswith" and command.startswith(player_action[1][0])):
-                    function_object = player_action[2]
-                    chat_command = player_action[1]
-                    function_parameters = eval(player_action[3])  # yes. Eval. It's my own data, chill out!
-                    if len(player_action) >= 6:
-                        command_queue.append([function_object, function_parameters, function_name, function_category, command, player_action[5]])
-                    else:
-                        command_queue.append([function_object, function_parameters, function_name, function_category, command])
+                function_category = player_action["group"]
+                function_name = getattr(player_action["action"], 'func_name')
+                if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command) or (player_action["match_mode"] == "startswith" and command.startswith(player_action["command"]["trigger"])):
+                    function_object = player_action["action"]
+                    # chat_command = player_action["command"]
+                    function_parameters = eval(player_action["env"])  # yes. Eval. It's my own data, chill out!
+                    command_queue.append([function_object, function_parameters, function_name, function_category, command, player_action["essential"]])
 
             for command in command_queue:
                 has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
-                if (isinstance(has_permission, bool) and has_permission is True) or (len(command) >= 6 and command[5] is True):
+                if (isinstance(has_permission, bool) and has_permission is True) or (command[5] is True):
                     try:
                         command[0](command[1])
                     except TypeError:

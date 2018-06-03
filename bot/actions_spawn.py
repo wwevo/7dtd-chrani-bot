@@ -36,9 +36,17 @@ def on_player_join(self):
     return True
 
 
-actions_spawn.append(("isequal", ["entered the stream", "entered the stream"], on_player_join, "(self)", "spawn", True))
-
-
+actions_spawn.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "entered the stream",
+        "usage" : None
+    },
+    "action" : on_player_join,
+    "env": "(self)",
+    "group": "spawn",
+    "essential" : True
+})
 """
 here come the observers
 """

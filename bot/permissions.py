@@ -56,20 +56,20 @@ class Permissions(object):
 
         available_actions_dict = {}
         for player_action in self.player_actions_list:
-            if (len(player_action) == 5): # quick hack to get some system-functions in ^^
-                # if it were '6', it would be a system action not requiring permission, they are available to all
+            if player_action["essential"] is False: # quick hack to get some system-functions in ^^
+                # if it were 'True', it would be a system action not requiring permission, they are available to all
                 try:
                     # see if this exact action already has permission groups attached
-                    permission_groups = self.action_permissions_dict[player_action[4]][getattr(player_action[2], 'func_name')]
+                    permission_groups = self.action_permissions_dict[player_action["group"]][getattr(player_action["action"], 'func_name')]
                 except KeyError:
                     permission_groups = None
 
                 try:
                     # permission group already exists, update it
-                    available_actions_dict[player_action[4]].update({getattr(player_action[2], 'func_name'): permission_groups})
+                    available_actions_dict[player_action["group"]].update({getattr(player_action["action"], 'func_name'): permission_groups})
                 except Exception:
                     # the whole permission group is new, set it up!
-                    available_actions_dict[player_action[4]] = {getattr(player_action[2], 'func_name'): permission_groups}
+                    available_actions_dict[player_action["group"]] = {getattr(player_action["action"], 'func_name'): permission_groups}
         try:
             self.save(available_actions_dict)
             return filename

@@ -38,15 +38,25 @@ def set_up_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["add location", "/add location <location name>"], set_up_location, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "add location",
+        "usage" : "/add location <location name>"
+    },
+    "action" : set_up_location,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def set_up_location_teleport(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"edit\slocation\steleport\s([\W\w]{1,19})$", command)
+        p = re.search(r"edit\slocation\steleport\s(?P<identifier>[\W\w\s]{1,19})$", command)
         if p:
-            identifier = p.group(1)
+            identifier = p.group("identifier")
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
             except KeyError:
@@ -63,7 +73,17 @@ def set_up_location_teleport(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["edit location teleport", "/edit location teleport"], set_up_location_teleport, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "edit location teleport",
+        "usage" : "/edit location teleport <identifier>"
+    },
+    "action" : set_up_location_teleport,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def set_up_location_name(self, command):
@@ -91,7 +111,17 @@ def set_up_location_name(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["edit location name", "/edit location name <identifier> = <location name>"], set_up_location_name, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "edit location name",
+        "usage" : "/edit location teleport <location identifier>"
+    },
+    "action" : set_up_location_name,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def set_up_location_outer_perimeter(self, command):
@@ -117,7 +147,17 @@ def set_up_location_outer_perimeter(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["edit location outer perimeter", "/edit location outer perimeter <identifier>"], set_up_location_outer_perimeter, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "edit location outer perimeter",
+        "usage" : "/edit location outer perimeter <identifier>"
+    },
+    "action" : set_up_location_outer_perimeter,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def set_up_location_inner_perimeter(self, command):
@@ -143,7 +183,17 @@ def set_up_location_inner_perimeter(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["edit location inner perimeter", "/edit location inner perimeter <identifier>"], set_up_location_inner_perimeter, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "edit location inner perimeter",
+        "usage" : "/edit location inner perimeter <identifier>"
+    },
+    "action" : set_up_location_inner_perimeter,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def list_locations(self):
@@ -161,7 +211,17 @@ def list_locations(self):
         pass
 
 
-actions_locations.append(("isequal", ["my locations", "/my locations"], list_locations, "(self)", "locations"))
+actions_locations.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "my locations",
+        "usage" : "/my locations"
+    },
+    "action" : list_locations,
+    "env": "(self)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def goto_location(self, command):
@@ -181,7 +241,17 @@ def goto_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["goto location", "/goto location <identifier>"], goto_location, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "goto location",
+        "usage" : "/goto location <identifier>"
+    },
+    "action" : goto_location,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 
 
 def remove_location(self, command):
@@ -205,7 +275,17 @@ def remove_location(self, command):
         pass
 
 
-actions_locations.append(("startswith", ["remove location", "/remove location <identifier>"], remove_location, "(self, command)", "locations"))
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "remove location",
+        "usage" : "/remove location <identifier>"
+    },
+    "action" : remove_location,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 """
 here come the observers
 """

@@ -21,7 +21,17 @@ def on_player_join(self):
     return True
 
 
-actions_lobby.append(("isequal", ["joined the game", "joined the game"], on_player_join, "(self)", "lobby", True))
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "joined the game",
+        "usage" : None
+    },
+    "action" : on_player_join,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : True
+})
 
 
 def password(self, command):
@@ -53,7 +63,17 @@ def password(self, command):
         pass
 
 
-actions_lobby.append(("startswith", ["password", "/password <password>"], password, "(self, command)", "lobby", True))
+actions_lobby.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "password",
+        "usage" : "/password <password>"
+    },
+    "action" : password,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : True
+})
 
 
 def set_up_lobby(self):
@@ -83,7 +103,17 @@ def set_up_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", ["add lobby", "/add lobby"], set_up_lobby, "(self)", "lobby"))
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "add lobby",
+        "usage" : "/add lobby"
+    },
+    "action" : set_up_lobby,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : False
+})
 
 
 def set_up_lobby_outer_perimeter(self):
@@ -105,7 +135,17 @@ def set_up_lobby_outer_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", ["edit lobby outer perimeter", "/edit lobby outer perimeter"], set_up_lobby_outer_perimeter, "(self)", "lobby"))
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "edit lobby outer perimeter",
+        "usage" : "/edit lobby outer perimeter"
+    },
+    "action" : set_up_lobby_outer_perimeter,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : False
+})
 
 
 def set_up_lobby_inner_perimeter(self):
@@ -127,7 +167,17 @@ def set_up_lobby_inner_perimeter(self):
         pass
 
 
-actions_lobby.append(("isequal", ["edit lobby inner perimeter", "/edit lobby inner perimeter"], set_up_lobby_inner_perimeter, "(self)", "lobby"))
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "edit lobby inner perimeter",
+        "usage" : "/edit lobby inner perimeter"
+    },
+    "action" : set_up_lobby_inner_perimeter,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : False
+})
 
 
 def goto_lobby(self):
@@ -135,7 +185,7 @@ def goto_lobby(self):
         player_object = self.bot.players.get(self.player_steamid)
         try:
             location_object = self.bot.locations.get('system', 'lobby')
-            self.tn.say("{} went back to the lobby".format(player_object.name), color=self.bot.chat_colors['background'])
+            self.tn.send_message_to_player(player_object, "You have ported to the lobby", color=self.bot.chat_colors['background'])
             self.tn.teleportplayer(player_object, location_object)
         except KeyError:
             self.tn.send_message_to_player(player_object, "There is no lobby :(", color=self.bot.chat_colors['warning'])
@@ -144,7 +194,17 @@ def goto_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", ["goto lobby", "/goto lobby"], goto_lobby, "(self)", "lobby"))
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "goto lobby",
+        "usage" : "/goto lobby"
+    },
+    "action" : goto_lobby,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : False
+})
 
 
 def remove_lobby(self):
@@ -160,33 +220,49 @@ def remove_lobby(self):
         pass
 
 
-actions_lobby.append(("isequal", ["remove lobby", "/remove lobby"], remove_lobby, "(self)", "lobby"))
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "remove lobby",
+        "usage" : "/remove lobby"
+    },
+    "action" : remove_lobby,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : False
+})
 
 
-def set_up_lobby_teleport(self, command):
+def set_up_lobby_teleport(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"edit\slobby\steleport$", command)
-        if p:
-            try:
-                location_object = self.bot.locations.get('system', 'lobby')
-            except KeyError:
-                self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the lobby first!", color=self.bot.chat_colors['warning'])
-                return False
+        try:
+            location_object = self.bot.locations.get('system', 'lobby')
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the lobby first!", color=self.bot.chat_colors['warning'])
+            return False
 
-            if location_object.set_teleport_coordinates(player_object):
-                self.bot.locations.upsert(location_object, save=True)
-                self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'), color=self.bot.chat_colors['success'])
-            else:
-                self.tn.send_message_to_player(player_object, "your position seems to be outside of the location", color=self.bot.chat_colors['warning'])
+        if location_object.set_teleport_coordinates(player_object):
+            self.bot.locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'), color=self.bot.chat_colors['success'])
+        else:
+            self.tn.send_message_to_player(player_object, "your position seems to be outside of the location", color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass
 
 
-actions_lobby.append(("isequal", ["edit lobby teleport", "/edit lobby teleport"], set_up_lobby_teleport, "(self, command)", "lobby"))
-
-
+actions_lobby.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "edit lobby teleport",
+        "usage" : "/edit lobby teleport"
+    },
+    "action" : set_up_lobby_teleport,
+    "env": "(self)",
+    "group": "lobby",
+    "essential" : False
+})
 """
 here come the observers
 """

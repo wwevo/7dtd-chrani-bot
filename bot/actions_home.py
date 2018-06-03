@@ -40,7 +40,17 @@ def set_up_home(self):
         pass
 
 
-actions_home.append(("isequal", ["add home", "/add home"], set_up_home, "(self)", "home"))
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "add home",
+        "usage" : "/add home"
+    },
+    "action" : set_up_home,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def remove_home(self):
@@ -62,7 +72,17 @@ def remove_home(self):
     return True
 
 
-actions_home.append(("isequal", ["remove home", "/remove home"], remove_home, "(self)", "home"))
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "remove home",
+        "usage" : "/remove home"
+    },
+    "action" : remove_home,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def set_up_home_teleport(self):
@@ -86,7 +106,17 @@ def set_up_home_teleport(self):
         pass
 
 
-actions_home.append(("isequal", ["edit home teleport", "/edit home teleport"], set_up_home_teleport, "(self)", "home"))
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "edit home teleport",
+        "usage" : "/edit home teleport"
+    },
+    "action" : set_up_home_teleport,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def set_up_home_name(self, command):
@@ -119,7 +149,17 @@ def set_up_home_name(self, command):
 
     return True
 
-actions_home.append(("startswith", ["edit home name", "/edit home name <name>"], set_up_home_name, "(self, command)", "home"))
+actions_home.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "edit home name",
+        "usage" : "/edit home name"
+    },
+    "action" : set_up_home_name,
+    "env": "(self, command)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def take_me_home(self):
@@ -139,7 +179,17 @@ def take_me_home(self):
         pass
 
 
-actions_home.append(("isequal", ["take me home", "/take me home"], take_me_home, "(self)", "home"))
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "take me home",
+        "usage" : "/take me home"
+    },
+    "action" : take_me_home,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def goto_player_home(self, command):
@@ -167,7 +217,17 @@ def goto_player_home(self, command):
         pass
 
 
-actions_home.append(("startswith", ["take me to player", "/take me to player <steamid/entityid> home"], goto_player_home, "(self, command)", "home"))
+actions_home.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "take me to player",
+        "usage" : "/take me to player <steamid/entityid> home"
+    },
+    "action" : goto_player_home,
+    "env": "(self, command)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def set_up_home_outer_perimeter(self):
@@ -189,7 +249,17 @@ def set_up_home_outer_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", ["edit home outer perimeter", "/edit home outer perimeter"], set_up_home_outer_perimeter, "(self)", "home"))
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "edit home outer perimeter",
+        "usage" : "/edit home outer perimeter"
+    },
+    "action" : set_up_home_outer_perimeter,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
 
 
 def set_up_home_inner_perimeter(self):
@@ -211,8 +281,17 @@ def set_up_home_inner_perimeter(self):
         pass
 
 
-actions_home.append(("isequal", ["edit home inner perimeter", "/edit home inner perimeter"], set_up_home_inner_perimeter, "(self)", "home"))
-
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "edit home inner perimeter",
+        "usage" : "/edit home inner perimeter"
+    },
+    "action" : set_up_home_inner_perimeter,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
 """
 here come the observers
 """

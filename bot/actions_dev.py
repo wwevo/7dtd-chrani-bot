@@ -32,7 +32,17 @@ def fix_players_legs(self):
         pass
 
 
-actions_dev.append(("isequal", ["fix my legs please", "/fix my legs please"], fix_players_legs, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "fix my legs pleas",
+        "usage" : "/fix my legs please"
+    },
+    "action" : fix_players_legs,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def stop_the_bleeding(self):
@@ -59,7 +69,17 @@ def stop_the_bleeding(self):
         pass
 
 
-actions_dev.append(("isequal", ["make me stop leaking", "/make me stop leaking"], stop_the_bleeding, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "make me stop leaking",
+        "usage" : "/make me stop leaking"
+    },
+    "action" : stop_the_bleeding,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def apply_first_aid(self):
@@ -86,7 +106,17 @@ def apply_first_aid(self):
         pass
 
 
-actions_dev.append(("isequal", ["heal me up scotty", "/heal me up scotty"], apply_first_aid, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "heal me up scotty",
+        "usage" : "/heal me up scotty"
+    },
+    "action" : apply_first_aid,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def reload_from_db(self):
@@ -110,7 +140,17 @@ def reload_from_db(self):
         pass
 
 
-actions_dev.append(("isequal", ["reinitialize", "/reinitialize"], reload_from_db, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "reinitialize",
+        "usage" : "/reinitialize"
+    },
+    "action" : reload_from_db,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def shutdown_bot(self):
@@ -138,7 +178,17 @@ def shutdown_bot(self):
         pass
 
 
-actions_dev.append(("isequal", ["shut down the matrix", "/shut down the matrix"], shutdown_bot, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "shut down the matrix",
+        "usage" : "/shut down the matrix"
+    },
+    "action" : shutdown_bot,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def obliterate_player(self):
@@ -176,7 +226,17 @@ def obliterate_player(self):
         pass
 
 
-actions_dev.append(("isequal", ["obliterate me", "/obliterate me"], obliterate_player, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "obliterate me",
+        "usage" : "/obliterate me"
+    },
+    "action" : obliterate_player,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def ban_player(self, command):
@@ -225,7 +285,17 @@ def ban_player(self, command):
         pass
 
 
-actions_dev.append(("startswith", ["ban player", "/ban player <steamid/entityid> for <reason>"], ban_player, "(self, command)", "testing"))
+actions_dev.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "ban player",
+        "usage" : "/ban player <steamid/entityid> for <reason>"
+    },
+    "action" : ban_player,
+    "env": "(self, command)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def unban_player(self, command):
@@ -263,7 +333,17 @@ def unban_player(self, command):
         pass
 
 
-actions_dev.append(("startswith", ["unban player", "/unban player <steamid/entityid>"], unban_player, "(self, command)", "testing"))
+actions_dev.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "unban player",
+        "usage" : "/unban player <steamid/entityid>"
+    },
+    "action" : unban_player,
+    "env": "(self, command)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def kick_player(self, command):
@@ -303,7 +383,17 @@ def kick_player(self, command):
         pass
 
 
-actions_dev.append(("startswith", ["kick player", "/kick player <steamid/entityid> for <reason>"], kick_player, "(self, command)", "testing"))
+actions_dev.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "kick player",
+        "usage" : "/kick player <steamid/entityid> for <reason>"
+    },
+    "action" : kick_player,
+    "env": "(self, command)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def list_online_players(self):
@@ -335,7 +425,17 @@ def list_online_players(self):
         pass
 
 
-actions_dev.append(("isequal", ["online players", "/online players"], list_online_players, "(self)", "testing"))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "online players",
+        "usage" : "/online players"
+    },
+    "action" : list_online_players,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : False
+})
 
 
 def list_available_player_actions(self):
@@ -362,9 +462,9 @@ def list_available_player_actions(self):
     available_player_actions = []
     if self.bot.player_actions is not None:
         for player_action in self.bot.player_actions:
-            function_category = player_action[4]
-            function_name = getattr(player_action[2], 'func_name')
-            action_string = player_action[1][1]
+            function_category = player_action["group"]
+            function_name = getattr(player_action["action"], 'func_name')
+            action_string = player_action["command"]["usage"]
             has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
             if isinstance(has_permission, bool) and has_permission is True:
                 available_player_actions.append(action_string)
@@ -376,40 +476,17 @@ def list_available_player_actions(self):
     return False
 
 
-actions_dev.append(("isequal", ["list actions", "/list actions"], list_available_player_actions, "(self)", "testing"))
-
-
-def on_player_death(self):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-    except Exception as e:
-        logger.error(e)
-        raise KeyError
-
-    try:
-        location = self.bot.locations.get(player_object.steamid, 'death')
-    except KeyError:
-        location_dict = dict(
-            identifier='death',
-            name='Place of Death',
-            owner=player_object.steamid,
-            shape='point',
-            radius=None,
-            region=None
-        )
-        location_object = Location(**location_dict)
-        location_object.set_coordinates(player_object)
-        try:
-            self.bot.locations.upsert(location_object, save=True)
-        except:
-            return False
-
-        self.tn.send_message_to_player(player_object, "your place of death has been recorded ^^", color=self.bot.chat_colors['background'])
-
-    return True
-
-
-actions_dev.append(("isequal", ["died", "died"], on_player_death, "(self)", "backpack", True))
+actions_dev.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "list actions",
+        "usage" : "/list actions"
+    },
+    "action" : list_available_player_actions,
+    "env": "(self)",
+    "group": "testing",
+    "essential" : True
+})
 """ 
 here come the observers
 """

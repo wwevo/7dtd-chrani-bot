@@ -35,7 +35,17 @@ def add_player_to_whitelist(self, command):
         pass
 
 
-actions_whitelist.append(("startswith", ["add player", "/add player <steamid/entityid> to whitelist"], add_player_to_whitelist, "(self, command)", "whitelist"))
+actions_whitelist.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "add player",
+        "usage" : "/add player <steamid/entityid> to whitelist"
+    },
+    "action" : add_player_to_whitelist,
+    "env": "(self, command)",
+    "group": "whitelist",
+    "essential" : False
+})
 
 
 def remove_player_from_whitelist(self, command):
@@ -67,7 +77,17 @@ def remove_player_from_whitelist(self, command):
         pass
 
 
-actions_whitelist.append(("startswith", ["remove player", "/remove player <steamid/entityid> from whitelist"], remove_player_from_whitelist, "(self, command)", "whitelist"))
+actions_whitelist.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "remove player",
+        "usage" : "/remove player <steamid/entityid> from whitelist"
+    },
+    "action" : remove_player_from_whitelist,
+    "env": "(self, command)",
+    "group": "whitelist",
+    "essential" : False
+})
 
 
 def activate_whitelist(self):
@@ -79,7 +99,17 @@ def activate_whitelist(self):
         pass
 
 
-actions_whitelist.append(("isequal", ["activate whitelist", "/activate whitelist"], activate_whitelist, "(self)", "whitelist"))
+actions_whitelist.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "activate whitelist",
+        "usage" : "/activate whitelist"
+    },
+    "action" : activate_whitelist,
+    "env": "(self)",
+    "group": "whitelist",
+    "essential" : False
+})
 
 
 def deactivate_whitelist(self):
@@ -91,9 +121,17 @@ def deactivate_whitelist(self):
         pass
 
 
-actions_whitelist.append(("isequal", ["deactivate whitelist", "/deactivate whitelist"], deactivate_whitelist, "(self)", "whitelist"))
-
-
+actions_whitelist.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "deactivate whitelist",
+        "usage" : "/deactivate whitelist"
+    },
+    "action" : deactivate_whitelist,
+    "env": "(self)",
+    "group": "whitelist",
+    "essential" : False
+})
 """
 here come the observers
 # these whitelist functions are special because they run as a monitor AND are used as triggers during login, to catch players before they even enter the game

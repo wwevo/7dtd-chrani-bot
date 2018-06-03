@@ -3,6 +3,49 @@ from bot.logger import logger
 actions_backpack = []
 
 
+def on_player_death(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    try:
+        location = self.bot.locations.get(player_object.steamid, 'death')
+    except KeyError:
+        location_dict = dict(
+            identifier='death',
+            name='Place of Death',
+            owner=player_object.steamid,
+            shape='point',
+            radius=None,
+            region=None
+        )
+        location_object = Location(**location_dict)
+        location_object.set_coordinates(player_object)
+        try:
+            self.bot.locations.upsert(location_object, save=True)
+        except:
+            return False
+
+        self.tn.send_message_to_player(player_object, "your place of death has been recorded ^^", color=self.bot.chat_colors['background'])
+
+    return True
+
+
+actions_backpack.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "died",
+        "usage" : None
+    },
+    "action" : on_player_death,
+    "env": "(self)",
+    "group": "backpack",
+    "essential" : True
+})
+
+
 def take_me_to_my_backpack(self):
     """Teleports a player to their place of death
 
@@ -39,6 +82,16 @@ def take_me_to_my_backpack(self):
         pass
 
 
-actions_backpack.append(("isequal", ["take me to my pack", "/take me to my pack"], take_me_to_my_backpack, "(self)", "backpack"))
+actions_backpack.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "take me to my pack",
+        "usage" : "/take me to my pack"
+    },
+    "action" : take_me_to_my_backpack,
+    "env": "(self)",
+    "group": "backpack",
+    "essential" : False
+})
 
 
