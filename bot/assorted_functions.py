@@ -1,4 +1,5 @@
 import time
+import math
 
 
 def timeout_occurred(timeout_in_seconds, timeout_start):
@@ -28,3 +29,16 @@ def is_alpha(word):
         return word.encode('ascii').isalpha()
     except Exception:
         return False
+
+
+def get_region_string(pos_x, pos_z):
+    grid_x = int(math.floor(pos_x / 512))
+    grid_z = int(math.floor(pos_z / 512))
+
+    try:
+        region_string = str(grid_x) + "." + str(grid_z) + ".7rg"
+    except TypeError:
+        raise TypeError
+
+    return region_string
+

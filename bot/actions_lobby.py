@@ -59,7 +59,7 @@ def password(self, command):
                 except KeyError:
                     return False
     except Exception as e:
-        logger.error(e)
+        logger.error(e.message)
         pass
 
 

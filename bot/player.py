@@ -1,6 +1,7 @@
 import math
 from time import time
 from bot.logger import logger
+from bot.assorted_functions import get_region_string
 
 
 class Player():
@@ -51,23 +52,10 @@ class Player():
             setattr(self, k, v)
 
         try:
-            self.region = self.__get_region_string(self.pos_x, self.pos_z)
+            self.region = get_region_string(self.pos_x, self.pos_z)
         except Exception as e:
             logger.error("{} encountered the error '{}'".format(self.name, e.message))
             pass
-
-    def __get_region_string(self, pos_x, pos_z):
-        grid_x = int(math.floor(pos_x / 512))
-        grid_z = int(math.floor(pos_z / 512))
-
-        try:
-            region_string = str(grid_x) + "." + str(grid_z) + ".7rg"
-        except TypeError:
-            region_string = None
-            logger.error("could not determine region string for player {}".format(self.name))
-            pass
-
-        return region_string
 
     def set_name(self, name):
         self.name = name
