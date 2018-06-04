@@ -61,9 +61,13 @@ class Player():
         grid_z = int(math.floor(pos_z / 512))
 
         try:
-            region_stgring = str(grid_x) + "." + str(grid_z) + ".7rg"
+            region_string = str(grid_x) + "." + str(grid_z) + ".7rg"
         except TypeError:
+            region_string = None
             logger.error("could not determine region string for player {}".format(self.name))
+            pass
+
+        return region_string
 
     def set_name(self, name):
         self.name = name
