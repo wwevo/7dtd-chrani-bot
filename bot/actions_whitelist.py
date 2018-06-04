@@ -149,7 +149,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
             try:
                 player_object = self.bot.players.load(player_object.steamid)
             except KeyError as e:
-                logger.error("{} encountered the error '{}'".format(player_object.name, e))
+                logger.error("{} encountered the error '{}'".format(player_object.name, e.message))
 
         if self.bot.whitelist.is_active():
             if not self.bot.whitelist.player_is_allowed(player_object):
@@ -157,7 +157,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
                 self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name), color=self.bot.chat_colors['alert'])
                 self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
     except Exception as e:
-        logger.error("{} encountered the error '{}'".format(player_object.name, e))
+        logger.error("{} encountered the error '{}'".format(player_object.name, e.message))
         pass
 
 
@@ -180,7 +180,7 @@ def check_if_player_has_url_name(self, player_object=None):
                 self.tn.say("{} has been kicked. we do not allow url-names!".format(player_object.steamid), color=self.bot.chat_colors['alert'])
                 self.tn.kick(player_object, "We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
     except Exception as e:
-        logger.error("{} encountered the error '{}'".format(player_object.name, e))
+        logger.error("{} encountered the error '{}'".format(player_object.name, e.message))
         pass
 
 
@@ -215,7 +215,7 @@ def check_ip_country(self, player_object=None):
             player_object.set_country_code(users_country)
             self.bot.players.upsert(player_object, save=True)
         except Exception as e:
-            logger.error("{} encountered the error '{}'".format(player_object.name, e))
+            logger.error("{} encountered the error '{}'".format(player_object.name, e.message))
 
         if users_country in self.bot.banned_countries_list:
             if self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"):
@@ -223,7 +223,7 @@ def check_ip_country(self, player_object=None):
                 self.tn.say("{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country), color=self.bot.chat_colors['alert'])
 
     except Exception as e:
-        logger.error("{} encountered the error '{}'".format(player_object.name, e))
+        logger.error("{} encountered the error '{}'".format(player_object.name, e.message))
         pass
 
 
