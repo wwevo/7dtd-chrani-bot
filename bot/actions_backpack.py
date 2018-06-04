@@ -1,4 +1,5 @@
 from bot.logger import logger
+from bot.location import Location
 
 actions_backpack = []
 
