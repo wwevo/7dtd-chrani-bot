@@ -52,14 +52,18 @@ class Player():
 
         try:
             self.region = self.__get_region_string(self.pos_x, self.pos_z)
-        except Exception:
+        except Exception as e:
+            logger.error("{} encountered the error '{}'".format(self.name, e.message))
             pass
 
     def __get_region_string(self, pos_x, pos_z):
         grid_x = int(math.floor(pos_x / 512))
         grid_z = int(math.floor(pos_z / 512))
 
-        return str(grid_x) + "." + str(grid_z) + ".7rg"
+        try:
+            region_stgring = str(grid_x) + "." + str(grid_z) + ".7rg"
+        except TypeError:
+            logger.error("could not determine region string for player {}".format(self.name))
 
     def set_name(self, name):
         self.name = name
