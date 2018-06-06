@@ -33,30 +33,30 @@ class PlayerObserver(Thread):
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
-            if player_object.has_health():
-                player_object.switch_on()
-            else:
-                player_object.switch_off()
+            if self.bot.observers:
+                """ execute real-time observers
+                these are run regardless of telnet activity!
+                """
+                command_queue = []
+                for observer in self.bot.observers:
+                    if observer[0] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
+                        observer_function_name = observer[2]
+                        observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
+                        command_queue.append([observer_function_name, observer_parameters])
 
-            if player_object.is_responsive:
-                if self.bot.observers:
-                    """ execute real-time observers
-                    these are run regardless of telnet activity!
-                    """
-                    command_queue = []
-                    for observer in self.bot.observers:
-                        if observer[0] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
-                            observer_function_name = observer[2]
-                            observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
-                            command_queue.append([observer_function_name, observer_parameters])
-                    for command in command_queue:
-                        if player_object.is_responsive:
-                            try:
-                                command[0](*command[1])
-                            except TypeError:
-                                command[0](command[1])
-                        else:
-                            break
+                for command in command_queue:
+                    # if player_object.is_responsive():
+                    #     player_object.switch_on()
+                    # else:
+                    #     player_object.switch_off()
+
+                    if player_object.is_responsive():
+                        try:
+                            command[0](*command[1])
+                        except TypeError:
+                            command[0](command[1])
+                    else:
+                        break
 
             execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - execution_time

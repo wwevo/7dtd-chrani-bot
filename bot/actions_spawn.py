@@ -31,7 +31,7 @@ def on_player_join(self):
         except:
             return False
 
-        self.tn.send_message_to_player(player_object, "your place of origin has been recorded ^^", color=self.bot.chat_colors['background'])
+        logger.debug("spawn for player {} created".format(player_object.name))
 
     return True
 

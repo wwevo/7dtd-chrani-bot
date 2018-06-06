@@ -209,7 +209,6 @@ def obliterate_player(self):
     """
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        player_object.switch_off("suicide")
         self.tn.kick(player_object, "You wanted it! Time to be born again!!")
         location_objects_dict = self.bot.locations.get(player_object.steamid)
         locations_to_remove = []
@@ -497,7 +496,7 @@ observers_dev = []
 def record_time_of_last_activity(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        if player_object.is_responsive is True:
+        if player_object.is_responsive() is True:
             player_object.last_seen = time()
             self.bot.players.upsert(player_object, save=True)
     except Exception as e:

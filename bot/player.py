@@ -1,7 +1,5 @@
-import math
 from time import time
 from bot.logger import logger
-from bot.assorted_functions import get_region_string
 
 
 class Player():
@@ -31,7 +29,6 @@ class Player():
     region = str
     country_code = str
     authenticated = bool
-    is_responsive = bool
     is_muted = bool
     last_teleport = int
     last_responsive = float
@@ -41,7 +38,6 @@ class Player():
 
     def __init__(self, **kwargs):
         self.last_teleport = 0
-        self.is_responsive = False
         self.is_muted = False
         self.permission_levels = []
         self.last_responsive = time()
@@ -50,12 +46,6 @@ class Player():
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
-
-        try:
-            self.region = get_region_string(self.pos_x, self.pos_z)
-        except Exception as e:
-            logger.error("{} encountered the error '{}'".format(self.name, e.message))
-            pass
 
     def set_name(self, name):
         self.name = name
@@ -69,15 +59,15 @@ class Player():
         else:
             return None
 
-    def switch_on(self, source=None):
-        self.is_responsive = True
-        if source is not None:
-            logger.info("switched on player '{}' - {}".format(self.name, source))
-
-    def switch_off(self, source=None):
-        self.is_responsive = False
-        if source is not None:
-            logger.info("switched off player '{}' - {}".format(self.name, source))
+    # def switch_on(self, source=None):
+    #     self.is_responsive = True
+    #     if source is not None:
+    #         logger.info("switched on player '{}' - {}".format(self.name, source))
+    #
+    # def switch_off(self, source=None):
+    #     self.is_responsive = False
+    #     if source is not None:
+    #         logger.info("switched off player '{}' - {}".format(self.name, source))
 
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():
@@ -108,8 +98,8 @@ class Player():
         self.pos_z = location_object.tele_z
         return True
 
-    def has_health(self):
-        if self.health is not 0:
+    def is_responsive(self):
+        if self.health is not 0 and (isinstance(self.pos_x, float) and isinstance(self.pos_z, float)):
             return True
         else:
             return False

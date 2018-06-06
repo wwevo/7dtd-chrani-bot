@@ -6,7 +6,7 @@ import json
 from collections import deque
 
 from bot.logger import logger
-from bot.assorted_functions import byteify, timeout_occurred
+from bot.assorted_functions import byteify, timeout_occurred, get_region_string
 from bot.actions_spawn import actions_spawn
 from bot.actions_authentication import actions_authentication
 from bot.actions_dev import actions_dev, observers_dev
@@ -166,6 +166,8 @@ class ChraniBot:
     def poll_players(self):
         online_players_dict = {}
         for m in re.finditer(self.match_types_system["listplayers_result_regexp"], self.poll_tn.listplayers()):
+            region = get_region_string(float(m.group(3)), float(m.group(5)))
+
             online_players_dict.update({m.group(16): {
                 "entityid": m.group(1),
                 "name":     str(m.group(2)),
@@ -184,7 +186,8 @@ class ChraniBot:
                 "level":    m.group(15),
                 "steamid":  m.group(16),
                 "ip":       str(m.group(17)),
-                "ping":     int(m.group(18))
+                "ping":     int(m.group(18)),
+                "region":   region
             }})
         return online_players_dict
 
