@@ -412,13 +412,14 @@ def list_online_players(self):
     Will list players and show their entityId
     """
     try:
+        player_object = self.bot.players.get(self.player_steamid)
         active_players_dict = self.bot.players.players_dict
         players_to_list = []
-        for steamid, player_object in active_players_dict.iteritems():
-            players_to_list.append(player_object)
+        for steamid, player_object_to_list in active_players_dict.iteritems():
+            players_to_list.append(player_object_to_list)
 
-        for player_object in players_to_list:
-            self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: {}".format(player_object.name, player_object.entityid, str(player_object.authenticated)), color=self.bot.chat_colors['success'])
+        for player_object_to_list in players_to_list:
+            self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: {}".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=self.bot.chat_colors['success'])
 
     except Exception as e:
         logger.error(e)
