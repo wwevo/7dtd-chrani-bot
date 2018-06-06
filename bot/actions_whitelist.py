@@ -1,6 +1,7 @@
 import re
 import urllib
 
+from assorted_functions import ObjectView
 from bot.logger import logger
 from bot.player import Player
 
@@ -20,16 +21,22 @@ def add_player_to_whitelist(self, command):
                     raise KeyError
 
             try:
-                player_object_to_whitelist = self.bot.players.get(steamid_to_whitelist)
+                player_object = self.bot.players.get(steamid_to_whitelist)
+                player_dict_to_whitelist = {
+                    "steamid": player_object.steamid,
+                    "name": player_object.name
+                }
             except KeyError:
-                player_dict = {'steamid': steamid_to_whitelist, "name": 'unknown offline player'}
-                player_object_to_whitelist = Player(**player_dict)
+                player_dict_to_whitelist = {
+                    "steamid": steamid_to_whitelist,
+                    "name": 'unknown offline player'
+                }
 
-            if self.bot.whitelist.add(player_object, player_object_to_whitelist, save=True):
-                self.tn.send_message_to_player(player_object_to_whitelist, "you have been whitelisted by {}".format(player_object.name), color=self.bot.chat_colors['alert'])
-            else:
+            if not self.bot.whitelist.add(player_object, player_dict_to_whitelist, save=True):
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist), color=self.bot.chat_colors['warning'])
-            self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(player_object_to_whitelist.name), color=self.bot.chat_colors['success'])
+                return False
+
+            self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=self.bot.chat_colors['success'])
     except Exception as e:
         logger.error(e)
         pass
@@ -60,11 +67,15 @@ def remove_player_from_whitelist(self, command):
                 if steamid_to_dewhitelist is False:
                     raise KeyError
 
+            player_dict = ObjectView
             try:
                 player_object_to_dewhitelist = self.bot.players.get(steamid_to_dewhitelist)
+                player_dict.steamid = player_object_to_dewhitelist.steamid
+                player_dict.name = player_object_to_dewhitelist.name
             except KeyError:
-                player_dict = {'steamid': steamid_to_dewhitelist}
-                player_object_to_dewhitelist = Player(**player_dict)
+                player_dict.steamid = steamid_to_dewhitelist
+                player_dict.name = 'unknown offline player'
+                player_object_to_dewhitelist = player_dict
 
             if self.bot.whitelist.remove(player_object_to_dewhitelist):
                 self.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(player_object.name), color=self.bot.chat_colors['alert'])

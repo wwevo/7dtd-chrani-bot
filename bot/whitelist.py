@@ -28,8 +28,11 @@ class Whitelist(object):
             for filename in files:
                 if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
                     with open("{}/{}".format(self.root, filename)) as file_to_read:
-                        whitelisted_player = byteify(json.load(file_to_read))
-                        self.whitelisted_players_dict[whitelisted_player['steamid']] = whitelisted_player
+                        try:
+                            whitelisted_player = byteify(json.load(file_to_read))
+                            self.whitelisted_players_dict[whitelisted_player['steamid']] = whitelisted_player
+                        except ValueError:
+                            pass
 
     def is_active(self):
         return self.whitelist_active
@@ -40,16 +43,16 @@ class Whitelist(object):
     def deactivate(self):
         self.whitelist_active = False
 
-    def add(self, player_object, player_object_to_whitelist, save=False):
+    def add(self, player_object, player_dict_to_whitelist, save=False):
         try:
-            is_in_dict = self.whitelisted_players_dict[player_object_to_whitelist.steamid]
+            is_in_dict = self.whitelisted_players_dict[player_dict_to_whitelist["steamid"]]
         except Exception:
-            self.whitelisted_players_dict.update({player_object_to_whitelist.steamid: {
-                'name': player_object_to_whitelist.name,
+            self.whitelisted_players_dict.update({player_dict_to_whitelist["steamid"]: {
+                'name': player_dict_to_whitelist["name"],
                 'whitelisted_by': player_object.steamid
             }})
         if save:
-            self.save(player_object_to_whitelist)
+            self.save(player_dict_to_whitelist)
             return True
 
     def remove(self, player_object_to_dewhitelist):
@@ -79,6 +82,6 @@ class Whitelist(object):
                 return False
 
     def save(self, player_object):
-        dict_to_save = vars(player_object)
-        with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
+        dict_to_save = player_object
+        with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:
             json.dump(dict_to_save, file_to_write, indent=4)

@@ -5,32 +5,6 @@ from bot.logger import logger
 actions_lobby = []
 
 
-def on_player_join(self):
-    try:
-        player_object = self.bot.players.get(self.player_steamid)
-    except Exception as e:
-        logger.error(e)
-        raise KeyError
-
-    if player_object.has_permission_level("authenticated") is True:
-        return False
-
-    return True
-
-
-actions_lobby.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "joined the game",
-        "usage" : None
-    },
-    "action" : on_player_join,
-    "env": "(self)",
-    "group": "lobby",
-    "essential" : True
-})
-
-
 def password(self, command):
     try:
         try:
@@ -283,8 +257,6 @@ def player_is_outside_boundary(self):
                     logger.info("{} has been ported to the lobby!".format(player_object.name))
                     self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>", color=self.bot.chat_colors['alert'])
                     self.tn.send_message_to_player(player_object, "see https://chrani.net/chrani-bot for more information!", color=self.bot.chat_colors['warning'])
-                    if self.tn.muteplayerchat(player_object, True):
-                        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.error(e)
         pass

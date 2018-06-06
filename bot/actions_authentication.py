@@ -129,7 +129,7 @@ def add_player_to_permission_group(self, command):
         logger.error(e)
         raise KeyError
 
-    p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sto\sgroup\s(?P<group_name>\w+)$", command)
+    p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\sgroup\s(?P<group_name>\w+)$", command)
     if p:
         steamid_to_modify = p.group("steamid")
         entityid_to_modify = p.group("entityid")

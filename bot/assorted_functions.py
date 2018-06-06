@@ -42,3 +42,7 @@ def get_region_string(pos_x, pos_z):
 
     return region_string
 
+
+class ObjectView(object):
+    def __init__(self, d):
+        self.__dict__ = d
