@@ -75,9 +75,10 @@ def password(self, command):
         self.bot.players.upsert(player_object, save=True)
         return False
 
-    player_object.set_authenticated(True)
-    player_object.add_permission_level("authenticated")
-    self.tn.say("{} joined the ranks of literate people. Welcome!".format(player_object.name), color=self.bot.chat_colors['background'])
+    if player_object.authenticated is not True:
+        player_object.set_authenticated(True)
+        player_object.add_permission_level("authenticated")
+        self.tn.say("{} joined the ranks of literate people. Welcome!".format(player_object.name), color=self.bot.chat_colors['background'])
     if self.tn.muteplayerchat(player_object, False):
         self.tn.send_message_to_player(player_object, "Your chat has been enabled!", color=self.bot.chat_colors['success'])
 
