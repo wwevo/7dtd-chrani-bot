@@ -121,8 +121,8 @@ class ChraniBot:
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
-            'chat_commands_coppi': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat: '(?P<player_name>.*)': /(?P<command>.*)",
+            # 'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
+            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat| Chat): '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
@@ -213,6 +213,8 @@ class ChraniBot:
         list_players_timeout_start = 0
         listplayers_interval = self.listplayers_interval
 
+        self.telnet_lines_list = deque()
+
         while self.is_active:
             if timeout_occurred(listplayers_interval, list_players_timeout_start):
                 # get all currently online players and store them in a dictionary
@@ -280,11 +282,10 @@ class ChraniBot:
                 logger.error(e)
                 raise IOError
 
-            self.telnet_lines_list = deque()
-
             if telnet_lines is not None:
                 for line in telnet_lines:
                     self.telnet_lines_list.append(line)  # get the current global telnet-response
+                telnet_lines = None
 
             try:
                 telnet_line = self.telnet_lines_list.popleft()
@@ -292,10 +293,10 @@ class ChraniBot:
                 telnet_line = None
 
             if telnet_line is not None:
-                m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                if not m or m and m.group('telnet_command') != 'lp':
-                    if telnet_line != '':
-                        logger.debug(telnet_line)
+                # m = re.search(self.match_types_system["telnet_commands"], telnet_line)
+                # if not m or m and m.group('telnet_command') != 'lp':
+                #     if telnet_line != '':
+                logger.debug(telnet_line)
 
                 """ send telnet_line to player-thread
                 check 'chat' telnet-line(s) for any known playername currently online

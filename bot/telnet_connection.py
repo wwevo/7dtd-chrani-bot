@@ -99,8 +99,10 @@ class TelnetConnection:
         try:
             connection = self.tn
             telnet_response = connection.read_very_eager()
-            if telnet_response and telnet_response != "\r\n":
-                return telnet_response.splitlines()
+            if len(telnet_response) > 0:
+                telnet_response_list = telnet_response.splitlines()
+                telnet_response_list = [value for value in telnet_response_list if value != ""]
+                return telnet_response_list
         except Exception as e:
             log_message = 'trying to read_eager from telnet connection failed: {}'.format(e)
             raise IOError(log_message)
