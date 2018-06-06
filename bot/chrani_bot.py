@@ -293,10 +293,10 @@ class ChraniBot:
                 telnet_line = None
 
             if telnet_line is not None:
-                # m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                # if not m or m and m.group('telnet_command') != 'lp':
-                #     if telnet_line != '':
-                logger.debug(telnet_line)
+                m = re.search(self.match_types_system["telnet_commands"], telnet_line)
+                if not m or m and m.group('telnet_command') != 'lp':
+                    if telnet_line != '':
+                        logger.debug(telnet_line)
 
                 """ send telnet_line to player-thread
                 check 'chat' telnet-line(s) for any known playername currently online
