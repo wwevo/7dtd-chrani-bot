@@ -14,6 +14,7 @@ from bot.actions_home import actions_home
 from bot.actions_lobby import actions_lobby, observers_lobby
 from bot.actions_locations import actions_locations, observers_locations
 from bot.actions_whitelist import actions_whitelist, observers_whitelist
+from bot.actions_scheduler import observers_scheduler
 from bot.actions_backpack import actions_backpack
 
 from bot.command_line_args import args_dict
@@ -84,7 +85,7 @@ class ChraniBot:
         self.poll_tn = TelnetConnection(self, self.get_setting_by_name('telnet_ip'), self.get_setting_by_name('telnet_port'), self.get_setting_by_name('telnet_password'))
 
         self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_backpack + actions_lobby + actions_dev
-        self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations
+        self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations + observers_scheduler
 
         self.players = Players()  # players will be loaded on a need-to-load basis
         self.listplayers_interval = 1.5

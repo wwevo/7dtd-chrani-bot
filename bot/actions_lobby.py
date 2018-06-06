@@ -15,9 +15,6 @@ def on_player_join(self):
     if player_object.has_permission_level("authenticated") is True:
         return False
 
-    if self.tn.muteplayerchat(player_object, True):
-        self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
-
     return True
 
 

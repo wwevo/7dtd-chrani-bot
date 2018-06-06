@@ -69,8 +69,6 @@ def password(self, command):
         player_object.set_authenticated(False)
         player_object.remove_permission_level("authenticated")
         self.tn.send_message_to_player(player_object, "You have lost your authentication!", color=self.bot.chat_colors['warning'])
-        if self.tn.muteplayerchat(player_object, True):
-            self.tn.send_message_to_player(player_object, "Your chat has been disabled!",color=self.bot.chat_colors['warning'])
 
         self.bot.players.upsert(player_object, save=True)
         return False
@@ -79,8 +77,6 @@ def password(self, command):
         player_object.set_authenticated(True)
         player_object.add_permission_level("authenticated")
         self.tn.say("{} joined the ranks of literate people. Welcome!".format(player_object.name), color=self.bot.chat_colors['background'])
-    if self.tn.muteplayerchat(player_object, False):
-        self.tn.send_message_to_player(player_object, "Your chat has been enabled!", color=self.bot.chat_colors['success'])
 
     """ makeshift promotion system """
     # TODO: well, this action should only care about general authentication. things like admin and mod should be handled somewhere else really

@@ -47,6 +47,38 @@ actions_spawn.append({
     "group": "spawn",
     "essential" : True
 })
+
+
+def on_player_death(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        raise KeyError
+
+    try:
+        location = self.bot.locations.get(player_object.steamid, 'spawn')
+        if player_object.authenticated is False:
+            self.bot.locations.remove(player_object.steamid, 'spawn')
+            logger.debug("spawn for player {} removed, a new one will be created".format(player_object.name))
+    except KeyError:
+        return
+
+    return True
+
+
+actions_spawn.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "died",
+        "usage" : None
+    },
+    "action" : on_player_death,
+    "env": "(self)",
+    "group": "spawn",
+    "essential" : True
+})
+
 """
 here come the observers
 """
