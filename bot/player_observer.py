@@ -75,27 +75,28 @@ class PlayerObserver(Thread):
                 if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command) or (player_action["match_mode"] == "startswith" and command.startswith(player_action["command"]["trigger"])):
                     function_object = player_action["action"]
                     # chat_command = player_action["command"]
-                    function_parameters = eval(player_action["env"])  # yes. Eval. It's my own data, chill out!
-                    command_queue.append([function_object, function_parameters, function_name, function_category, command, player_action["essential"]])
+                    command_queue.append([function_object, function_name, function_category, command, player_action["essential"]])
 
-            for command in command_queue:
-                has_permission = self.bot.permissions.player_has_permission(player_object, command[2], command[3])
-                if (isinstance(has_permission, bool) and has_permission is True) or (command[5] is True):
-                    try:
-                        command[0](command[1])
-                    except TypeError:
-                        try:
-                            command[0](*command[1])
-                        except:
-                            logger.debug("Player {} has executed {}:{} with '/{}', which lead to an unknown error".format(player_object.name, command[3], command[2], command[4]))
-                            pass
-
-                    logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[3], command[2], command[4]))
-                else:
-                    self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
-                    logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[3], command[2]))
             if len(command_queue) == 0:
                 logger.info("Player {} tried the command '{}' for which I have no handler.".format(player_object.name, command))
+                return False
+
+            for command in command_queue:
+                has_permission = self.bot.permissions.player_has_permission(player_object, command[1], command[2])
+                if (isinstance(has_permission, bool) and has_permission is True) or (command[4] is True):
+                    try:
+                        command[0](self)
+                    except TypeError:
+                        try:
+                            command[0](self, command[3])
+                        except Exception as e:
+                            logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command[2], command[1], command[3], e))
+                            pass
+
+                    logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[2], command[1], command[3]))
+                else:
+                    self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
+                    logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[2], command[1]))
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):

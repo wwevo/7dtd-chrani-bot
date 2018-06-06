@@ -199,6 +199,12 @@ class ChraniBot:
             })
         return game_preferences_dict
 
+    def find_action_help(self, key, value):
+        for i, dic in enumerate(self.player_actions):
+            if dic["group"] == key and dic["command"]["trigger"] == value:
+                return dic["command"]["usage"]
+        return None
+
     def run(self):
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.tn.togglechatcommandhide("/")

@@ -59,6 +59,7 @@ def password(self, command):
     try:
         pwd = p.group("password")
     except (AttributeError, IndexError) as e:
+        self.tn.send_message_to_player(player_object, "You have entered no password. use {}".format(self.bot.find_action_help("authentication", "password")), color=self.bot.chat_colors['warning'])
         return False
 
     if pwd not in self.bot.passwords.values() and player_object.authenticated is not True :
