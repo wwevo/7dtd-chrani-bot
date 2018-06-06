@@ -35,7 +35,7 @@ def fix_players_legs(self):
 actions_dev.append({
     "match_mode" : "isequal",
     "command" : {
-        "trigger" : "fix my legs pleas",
+        "trigger" : "fix my legs please",
         "usage" : "/fix my legs please"
     },
     "action" : fix_players_legs,

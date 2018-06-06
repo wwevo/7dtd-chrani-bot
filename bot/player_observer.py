@@ -66,37 +66,35 @@ class PlayerObserver(Thread):
     loop through all available actions if they are a match for the given command and create a queue of actions to be fired
     loop though the command queue
     """
-    def trigger_action(self, player_object, command):
+    def trigger_action(self, player_object, command_parameters):
         command_queue = []
         if self.bot.player_actions is not None:
             for player_action in self.bot.player_actions:
                 function_category = player_action["group"]
                 function_name = getattr(player_action["action"], 'func_name')
-                if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command) or (player_action["match_mode"] == "startswith" and command.startswith(player_action["command"]["trigger"])):
-                    function_object = player_action["action"]
-                    # chat_command = player_action["command"]
-                    command_queue.append([function_object, function_name, function_category, command, player_action["essential"]])
+                if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command_parameters) or (player_action["match_mode"] == "startswith" and command_parameters.startswith(player_action["command"]["trigger"])):
+                    has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
+                    if (isinstance(has_permission, bool) and has_permission is True) or (player_action["essential"] is True):
+                        function_object = player_action["action"]
+                        command_queue.append([function_object, function_name, function_category, command_parameters, player_action["essential"]])
+                    else:
+                        logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, function_category, function_name))
 
             if len(command_queue) == 0:
-                logger.info("Player {} tried the command '{}' for which I have no handler.".format(player_object.name, command))
+                logger.info("Player {} tried the command '/{}' for which I have no handler.".format(player_object.name, command_parameters))
                 return False
 
             for command in command_queue:
-                has_permission = self.bot.permissions.player_has_permission(player_object, command[1], command[2])
-                if (isinstance(has_permission, bool) and has_permission is True) or (command[4] is True):
+                try:
+                    command[0](self)
+                except TypeError:
                     try:
-                        command[0](self)
-                    except TypeError:
-                        try:
-                            command[0](self, command[3])
-                        except Exception as e:
-                            logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command[2], command[1], command[3], e))
-                            pass
+                        command[0](self, command[3])
+                    except Exception as e:
+                        logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command[2], command[1], command[3], e))
+                        pass
 
-                    logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[2], command[1], command[3]))
-                else:
-                    self.bot.tn.send_message_to_player(player_object, "Access denied, you need to be {}".format(has_permission))
-                    logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, command[2], command[1]))
+                logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[2], command[1], command[3]))
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):
