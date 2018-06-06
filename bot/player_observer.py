@@ -76,7 +76,12 @@ class PlayerObserver(Thread):
                     has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
                     if (isinstance(has_permission, bool) and has_permission is True) or (player_action["essential"] is True):
                         function_object = player_action["action"]
-                        command_queue.append([function_object, function_name, function_category, command_parameters, player_action["essential"]])
+                        command_queue.append({
+                            "action": function_object,
+                            "func_name": function_name,
+                            "group": function_category,
+                            "command_parameters": command_parameters
+                        })
                     else:
                         logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, function_category, function_name))
 
@@ -86,15 +91,15 @@ class PlayerObserver(Thread):
 
             for command in command_queue:
                 try:
-                    command[0](self)
+                    command["action"](self)
                 except TypeError:
                     try:
-                        command[0](self, command[3])
+                        command["action"](self, command["command_parameters"])
                     except Exception as e:
-                        logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command[2], command[1], command[3], e))
+                        logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command["group"], command["func_name"], command["command_parameters"], e))
                         pass
 
-                logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command[2], command[1], command[3]))
+                logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command["group"], command["func_name"], command["command_parameters"]))
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):
