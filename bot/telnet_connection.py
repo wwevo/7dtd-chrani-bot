@@ -201,7 +201,7 @@ class TelnetConnection:
             return False
 
     def teleportplayer(self, player_object, location_object):
-        if player_object.is_responsive:
+        if player_object.is_responsive():
             try:
                 connection = self.tn
                 command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(location_object.tele_x)))) + " " + str(int(math.ceil(float(location_object.tele_y)))) + " " + str(int(math.ceil(float(location_object.tele_z))))

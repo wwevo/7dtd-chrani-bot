@@ -82,18 +82,15 @@ class Players(object):
             logger.error(e)
 
     def remove(self, player_object):
-        try:
-            filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object.steamid, self.extension)
-            if os.path.exists(filename):
-                try:
-                    os.remove(filename)
-                except OSError, e:
-                    logger.error("Error: {} - {}.".format(e.filename, e.strerror))
-            else:
-                logger.error("Sorry, I can not find {} file.".format(filename))
-            pass
-        except KeyError:
-            raise
+        filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object.steamid, self.extension)
+        if os.path.isfile(filename):
+            try:
+                os.remove(filename)
+            except Exception as e:
+                logger.error("Error: {} - {}.".format(e.filename, e.strerror))
+                pass
+        else:
+            logger.error("Sorry, I can not find {} file.".format(filename))
 
     def save(self, player_object):
         dict_to_save = player_object.__dict__

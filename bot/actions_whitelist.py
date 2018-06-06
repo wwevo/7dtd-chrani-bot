@@ -3,7 +3,6 @@ import urllib
 
 from assorted_functions import ObjectView
 from bot.logger import logger
-from bot.player import Player
 
 actions_whitelist = []
 
@@ -160,7 +159,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
             try:
                 player_object = self.bot.players.load(player_object.steamid)
             except KeyError as e:
-                logger.error("{} encountered the error '{}'".format(player_object.name, e.message))
+                return
 
         if self.bot.whitelist.is_active():
             if not self.bot.whitelist.player_is_allowed(player_object):
