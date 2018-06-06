@@ -1,5 +1,6 @@
 {
-  "bot_name": "",
+  "bot_name": "chrani",
+  "mute_unauthenticated": true,
 
   "telnet_ip": "",
   "telnet_port": 0,
