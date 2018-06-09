@@ -34,7 +34,7 @@ class Location(object):
     length = int
     height = int
 
-    region = list
+    region_list = list
 
     last_player_activity_dict = {}
     list_of_players_inside = list
@@ -42,22 +42,24 @@ class Location(object):
 
     def __init__(self, **kwargs):
         self.messages_dict = {
-            "leaving_core": "leaving core",
-            "leaving_boundary": "leaving boundary",
             "entering_boundary": "entering boundary",
-            "entering_core": "entering core"
+            "entering_core": "entering core",
+            "leaving_core": "leaving core",
+            "leaving_boundary": "leaving boundary"
         }
         self.radius = 20
         self.warning_boundary = 16
         self.width = self.radius * 2
         self.length = self.radius * 2
         self.height = self.radius * 2
+        self.region_list = []
         self.enabled = True
         self.list_of_players_inside = []
         self.list_of_players_inside_core = []
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
+        self.update_region_list()
 
     def set_owner(self, owner):
         self.owner = owner
@@ -81,6 +83,7 @@ class Location(object):
         self.pos_y = player_object.pos_y
         self.pos_z = player_object.pos_z
         self.set_teleport_coordinates(player_object)
+        self.update_region_list()
         return True
 
     # noinspection PyUnusedLocal
@@ -88,6 +91,7 @@ class Location(object):
         self.pos_x = player_object.pos_x + (float(width) / 2)
         self.pos_y = player_object.pos_y
         self.pos_z = player_object.pos_z + (float(length) / 2)
+        self.update_region_list()
         return True
 
     def set_teleport_coordinates(self, player_object):
@@ -101,15 +105,17 @@ class Location(object):
 
     def set_shape(self, shape):
         allowed_shapes = ['cube', 'sphere', 'room']
-        if shape in allowed_shapes:
-            self.shape = shape
-            if shape in ['sphere', 'cube']:
-                self.radius = max(
-                    self.width / 2,
-                    self.length / 2
-                )
-            return True
-        return False
+        if shape not in allowed_shapes or shape == self.shape:
+            return False
+
+        self.shape = shape
+        if shape in ['sphere', 'cube']:
+            self.radius = max(
+                self.width / 2,
+                self.length / 2
+            )
+        self.update_region_list()
+        return True
 
     def set_radius(self, player_object):
         radius = float(
@@ -124,6 +130,7 @@ class Location(object):
             self.width = self.radius * 2
             self.length = self.radius * 2
             self.height = self.radius * 2
+            self.update_region_list()
             return True, allowed_range
         return radius, allowed_range
 
@@ -143,16 +150,20 @@ class Location(object):
     def set_width(self, width):
         allowed_range = range(3, 141)
         self.width = width
+        self.update_region_list()
         return True, allowed_range
 
     def set_length(self, length):
         allowed_range = range(3, 141)
         self.length = length
+        self.update_region_list()
         return True, allowed_range
 
     def set_height(self, height):
         allowed_range = range(3, 141)
         self.height = height
+        # no region update here, since regions are only projected on a two dimensional grid
+        # self.update_region_list()
         return True, allowed_range
 
     def set_messages(self, messages_dict):
@@ -162,8 +173,15 @@ class Location(object):
         return self.messages_dict
 
     # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
-    def set_region(self, regions_list):
-        self.region = regions_list
+    def update_region_list(self):
+        center_region = get_region_string(self.pos_x, self.pos_z)
+        if self.shape == "sphere":
+            self.region_list.append(center_region)
+
+        if self.shape == "cube" or self.shape == 'room':
+            self.region_list.append(center_region)
+
+        return self.region_list
 
     def set_list_of_players_inside(self, list_of_players_inside):
         self.list_of_players_inside = list_of_players_inside
