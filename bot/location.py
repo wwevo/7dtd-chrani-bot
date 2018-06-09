@@ -180,8 +180,10 @@ class Location(object):
         self.region_list = []
         if self.shape == "sphere":
             # let's convert everything to rectangles first, the fancy stuff can come later
-            top = self.pos_z + (self.radius * math.sin(3 * math.pi / 4)) # (cx, cy) center of the circle
-            left = self.pos_x + (self.radius * math.cos(3 * math.pi / 4))
+            # determine the top left corner of the square the circle occupies
+            top = self.pos_z - self.radius
+            left = self.pos_x - self.radius
+            # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get the total possible width and height
             width_in_regions = math.ceil(float(2 * self.radius) / 512) + 1
             height_in_regions = math.ceil(float(2 * self.radius) / 512) + 1
         elif self.shape == "cube" or self.shape == "room":
@@ -193,6 +195,7 @@ class Location(object):
         else:
             return False
 
+        # translate occupied coordinates into the region-grid provided by allocs webmap
         for column in range(int(width_in_regions + 1)):
             for row in range(int(height_in_regions + 1)):
                 self.region_list.append(get_region_string(left + ((column - 1) * 512), top - ((row - 1) * 512)))
