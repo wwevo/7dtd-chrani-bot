@@ -1,5 +1,7 @@
 import math
 from bot.assorted_functions import get_region_string
+from bot.assorted_functions import get_region_grid
+from bot.assorted_functions import round_to_region_grid
 
 
 # noinspection SpellCheckingInspection
@@ -124,7 +126,7 @@ class Location(object):
                         float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                         float(self.pos_z) - float(player_object.pos_z)) ** 2)
         )
-        allowed_range = range(3, 141)
+        allowed_range = range(3, 2048)
         if int(radius) in allowed_range:
             self.radius = radius
             self.width = self.radius * 2
@@ -148,19 +150,19 @@ class Location(object):
         return radius, allowed_range
 
     def set_width(self, width):
-        allowed_range = range(3, 141)
+        allowed_range = range(3, 2048)
         self.width = width
         self.update_region_list()
         return True, allowed_range
 
     def set_length(self, length):
-        allowed_range = range(3, 141)
+        allowed_range = range(3, 2048)
         self.length = length
         self.update_region_list()
         return True, allowed_range
 
     def set_height(self, height):
-        allowed_range = range(3, 141)
+        allowed_range = range(3, 2048)
         self.height = height
         # no region update here, since regions are only projected on a two dimensional grid
         # self.update_region_list()
@@ -174,12 +176,26 @@ class Location(object):
 
     # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     def update_region_list(self):
-        center_region = get_region_string(self.pos_x, self.pos_z)
+        # a'ight, I suck at maths. Still need this to be done so here it goes.
+        self.region_list = []
         if self.shape == "sphere":
-            self.region_list.append(center_region)
+            # let's convert everything to rectangles first, the fancy stuff can come later
+            top = self.pos_z + (self.radius * math.sin(3 * math.pi / 4)) # (cx, cy) center of the circle
+            left = self.pos_x + (self.radius * math.cos(3 * math.pi / 4))
+            width_in_regions = math.ceil(float(2 * self.radius) / 512) + 1
+            height_in_regions = math.ceil(float(2 * self.radius) / 512) + 1
+        elif self.shape == "cube" or self.shape == "room":
+            # untested
+            top = self.pos_z
+            left = self.pos_x
+            width_in_regions = math.ceil(float(self.width) / 512) + 1
+            height_in_regions = math.ceil(float(self.height) / 512) + 1
+        else:
+            return False
 
-        if self.shape == "cube" or self.shape == 'room':
-            self.region_list.append(center_region)
+        for column in range(int(width_in_regions + 1)):
+            for row in range(int(height_in_regions + 1)):
+                self.region_list.append(get_region_string(left + ((column - 1) * 512), top - ((row - 1) * 512)))
 
         return self.region_list
 
