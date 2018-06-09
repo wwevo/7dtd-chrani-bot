@@ -137,5 +137,3 @@ actions_backpack.append({
     "group": "backpack",
     "essential" : False
 })
-
-

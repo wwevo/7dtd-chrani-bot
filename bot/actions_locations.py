@@ -335,4 +335,10 @@ def player_crossed_boundary(self):
         pass
 
 
-observers_locations.append(("monitor", "player crossed boundary", player_crossed_boundary, "(self)"))
+observers_locations.append({
+    "type" : "monitor",
+    "title" : "player crossed boundary",
+    "action" : player_crossed_boundary,
+    "env": "(self)",
+    "essential" : True
+})

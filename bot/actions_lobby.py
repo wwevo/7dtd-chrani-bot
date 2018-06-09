@@ -264,4 +264,10 @@ def player_is_outside_boundary(self):
         pass
 
 
-observers_lobby.append(("monitor", "player left lobby", player_is_outside_boundary, "(self)"))
+observers_lobby.append({
+    "type": "monitor",
+    "title": "player left lobby",
+    "action": player_is_outside_boundary,
+    "env": "(self)",
+    "essential" : True
+})

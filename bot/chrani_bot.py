@@ -330,16 +330,19 @@ class ChraniBot:
                     logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
                     command_queue = []
                     for observer in self.observers:
-                        if observer[0] == 'trigger':  # we only want the triggers here
-                            observer_function_name = observer[2]
-                            observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
-                            command_queue.append([observer_function_name, observer_parameters])
+                        if observer["type"] == 'trigger':  # we only want the triggers here
+                            observer_function_name = observer["action"]
+                            observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
+                            command_queue.append({
+                                "action": observer_function_name,
+                                "command_parameters": observer_parameters
+                            })
 
                     for command in command_queue:
                         try:
-                            command[0](*command[1])
+                            command["action"](*command["command_parameters"])
                         except TypeError:
-                            command[0](command[1])
+                            command["action"](command["command_parameters"])
 
             time.sleep(0.05)  # to limit the speed a bit ^^
 

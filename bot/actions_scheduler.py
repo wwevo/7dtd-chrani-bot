@@ -24,4 +24,10 @@ def mute_unauthenticated_player(self):
         pass
 
 
-observers_scheduler.append(("monitor", "mute unauthenticated players", mute_unauthenticated_player, "(self)"))
+observers_scheduler.append({
+    "type": "monitor",
+    "title": "mute unauthenticated players",
+    "action": mute_unauthenticated_player,
+    "env": "(self)",
+    "essential" : True
+})

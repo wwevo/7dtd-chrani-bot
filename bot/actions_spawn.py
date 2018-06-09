@@ -78,8 +78,3 @@ actions_spawn.append({
     "group": "spawn",
     "essential" : True
 })
-
-"""
-here come the observers
-"""
-# no observers, they are all generic and found in actions_locations

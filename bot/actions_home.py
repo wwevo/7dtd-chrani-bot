@@ -292,7 +292,3 @@ actions_home.append({
     "group": "home",
     "essential" : False
 })
-"""
-here come the observers
-"""
-# no observers as of now

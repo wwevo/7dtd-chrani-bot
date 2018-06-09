@@ -504,6 +504,10 @@ def record_time_of_last_activity(self):
         pass
 
 
-observers_dev.append(("monitor", "player is active!", record_time_of_last_activity, "(self)"))
-
-
+observers_dev.append({
+    "type": "monitor",
+    "title": "player is active!",
+    "action": record_time_of_last_activity,
+    "env": "(self)",
+    "essential" : True
+})

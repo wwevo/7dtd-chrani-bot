@@ -171,8 +171,21 @@ def check_if_player_is_on_whitelist(self, player_object=None):
         pass
 
 
-observers_whitelist.append(("monitor", "set to online", check_if_player_is_on_whitelist, "(self)"))
-observers_whitelist.append(("trigger", "set to online", check_if_player_is_on_whitelist, "(self, player_object)"))
+observers_whitelist.append({
+    "type" : "monitor",
+    "title" : "set to online",
+    "action" : check_if_player_is_on_whitelist,
+    "env": "(self)",
+    "essential" : True
+})
+
+observers_whitelist.append({
+    "type" : "trigger",
+    "title" : "set to online",
+    "action" : check_if_player_is_on_whitelist,
+    "env": "(self, player_object)",
+    "essential" : True
+})
 
 
 def check_if_player_has_url_name(self, player_object=None):
@@ -194,8 +207,21 @@ def check_if_player_has_url_name(self, player_object=None):
         pass
 
 
-observers_whitelist.append(("monitor", "set to online", check_if_player_has_url_name, "(self)"))
-observers_whitelist.append(("trigger", "set to online", check_if_player_has_url_name, "(self, player_object)"))
+observers_whitelist.append({
+    "type" : "monitor",
+    "title" : "set to online",
+    "action" : check_if_player_has_url_name,
+    "env": "(self)",
+    "essential" : True
+})
+
+observers_whitelist.append({
+    "type" : "trigger",
+    "title" : "set to online",
+    "action" : check_if_player_has_url_name,
+    "env": "(self, player_object)",
+    "essential" : True
+})
 
 
 def check_ip_country(self, player_object=None):
@@ -237,5 +263,18 @@ def check_ip_country(self, player_object=None):
         pass
 
 
-observers_whitelist.append(("monitor", "set to online", check_ip_country, "(self)"))
-observers_whitelist.append(("trigger", "set to online", check_ip_country, "(self, player_object)"))
+observers_whitelist.append({
+    "type" : "monitor",
+    "title" : "set to online",
+    "action" : check_ip_country,
+    "env": "(self)",
+    "essential" : True
+})
+
+observers_whitelist.append({
+    "type" : "trigger",
+    "title" : "set to online",
+    "action" : check_ip_country,
+    "env": "(self, player_object)",
+    "essential" : True
+})

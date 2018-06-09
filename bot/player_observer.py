@@ -36,25 +36,24 @@ class PlayerObserver(Thread):
             if self.bot.observers:
                 """ execute real-time observers
                 these are run regardless of telnet activity!
+                Everything that meeds to be checked periodically should be done in observers
                 """
                 command_queue = []
                 for observer in self.bot.observers:
-                    if observer[0] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
-                        observer_function_name = observer[2]
-                        observer_parameters = eval(observer[3])  # yes. Eval. It's my own data, chill out!
-                        command_queue.append([observer_function_name, observer_parameters])
+                    if observer["type"] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
+                        observer_function_name = observer["action"]
+                        observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
+                        command_queue.append({
+                            "action": observer_function_name,
+                            "command_parameters": observer_parameters
+                        })
 
                 for command in command_queue:
-                    # if player_object.is_responsive():
-                    #     player_object.switch_on()
-                    # else:
-                    #     player_object.switch_off()
-
                     if player_object.is_responsive():
                         try:
-                            command[0](*command[1])
+                            command["action"](*command["command_parameters"])
                         except TypeError:
-                            command[0](command[1])
+                            command["action"](command["command_parameters"])
                     else:
                         break
 
