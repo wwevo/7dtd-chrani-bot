@@ -131,6 +131,30 @@ class TelnetConnection:
 
         return telnet_response
 
+    def listlandprotection(self):
+        try:
+            connection = self.tn
+            connection.write("llp2" + b"\r\n")
+        except Exception as e:
+            log_message = 'trying to listlandprotection on telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
+
+        telnet_response = ""
+        poll_is_finished = False
+        while poll_is_finished is not True:
+            try:
+                telnet_line = connection.read_until(b"\r\n")
+                telnet_response += telnet_line
+            except Exception as e:
+                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                raise IOError(log_message)
+
+            m = re.search(r"Total of (\d{1,3}) keystones in the game\r\n", telnet_line)
+            if m:
+                poll_is_finished = True
+
+        return telnet_response
+
     def togglechatcommandhide(self, prefix):
         command = "tcch " + prefix + b"\r\n"
         try:

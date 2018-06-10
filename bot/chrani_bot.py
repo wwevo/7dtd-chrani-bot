@@ -40,6 +40,7 @@ class ChraniBot:
     poll_tn = object
     telnet_lines_list = deque
 
+    listlandprotection_interval = int
     listplayers_interval = int
     chat_colors = dict
     passwords = dict
@@ -88,9 +89,13 @@ class ChraniBot:
         self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations + observers_scheduler
 
         self.players = Players()  # players will be loaded on a need-to-load basis
+
         self.listplayers_interval = 1.5
         self.listplayers_interval_idle = self.listplayers_interval * 10
         self.active_player_threads_dict = {}
+
+        self.listlandprotection_interval = 15
+        self.listlandprotection_interval_idle = 0
 
         self.whitelist = Whitelist()
         if self.get_setting_by_name('whitelist_active') is not None:
@@ -138,6 +143,8 @@ class ChraniBot:
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n",
+            # to parse the telnets listlandprotection response
+            'listlandprotection_result_regexp': r"Player \"(?:.+)\((?P<player_steamid>\d+)\)\" owns \d+ keystones \(.+\)\s(?P<keystones>(\s+\(.+\)\s){1,})",
             # to parse the telnets getgameprefs response
             'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
             # player joined / died messages
@@ -165,7 +172,8 @@ class ChraniBot:
 
     def poll_players(self):
         online_players_dict = {}
-        for m in re.finditer(self.match_types_system["listplayers_result_regexp"], self.poll_tn.listplayers()):
+        listplayers_result = self.poll_tn.listplayers()
+        for m in re.finditer(self.match_types_system["listplayers_result_regexp"], listplayers_result):
             region = get_region_string(float(m.group(3)), float(m.group(5)))
 
             online_players_dict.update({m.group(16): {
@@ -191,6 +199,31 @@ class ChraniBot:
             }})
         return online_players_dict
 
+    def poll_lcb(self):
+        lcb_dict = {}
+        test_str = self.tn.listlandprotection()
+
+        # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
+        # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried sting declarations,
+        # I've tried flags. Something was always up. TRhis is the only way i got this working.
+        try:
+            unicode(test_str, "ascii")
+        except UnicodeError:
+            test_str = unicode(test_str, "utf-8")
+        else:
+            pass
+
+        # horrible, horrible way. But it works for now!
+        for m in re.finditer(self.match_types_system["listlandprotection_result_regexp"], test_str):
+            keystones = re.findall(r"\((?P<pos_x>.\d{1,5}),\s(?P<pos_y>.\d{1,5}),\s(?P<pos_z>.\d{1,5})", m.group("keystones"))
+            keystone_list = []
+            for keystone in keystones:
+                keystone_list.append(keystone)
+
+            lcb_dict.update({m.group("player_steamid"): keystone_list})
+
+        return lcb_dict
+
     def get_game_preferences(self):
         game_preferences_dict = {}
         game_preferences = self.tn.get_game_preferences()
@@ -214,13 +247,20 @@ class ChraniBot:
         self.tn.togglechatcommandhide("/")
 
         listplayers_dict = {}
-        list_players_timeout_start = 0
+        listplayers_timeout_start = 0
         listplayers_interval = self.listplayers_interval
+
+        listlandprotection_timeout_start = 0
+        listlandprotection_interval = self.listlandprotection_interval
 
         self.telnet_lines_list = deque()
 
         while self.is_active:
-            if timeout_occurred(listplayers_interval, list_players_timeout_start):
+            if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
+                listlandprotection_dict = self.poll_lcb()
+                listlandprotection_timeout_start = time.time()
+
+            if timeout_occurred(listplayers_interval, listplayers_timeout_start):
                 # get all currently online players and store them in a dictionary
                 last_listplayers_dict = listplayers_dict
                 listplayers_dict = self.poll_players()
@@ -229,7 +269,7 @@ class ChraniBot:
                 else:
                     listplayers_interval = self.listplayers_interval
 
-                list_players_timeout_start = time.time()
+                listplayers_timeout_start = time.time()
 
                 # prune players not online anymore
                 for player in set(self.players.players_dict) - set(listplayers_dict.keys()):
