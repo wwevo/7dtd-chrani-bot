@@ -59,16 +59,6 @@ class Player():
         else:
             return None
 
-    # def switch_on(self, source=None):
-    #     self.is_responsive = True
-    #     if source is not None:
-    #         logger.info("switched on player '{}' - {}".format(self.name, source))
-    #
-    # def switch_off(self, source=None):
-    #     self.is_responsive = False
-    #     if source is not None:
-    #         logger.info("switched off player '{}' - {}".format(self.name, source))
-
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
