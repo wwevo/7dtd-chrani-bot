@@ -68,6 +68,7 @@ class PlayerObserver(Thread):
     def trigger_action(self, player_object, command_parameters):
         command_queue = []
         if self.bot.player_actions is not None:
+            denied = False
             for player_action in self.bot.player_actions:
                 function_category = player_action["group"]
                 function_name = getattr(player_action["action"], 'func_name')
@@ -82,11 +83,14 @@ class PlayerObserver(Thread):
                             "command_parameters": command_parameters
                         })
                     else:
+                        denied = True
                         logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, function_category, function_name))
 
             if len(command_queue) == 0:
-                logger.info("Player {} tried the command '/{}' for which I have no handler.".format(player_object.name, command_parameters))
-                return False
+                logger.debug("Player {} tried the command '/{}' for which I have no handler.".format(player_object.name, command_parameters))
+
+            if denied is True:
+                self.tn.send_message_to_player(player_object, "Access to this command is denied!", color=self.bot.chat_colors['warning'])
 
             for command in command_queue:
                 try:
