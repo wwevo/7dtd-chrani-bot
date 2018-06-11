@@ -94,7 +94,7 @@ class ChraniBot:
         self.listplayers_interval_idle = self.listplayers_interval * 10
         self.active_player_threads_dict = {}
 
-        self.listlandprotection_interval = 15
+        self.listlandprotection_interval = 45
         self.listlandprotection_interval_idle = 0
 
         self.whitelist = Whitelist()
