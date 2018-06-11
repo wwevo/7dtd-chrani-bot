@@ -1,6 +1,7 @@
 import re
 import sys
 import time
+import math
 from threading import Event
 import json
 from collections import deque
@@ -42,6 +43,7 @@ class ChraniBot:
 
     listlandprotection_interval = int
     listplayers_interval = int
+
     chat_colors = dict
     passwords = dict
     api_key = str
@@ -55,6 +57,7 @@ class ChraniBot:
     locations = object
     whitelist = object
     permission = object
+    landclaims_dict = dict
 
     observers = list
     player_actions = list
@@ -242,6 +245,25 @@ class ChraniBot:
                 return dic["command"]["usage"]
         return None
 
+    def landclaims_find_by_distance(self, start_coords, distance_in_blocks):
+        landclaims_in_reach_list = []
+        for player_steamid, landclaims in self.landclaims_dict.iteritems():
+            for landclaim in landclaims:
+                distance = math.sqrt((float(landclaim[0]) - float(start_coords[0]))**2 + (float(landclaim[1]) - float(start_coords[1]))**2 + (float(landclaim[2]) - float(start_coords[2]))**2)
+                if distance < distance_in_blocks:
+                    landclaims_in_reach_list.append({player_steamid: landclaim})
+
+        return landclaims_in_reach_list
+
+    def check_for_homes(self, player_object):
+        distance = math.floor(41 / 2) + 20 # (landclaim size / 2) + Deadzone
+        start_coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+
+        bases_near_list = self.locations.find_by_distance(start_coords, distance, "home")
+        landclaims_near_list = self.landclaims_find_by_distance(start_coords, distance)
+
+        return bases_near_list, landclaims_near_list
+
     def run(self):
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.tn.togglechatcommandhide("/")
@@ -257,7 +279,7 @@ class ChraniBot:
 
         while self.is_active:
             if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
-                listlandprotection_dict = self.poll_lcb()
+                self.landclaims_dict = self.poll_lcb()
                 listlandprotection_timeout_start = time.time()
 
             if timeout_occurred(listplayers_interval, listplayers_timeout_start):

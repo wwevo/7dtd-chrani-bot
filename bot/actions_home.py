@@ -1,4 +1,5 @@
 import re
+import math
 from bot.location import Location
 from bot.logger import logger
 
@@ -8,6 +9,14 @@ actions_home = []
 def check_building_site(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
+
+        bases_near_list, landclaims_near_list = self.bot.check_for_homes(player_object)
+
+        if not bases_near_list and not landclaims_near_list:
+            self.tn.send_message_to_player(player_object, "Nothing near or far. Feel free to build here".format(len(bases_near_list), len(landclaims_near_list)), color=self.bot.chat_colors['success'])
+        else:
+            self.tn.send_message_to_player(player_object, "bases near: {}, landclaims near: {}".format(len(bases_near_list), len(landclaims_near_list)), color=self.bot.chat_colors['warning'])
+
     except Exception as e:
         logger.error(e)
         pass
@@ -29,6 +38,12 @@ actions_home.append({
 def set_up_home(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
+        bases_near_list, landclaims_near_list = self.bot.check_for_homes(player_object)
+
+        if bases_near_list or landclaims_near_list:
+            self.tn.send_message_to_player(player_object, "Can not set up a home here. Other bases are too close!", color=self.bot.chat_colors['error'])
+            return False
+
         # if you know what you are doing, yuo can circumvent all checks and set up a location by dictionary
         location_dict = dict(
             name='My Home',

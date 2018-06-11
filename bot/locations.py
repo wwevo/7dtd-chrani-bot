@@ -2,6 +2,7 @@ from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 import json
 import os
+import math
 from bot.logger import logger
 from bot.location import Location
 
@@ -57,6 +58,19 @@ class Locations(object):
                 return location_object
             except KeyError:
                 raise
+
+    def find_by_distance(self, start_coords, distance_in_blocks, location_identifier=None):
+        location_in_reach_list = []
+        for player_steamid, locations in self.locations_dict.iteritems():
+            for identifier, location in locations.iteritems():
+                if location_identifier is not None and identifier != location_identifier:
+                    continue
+
+                distance = math.sqrt((float(location.pos_x) - float(start_coords[0]))**2 + (float(location.pos_y) - float(start_coords[1]))**2 + (float(location.pos_z) - float(start_coords[2]))**2)
+                if distance < distance_in_blocks:
+                    location_in_reach_list.append({player_steamid: location})
+
+        return location_in_reach_list
 
     def remove(self, location_owner, location_identifier):
         try:
