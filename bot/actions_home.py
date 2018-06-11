@@ -5,6 +5,27 @@ from bot.logger import logger
 actions_home = []
 
 
+def check_building_site(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "can i build here",
+        "usage" : "/can i build here"
+    },
+    "action" : check_building_site,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
+
+
 def set_up_home(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
