@@ -236,7 +236,7 @@ def goto_location(self, command):
             try:
                 location_object = self.bot.locations.get(player_object.steamid, name)
                 self.tn.say("{} went to location {}".format(player_object.name, name), color=self.bot.chat_colors['background'])
-                self.tn.teleportplayer(player_object, location_object)
+                self.tn.teleportplayer(player_object, location_object=location_object)
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i have never heard of a location called {}".format(name), color=self.bot.chat_colors['warning'])
     except Exception as e:
@@ -332,7 +332,7 @@ def player_crossed_boundary(self):
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
                 elif get_player_status == "is inside core":
                     if location_object.protected_core is True:
-                        self.tn.teleportplayer_to_coords(player_object, location_object.eject_player(player_object))
+                        self.tn.teleportplayer(player_object, coord_tuple=location_object.eject_player(player_object))
                 elif get_player_status == "has entered core":
                     if location_object.messages_dict["entering_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_core"], color=self.bot.chat_colors['warning'])

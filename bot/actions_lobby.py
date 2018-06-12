@@ -22,7 +22,7 @@ def password(self, command):
                     # if the spawn is enabled, do port the player and disable it.
                     if location_object.enabled is True:
                         self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
-                        if self.tn.teleportplayer(player_object, location_object):
+                        if self.tn.teleportplayer(player_object, location_object=location_object):
                             location_object.enabled = False
                             self.bot.locations.upsert(location_object, save=True)
                     else:
@@ -157,7 +157,7 @@ def goto_lobby(self):
         try:
             location_object = self.bot.locations.get('system', 'lobby')
             self.tn.send_message_to_player(player_object, "You have ported to the lobby", color=self.bot.chat_colors['background'])
-            self.tn.teleportplayer(player_object, location_object)
+            self.tn.teleportplayer(player_object, location_object=location_object)
         except KeyError:
             self.tn.send_message_to_player(player_object, "There is no lobby :(", color=self.bot.chat_colors['warning'])
     except Exception as e:
@@ -253,7 +253,7 @@ def player_is_outside_boundary(self):
             return False
 
         if not location_object.player_is_inside_boundary(player_object):
-            if self.tn.teleportplayer(player_object, location_object):
+            if self.tn.teleportplayer(player_object, location_object=location_object):
                 player_object.set_coordinates(location_object)
                 self.bot.players.upsert(player_object)
                 logger.info("{} has been ported to the lobby!".format(player_object.name))

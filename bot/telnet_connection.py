@@ -224,24 +224,16 @@ class TelnetConnection:
         except Exception:
             return False
 
-    def teleportplayer(self, player_object, location_object):
-        if player_object.is_responsive() and timeout_occurred(1, player_object.last_teleport):
-            try:
-                connection = self.tn
-                command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(location_object.tele_x)))) + " " + str(int(math.ceil(float(location_object.tele_y)))) + " " + str(int(math.ceil(float(location_object.tele_z))))
-                logger.info(command)
-                connection.write(command + b"\r\n")
-                player_object.set_last_teleport()
-                return True
-            except Exception:
-                pass
-        return False
+    def teleportplayer(self, player_object, location_object=None, coord_tuple=None):
+        if location_object is not None:
+            coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
+        else:
+            coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
 
-    def teleportplayer_to_coords(self, player_object, coords):
-        if player_object.is_responsive() and timeout_occurred(1, player_object.last_teleport):
+        if player_object.is_responsive() and timeout_occurred(2, player_object.last_teleport):
             try:
                 connection = self.tn
-                command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(coords[0])))) + " " + str(int(math.ceil(float(coords[1])))) + " " + str(int(math.ceil(float(coords[2]))))
+                command = "teleportplayer " + player_object.steamid + " " + str(coord_tuple[0]) + " " + str(coord_tuple[1]) + " " + str(coord_tuple[2])
                 logger.info(command)
                 connection.write(command + b"\r\n")
                 player_object.set_last_teleport()

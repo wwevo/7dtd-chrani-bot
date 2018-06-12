@@ -274,7 +274,7 @@ def take_me_home(self):
             if location_object.player_is_inside_boundary(player_object):
                 self.tn.send_message_to_player(player_object, "eh, you already ARE home oO".format(player_object.name), color=self.bot.chat_colors['warning'])
             else:
-                self.tn.teleportplayer(player_object, location_object)
+                self.tn.teleportplayer(player_object, location_object=location_object)
                 self.tn.say("{} got homesick".format(player_object.name), color=self.bot.chat_colors['background'])
         except KeyError:
             self.tn.send_message_to_player(player_object, "You seem to be homeless".format(player_object.name), color=self.bot.chat_colors['warning'])
@@ -310,7 +310,7 @@ def goto_player_home(self, command):
             try:
                 player_object_to_port_to = self.bot.players.load(player_steamid)
                 location_object = self.bot.locations.get(player_object_to_port_to.steamid, "home")
-                self.tn.teleportplayer(player_object, location_object)
+                self.tn.teleportplayer(player_object, location_object=location_object)
                 self.tn.send_message_to_player(player_object, "You went to visit {}'s home".format(player_object_to_port_to.name), color=self.bot.chat_colors['background'])
                 self.tn.send_message_to_player(player_object_to_port_to, "{} went to visit your home!".format(player_object.name), color=self.bot.chat_colors['warning'])
             except KeyError:
