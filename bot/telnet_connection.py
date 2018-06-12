@@ -3,7 +3,7 @@ import re
 import telnetlib
 
 from bot.logger import logger
-
+from bot.assorted_functions import timeout_occurred
 
 class TelnetConnection:
     tn = object
@@ -225,24 +225,26 @@ class TelnetConnection:
             return False
 
     def teleportplayer(self, player_object, location_object):
-        if player_object.is_responsive():
+        if player_object.is_responsive() and timeout_occurred(1, player_object.last_teleport):
             try:
                 connection = self.tn
                 command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(location_object.tele_x)))) + " " + str(int(math.ceil(float(location_object.tele_y)))) + " " + str(int(math.ceil(float(location_object.tele_z))))
                 logger.info(command)
                 connection.write(command + b"\r\n")
+                player_object.set_last_teleport()
                 return True
             except Exception:
                 pass
         return False
 
     def teleportplayer_to_coords(self, player_object, coords):
-        if player_object.is_responsive():
+        if player_object.is_responsive() and timeout_occurred(1, player_object.last_teleport):
             try:
                 connection = self.tn
                 command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(coords[0])))) + " " + str(int(math.ceil(float(coords[1])))) + " " + str(int(math.ceil(float(coords[2]))))
                 logger.info(command)
                 connection.write(command + b"\r\n")
+                player_object.set_last_teleport()
                 return True
             except Exception:
                 pass

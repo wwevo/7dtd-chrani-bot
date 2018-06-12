@@ -155,6 +155,74 @@ actions_home.append({
 })
 
 
+def protect_inner_core(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        try:
+            location_object = self.bot.locations.get(player_object.steamid, "home")
+
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color=self.bot.chat_colors['warning'])
+            return False
+
+        if location_object.set_protected_core(True):
+            self.bot.locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "your home is now protected!", color=self.bot.chat_colors['success'])
+        else:
+            self.tn.send_message_to_player(player_object, "something went wrong :(", color=self.bot.chat_colors['warning'])
+
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "enable home protection",
+        "usage" : "/enable home protection"
+    },
+    "action" : protect_inner_core,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
+
+
+def unprotect_inner_core(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        try:
+            location_object = self.bot.locations.get(player_object.steamid, "home")
+
+        except KeyError:
+            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color=self.bot.chat_colors['warning'])
+            return False
+
+        if location_object.set_protected_core(False):
+            self.bot.locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "your home is now unprotected!", color=self.bot.chat_colors['success'])
+        else:
+            self.tn.send_message_to_player(player_object, "something went wrong :(", color=self.bot.chat_colors['warning'])
+
+    except Exception as e:
+        logger.error(e)
+        pass
+
+
+actions_home.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "disable home protection",
+        "usage" : "/disable home protection"
+    },
+    "action" : unprotect_inner_core,
+    "env": "(self)",
+    "group": "home",
+    "essential" : False
+})
+
+
 def set_up_home_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)

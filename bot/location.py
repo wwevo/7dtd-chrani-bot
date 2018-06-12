@@ -1,4 +1,5 @@
 import math
+import random
 from bot.assorted_functions import get_region_string
 
 
@@ -28,6 +29,7 @@ class Location(object):
     # spheres and cubes
     radius = float
     warning_boundary = float
+    protected_core = bool
 
     # cuboids (rooms)
     width = int
@@ -60,6 +62,7 @@ class Location(object):
         self.list_of_players_inside = []
         self.list_of_players_inside_core = []
         self.point_of_entry_dict = {}
+        self.protected_core = False
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -176,6 +179,10 @@ class Location(object):
     def get_messages_dict(self):
         return self.messages_dict
 
+    def set_protected_core(self, protected):
+        self.protected_core = protected
+        return True
+
     # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     def update_region_list(self):
         # a'ight, I suck at maths. Still need this to be done so here it goes.
@@ -209,6 +216,14 @@ class Location(object):
 
     def set_list_of_players_inside_core(self, list_of_players_inside_core):
         self.list_of_players_inside_core = list_of_players_inside_core
+
+    def eject_player(self, player_object):
+        angle = random.randint(0, 359)
+        x = self.pos_x + (self.radius + 2) * math.cos(angle)
+        z = self.pos_z + (self.radius + 2) * math.sin(angle)
+        coords = (x, -1, z)
+
+        return coords
 
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location

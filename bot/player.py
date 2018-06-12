@@ -1,5 +1,4 @@
 from time import time
-from bot.logger import logger
 
 
 class Player():
@@ -81,6 +80,9 @@ class Player():
     def remove_permission_level(self, level):
         if level in self.permission_levels:
             self.permission_levels.remove(level)
+
+    def set_last_teleport(self):
+        self.last_teleport = time()
 
     def set_coordinates(self, location_object):
         self.pos_x = location_object.tele_x

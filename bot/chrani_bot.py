@@ -263,7 +263,17 @@ class ChraniBot:
         bases_near_list = self.locations.find_by_distance(start_coords, distance, "home")
         landclaims_near_list = self.landclaims_find_by_distance(start_coords, distance)
 
-        return bases_near_list, landclaims_near_list
+        clean_bases_near_list = []
+        for base in bases_near_list:
+            if base.keys()[0] != player_object.steamid:
+                clean_bases_near_list.append(base)
+
+        clean_landclaims_near_list = []
+        for landclaim in landclaims_near_list:
+            if str(landclaim.keys()[0]) != player_object.steamid:
+                clean_landclaims_near_list.append(landclaim)
+
+        return clean_bases_near_list, clean_landclaims_near_list
 
     def run(self):
         self.is_active = True  # this is set so the main loop can be started / stopped
