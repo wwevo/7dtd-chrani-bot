@@ -1,7 +1,5 @@
 import math
 from bot.assorted_functions import get_region_string
-from bot.assorted_functions import get_region_grid
-from bot.assorted_functions import round_to_region_grid
 
 
 # noinspection SpellCheckingInspection
@@ -39,8 +37,11 @@ class Location(object):
     region_list = list
 
     last_player_activity_dict = {}
+
     list_of_players_inside = list
     list_of_players_inside_core = list
+
+    point_of_entry_dict = dict
 
     def __init__(self, **kwargs):
         self.messages_dict = {
@@ -58,6 +59,7 @@ class Location(object):
         self.enabled = True
         self.list_of_players_inside = []
         self.list_of_players_inside_core = []
+        self.point_of_entry_dict = {}
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
@@ -271,12 +273,14 @@ class Location(object):
             else:
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
+                self.point_of_entry_dict[player_object.steamid] = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
                 player_status = 'has entered'
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
                 # and was inside before, so he left the location
                 self.list_of_players_inside.remove(player_object.steamid)
+                del self.point_of_entry_dict[player_object.steamid]
                 player_status = 'has left'
             else:
                 # and already was outside before
