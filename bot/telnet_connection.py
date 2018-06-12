@@ -236,6 +236,18 @@ class TelnetConnection:
                 pass
         return False
 
+    def teleportplayer_to_coords(self, player_object, coords):
+        if player_object.is_responsive():
+            try:
+                connection = self.tn
+                command = "teleportplayer " + player_object.steamid + " " + str(int(math.ceil(float(coords[0])))) + " " + str(int(math.ceil(float(coords[1])))) + " " + str(int(math.ceil(float(coords[2]))))
+                logger.info(command)
+                connection.write(command + b"\r\n")
+                return True
+            except Exception:
+                pass
+        return False
+
     def debuffplayer(self, player_object, buff):
         buff_list = [
             "bleeding",
