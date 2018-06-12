@@ -61,7 +61,8 @@ class Locations(object):
 
     def find_by_distance(self, start_coords, distance_in_blocks, location_identifier=None):
         location_in_reach_list = []
-        for player_steamid, locations in self.locations_dict.iteritems():
+        locations_dict = self.locations_dict
+        for player_steamid, locations in locations_dict.iteritems():
             for identifier, location in locations.iteritems():
                 if location_identifier is not None and identifier != location_identifier:
                     continue

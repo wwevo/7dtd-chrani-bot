@@ -247,7 +247,8 @@ class ChraniBot:
 
     def landclaims_find_by_distance(self, start_coords, distance_in_blocks):
         landclaims_in_reach_list = []
-        for player_steamid, landclaims in self.landclaims_dict.iteritems():
+        landclaims_dict = self.landclaims_dict
+        for player_steamid, landclaims in landclaims_dict.iteritems():
             for landclaim in landclaims:
                 distance = math.sqrt((float(landclaim[0]) - float(start_coords[0]))**2 + (float(landclaim[1]) - float(start_coords[1]))**2 + (float(landclaim[2]) - float(start_coords[2]))**2)
                 if distance < distance_in_blocks:
