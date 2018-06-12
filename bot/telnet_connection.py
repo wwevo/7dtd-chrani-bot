@@ -230,7 +230,7 @@ class TelnetConnection:
         else:
             coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
 
-        if player_object.is_responsive() and timeout_occurred(2, player_object.last_teleport):
+        if player_object.is_responsive() and timeout_occurred(self.bot.listplayers_interval, player_object.last_teleport):
             try:
                 connection = self.tn
                 command = "teleportplayer " + player_object.steamid + " " + str(coord_tuple[0]) + " " + str(coord_tuple[1]) + " " + str(coord_tuple[2])
