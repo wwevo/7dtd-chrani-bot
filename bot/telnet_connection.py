@@ -5,6 +5,7 @@ import telnetlib
 from bot.logger import logger
 from bot.assorted_functions import timeout_occurred
 
+
 class TelnetConnection:
     tn = object
     bot = object
@@ -226,7 +227,10 @@ class TelnetConnection:
 
     def teleportplayer(self, player_object, location_object=None, coord_tuple=None):
         if location_object is not None:
-            coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
+            try:
+                coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
+            except:
+                coord_tuple = (int(math.ceil(float(location_object.pos_x))), int(math.ceil(float(location_object.pos_y))), int(math.ceil(float(location_object.pos_z))))
         else:
             coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
 

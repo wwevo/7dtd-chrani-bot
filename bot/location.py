@@ -99,7 +99,7 @@ class Location(object):
         return True
 
     def set_teleport_coordinates(self, player_object):
-        if self.shape == 'point' or self.player_is_inside_boundary(player_object):
+        if self.player_is_inside_boundary(player_object):
             self.tele_x = player_object.pos_x
             self.tele_y = player_object.pos_y
             self.tele_z = player_object.pos_z

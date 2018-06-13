@@ -80,7 +80,7 @@ actions_locations.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location teleport",
-        "usage" : "/edit location teleport <identifier>"
+        "usage" : "/edit location teleport <location_identifier>"
     },
     "action" : set_up_location_teleport,
     "env": "(self, command)",
@@ -118,7 +118,7 @@ actions_locations.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location name",
-        "usage" : "/edit location teleport <location identifier>"
+        "usage" : "/edit location name <location_identifier> = <location name>"
     },
     "action" : set_up_location_name,
     "env": "(self, command)",
@@ -164,7 +164,7 @@ actions_locations.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location outer perimeter",
-        "usage" : "/edit location outer perimeter <identifier>"
+        "usage" : "/edit location outer perimeter <location_identifier>"
     },
     "action" : set_up_location_outer_perimeter,
     "env": "(self, command)",
@@ -203,7 +203,7 @@ actions_locations.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location inner perimeter",
-        "usage" : "/edit location inner perimeter <identifier>"
+        "usage" : "/edit location inner perimeter <location_identifier>"
     },
     "action" : set_up_location_inner_perimeter,
     "env": "(self, command)",
@@ -248,7 +248,7 @@ def goto_location(self, command):
             name = p.group(1)
             try:
                 location_object = self.bot.locations.get(player_object.steamid, name)
-                self.tn.say("{} went to location {}".format(player_object.name, name), color=self.bot.chat_colors['background'])
+                self.tn.send_message_to_player(player_object, "You have ported to the location {}".format(name), color=self.bot.chat_colors['success'])
                 self.tn.teleportplayer(player_object, location_object=location_object)
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i have never heard of a location called {}".format(name), color=self.bot.chat_colors['warning'])
@@ -261,7 +261,7 @@ actions_locations.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "goto location",
-        "usage" : "/goto location <identifier>"
+        "usage" : "/goto location <location_identifier>"
     },
     "action" : goto_location,
     "env": "(self, command)",
@@ -295,7 +295,7 @@ actions_locations.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "remove location",
-        "usage" : "/remove location <identifier>"
+        "usage" : "/remove location <location_identifier>"
     },
     "action" : remove_location,
     "env": "(self, command)",
@@ -358,7 +358,7 @@ def player_crossed_boundary(self):
 
 observers_locations.append({
     "type" : "monitor",
-    "title" : "player crossed boundary",
+    "title" : "player crossed location boundary",
     "action" : player_crossed_boundary,
     "env": "(self)",
     "essential" : True

@@ -275,7 +275,7 @@ def take_me_home(self):
                 self.tn.send_message_to_player(player_object, "eh, you already ARE home oO".format(player_object.name), color=self.bot.chat_colors['warning'])
             else:
                 self.tn.teleportplayer(player_object, location_object=location_object)
-                self.tn.say("{} got homesick".format(player_object.name), color=self.bot.chat_colors['background'])
+                self.tn.send_message_to_player(player_object, "you have ported home!".format(player_object.name), color=self.bot.chat_colors['success'])
         except KeyError:
             self.tn.send_message_to_player(player_object, "You seem to be homeless".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
