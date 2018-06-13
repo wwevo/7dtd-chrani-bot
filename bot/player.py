@@ -41,6 +41,7 @@ class Player():
         self.permission_levels = []
         self.last_responsive = time()
         self.entityid = None
+        self.authenticated = False
 
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
