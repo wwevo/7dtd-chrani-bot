@@ -37,7 +37,7 @@ def set_up_location(self, command):
             self.tn.send_message_to_player(player_object, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
             self.tn.send_message_to_player(player_object, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -72,7 +72,7 @@ def set_up_location_teleport(self, command):
             else:
                 self.tn.send_message_to_player(player_object, "your position seems to be outside the location", color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -110,7 +110,7 @@ def set_up_location_name(self, command):
             except KeyError:
                 self.tn.send_message_to_player(player_object, "You can not name that which you do not have!!", color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -146,7 +146,7 @@ def set_up_location_outer_perimeter(self, command):
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -182,7 +182,7 @@ def set_up_location_inner_perimeter(self, command):
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -210,7 +210,7 @@ def list_locations(self):
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} can not list that which you do not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -240,7 +240,7 @@ def goto_location(self, command):
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i have never heard of a location called {}".format(name), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -274,7 +274,7 @@ def remove_location(self, command):
             except KeyError:
                 self.tn.send_message_to_player(player_object, "I have never heard of a location called {}".format(identifier), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -339,7 +339,7 @@ def player_crossed_boundary(self):
 
                 self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 

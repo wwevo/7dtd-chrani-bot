@@ -30,7 +30,7 @@ def password(self, command):
                 except KeyError:
                     return False
     except Exception as e:
-        logger.error(e.message)
+        logger.exception(e)
         pass
 
 
@@ -70,7 +70,7 @@ def set_up_lobby(self):
         self.tn.send_message_to_player(player_object, "You have set up a lobby", color=self.bot.chat_colors['success'])
         self.tn.send_message_to_player(player_object, "Set up the perimeter with /set lobby outer perimeter, while standing on the edge of it.".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -102,7 +102,7 @@ def set_up_lobby_outer_perimeter(self):
         else:
             self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -134,7 +134,7 @@ def set_up_lobby_inner_perimeter(self):
         else:
             self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?", color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -161,7 +161,7 @@ def goto_lobby(self):
         except KeyError:
             self.tn.send_message_to_player(player_object, "There is no lobby :(", color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -187,7 +187,7 @@ def remove_lobby(self):
             self.tn.send_message_to_player(player_object, "no lobby found oO", color=self.bot.chat_colors['warning'])
             return False
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -219,7 +219,7 @@ def set_up_lobby_teleport(self):
         else:
             self.tn.send_message_to_player(player_object, "your position seems to be outside of the location", color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -260,7 +260,7 @@ def player_is_outside_boundary(self):
                 self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>", color=self.bot.chat_colors['alert'])
                 self.tn.send_message_to_player(player_object, "see https://chrani.net/chrani-bot for more information!", color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 

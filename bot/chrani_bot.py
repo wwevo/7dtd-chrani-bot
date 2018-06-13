@@ -356,7 +356,7 @@ class ChraniBot:
             try:
                 telnet_lines = self.tn.read_line()
             except Exception as e:
-                logger.error(e)
+                logger.exception(e)
                 raise IOError
 
             if telnet_lines is not None:

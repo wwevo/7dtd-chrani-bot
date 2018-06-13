@@ -82,9 +82,9 @@ class Locations(object):
                     os.remove(filename)
                     del self.locations_dict[location_owner][location_identifier]
                 except OSError, e:
-                    logger.error("Error: {} - {}.".format(e.filename, e.strerror))
+                    logger.exception(e)
             else:
-                logger.error("Sorry, I can not find {} file.".format(filename))
+                logger.exception(e)
             pass
         except KeyError:
             raise

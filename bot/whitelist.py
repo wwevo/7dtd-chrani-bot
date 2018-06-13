@@ -64,9 +64,9 @@ class Whitelist(object):
                     del self.whitelisted_players_dict[player_object_to_dewhitelist.steamid]
                     return True
                 except OSError, e:
-                    logger.error("Error: {} - {}.".format(e.filename, e.strerror))
+                    logger.exception(e)
             else:
-                logger.error("Sorry, I can not find {} file.".format(filename))
+                logger.exception(e)
                 return False
         except KeyError:
             raise

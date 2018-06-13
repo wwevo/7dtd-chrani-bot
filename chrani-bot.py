@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
             log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
             logger.info(log_message)
+            logger.exception(error)
             time.sleep(wait_until_reconnect)
             pass
 

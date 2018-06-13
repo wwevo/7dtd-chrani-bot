@@ -218,20 +218,23 @@ class Location(object):
         self.list_of_players_inside_core = list_of_players_inside_core
 
     def eject_player(self, player_object):
-        angle = random.randint(0, 359)
-        x = self.pos_x + (self.radius + 2) * math.cos(angle)
-        z = self.pos_z + (self.radius + 2) * math.sin(angle)
-        coords = (x, -1, z)
+        if self.shape == "sphere":
+            angle = random.randint(0, 359)
+            x = self.pos_x + (self.radius + 2) * math.cos(angle)
+            z = self.pos_z + (self.radius + 2) * math.sin(angle)
+            coords = (x, -1, z)
+        elif self.shape == "cube" or self.shape == "room":
+            # untested
+            pass
+        else:
+            return False
 
         return coords
 
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
 
-        for now we have only a sphere and cube
-
-        next will be rooms, then polygons for more exotic bases. the goal is to use exactly the
-        space one needs instead of arbitrary shapes dictated by my lack of math-skills!
+        for now we have only a spheres and cubics
 
         got some math-skills? contact me :)
         """

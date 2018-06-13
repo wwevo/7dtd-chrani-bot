@@ -8,7 +8,7 @@ def on_player_death(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     try:
@@ -51,7 +51,7 @@ def on_player_kill(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     try:
@@ -122,7 +122,7 @@ def take_me_to_my_backpack(self):
         except KeyError:
             self.tn.send_message_to_player(player_object, "I don't have your last death on record, sorry :(".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 

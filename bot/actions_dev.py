@@ -28,7 +28,7 @@ def fix_players_legs(self):
         self.tn.debuffplayer(player_object, "sprainedLeg")
         self.tn.send_message_to_player(player_object, "your legs have been taken care of ^^", color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -65,7 +65,7 @@ def stop_the_bleeding(self):
         self.tn.debuffplayer(player_object, "bleeding")
         self.tn.send_message_to_player(player_object, "your wounds have been bandaided ^^", color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -102,7 +102,7 @@ def apply_first_aid(self):
         self.tn.buffplayer(player_object, "firstAidLarge")
         self.tn.send_message_to_player(player_object, "feel the power flowing through you!! ^^", color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -136,7 +136,7 @@ def reload_from_db(self):
         self.bot.load_from_db()
         self.tn.send_message_to_player(player_object, "loaded all from storage!", color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -174,7 +174,7 @@ def shutdown_bot(self):
         self.tn.send_message_to_player(player_object, "bot is shutting down...", color=self.bot.chat_colors['success'])
         self.bot.shutdown_bot()
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -221,7 +221,7 @@ def obliterate_player(self):
         self.bot.players.remove(player_object)
         self.bot.whitelist.remove(player_object)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -280,7 +280,7 @@ def ban_player(self, command):
             else:
                 self.tn.send_message_to_player(player_object, "could not find a player with id {}".format(steamid_to_ban), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -328,7 +328,7 @@ def unban_player(self, command):
 
             self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_unban), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -378,7 +378,7 @@ def kick_player(self, command):
                 self.tn.send_message_to_player(player_object, "you have kicked {}".format(player_object_to_kick.name), color=self.bot.chat_colors['success'])
                 self.tn.say("{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, player_object.name, reason_for_kick), color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -421,7 +421,7 @@ def list_online_players(self):
             self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: {}".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=self.bot.chat_colors['success'])
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -456,7 +456,7 @@ def list_available_player_actions(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     available_player_actions = []
@@ -500,7 +500,7 @@ def record_time_of_last_activity(self):
             player_object.last_seen = time()
             self.bot.players.upsert(player_object, save=True)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 

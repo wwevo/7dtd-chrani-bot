@@ -79,7 +79,7 @@ class Players(object):
             if save:
                 self.save(player_object)
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
 
     def remove(self, player_object):
         filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object.steamid, self.extension)
@@ -87,10 +87,10 @@ class Players(object):
             try:
                 os.remove(filename)
             except Exception as e:
-                logger.error("Error: {}".format(e))
+                logger.exception(e)
                 pass
         else:
-            logger.error("Sorry, I can not find {} file.".format(filename))
+            logger.exception(e)
 
     def save(self, player_object):
         dict_to_save = player_object.__dict__

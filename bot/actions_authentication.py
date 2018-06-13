@@ -8,7 +8,7 @@ def on_player_join(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     if player_object.has_permission_level("authenticated") is not True:
@@ -52,7 +52,7 @@ def password(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     p = re.search(r"password\s(?P<password>\w+)$", command)
@@ -126,7 +126,7 @@ def add_player_to_permission_group(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\sgroup\s(?P<group_name>\w+)$", command)
@@ -186,7 +186,7 @@ def remove_player_from_permission_group(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom\sgroup\s(?P<group_name>\w+)$", command)

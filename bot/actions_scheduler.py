@@ -20,7 +20,7 @@ def mute_unauthenticated_player(self):
                 self.tn.send_message_to_player(player_object, "Your chat has been enabled", color=self.bot.chat_colors['success'])
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 

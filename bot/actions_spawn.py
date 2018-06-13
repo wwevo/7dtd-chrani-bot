@@ -8,7 +8,7 @@ def on_player_join(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
@@ -53,7 +53,7 @@ def on_player_death(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         raise KeyError
 
     try:

@@ -18,7 +18,7 @@ def check_building_site(self):
             self.tn.send_message_to_player(player_object, "bases near: {}, landclaims near: {}".format(len(bases_near_list), len(landclaims_near_list)), color=self.bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -72,7 +72,7 @@ def set_up_home(self):
         self.tn.say("{} has decided to settle down!".format(player_object.name), color=self.bot.chat_colors['background'])
         self.tn.send_message_to_player(player_object, "Home is where your hat is!", color=self.bot.chat_colors['success'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -100,7 +100,7 @@ def remove_home(self):
             raise KeyError
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         return False
 
     self.tn.send_message_to_player(player_object, "Your home has been removed.", color=self.bot.chat_colors['warning'])
@@ -138,7 +138,7 @@ def set_up_home_teleport(self):
             self.tn.send_message_to_player(player_object, "your position seems to be outside your home", color=self.bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -172,7 +172,7 @@ def protect_inner_core(self):
             self.tn.send_message_to_player(player_object, "something went wrong :(", color=self.bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -206,7 +206,7 @@ def unprotect_inner_core(self):
             self.tn.send_message_to_player(player_object, "something went wrong :(", color=self.bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -237,7 +237,7 @@ def set_up_home_name(self, command):
                 raise KeyError
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         return False
 
     location_object.set_description(description)
@@ -279,7 +279,7 @@ def take_me_home(self):
         except KeyError:
             self.tn.send_message_to_player(player_object, "You seem to be homeless".format(player_object.name), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -317,7 +317,7 @@ def goto_player_home(self, command):
                 self.tn.send_message_to_player(player_object, "Could not find {}'s home".format(player_steamid), color=self.bot.chat_colors['warning'])
                 pass
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -349,7 +349,7 @@ def set_up_home_outer_perimeter(self):
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
@@ -381,7 +381,7 @@ def set_up_home_inner_perimeter(self):
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['warning'])
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         pass
 
 
