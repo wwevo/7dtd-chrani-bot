@@ -141,10 +141,20 @@ def set_up_location_outer_perimeter(self, command):
 
             set_radius, allowed_range = location_object.set_radius(player_object)
             if set_radius is True:
-                self.bot.locations.upsert(location_object, save=True)
                 self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
             else:
                 self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
+                return False
+
+            if location_object.radius <= location_object.warning_boundary:
+                set_radius, allowed_range = location_object.set_warning_boundary(player_object)
+                if set_radius is True:
+                    self.tn.send_message_to_player(player_object, "the inner core has been set to match the outer perimeter.", color=self.bot.chat_colors['warning'])
+                else:
+                    return False
+
+            self.bot.locations.upsert(location_object, save=True)
+
     except Exception as e:
         logger.exception(e)
         pass
@@ -177,10 +187,13 @@ def set_up_location_inner_perimeter(self, command):
 
             set_radius, allowed_range = location_object.set_warning_boundary(player_object)
             if set_radius is True:
-                self.bot.locations.upsert(location_object, save=True)
                 self.tn.send_message_to_player(player_object, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['success'])
             else:
-                self.tn.send_message_to_player(player_object, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
+                self.tn.send_message_to_player(player_object, "your given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
+                return False
+
+            self.bot.locations.upsert(location_object, save=True)
+
     except Exception as e:
         logger.exception(e)
         pass

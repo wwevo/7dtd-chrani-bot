@@ -348,6 +348,16 @@ def set_up_home_outer_perimeter(self):
             self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
+            return False
+
+        if location_object.radius <= location_object.warning_boundary:
+            set_radius, allowed_range = location_object.set_warning_boundary(player_object)
+            if set_radius is True:
+                self.tn.send_message_to_player(player_object, "the inner core has been set to match the outer perimeter.", color=self.bot.chat_colors['warning'])
+            else:
+                return False
+
+        self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
         logger.exception(e)
         pass
