@@ -43,8 +43,6 @@ class Location(object):
     list_of_players_inside = list
     list_of_players_inside_core = list
 
-    point_of_entry_dict = dict
-
     def __init__(self, **kwargs):
         self.messages_dict = {
             "entering_boundary": "entering boundary",
@@ -61,7 +59,6 @@ class Location(object):
         self.enabled = True
         self.list_of_players_inside = []
         self.list_of_players_inside_core = []
-        self.point_of_entry_dict = {}
         self.protected_core = False
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
@@ -291,14 +288,12 @@ class Location(object):
             else:
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
-                self.point_of_entry_dict[player_object.steamid] = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
                 player_status = 'has entered'
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
                 # and was inside before, so he left the location
                 self.list_of_players_inside.remove(player_object.steamid)
-                del self.point_of_entry_dict[player_object.steamid]
                 player_status = 'has left'
             else:
                 # and already was outside before
