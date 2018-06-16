@@ -57,14 +57,14 @@ def set_up_home(self):
             tele_z=player_object.pos_z,
             description="{}\'s home".format(player_object.name),
             messages_dict={
-                "leaving_core": "you are leaving {}\'s private area".format(player_object.name),
+                "leaving_core": None,
                 "leaving_boundary": "you are leaving {}\'s estate".format(player_object.name),
                 "entering_boundary": "you are entering {}\'s estate".format(player_object.name),
-                "entering_core": "you are entering {}\'s private area".format(player_object.name)
+                "entering_core": None
             },
             shape='sphere',
-            radius=10,
-            warning_boundary=6,
+            radius=float(self.bot.get_setting_by_name("location_default_radius")),
+            warning_boundary=float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio")),
             list_of_players_inside=[player_object.steamid]
         )
         location_object = Location(**location_dict)

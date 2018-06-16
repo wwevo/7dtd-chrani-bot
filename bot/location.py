@@ -29,7 +29,9 @@ class Location(object):
     # spheres and cubes
     radius = float
     warning_boundary = float
+
     protected_core = bool
+    protected_core_whitelist = list
 
     # cuboids (rooms)
     width = int
@@ -60,6 +62,8 @@ class Location(object):
         self.list_of_players_inside = []
         self.list_of_players_inside_core = []
         self.protected_core = False
+        self.protected_core_whitelist = []
+
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)

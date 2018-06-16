@@ -24,8 +24,8 @@ def set_up_location(self, command):
             identifier = location_object.set_identifier(name)  # generate the identifier from the name
             location_object.set_owner(player_object.steamid)
             location_object.set_shape("sphere")
-            #location_object.set_region([player_object.region])
-            # TODO: this seems like a crappy solution ^^ need a way more elegant... way
+            location_object.set_radius(float(self.bot.get_setting_by_name("location_default_radius")))
+            location_object.set_warning_boundary(float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio")))
             messages_dict = location_object.get_messages_dict()
             messages_dict["entering_core"] = "entering {}'s core".format(name)
             messages_dict["leaving_core"] = "leaving {}'s core".format(name)

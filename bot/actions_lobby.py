@@ -58,7 +58,8 @@ def set_up_lobby(self):
         location_object.set_description('The \"there is no escape\" Lobby')
         location_object.set_shape("sphere")
         location_object.set_coordinates(player_object)
-        # location_object.set_region([player_object.region])
+        location_object.set_radius(float(self.bot.get_setting_by_name("location_default_radius")))
+        location_object.set_warning_boundary(float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio")))
         messages_dict = location_object.get_messages_dict()
         messages_dict["entering_core"] = None
         messages_dict["leaving_core"] = None

@@ -6,5 +6,8 @@
   "telnet_port": 0,
   "telnet_password": "",
 
-  "ipinfo.io_password": ""
+  "ipinfo.io_password": "",
+
+  "location_default_radius": 0,
+  "location_default_warning_boundary_ratio": 0.00
 }
