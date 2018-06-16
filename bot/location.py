@@ -149,7 +149,7 @@ class Location(object):
                         float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
                         float(self.pos_z) - float(player_object.pos_z)) ** 2)
         )
-        allowed_range = range(3, int(self.radius + 1))
+        allowed_range = range(3, int(self.radius - 1))
         if int(radius) in allowed_range:
             self.warning_boundary = radius
             return True, allowed_range
