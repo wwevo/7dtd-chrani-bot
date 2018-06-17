@@ -232,7 +232,10 @@ class TelnetConnection:
             except:
                 coord_tuple = (int(math.ceil(float(location_object.pos_x))), int(math.ceil(float(location_object.pos_y))), int(math.ceil(float(location_object.pos_z))))
         else:
-            coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
+            try:
+                coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
+            except:
+                return False
 
         if player_object.is_responsive() and timeout_occurred(self.bot.listplayers_interval, player_object.last_teleport):
             try:
