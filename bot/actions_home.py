@@ -68,6 +68,7 @@ def set_up_home(self):
             list_of_players_inside=[player_object.steamid]
         )
         location_object = Location(**location_dict)
+
         self.bot.locations.upsert(location_object, save=True)
         self.tn.say("{} has decided to settle down!".format(player_object.name), color=self.bot.chat_colors['background'])
         self.tn.send_message_to_player(player_object, "Home is where your hat is!", color=self.bot.chat_colors['success'])
@@ -406,3 +407,5 @@ actions_home.append({
     "group": "home",
     "essential" : False
 })
+
+

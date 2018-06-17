@@ -50,16 +50,20 @@ actions_lobby.append({
 def set_up_lobby(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
+
         location_object = Location()
         location_object.set_owner('system')
         name = 'The Lobby'
+
         location_object.set_name(name)
+        location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
+        location_object.warning_boundary =float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
+
+        location_object.set_coordinates(player_object)
         identifier = location_object.set_identifier('lobby')
         location_object.set_description('The \"there is no escape\" Lobby')
         location_object.set_shape("sphere")
-        location_object.set_coordinates(player_object)
-        location_object.set_radius(float(self.bot.get_setting_by_name("location_default_radius")))
-        location_object.set_warning_boundary(float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio")))
+
         messages_dict = location_object.get_messages_dict()
         messages_dict["entering_core"] = None
         messages_dict["leaving_core"] = None
@@ -67,9 +71,11 @@ def set_up_lobby(self):
         messages_dict["leaving_boundary"] = None
         location_object.set_messages(messages_dict)
         location_object.set_list_of_players_inside([player_object.steamid])
+
         self.bot.locations.upsert(location_object, save=True)
+
         self.tn.send_message_to_player(player_object, "You have set up a lobby", color=self.bot.chat_colors['success'])
-        self.tn.send_message_to_player(player_object, "Set up the perimeter with /set lobby outer perimeter, while standing on the edge of it.".format(player_object.name), color=self.bot.chat_colors['warning'])
+        self.tn.send_message_to_player(player_object, "Set up the perimeter with {}, while standing on the edge of it.".format(self.bot.find_action_help("lobby", "edit lobby outer perimeter")), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.exception(e)
         pass

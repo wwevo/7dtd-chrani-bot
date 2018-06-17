@@ -19,13 +19,14 @@ def set_up_location(self, command):
                 raise KeyError
 
             location_object = Location()
+            location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
+            location_object.warning_boundary = float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
+
             location_object.set_coordinates(player_object)
             location_object.set_name(name)
             identifier = location_object.set_identifier(name)  # generate the identifier from the name
             location_object.set_owner(player_object.steamid)
             location_object.set_shape("sphere")
-            location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
-            location_object.warning_boundary = float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
 
             messages_dict = location_object.get_messages_dict()
             messages_dict["entering_core"] = None
