@@ -24,15 +24,18 @@ def set_up_location(self, command):
             identifier = location_object.set_identifier(name)  # generate the identifier from the name
             location_object.set_owner(player_object.steamid)
             location_object.set_shape("sphere")
-            location_object.set_radius(float(self.bot.get_setting_by_name("location_default_radius")))
-            location_object.set_warning_boundary(float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio")))
+            location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
+            location_object.warning_boundary = float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
+
             messages_dict = location_object.get_messages_dict()
-            messages_dict["entering_core"] = "entering {}'s core".format(name)
-            messages_dict["leaving_core"] = "leaving {}'s core".format(name)
+            messages_dict["entering_core"] = None
+            messages_dict["leaving_core"] = None
             messages_dict["entering_boundary"] = "entering {}".format(name)
             messages_dict["leaving_boundary"] = "leaving {}".format(name)
+
             location_object.set_messages(messages_dict)
             location_object.set_list_of_players_inside([player_object.steamid])
+
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
             self.tn.send_message_to_player(player_object, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=self.bot.chat_colors['success'])
