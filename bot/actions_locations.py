@@ -1,6 +1,4 @@
 import re
-import random
-import math
 
 from bot.location import Location
 from bot.logger import logger

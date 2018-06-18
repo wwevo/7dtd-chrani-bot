@@ -5,6 +5,14 @@ actions_authentication = []
 
 
 def on_player_join(self):
+    """Will greet an unauthenticated player
+
+    Keyword arguments:
+    self -- the bot
+
+    notes:
+    does nothing for autrhenticated players
+    """
     try:
         player_object = self.bot.players.get(self.player_steamid)
     except Exception as e:
@@ -15,7 +23,6 @@ def on_player_join(self):
         self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['warning'])
         self.tn.send_message_to_player(player_object, "this is a development server. you can play here, but there's no support or anything really.", color=self.bot.chat_colors['info'])
         self.tn.send_message_to_player(player_object, "Enjoy!", color=self.bot.chat_colors['info'])
-        return False
 
     return True
 
