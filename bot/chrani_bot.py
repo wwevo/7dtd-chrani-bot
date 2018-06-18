@@ -141,7 +141,7 @@ class ChraniBot:
             # captures the response for telnet commands. used for example to capture teleport response
             'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
             # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
-            'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<steamid>.*), OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
+            'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
             # isolates the disconnected log entry to get the total session time of a player easily
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
@@ -385,12 +385,23 @@ class ChraniBot:
                             active_player_thread = self.active_player_threads_dict[player_steamid]
                             active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
-                """ work through triggers caused by telnet_activity """
+                m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
+                if m:
+                    try:
+                        player_id = m.group("player_id")
+                        command = m.group("command")
+                        player_object = self.players.load(player_id)
+                        active_player_thread = self.active_player_threads_dict[player_id]
+                        active_player_thread["thread"].trigger_action(player_object, command)
+                    except KeyError:
+                        pass
+
                 # telnet_player_connected is the earliest usable player-data line available, perfect spot to fire off triggers for whitelist and blacklist and such
                 m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
                 if m:
                     try:
-                        player_object = self.players.load(m.group("player_id"))
+                        player_id = m.group("player_id")
+                        player_object = self.players.load(player_id)
                     except KeyError:
                         player_dict = {
                             'entityid': int(m.group("entity_id")),

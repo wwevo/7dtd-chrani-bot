@@ -44,7 +44,7 @@ actions_backpack.append({
     "action" : on_player_death,
     "env": "(self)",
     "group": "backpack",
-    "essential" : True
+    "essential" : False
 })
 
 
@@ -61,7 +61,7 @@ actions_backpack.append({
     "action" : on_player_kill,
     "env": "(self)",
     "group": "backpack",
-    "essential" : True
+    "essential" : False
 })
 
 

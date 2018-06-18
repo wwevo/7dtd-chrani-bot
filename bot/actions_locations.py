@@ -315,12 +315,13 @@ observers_locations = []
 def player_crossed_boundary(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        for location_owner_steamid in self.bot.locations.locations_dict:
+        locations_dict = self.bot.locations.locations_dict
+        for location_owner_steamid in locations_dict:
             """ go through each location and check if the player is inside
             locations are stored on a player-basis so we can have multiple 'home' and 'spawn' location and whatnot
             so we have to loop through every player_location_dict to get to the actual locations
             """
-            for location_name, location_object in self.bot.locations.locations_dict[location_owner_steamid].iteritems():
+            for location_name, location_object in locations_dict[location_owner_steamid].iteritems():
                 if player_object.region not in location_object.region_list:
                     # we only need to check a location if a player is near it
                     continue

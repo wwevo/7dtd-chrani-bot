@@ -11,10 +11,8 @@ def on_player_join(self):
         logger.exception(e)
         raise KeyError
 
-    self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
-
     try:
-        location = self.bot.locations.get(player_object.steamid, 'spawn')
+        location_object = self.bot.locations.get(player_object.steamid, 'spawn')
     except KeyError:
         location_dict = dict(
             identifier='spawn',
@@ -40,6 +38,19 @@ actions_spawn.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "entered the stream",
+        "usage" : None
+    },
+    "action" : on_player_join,
+    "env": "(self)",
+    "group": "spawn",
+    "essential" : True
+})
+
+
+actions_spawn.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "Died",
         "usage" : None
     },
     "action" : on_player_join,
