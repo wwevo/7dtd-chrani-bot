@@ -1,5 +1,4 @@
 import re
-import math
 from bot.location import Location
 from bot.logger import logger
 
@@ -44,32 +43,30 @@ def set_up_home(self):
             self.tn.send_message_to_player(player_object, "Can not set up a home here. Other bases are too close!", color=self.bot.chat_colors['error'])
             return False
 
-        # if you know what you are doing, yuo can circumvent all checks and set up a location by dictionary
-        location_dict = dict(
-            name='My Home',
-            identifier='home',
-            owner=player_object.steamid,
-            pos_x=player_object.pos_x,
-            pos_y=player_object.pos_y,
-            pos_z=player_object.pos_z,
-            tele_x=player_object.pos_x,
-            tele_y=player_object.pos_y,
-            tele_z=player_object.pos_z,
-            description="{}\'s home".format(player_object.name),
-            messages_dict={
-                "leaving_core": None,
-                "leaving_boundary": "you are leaving {}\'s estate".format(player_object.name),
-                "entering_boundary": "you are entering {}\'s estate".format(player_object.name),
-                "entering_core": None
-            },
-            shape='sphere',
-            radius=float(self.bot.get_setting_by_name("location_default_radius")),
-            warning_boundary=float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio")),
-            list_of_players_inside=[player_object.steamid]
-        )
-        location_object = Location(**location_dict)
+        location_object = Location()
+        location_object.set_owner(player_object.steamid)
+        name = 'My Home'
+
+        location_object.set_name(name)
+        location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
+        location_object.warning_boundary =float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
+
+        location_object.set_coordinates(player_object)
+        identifier = location_object.set_identifier('home')
+
+        location_object.set_description("{}\'s home".format(player_object.name))
+        location_object.set_shape("sphere")
+
+        messages_dict = location_object.get_messages_dict()
+        messages_dict["entering_core"] = None
+        messages_dict["leaving_core"] = None
+        messages_dict["entering_boundary"] = "you have entered {}\'s estate".format(player_object.name)
+        messages_dict["leaving_boundary"] = "you have left {}\'s estate".format(player_object.name)
+        location_object.set_messages(messages_dict)
+        location_object.set_list_of_players_inside([player_object.steamid])
 
         self.bot.locations.upsert(location_object, save=True)
+
         self.tn.say("{} has decided to settle down!".format(player_object.name), color=self.bot.chat_colors['background'])
         self.tn.send_message_to_player(player_object, "Home is where your hat is!", color=self.bot.chat_colors['success'])
     except Exception as e:

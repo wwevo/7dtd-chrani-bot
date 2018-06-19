@@ -29,8 +29,8 @@ def set_up_location(self, command):
             messages_dict = location_object.get_messages_dict()
             messages_dict["entering_core"] = None
             messages_dict["leaving_core"] = None
-            messages_dict["entering_boundary"] = "entering {}".format(name)
-            messages_dict["leaving_boundary"] = "leaving {}".format(name)
+            messages_dict["entering_boundary"] = "you have entered the location {}".format(name)
+            messages_dict["leaving_boundary"] = "you have left the location {}".format(name)
 
             location_object.set_messages(messages_dict)
             location_object.set_list_of_players_inside([player_object.steamid])

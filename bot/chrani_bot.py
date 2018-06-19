@@ -385,6 +385,7 @@ class ChraniBot:
                             active_player_thread = self.active_player_threads_dict[player_steamid]
                             active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
+                # handle playerspawns
                 m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
                 if m:
                     try:
