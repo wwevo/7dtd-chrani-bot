@@ -41,6 +41,7 @@ def get_region_grid(pos_x, pos_z):
 
     return grid_x, grid_z
 
+
 def get_region_string(pos_x, pos_z):
     grid_x, grid_z = get_region_grid(pos_x, pos_z)
 

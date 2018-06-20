@@ -177,8 +177,6 @@ class ChraniBot:
         online_players_dict = {}
         listplayers_result = self.poll_tn.listplayers()
         for m in re.finditer(self.match_types_system["listplayers_result_regexp"], listplayers_result):
-            region = get_region_string(float(m.group(3)), float(m.group(5)))
-
             online_players_dict.update({m.group(16): {
                 "entityid": m.group(1),
                 "name":     str(m.group(2)),
@@ -197,8 +195,7 @@ class ChraniBot:
                 "level":    m.group(15),
                 "steamid":  m.group(16),
                 "ip":       str(m.group(17)),
-                "ping":     int(m.group(18)),
-                "region":   region
+                "ping":     int(m.group(18))
             }})
         return online_players_dict
 

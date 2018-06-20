@@ -2,7 +2,7 @@ import re
 from time import time
 from bot.player import Player
 from bot.logger import logger
-from bot.location import Location
+from assorted_functions import get_region_string
 
 actions_dev = []
 
@@ -506,8 +506,28 @@ def record_time_of_last_activity(self):
 
 observers_dev.append({
     "type": "monitor",
-    "title": "player is active!",
+    "title": "player is active",
     "action": record_time_of_last_activity,
+    "env": "(self)",
+    "essential" : True
+})
+
+
+def update_player_region(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        if player_object.is_responsive() is True:
+            player_object.region = get_region_string(player_object.pos_x, player_object.pos_z)
+            self.bot.players.upsert(player_object)
+    except Exception as e:
+        logger.exception(e)
+        pass
+
+
+observers_dev.append({
+    "type": "monitor",
+    "title": "player changed region",
+    "action": update_player_region,
     "env": "(self)",
     "essential" : True
 })

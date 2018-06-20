@@ -281,9 +281,9 @@ class Location(object):
         return player_is_inside_core
 
     def get_player_status(self, player_object):
-        player_is_inside_boundary = self.player_is_inside_boundary(player_object)
-        player_is_inside_core = self.player_is_inside_core(player_object)
+        player_status = None
 
+        player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         if player_is_inside_boundary is True:
             # player is inside
             if player_object.steamid in self.list_of_players_inside:
@@ -301,8 +301,9 @@ class Location(object):
                 player_status = 'has left'
             else:
                 # and already was outside before
-                player_status = None
+                player_status = 'is outside'
 
+        player_is_inside_core = self.player_is_inside_core(player_object)
         if player_is_inside_core is True:
             # player is inside core
             if player_object.steamid in self.list_of_players_inside_core:
