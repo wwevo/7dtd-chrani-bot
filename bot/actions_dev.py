@@ -466,7 +466,7 @@ def list_available_player_actions(self):
             function_name = getattr(player_action["action"], 'func_name')
             action_string = player_action["command"]["usage"]
             has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
-            if isinstance(has_permission, bool) and has_permission is True:
+            if isinstance(has_permission, bool) and has_permission is True and action_string is not None:
                 available_player_actions.append(action_string)
 
         self.tn.send_message_to_player(player_object, "The following actions are available to you:", color=self.bot.chat_colors['success'])

@@ -46,7 +46,6 @@ def on_enter_gameworld(self):
         self.bot.players.upsert(player_object, save=True)
 
 
-
 actions_authentication.append({
     "match_mode": "isequal",
     "command": {
