@@ -335,9 +335,11 @@ def player_crossed_boundary(self):
                 """
                 get_player_status = location_object.get_player_status(player_object)
                 if get_player_status is None:
-                    continue
+                    pass
                 elif get_player_status == "is inside":
-                    continue
+                    pass
+                elif get_player_status == "is outside":
+                    pass
                 elif get_player_status == "has left":
                     if location_object.messages_dict["leaving_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_boundary"], color=self.bot.chat_colors['background'])
