@@ -11,6 +11,11 @@ class Player():
     rot_x = float
     rot_y = float
     rot_z = float
+
+    old_rot_x = float
+    old_rot_y = float
+    old_rot_z = float
+
     death_x = float
     death_y = float
     death_z = float
@@ -31,6 +36,7 @@ class Player():
     is_muted = bool
     last_teleport = int
     last_responsive = float
+    initialized = bool
 
     def get_id(self):
         return unicode(self.steamid)
@@ -42,6 +48,11 @@ class Player():
         self.last_responsive = time()
         self.entityid = None
         self.authenticated = False
+        self.initialized = False
+
+        self.old_rot_x = 0.0
+        self.old_rot_y = 0.0
+        self.old_rot_z = 0.0
 
         """ populate player-data """
         for (k, v) in kwargs.iteritems():

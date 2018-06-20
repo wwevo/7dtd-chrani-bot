@@ -5,6 +5,23 @@ actions_authentication = []
 
 
 def on_player_join(self):
+    return True
+
+
+actions_authentication.append({
+    "match_mode" : "isequal",
+    "command" : {
+        "trigger" : "joined the game",
+        "usage" : None
+    },
+    "action" : on_player_join,
+    "env": "(self)",
+    "group": "authentication",
+    "essential" : True
+})
+
+
+def on_enter_gameworld(self):
     """Will greet an unauthenticated player
 
     Keyword arguments:
@@ -24,19 +41,35 @@ def on_player_join(self):
         self.tn.send_message_to_player(player_object, "this is a development server. you can play here, but there's no support or anything really.", color=self.bot.chat_colors['info'])
         self.tn.send_message_to_player(player_object, "Enjoy!", color=self.bot.chat_colors['info'])
 
-    return True
+    if player_object.initialized is not True:
+        player_object.initialized = True
+        self.bot.players.upsert(player_object, save=True)
+
 
 
 actions_authentication.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "joined the game",
-        "usage" : None
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "EnterMultiplayer",
+        "usage": None
     },
-    "action" : on_player_join,
+    "action": on_enter_gameworld,
     "env": "(self)",
     "group": "authentication",
-    "essential" : True
+    "essential": True
+})
+
+
+actions_authentication.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "JoinMultiplayer",
+        "usage": None
+    },
+    "action": on_enter_gameworld,
+    "env": "(self)",
+    "group": "authentication",
+    "essential": True
 })
 
 

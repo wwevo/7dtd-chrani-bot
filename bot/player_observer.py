@@ -28,7 +28,8 @@ class PlayerObserver(Thread):
         next_cycle = 0
         player_object = self.bot.players.get(self.player_steamid)
         self.trigger_action(player_object, "joined the game")
-        self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
+        if player_object.initialized is True:
+            self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
@@ -57,6 +58,13 @@ class PlayerObserver(Thread):
                             command["action"](command["command_parameters"])
                     else:
                         break
+
+            if player_object.old_rot_x != player_object.rot_x:
+                player_object.old_rot_x = player_object.rot_x
+            if player_object.old_rot_y != player_object.rot_y:
+                player_object.old_rot_y = player_object.rot_y
+            if player_object.old_rot_z != player_object.rot_z:
+                player_object.old_rot_z = player_object.rot_z
 
             execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
@@ -99,11 +107,9 @@ class PlayerObserver(Thread):
                 except TypeError:
                     try:
                         command["action"](self, command["command_parameters"])
+                        logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command["group"], command["func_name"], command["command_parameters"]))
                     except Exception as e:
                         logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command["group"], command["func_name"], command["command_parameters"], e))
-                        pass
-
-                logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command["group"], command["func_name"], command["command_parameters"]))
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):

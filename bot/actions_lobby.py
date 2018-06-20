@@ -163,8 +163,8 @@ def goto_lobby(self):
         player_object = self.bot.players.get(self.player_steamid)
         try:
             location_object = self.bot.locations.get('system', 'lobby')
-            self.tn.send_message_to_player(player_object, "You have ported to the lobby", color=self.bot.chat_colors['background'])
-            self.tn.teleportplayer(player_object, location_object=location_object)
+            if self.tn.teleportplayer(player_object, location_object=location_object):
+                self.tn.send_message_to_player(player_object, "You have ported to the lobby", color=self.bot.chat_colors['background'])
         except KeyError:
             self.tn.send_message_to_player(player_object, "There is no lobby :(", color=self.bot.chat_colors['warning'])
     except Exception as e:

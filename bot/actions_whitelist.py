@@ -264,17 +264,17 @@ def check_ip_country(self, player_object=None):
 
 
 observers_whitelist.append({
-    "type" : "monitor",
-    "title" : "set to online",
-    "action" : check_ip_country,
+    "type": "monitor",
+    "title": "set to online",
+    "action": check_ip_country,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })
 
 observers_whitelist.append({
-    "type" : "trigger",
-    "title" : "set to online",
-    "action" : check_ip_country,
+    "type": "trigger",
+    "title": "set to online",
+    "action": check_ip_country,
     "env": "(self, player_object)",
-    "essential" : True
+    "essential": True
 })

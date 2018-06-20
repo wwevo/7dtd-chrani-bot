@@ -338,7 +338,6 @@ class ChraniBot:
                         player_observer_thread.isDaemon()
                         player_observer_thread.trigger_action(player_object, "entered the stream")
                         player_observer_thread.start()
-                        # self.players.upsert(player_object, save=True)
                         self.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
                 for player_steamid in set(self.active_player_threads_dict) - set(self.players.players_dict.keys()):

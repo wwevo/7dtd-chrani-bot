@@ -1,6 +1,3 @@
-import re
-from assorted_functions import timeout_occurred
-import time
 from bot.logger import logger
 
 observers_scheduler = []
@@ -28,6 +25,30 @@ observers_scheduler.append({
     "type": "monitor",
     "title": "mute unauthenticated players",
     "action": mute_unauthenticated_player,
+    "env": "(self)",
+    "essential" : True
+})
+
+
+def initialize_player(self):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        if player_object.old_rot_x != player_object.rot_x:
+            player_object.initialized = True
+        if player_object.old_rot_y != player_object.rot_y:
+            player_object.initialized = True
+        if player_object.old_rot_z != player_object.rot_z:
+            player_object.initialized = True
+
+    except Exception as e:
+        logger.exception(e)
+        pass
+
+
+observers_scheduler.append({
+    "type": "monitor",
+    "title": "initialize player",
+    "action": initialize_player,
     "env": "(self)",
     "essential" : True
 })
