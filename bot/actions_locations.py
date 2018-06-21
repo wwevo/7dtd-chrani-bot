@@ -342,7 +342,7 @@ def player_crossed_boundary(self):
                 """
                 get_player_status = location_object.get_player_status(player_object)
 
-                if get_player_status == "is outside":
+                if get_player_status == "is outside" or get_player_status is None:
                     continue
 
                 # self.tn.send_message_to_player(player_object, get_player_status + location_object.name)
