@@ -84,4 +84,4 @@ class Whitelist(object):
     def save(self, player_object):
         dict_to_save = player_object
         with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write, indent=4)
+            json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)

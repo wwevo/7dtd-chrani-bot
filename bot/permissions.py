@@ -80,4 +80,4 @@ class Permissions(object):
         dict_to_save = available_actions_dict
         filename = '{}/{}_permissions.{}'.format(self.root, self.prefix, self.extension)
         with open(filename, 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write, indent=4)
+            json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)

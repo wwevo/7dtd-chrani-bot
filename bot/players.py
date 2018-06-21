@@ -63,7 +63,6 @@ class Players(object):
         except KeyError:
             raise
 
-
     def load(self, steamid):
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, str(steamid), self.extension)) as file_to_read:
@@ -90,12 +89,13 @@ class Players(object):
                 logger.exception(e)
                 pass
         else:
-            logger.exception(e)
+            return False
 
     def save(self, player_object):
         dict_to_save = player_object.__dict__
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
-                json.dump(dict_to_save, file_to_write, indent=4)
-        except:
+                json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+        except Exception as e:
+            logger.exception(e)
             pass
