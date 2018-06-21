@@ -66,7 +66,7 @@ class Whitelist(object):
                 except OSError, e:
                     logger.exception(e)
             else:
-                logger.exception(e)
+                logger.debug("whitelist removal of player {} failed".format(player_object_to_dewhitelist.steamid))
                 return False
         except KeyError:
             raise
