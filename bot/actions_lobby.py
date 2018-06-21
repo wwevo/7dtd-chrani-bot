@@ -103,11 +103,24 @@ def set_up_lobby_outer_perimeter(self):
             self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby", color=self.bot.chat_colors['warning'])
             return False
 
-        if location_object.set_radius(player_object):
+        coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+        distance_to_location = location_object.get_distance(coords)
+        set_radius, allowed_range = location_object.set_radius(distance_to_location)
+        if set_radius is True:
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
         else:
-            self.tn.send_message_to_player(player_object, "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
+            return False
+
+        if location_object.radius <= location_object.warning_boundary:
+            set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
+            if set_radius is True:
+                self.tn.send_message_to_player(player_object, "the inner core has been set to match the outer perimeter.", color=self.bot.chat_colors['warning'])
+            else:
+                return False
+
+        self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
         logger.exception(e)
         pass
@@ -135,11 +148,16 @@ def set_up_lobby_inner_perimeter(self):
             self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby", color=self.bot.chat_colors['warning'])
             return False
 
-        if location_object.set_warning_boundary(player_object):
-            self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The lobby-warnings will be issued from this point on", color=self.bot.chat_colors['success'])
+        coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+        distance_to_location = location_object.get_distance(coords)
+        set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
+        if set_radius is True:
+            self.tn.send_message_to_player(player_object, "the lobby ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['success'])
         else:
-            self.tn.send_message_to_player(player_object, "Is this inside the lobby perimeter?", color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['warning'])
+            return False
+
+        self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
         logger.exception(e)
         pass

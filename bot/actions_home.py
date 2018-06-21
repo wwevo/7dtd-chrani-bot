@@ -251,16 +251,17 @@ def set_up_home_name(self, command):
 
     return True
 
+
 actions_home.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "edit home name",
-        "usage" : "/edit home name"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "edit home name",
+        "usage": "/edit home name"
     },
-    "action" : set_up_home_name,
+    "action": set_up_home_name,
     "env": "(self, command)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -341,7 +342,10 @@ def set_up_home_outer_perimeter(self):
             self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color=self.bot.chat_colors['warning'])
             return False
 
-        if location_object.set_radius(player_object):
+        coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+        distance_to_location = location_object.get_distance(coords)
+        set_radius, allowed_range = location_object.set_radius(distance_to_location)
+        if set_radius is True:
             self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
         else:
@@ -349,7 +353,7 @@ def set_up_home_outer_perimeter(self):
             return False
 
         if location_object.radius <= location_object.warning_boundary:
-            set_radius, allowed_range = location_object.set_warning_boundary(player_object)
+            set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
             if set_radius is True:
                 self.tn.send_message_to_player(player_object, "the inner core has been set to match the outer perimeter.", color=self.bot.chat_colors['warning'])
             else:
@@ -383,11 +387,16 @@ def set_up_home_inner_perimeter(self):
             self.tn.send_message_to_player(player_object, "coming from the wrong end... set up a home first!", color=self.bot.chat_colors['warning'])
             return False
 
-        if location_object.set_warning_boundary(player_object):
-            self.bot.locations.upsert(location_object, save=True)
+        coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+        distance_to_location = location_object.get_distance(coords)
+        set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
+        if set_radius is True:
             self.tn.send_message_to_player(player_object, "your private area ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['success'])
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid. Are you inside your home area?".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['warning'])
+            return False
+
+        self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
         logger.exception(e)
         pass

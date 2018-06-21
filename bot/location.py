@@ -125,13 +125,16 @@ class Location(object):
         self.update_region_list()
         return True
 
-    def set_radius(self, player_object):
-        radius = float(
+    def get_distance(self, coords):
+        distance = float(
             math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                        float(self.pos_z) - float(player_object.pos_z)) ** 2)
+                (float(self.pos_x) - float(coords[0])) ** 2 + (
+                        float(self.pos_y) - float(coords[1])) ** 2 + (
+                        float(self.pos_z) - float(coords[2])) ** 2)
         )
+        return int(distance)
+
+    def set_radius(self, radius):
         allowed_range = range(3, 2048)
         if int(radius) in allowed_range:
             self.radius = radius
@@ -139,20 +142,15 @@ class Location(object):
             self.length = self.radius * 2
             self.height = self.radius * 2
             self.update_region_list()
-            return True, allowed_range
+            return True, radius
+
         return radius, allowed_range
 
-    def set_warning_boundary(self, player_object):
-        radius = float(
-            math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                        float(self.pos_z) - float(player_object.pos_z)) ** 2)
-        )
-        allowed_range = range(3, int(self.radius - 1))
+    def set_warning_boundary(self, radius):
+        allowed_range = range(0, int(self.radius))
         if int(radius) in allowed_range:
             self.warning_boundary = radius
-            return True, allowed_range
+            return True, radius
         return radius, allowed_range
 
     def set_width(self, width):
@@ -226,7 +224,7 @@ class Location(object):
             coords = (x, -1, z)
         elif self.shape == "cube" or self.shape == "room":
             # untested
-            pass
+            return False
         else:
             return False
 

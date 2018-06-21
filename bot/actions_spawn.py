@@ -70,7 +70,7 @@ def on_player_death(self):
     try:
         location = self.bot.locations.get(player_object.steamid, 'spawn')
         if player_object.authenticated is False:
-            self.bot.locations.remove(player_object.steamid, 'spawn')
+            location.enabled = False
             logger.debug("spawn for player {} removed, a new one will be created".format(player_object.name))
     except KeyError:
         return

@@ -142,7 +142,9 @@ def set_up_location_outer_perimeter(self, command):
                 self.tn.send_message_to_player(player_object, "I can not find a location called {}".format(identifier), color=self.bot.chat_colors['warning'])
                 return False
 
-            set_radius, allowed_range = location_object.set_radius(player_object)
+            coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+            distance_to_location = location_object.get_distance(coords)
+            set_radius, allowed_range = location_object.set_radius(distance_to_location)
             if set_radius is True:
                 self.tn.send_message_to_player(player_object, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
             else:
@@ -150,7 +152,7 @@ def set_up_location_outer_perimeter(self, command):
                 return False
 
             if location_object.radius <= location_object.warning_boundary:
-                set_radius, allowed_range = location_object.set_warning_boundary(player_object)
+                set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
                 if set_radius is True:
                     self.tn.send_message_to_player(player_object, "the inner core has been set to match the outer perimeter.", color=self.bot.chat_colors['warning'])
                 else:
@@ -188,11 +190,13 @@ def set_up_location_inner_perimeter(self, command):
                 self.tn.send_message_to_player(player_object, "I can not find a location called {}".format(identifier), color=self.bot.chat_colors['warning'])
                 return False
 
-            set_radius, allowed_range = location_object.set_warning_boundary(player_object)
-            if set_radius is True:
+            coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+            distance_to_location = location_object.get_distance(coords)
+            warning_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location)
+            if warning_boundary is True:
                 self.tn.send_message_to_player(player_object, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['success'])
             else:
-                self.tn.send_message_to_player(player_object, "your given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
+                self.tn.send_message_to_player(player_object, "your given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(warning_boundary), int(allowed_range[0]), int(allowed_range[-1])), color=self.bot.chat_colors['warning'])
                 return False
 
             self.bot.locations.upsert(location_object, save=True)
@@ -251,8 +255,11 @@ def goto_location(self, command):
             name = p.group(1)
             try:
                 location_object = self.bot.locations.get(player_object.steamid, name)
-                self.tn.send_message_to_player(player_object, "You have ported to the location {}".format(name), color=self.bot.chat_colors['success'])
-                self.tn.teleportplayer(player_object, location_object=location_object)
+
+                if location_object.enabled is True and self.tn.teleportplayer(player_object, location_object=location_object):
+                    self.tn.send_message_to_player(player_object, "You have ported to the location {}".format(name), color=self.bot.chat_colors['success'])
+                else:
+                    self.tn.send_message_to_player(player_object, "Teleporting to location {} failed :(".format(name), color=self.bot.chat_colors['error'])
             except KeyError:
                 self.tn.send_message_to_player(player_object, "i have never heard of a location called {}".format(name), color=self.bot.chat_colors['warning'])
     except Exception as e:
@@ -334,25 +341,24 @@ def player_crossed_boundary(self):
                 has left
                 """
                 get_player_status = location_object.get_player_status(player_object)
-                if get_player_status is None:
-                    pass
-                elif get_player_status == "is inside":
-                    pass
-                elif get_player_status == "is outside":
-                    pass
-                elif get_player_status == "has left":
+
+                if get_player_status == "is outside":
+                    continue
+
+                # self.tn.send_message_to_player(player_object, get_player_status + location_object.name)
+                if get_player_status == "has left":
                     if location_object.messages_dict["leaving_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_boundary"], color=self.bot.chat_colors['background'])
-                elif get_player_status == "has entered":
+                if get_player_status == "has entered":
                     if location_object.messages_dict["entering_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_boundary"], color=self.bot.chat_colors['warning'])
-                elif get_player_status == "has left core":
+                if get_player_status == "has left core":
                     if location_object.messages_dict["leaving_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
-                elif get_player_status == "is inside core":
+                if get_player_status == "is inside core":
                     if location_object.protected_core is True and player_object.steamid != location_object.owner:
                         self.tn.teleportplayer(player_object, coord_tuple=location_object.eject_player(player_object))
-                elif get_player_status == "has entered core":
+                if get_player_status == "has entered core":
                     if location_object.messages_dict["entering_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_core"], color=self.bot.chat_colors['warning'])
 
