@@ -470,6 +470,7 @@ def list_available_player_actions(self):
                 available_player_actions.append(action_string)
 
         self.tn.send_message_to_player(player_object, "The following actions are available to you:", color=self.bot.chat_colors['success'])
+        available_player_actions = list(set(available_player_actions))
         for player_action in available_player_actions:
             self.tn.send_message_to_player(player_object, "{}".format(player_action), color=self.bot.chat_colors['warning'])
 
