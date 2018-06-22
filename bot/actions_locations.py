@@ -333,15 +333,15 @@ def player_crossed_boundary(self):
                     continue
 
                 """ different status-conditions for a player
-                None = do nothing
-                is inside
-                has entered
-                has entered core
-                has left core
-                has left
+                'has entered'
+                'is inside'
+                'has entered core'
+                'is inside core'
+                'has left core'
+                'has left'
+                'is outside'
                 """
                 get_player_status = location_object.get_player_status(player_object)
-
                 if get_player_status == "is outside" or get_player_status is None:
                     continue
 
