@@ -1,6 +1,6 @@
 from assorted_functions import byteify
 import json
-import os
+from bot.logger import logger
 
 from bot.command_line_args import args_dict
 
@@ -79,5 +79,9 @@ class Permissions(object):
     def save(self, available_actions_dict):
         dict_to_save = available_actions_dict
         filename = '{}/{}_permissions.{}'.format(self.root, self.prefix, self.extension)
-        with open(filename, 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+        try:
+            with open(filename, 'w+') as file_to_write:
+                json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+            logger.debug("Updated permissions file.")
+        except:
+            logger.exception("Updating permissions file failed.")
