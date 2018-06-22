@@ -96,6 +96,7 @@ class Players(object):
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+            # logger.debug("Saved player-record for player {}.".format(dict_to_save['steamid']))
         except Exception as e:
-            logger.exception(e)
+            logger.debug("Saving player-record for player {} failed.".format(dict_to_save['steamid']))
             pass

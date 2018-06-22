@@ -46,14 +46,16 @@ class Whitelist(object):
     def add(self, player_object, player_dict_to_whitelist, save=False):
         try:
             is_in_dict = self.whitelisted_players_dict[player_dict_to_whitelist["steamid"]]
-        except Exception:
+        except IndexError:
             self.whitelisted_players_dict.update({player_dict_to_whitelist["steamid"]: {
                 'name': player_dict_to_whitelist["name"],
                 'whitelisted_by': player_object.steamid
             }})
+
         if save:
             self.save(player_dict_to_whitelist)
-            return True
+
+        return True
 
     def remove(self, player_object_to_dewhitelist):
         try:
@@ -62,6 +64,7 @@ class Whitelist(object):
                 try:
                     os.remove(filename)
                     del self.whitelisted_players_dict[player_object_to_dewhitelist.steamid]
+                    logger.debug("Player {} removed from whitelist.".format(player_object_to_dewhitelist.steamid))
                     return True
                 except OSError, e:
                     logger.exception(e)
@@ -72,6 +75,17 @@ class Whitelist(object):
             raise
 
     def player_is_allowed(self, player_object):
+        """Checks if a player may play while whitelist is active
+
+        checks if the player has been manually whitelisted
+        checks if player has an auto-whitelisted role
+
+        returns False if player is not allowed
+
+        Keyword arguments:
+        self -- the bot
+        player_object -- player to check
+        """
         try:
             is_in_dict = self.whitelisted_players_dict[player_object.steamid]
             return True
@@ -81,7 +95,13 @@ class Whitelist(object):
             except Exception:
                 return False
 
-    def save(self, player_object):
-        dict_to_save = player_object
-        with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+    def save(self, dict_to_save):
+        try:
+            with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:
+                json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+            logger.debug("Saved player-record {} for whitelisting.".format(dict_to_save["steamid"]))
+        except Exception:
+            logger.exception("Saving player-record {} for whitelisting failed.".format(dict_to_save["steamid"]))
+            return False
+
+        return True

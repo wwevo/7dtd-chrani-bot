@@ -107,7 +107,6 @@ def set_up_lobby_outer_perimeter(self):
         distance_to_location = location_object.get_distance(coords)
         set_radius, allowed_range = location_object.set_radius(distance_to_location)
         if set_radius is True:
-            self.bot.locations.upsert(location_object, save=True)
             self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])

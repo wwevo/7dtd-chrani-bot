@@ -349,20 +349,23 @@ def player_crossed_boundary(self):
                 if get_player_status == "has left":
                     if location_object.messages_dict["leaving_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_boundary"], color=self.bot.chat_colors['background'])
+                    self.bot.locations.upsert(location_object)
                 if get_player_status == "has entered":
                     if location_object.messages_dict["entering_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_boundary"], color=self.bot.chat_colors['warning'])
+                    self.bot.locations.upsert(location_object)
                 if get_player_status == "has left core":
                     if location_object.messages_dict["leaving_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
+                    self.bot.locations.upsert(location_object)
                 if get_player_status == "is inside core":
                     if location_object.protected_core is True and player_object.steamid != location_object.owner:
                         self.tn.teleportplayer(player_object, coord_tuple=location_object.eject_player(player_object))
                 if get_player_status == "has entered core":
                     if location_object.messages_dict["entering_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_core"], color=self.bot.chat_colors['warning'])
+                    self.bot.locations.upsert(location_object)
 
-                self.bot.locations.upsert(location_object, save=True)
     except Exception as e:
         logger.exception(e)
         pass

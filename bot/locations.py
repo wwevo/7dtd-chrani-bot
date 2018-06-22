@@ -84,12 +84,19 @@ class Locations(object):
                 except OSError, e:
                     logger.exception(e)
             else:
-                logger.exception(e)
+                return False
             pass
         except KeyError:
             raise
 
     def save(self, location_object):
         dict_to_save = location_object.__dict__
-        with open("{}/{}_{}_{}.{}".format(self.root, self.prefix, location_object.owner, location_object.identifier, self.extension), 'w+') as file_to_write:
-            json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+        try:
+            with open("{}/{}_{}_{}.{}".format(self.root, self.prefix, location_object.owner, location_object.identifier, self.extension), 'w+') as file_to_write:
+                json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
+            logger.debug("Saved location-record {} for player {}.".format(location_object.identifier, location_object.owner))
+        except Exception:
+            logger.exception("Saving location-record {} for player {} failed.".format(location_object.identifier, location_object.owner))
+            return False
+
+        return True
