@@ -312,6 +312,78 @@ actions_locations.append({
     "group": "locations",
     "essential" : False
 })
+
+
+def protect_inner_core(self, command):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        p = re.search(r"enable\slocation\sprotection\s([\w\s]{1,19})$", command)
+        if p:
+            identifier = p.group(1)
+            try:
+                location_object = self.bot.locations.get(player_object.steamid, identifier)
+            except KeyError:
+                self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the location first!", color=self.bot.chat_colors['warning'])
+                return False
+
+        if location_object.set_protected_core(True):
+            self.bot.locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "The location {} is now protected!".format(location_object.identifier), color=self.bot.chat_colors['success'])
+        else:
+            self.tn.send_message_to_player(player_object, "could not enable protection for location {} :(".format(location_object.identifier), color=self.bot.chat_colors['warning'])
+
+    except Exception as e:
+        logger.exception(e)
+        pass
+
+
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "enable location protection",
+        "usage" : "/enable location protection <location_identifier>"
+    },
+    "action" : protect_inner_core,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
+
+
+def unprotect_inner_core(self, command):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        p = re.search(r"disable\slocation\sprotection\s([\w\s]{1,19})$", command)
+        if p:
+            identifier = p.group(1)
+            try:
+                location_object = self.bot.locations.get(player_object.steamid, identifier)
+            except KeyError:
+                self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the location first!", color=self.bot.chat_colors['warning'])
+                return False
+
+        if location_object.set_protected_core(False):
+            self.bot.locations.upsert(location_object, save=True)
+            self.tn.send_message_to_player(player_object, "The location {} is now unprotected!".format(location_object.identifier), color=self.bot.chat_colors['success'])
+        else:
+            self.tn.send_message_to_player(player_object, "could not disable protection for location {} :(".format(location_object.identifier), color=self.bot.chat_colors['warning'])
+
+    except Exception as e:
+        logger.exception(e)
+        pass
+
+
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "disable location protection",
+        "usage" : "/disable location protection <location_identifier>"
+    },
+    "action" : unprotect_inner_core,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
 """
 here come the observers
 """
@@ -349,23 +421,20 @@ def player_crossed_boundary(self):
                 if get_player_status == "has left":
                     if location_object.messages_dict["leaving_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_boundary"], color=self.bot.chat_colors['background'])
-                    self.bot.locations.upsert(location_object, save=True)
                 if get_player_status == "has entered":
                     if location_object.messages_dict["entering_boundary"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_boundary"], color=self.bot.chat_colors['warning'])
-                    self.bot.locations.upsert(location_object, save=True)
                 if get_player_status == "has left core":
                     if location_object.messages_dict["leaving_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
-                    self.bot.locations.upsert(location_object, save=True)
                 if get_player_status == "is inside core":
                     if location_object.protected_core is True and player_object.steamid != location_object.owner:
                         self.tn.teleportplayer(player_object, coord_tuple=location_object.eject_player(player_object))
                 if get_player_status == "has entered core":
                     if location_object.messages_dict["entering_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_core"], color=self.bot.chat_colors['warning'])
-                    self.bot.locations.upsert(location_object, save=True)
 
+                self.bot.locations.upsert(location_object)
     except Exception as e:
         logger.exception(e)
         pass

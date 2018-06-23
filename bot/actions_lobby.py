@@ -21,10 +21,12 @@ def password(self, command):
                     location_object = self.bot.locations.get(player_object.steamid, 'spawn')
                     # if the spawn is enabled, do port the player and disable it.
                     if location_object.enabled is True:
-                        self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
                         if self.tn.teleportplayer(player_object, location_object=location_object):
+                            self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
                             location_object.enabled = False
                             self.bot.locations.upsert(location_object, save=True)
+                        else:
+                            self.tn.send_message_to_player(player_object, "Taking you to your original spawn failed oO!", color=self.bot.chat_colors['warning'])
                     else:
                         return False
                 except KeyError:
@@ -57,7 +59,7 @@ def set_up_lobby(self):
 
         location_object.set_name(name)
         location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
-        location_object.warning_boundary =float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
+        location_object.warning_boundary = float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
 
         location_object.set_coordinates(player_object)
         identifier = location_object.set_identifier('lobby')
