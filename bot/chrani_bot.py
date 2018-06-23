@@ -110,7 +110,7 @@ class ChraniBot:
             "authenticated": 'openup',
             "donator": 'blingbling',
             "mod": 'hoopmeup',
-            "admin": 'ecvrules'
+            "admin": self.get_setting_by_name('admin_pass')
         }
 
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]

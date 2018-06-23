@@ -1,4 +1,5 @@
 {
+  "admin_pass": "ecv_rules",
   "bot_name": "chrani",
   "mute_unauthenticated": true,
 
