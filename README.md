@@ -1,4 +1,13 @@
+# legal notice
+
+This bot is my original work.
+
+*You **may** use and modify this for your own personal use.*
+
+*You **may not** modify this code and then publish it as your own original work.*
+
 # 7dtd-chrani-bot
+
 see https://github.com/wwevo/7dtd-chrani-bot/wiki for a description of this bot
 
 see https://chrani.net/chrani-bot for more information about installing and running the bot
