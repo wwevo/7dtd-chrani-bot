@@ -9,9 +9,9 @@ actions_locations = []
 def set_up_location(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"add\slocation\s([\W\w\s]{1,19})$", command)
+        p = re.search(r"add\slocation\s(?P<location_name>[\W\w\s]{1,19})$", command)
         if p:
-            name = p.group(1)
+            name = p.group("location_name")
             if name in ["teleport", "lobby", "spawn", "home", "death"]:
                 self.tn.send_message_to_player(player_object, "{} is a reserved name. Aborted!.".format(name), color=self.bot.chat_colors['warning'])
                 raise KeyError
@@ -103,8 +103,8 @@ def set_up_location_name(self, command):
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
                 location_object.set_name(name)
                 messages_dict = location_object.get_messages_dict()
-                messages_dict["entering_core"] = "entering {}'s core area ".format(name)
-                messages_dict["leaving_core"] = "leaving {}'s core area ".format(name)
+                messages_dict["entering_core"] = None
+                messages_dict["leaving_core"] = None
                 messages_dict["entering_boundary"] = "entering {} ".format(name)
                 messages_dict["leaving_boundary"] = "leaving {} ".format(name)
                 location_object.set_messages(messages_dict)

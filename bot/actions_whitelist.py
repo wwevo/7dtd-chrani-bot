@@ -240,6 +240,7 @@ def check_ip_country(self, player_object=None):
         if self.bot.whitelist.player_is_allowed(player_object) or (users_country is not None and users_country not in self.bot.banned_countries_list):
             return False
 
+        logger.debug("checking player {} for being from blacklisted countries".format(player_object.name))
         try:
             if users_country is None:
                 f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings_dict['ipinfo.io_password']))
