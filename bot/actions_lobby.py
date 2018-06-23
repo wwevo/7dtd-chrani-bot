@@ -278,7 +278,7 @@ def player_is_outside_boundary(self):
         except KeyError:
             return False
 
-        if not location_object.player_is_inside_boundary(player_object):
+        if location_object.enabled is True and not location_object.player_is_inside_boundary(player_object):
             if self.tn.teleportplayer(player_object, location_object=location_object):
                 player_object.set_coordinates(location_object)
                 self.bot.players.upsert(player_object)
