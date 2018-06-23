@@ -1,5 +1,9 @@
 {
-  "admin_pass": "ecv_rules",
+  "admin_pass": "admin123",
+  "donator_pass": "donator123",
+  "mod_pass": "mod123",
+  "authentication_pass": "authenticate123",
+
   "bot_name": "chrani",
   "mute_unauthenticated": true,
 

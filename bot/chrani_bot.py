@@ -107,9 +107,9 @@ class ChraniBot:
         self.locations = Locations()
 
         self.passwords = {
-            "authenticated": 'openup',
-            "donator": 'blingbling',
-            "mod": 'hoopmeup',
+            "authenticated": self.get_setting_by_name('authentication_pass'),
+            "donator": self.get_setting_by_name('donator_pass'),
+            "mod": self.get_setting_by_name('mod_pass'),
             "admin": self.get_setting_by_name('admin_pass')
         }
 
