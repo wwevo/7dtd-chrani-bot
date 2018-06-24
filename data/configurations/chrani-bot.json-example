@@ -4,8 +4,9 @@
   "mod_pass": "mod123",
   "authentication_pass": "authenticate123",
 
-  "bot_name": "chrani",
+  "bot_name": "example-bot",
   "mute_unauthenticated": true,
+  "scan_for_lcb" : true,
 
   "telnet_ip": "",
   "telnet_port": 0,
