@@ -16,8 +16,11 @@ def teleport_self_to_player(self, command):
                 if steamid_to_teleport_to is False:
                     self.tn.send_message_to_player(player_object, "could not find player", color=self.bot.chat_colors['error'])
                     return False
-
-            player_object_to_teleport_to = self.bot.players.get(steamid_to_teleport_to)
+            if int(steamid_to_teleport_to) == int(player_object.steamid):
+                self.tn.send_message_to_player(player_object, "Try meditation, if you want to find yourself ^^", color=self.bot.chat_colors['warning'])
+                return False
+            else:
+                player_object_to_teleport_to = self.bot.players.get(steamid_to_teleport_to)
         else:
             self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(self.bot.find_action_help("players", "goto player")), color=self.bot.chat_colors['warning'])
             return False
