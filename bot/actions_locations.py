@@ -480,7 +480,8 @@ def player_crossed_boundary(self):
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
                 if get_player_status == "is inside core":
                     if location_object.protected_core is True and player_object.steamid != location_object.owner:
-                        self.tn.teleportplayer(player_object, coord_tuple=location_object.eject_player(player_object))
+                        if self.tn.teleportplayer(player_object, coord_tuple=location_object.eject_player(player_object)):
+                            self.tn.send_message_to_player(player_object, "you have been ejected from {}'s protected core!".format(location_object.name), color=self.bot.chat_colors['warning'])
                 if get_player_status == "has entered core":
                     if location_object.messages_dict["entering_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entering_core"], color=self.bot.chat_colors['warning'])
