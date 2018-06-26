@@ -267,9 +267,13 @@ def list_locations(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         try:
-            location_objects_dict = self.bot.locations.get(player_object.steamid)
+            output_list = []
+            location_objects_dict = self.bot.locations.get_available_locations(player_object)
             for name, location_object in location_objects_dict.iteritems():
-                self.tn.send_message_to_player(player_object, "{} @ ({} x:{}, y:{}, z:{}) - {}".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z, 'public' if location_object.is_public else 'private'))
+                output_list.append("{} @ ({} x:{}, y:{}, z:{}) - {}".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z, 'public' if location_object.is_public else 'private'))
+
+            for output_line in output_list:
+                self.tn.send_message_to_player(player_object, output_line)
 
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} can not list that which you do not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
@@ -281,8 +285,8 @@ def list_locations(self):
 actions_locations.append({
     "match_mode" : "isequal",
     "command" : {
-        "trigger" : "my locations",
-        "usage" : "/my locations"
+        "trigger" : "available locations",
+        "usage" : "/available locations"
     },
     "action" : list_locations,
     "env": "(self)",
@@ -296,16 +300,19 @@ def goto_location(self, command):
         player_object = self.bot.players.get(self.player_steamid)
         p = re.search(r"goto\slocation\s([\w\s]{1,19})$", command)
         if p:
-            name = p.group(1)
+            location_identifier = p.group(1)
             try:
-                location_object = self.bot.locations.get(player_object.steamid, name)
+                locations_dict = self.bot.locations.get_available_locations(player_object)
+                try:
+                    if locations_dict[location_identifier].enabled is True and self.tn.teleportplayer(player_object, location_object=locations_dict[location_identifier]):
+                        self.tn.send_message_to_player(player_object, "You have ported to the location {}".format(location_identifier), color=self.bot.chat_colors['success'])
+                    else:
+                        self.tn.send_message_to_player(player_object, "Teleporting to location {} failed :(".format(location_identifier), color=self.bot.chat_colors['error'])
+                except IndexError:
+                    raise KeyError
 
-                if location_object.enabled is True and self.tn.teleportplayer(player_object, location_object=location_object):
-                    self.tn.send_message_to_player(player_object, "You have ported to the location {}".format(name), color=self.bot.chat_colors['success'])
-                else:
-                    self.tn.send_message_to_player(player_object, "Teleporting to location {} failed :(".format(name), color=self.bot.chat_colors['error'])
             except KeyError:
-                self.tn.send_message_to_player(player_object, "i have never heard of a location called {}".format(name), color=self.bot.chat_colors['warning'])
+                self.tn.send_message_to_player(player_object, "You do not have access to that location with this command.".format(location_identifier), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.exception(e)
         pass

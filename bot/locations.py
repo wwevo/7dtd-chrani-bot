@@ -73,6 +73,19 @@ class Locations(object):
 
         return location_in_reach_list
 
+    def get_available_locations(self, player_object):
+        available_locations_dict = {}
+        locations_dict = self.locations_dict
+        for player_steamid, locations in locations_dict.iteritems():
+            for identifier, location_object in locations.iteritems():
+                if location_object.enabled is True and (location_object.is_public is True or player_steamid == player_object.steamid):
+                    try:
+                        available_locations_dict.update({location_object.identifier: location_object})
+                    except KeyError:
+                        available_locations_dict = {location_object.identifier: location_object}
+
+        return available_locations_dict
+
     def remove(self, location_owner, location_identifier):
         try:
             location_object = self.locations_dict[location_owner][location_identifier]
