@@ -6,6 +6,7 @@ from bot.assorted_functions import get_region_string
 # noinspection SpellCheckingInspection
 class Location(object):
     enabled = bool
+    is_public = bool
 
     identifier = str
     owner = str
@@ -53,6 +54,7 @@ class Location(object):
             "leaving_boundary": "leaving boundary"
         }
         self.radius = 20
+        self.is_public = False
         self.warning_boundary = 16
         self.width = self.radius * 2
         self.length = self.radius * 2
@@ -180,6 +182,14 @@ class Location(object):
 
     def set_protected_core(self, protected):
         self.protected_core = protected
+        return True
+
+    def set_visibility(self, is_public):
+        if is_public is True:
+            self.is_public = True
+        else:
+            self.is_public = False
+
         return True
 
     # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty

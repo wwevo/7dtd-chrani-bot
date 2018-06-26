@@ -130,6 +130,50 @@ actions_locations.append({
 })
 
 
+def change_location_visibility(self, command):
+    try:
+        player_object = self.bot.players.get(self.player_steamid)
+        p = re.search(r"make\splayers\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\slocation\s(?P<identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
+        if p:
+            identifier = p.group("identifier")
+            status_to_set = p.group("status") == 'public'
+
+            location_owner_steamid = p.group("steamid")
+            location_owner_entityid = p.group("entityid")
+            if location_owner_steamid is None:
+                location_owner_steamid = self.bot.players.entityid_to_steamid(location_owner_entityid)
+                if location_owner_steamid is False:
+                    self.tn.send_message_to_player(player_object, "could not find player", color=self.bot.chat_colors['error'])
+                    return False
+
+            location_owner = self.bot.players.get(location_owner_steamid)
+            try:
+                location_object = self.bot.locations.get(location_owner.steamid, identifier)
+                if location_object.set_visibility(status_to_set):
+                    self.tn.send_message_to_player(player_object, "You've made your location {} {}".format(location_object.name, p.group("status")), color=self.bot.chat_colors['background'])
+                    self.bot.locations.upsert(location_object, save=True)
+                else:
+                    self.tn.send_message_to_player(player_object, "A public location with the identifier {} already exists".format(location_object.identifier), color=self.bot.chat_colors['background'])
+            except KeyError:
+                self.tn.send_message_to_player(player_object, "You do not own that location :(", color=self.bot.chat_colors['warning'])
+    except Exception as e:
+        logger.exception(e)
+        pass
+
+
+actions_locations.append({
+    "match_mode" : "startswith",
+    "command" : {
+        "trigger" : "make players",
+        "usage" : "/make players <steamid/entityid> location <location_identifier> <'public' or 'private'>"
+    },
+    "action" : change_location_visibility,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential" : False
+})
+
+
 def set_up_location_outer_perimeter(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
@@ -225,7 +269,7 @@ def list_locations(self):
         try:
             location_objects_dict = self.bot.locations.get(player_object.steamid)
             for name, location_object in location_objects_dict.iteritems():
-                self.tn.send_message_to_player(player_object, "{} @ ({} x:{}, y:{}, z:{})".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z))
+                self.tn.send_message_to_player(player_object, "{} @ ({} x:{}, y:{}, z:{}) - {}".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z, 'public' if location_object.is_public else 'private'))
 
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} can not list that which you do not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
