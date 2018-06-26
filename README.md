@@ -6,7 +6,7 @@ see https://chrani.net/chrani-bot for more information about installing and runn
 see https://www.patreon.com/chrani for helping me finance the testserver and the development
 of the bot
 
-see https://discord.gg/7EtX8Zy to join the bots discord channel for pseudo real-time talk
+see https://discord.gg/eTavgkf to join the bots discord channel for pseudo real-time talk
 
 # Legal notice
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
