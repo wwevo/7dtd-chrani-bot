@@ -75,9 +75,9 @@ def teleport_player_to_self(self, command):
         logger.exception(e)
         raise KeyError
 
-    coord_tuple = (player_object_to_teleport_to.pos_x, player_object_to_teleport_to.pos_y, player_object_to_teleport_to.pos_z)
-    if self.tn.teleportplayer(player_object, coord_tuple=coord_tuple):
-        self.tn.send_message_to_player(player_object, "You have been summoned to {}'s location".format(player_object_to_teleport_to.name), color=self.bot.chat_colors['success'])
+    coord_tuple = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+    if self.tn.teleportplayer(player_object_to_teleport_to, coord_tuple=coord_tuple):
+        self.tn.send_message_to_player(player_object_to_teleport_to, "You have been summoned to {}'s location".format(player_object_to_teleport_to.name), color=self.bot.chat_colors['success'])
     else:
         self.tn.send_message_to_player(player_object, "Summoning player {} failed :(".format(player_object_to_teleport_to.name), color=self.bot.chat_colors['error'])
     return True
