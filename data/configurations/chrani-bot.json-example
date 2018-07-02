@@ -6,7 +6,8 @@
 
   "bot_name": "example-bot",
   "mute_unauthenticated": true,
-  "scan_for_lcb" : true,
+  "scan_for_lcb": true,
+  "whitelist_active": false,
 
   "telnet_ip": "",
   "telnet_port": 0,

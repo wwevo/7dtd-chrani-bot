@@ -58,8 +58,8 @@ def set_up_lobby(self):
         name = 'The Lobby'
 
         location_object.set_name(name)
-        location_object.radius = float(self.bot.get_setting_by_name("location_default_radius"))
-        location_object.warning_boundary = float(self.bot.get_setting_by_name("location_default_radius")) * float(self.bot.get_setting_by_name("location_default_warning_boundary_ratio"))
+        location_object.radius = float(self.bot.settings.get_setting_by_name("location_default_radius"))
+        location_object.warning_boundary = float(self.bot.settings.get_setting_by_name("location_default_radius")) * float(self.bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
 
         location_object.set_coordinates(player_object)
         identifier = location_object.set_identifier('lobby')

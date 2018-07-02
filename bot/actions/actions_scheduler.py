@@ -4,7 +4,7 @@ observers_scheduler = []
 
 
 def mute_unauthenticated_player(self):
-    if self.bot.settings_dict["mute_unauthenticated"] is not True:
+    if self.bot.settings.get_setting_by_name("mute_unauthenticated") is not True:
         return
 
     try:

@@ -19,7 +19,7 @@ from bot.actions.actions_whitelist import actions_whitelist, observers_whitelist
 from bot.actions.actions_scheduler import observers_scheduler
 from bot.actions.actions_backpack import actions_backpack
 
-from bot.command_line_args import args_dict
+from bot.modules.settings import Settings
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.objects.player import Player
@@ -63,31 +63,15 @@ class ChraniBot:
     observers = list
     player_actions = list
 
-    def load_bot_settings(self, prefix):
-        filename = "data/configurations/{}.json".format(prefix)
-        try:
-            with open(filename) as file_to_read:
-                settings_dict = byteify(json.load(file_to_read))
-        except IOError:  # no settings file available
-            settings_dict = None
-        return settings_dict
-
-    def get_setting_by_name(self, setting_name):
-        try:
-            setting_value = self.settings_dict[setting_name]
-        except KeyError:
-            return None
-
-        return setting_value
-
     def __init__(self):
-        self.settings_dict = self.load_bot_settings(args_dict['Database-file'])
+        self.settings = Settings()
+        self.settings.load_all()
 
-        self.bot_name = self.get_setting_by_name('bot_name')
+        self.bot_name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.bot_name))
 
-        self.tn = TelnetConnection(self, self.get_setting_by_name('telnet_ip'), self.get_setting_by_name('telnet_port'), self.get_setting_by_name('telnet_password'), show_log_init=True)
-        self.poll_tn = TelnetConnection(self, self.get_setting_by_name('telnet_ip'), self.get_setting_by_name('telnet_port'), self.get_setting_by_name('telnet_password'))
+        self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
+        self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
 
         self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_backpack + actions_lobby + actions_dev + actions_players
         self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations + observers_scheduler
@@ -102,16 +86,16 @@ class ChraniBot:
         self.listlandprotection_interval_idle = 0
 
         self.whitelist = Whitelist()
-        if self.get_setting_by_name('whitelist_active') is not None:
+        if self.settings.get_setting_by_name('whitelist_active') is not False:
             self.whitelist.activate()
 
         self.locations = Locations()
 
         self.passwords = {
-            "authenticated": self.get_setting_by_name('authentication_pass'),
-            "donator": self.get_setting_by_name('donator_pass'),
-            "mod": self.get_setting_by_name('mod_pass'),
-            "admin": self.get_setting_by_name('admin_pass')
+            "authenticated": self.settings.get_setting_by_name('authentication_pass'),
+            "donator": self.settings.get_setting_by_name('donator_pass'),
+            "mod": self.settings.get_setting_by_name('mod_pass'),
+            "admin": self.settings.get_setting_by_name('admin_pass')
         }
 
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
@@ -165,6 +149,7 @@ class ChraniBot:
         self.server_settings_dict = self.get_game_preferences()
 
     def load_from_db(self):
+        self.settings.load_all()
         self.locations.load_all(store=True)  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file

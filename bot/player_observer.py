@@ -17,7 +17,7 @@ class PlayerObserver(Thread):
         self.player_steamid = str(player_steamid)
         logger.info("thread started for player " + self.player_steamid)
 
-        self.tn = TelnetConnection(bot, bot.settings_dict['telnet_ip'], bot.settings_dict['telnet_port'], bot.settings_dict['telnet_password'])
+        self.tn = TelnetConnection(bot, bot.settings.get_setting_by_name('telnet_ip'), bot.settings.get_setting_by_name('telnet_port'), bot.settings.get_setting_by_name('telnet_password'))
         self.bot = bot
         self.run_observers_interval = 1
 

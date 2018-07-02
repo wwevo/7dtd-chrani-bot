@@ -226,7 +226,7 @@ observers_whitelist.append({
 
 def check_ip_country(self, player_object=None):
     try:
-        if self.bot.settings_dict['ipinfo.io_password'] is None:
+        if self.bot.settings.get_setting_by_name('ipinfo.io_password') is None:
             return
         if player_object is None:
             player_object = self.bot.players.get(self.player_steamid)
