@@ -243,7 +243,7 @@ def check_ip_country(self, player_object=None):
         logger.debug("checking player {} for being from blacklisted countries".format(player_object.name))
         try:
             if users_country is None:
-                f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings_dict['ipinfo.io_password']))
+                f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings.get_setting_by_name('ipinfo.io_password')))
                 users_country = f.read().rstrip()
         except Exception:
             logger.debug("something went wrong in fetching the ipinfo dataset for player {}".format(player_object.name))
