@@ -3,11 +3,10 @@ import sys
 import time
 import math
 from threading import Event
-import json
 from collections import deque
 
 from bot.modules.logger import logger
-from bot.assorted_functions import byteify, timeout_occurred
+from bot.assorted_functions import timeout_occurred
 from bot.actions.actions_spawn import actions_spawn
 from bot.actions.actions_authentication import actions_authentication
 from bot.actions.actions_dev import actions_dev, observers_dev
@@ -58,6 +57,7 @@ class ChraniBot:
     locations = object
     whitelist = object
     permission = object
+    settings = object
     landclaims_dict = dict
 
     observers = list
@@ -65,7 +65,6 @@ class ChraniBot:
 
     def __init__(self):
         self.settings = Settings()
-        self.settings.load_all()
 
         self.bot_name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.bot_name))

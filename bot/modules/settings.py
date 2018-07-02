@@ -17,6 +17,7 @@ class Settings(object):
         self.root = 'data/configurations'
         self.prefix = args_dict['Database-file']
         self.extension = "json"
+        self.load_all()
 
     def load_all(self):
         filename = "{}/{}.{}".format(self.root, self.prefix, self.extension)
