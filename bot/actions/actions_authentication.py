@@ -1,5 +1,5 @@
 import re
-from bot.logger import logger
+from bot.modules.logger import logger
 
 actions_authentication = []
 

@@ -1,7 +1,7 @@
 import re
 
-from bot.location import Location
-from bot.logger import logger
+from bot.objects.location import Location
+from bot.modules.logger import logger
 
 actions_locations = []
 

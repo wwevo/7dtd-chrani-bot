@@ -1,8 +1,6 @@
-import re
 from time import time
-from bot.player import Player
-from bot.logger import logger
-from assorted_functions import get_region_string
+from bot.modules.logger import logger
+from bot.assorted_functions import get_region_string
 
 actions_dev = []
 

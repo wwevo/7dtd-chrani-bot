@@ -1,6 +1,6 @@
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
-from bot.logger import logger
+from bot.modules.logger import logger
 import json
 import os
 

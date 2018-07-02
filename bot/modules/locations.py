@@ -3,8 +3,8 @@ from bot.assorted_functions import byteify
 import json
 import os
 import math
-from bot.logger import logger
-from bot.location import Location
+from bot.modules.logger import logger
+from bot.objects.location import Location
 
 
 class Locations(object):

@@ -2,7 +2,7 @@ import math
 import re
 import telnetlib
 
-from bot.logger import logger
+from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
 

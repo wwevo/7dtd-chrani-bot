@@ -1,10 +1,10 @@
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
-from bot.logger import logger
+from bot.modules.logger import logger
 
 import json
 import os
-from bot.player import Player
+from bot.objects.player import Player
 
 
 class Players(object):

@@ -2,8 +2,8 @@ import re
 from time import time
 from threading import *
 
-from bot.logger import logger
-from bot.telnet_connection import TelnetConnection
+from bot.modules.logger import logger
+from bot.modules.telnet_connection import TelnetConnection
 
 
 class PlayerObserver(Thread):

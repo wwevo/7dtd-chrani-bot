@@ -1,6 +1,6 @@
-from assorted_functions import byteify
+from bot.assorted_functions import byteify
 import json
-from bot.logger import logger
+from bot.modules.logger import logger
 
 from bot.command_line_args import args_dict
 

@@ -1,8 +1,8 @@
 import re
 import urllib
 
-from assorted_functions import ObjectView
-from bot.logger import logger
+from bot.assorted_functions import ObjectView
+from bot.modules.logger import logger
 
 actions_whitelist = []
 

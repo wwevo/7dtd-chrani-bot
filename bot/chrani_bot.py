@@ -6,27 +6,27 @@ from threading import Event
 import json
 from collections import deque
 
-from bot.logger import logger
-from bot.assorted_functions import byteify, timeout_occurred, get_region_string
-from bot.actions_spawn import actions_spawn
-from bot.actions_authentication import actions_authentication
-from bot.actions_dev import actions_dev, observers_dev
-from bot.actions_home import actions_home
-from bot.actions_lobby import actions_lobby, observers_lobby
-from bot.actions_players import actions_players
-from bot.actions_locations import actions_locations, observers_locations
-from bot.actions_whitelist import actions_whitelist, observers_whitelist
-from bot.actions_scheduler import observers_scheduler
-from bot.actions_backpack import actions_backpack
+from bot.modules.logger import logger
+from bot.assorted_functions import byteify, timeout_occurred
+from bot.actions.actions_spawn import actions_spawn
+from bot.actions.actions_authentication import actions_authentication
+from bot.actions.actions_dev import actions_dev, observers_dev
+from bot.actions.actions_home import actions_home
+from bot.actions.actions_lobby import actions_lobby, observers_lobby
+from bot.actions.actions_players import actions_players
+from bot.actions.actions_locations import actions_locations, observers_locations
+from bot.actions.actions_whitelist import actions_whitelist, observers_whitelist
+from bot.actions.actions_scheduler import observers_scheduler
+from bot.actions.actions_backpack import actions_backpack
 
 from bot.command_line_args import args_dict
-from bot.locations import Locations
-from bot.permissions import Permissions
-from bot.player import Player
+from bot.modules.locations import Locations
+from bot.modules.permissions import Permissions
+from bot.objects.player import Player
 from bot.player_observer import PlayerObserver
-from bot.players import Players
-from bot.telnet_connection import TelnetConnection
-from bot.whitelist import Whitelist
+from bot.modules.players import Players
+from bot.modules.telnet_connection import TelnetConnection
+from bot.modules.whitelist import Whitelist
 
 
 class ChraniBot:

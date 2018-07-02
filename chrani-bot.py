@@ -2,7 +2,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 import time
-from bot.logger import logger
+from bot.modules.logger import logger
 from bot.chrani_bot import ChraniBot
 """
 let there be bot:
