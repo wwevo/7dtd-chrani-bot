@@ -181,7 +181,7 @@ observers_whitelist.append({
 
 observers_whitelist.append({
     "type" : "trigger",
-    "title" : "set to online",
+    "title" : "entered the stream",
     "action" : check_if_player_is_on_whitelist,
     "env": "(self, player_object)",
     "essential" : True
@@ -217,7 +217,7 @@ observers_whitelist.append({
 
 observers_whitelist.append({
     "type" : "trigger",
-    "title" : "set to online",
+    "title" : "entered the stream",
     "action" : check_if_player_has_url_name,
     "env": "(self, player_object)",
     "essential" : True
@@ -274,7 +274,7 @@ observers_whitelist.append({
 
 observers_whitelist.append({
     "type": "trigger",
-    "title": "set to online",
+    "title": "entered the stream",
     "action": check_ip_country,
     "env": "(self, player_object)",
     "essential": True
