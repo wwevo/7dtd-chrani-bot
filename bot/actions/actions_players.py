@@ -1,4 +1,5 @@
 from bot.modules.logger import logger
+from bot.objects.player import Player
 import re
 
 actions_players = []

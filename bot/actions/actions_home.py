@@ -22,15 +22,15 @@ def check_building_site(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "can i build here",
-        "usage" : "/can i build here"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "can i build here",
+        "usage": "/can i build here"
     },
-    "action" : check_building_site,
+    "action": check_building_site,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -75,15 +75,15 @@ def set_up_home(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "add home",
-        "usage" : "/add home"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "add home",
+        "usage": "/add home"
     },
-    "action" : set_up_home,
+    "action": set_up_home,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -107,15 +107,15 @@ def remove_home(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "remove home",
-        "usage" : "/remove home"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "remove home",
+        "usage": "/remove home"
     },
-    "action" : remove_home,
+    "action": remove_home,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -141,15 +141,15 @@ def set_up_home_teleport(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "edit home teleport",
-        "usage" : "/edit home teleport"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "edit home teleport",
+        "usage": "/edit home teleport"
     },
-    "action" : set_up_home_teleport,
+    "action": set_up_home_teleport,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -175,15 +175,15 @@ def protect_inner_core(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "enable home protection",
-        "usage" : "/enable home protection"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "enable home protection",
+        "usage": "/enable home protection"
     },
-    "action" : protect_inner_core,
+    "action": protect_inner_core,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -209,15 +209,15 @@ def unprotect_inner_core(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "disable home protection",
-        "usage" : "/disable home protection"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "disable home protection",
+        "usage": "/disable home protection"
     },
-    "action" : unprotect_inner_core,
+    "action": unprotect_inner_core,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -283,15 +283,15 @@ def take_me_home(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "take me home",
-        "usage" : "/take me home"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "take me home",
+        "usage": "/take me home"
     },
-    "action" : take_me_home,
+    "action": take_me_home,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -321,15 +321,15 @@ def goto_player_home(self, command):
 
 
 actions_home.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "take me to player",
-        "usage" : "/take me to player <steamid/entityid> home"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "take me to player",
+        "usage": "/take me to player <steamid/entityid> home"
     },
-    "action" : goto_player_home,
+    "action": goto_player_home,
     "env": "(self, command)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -346,7 +346,7 @@ def set_up_home_outer_perimeter(self):
         distance_to_location = location_object.get_distance(coords)
         set_radius, allowed_range = location_object.set_radius(distance_to_location)
         if set_radius is True:
-            self.bot.locations.upsert(location_object, save=True)
+            self.bot.locations.upsert(location_object)
             self.tn.send_message_to_player(player_object, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
         else:
             self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
@@ -366,15 +366,15 @@ def set_up_home_outer_perimeter(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "edit home outer perimeter",
-        "usage" : "/edit home outer perimeter"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "edit home outer perimeter",
+        "usage": "/edit home outer perimeter"
     },
-    "action" : set_up_home_outer_perimeter,
+    "action": set_up_home_outer_perimeter,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -403,15 +403,15 @@ def set_up_home_inner_perimeter(self):
 
 
 actions_home.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "edit home inner perimeter",
-        "usage" : "/edit home inner perimeter"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "edit home inner perimeter",
+        "usage": "/edit home inner perimeter"
     },
-    "action" : set_up_home_inner_perimeter,
+    "action": set_up_home_inner_perimeter,
     "env": "(self)",
     "group": "home",
-    "essential" : False
+    "essential": False
 })
 
 

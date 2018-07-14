@@ -177,15 +177,15 @@ def shutdown_bot(self):
 
 
 actions_dev.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "shut down the matrix",
-        "usage" : "/shut down the matrix"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "shut down the matrix",
+        "usage": "/shut down the matrix"
     },
-    "action" : shutdown_bot,
+    "action": shutdown_bot,
     "env": "(self)",
     "group": "testing",
-    "essential" : False
+    "essential": False
 })
 """ 
 here come the observers
@@ -198,7 +198,7 @@ def record_time_of_last_activity(self):
         player_object = self.bot.players.get(self.player_steamid)
         if player_object.is_responsive() is True:
             player_object.last_seen = time()
-            self.bot.players.upsert(player_object, save=True)
+            self.bot.players.upsert(player_object)
     except Exception as e:
         logger.exception(e)
         pass
@@ -209,7 +209,7 @@ observers_dev.append({
     "title": "player is active",
     "action": record_time_of_last_activity,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -229,5 +229,5 @@ observers_dev.append({
     "title": "player changed region",
     "action": update_player_region,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })

@@ -31,7 +31,7 @@ def add_player_to_whitelist(self, command):
                     "name": 'unknown offline player'
                 }
 
-            if not self.bot.whitelist.add(player_object, player_dict_to_whitelist, save=True):
+            if not self.bot.whitelist.add(player_object, player_dict_to_whitelist):
                 self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist), color=self.bot.chat_colors['warning'])
                 return False
 
@@ -161,7 +161,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
             except KeyError as e:
                 return
 
-        if self.bot.whitelist.is_active():
+        if self.bot.whitelist.is_active() is True:
             if not self.bot.whitelist.player_is_allowed(player_object):
                 logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
                 self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name), color=self.bot.chat_colors['alert'])
@@ -250,7 +250,7 @@ def check_ip_country(self, player_object=None):
 
         try:
             player_object.set_country_code(users_country)
-            self.bot.players.upsert(player_object, save=True)
+            self.bot.players.upsert(player_object)
         except Exception as e:
             logger.exception(e)
 

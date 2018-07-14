@@ -79,13 +79,13 @@ def on_player_death(self):
 
 
 actions_spawn.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "died",
-        "usage" : None
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "died",
+        "usage": None
     },
-    "action" : on_player_death,
+    "action": on_player_death,
     "env": "(self)",
     "group": "spawn",
-    "essential" : True
+    "essential": True
 })

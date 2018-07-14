@@ -483,7 +483,7 @@ def player_crossed_boundary(self):
                 elif get_player_status == "has left core":
                     save_location_to_disc = True
                     if location_object.messages_dict["leaving_core"] is not None:
-                        self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['warning'])
+                        self.tn.send_message_to_player(player_object, location_object.messages_dict["leaving_core"], color=self.bot.chat_colors['background'])
                 elif get_player_status == "has entered core":
                     save_location_to_disc = True
                     if location_object.messages_dict["entering_core"] is not None:

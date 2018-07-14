@@ -352,7 +352,7 @@ class ChraniBot:
 
             if telnet_line is not None:
                 m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                if not m or m and m.group('telnet_command') != 'lp':
+                if not m or m and m.group('telnet_command') != 'lp' and m.group('telnet_command') != 'llp2':
                     if telnet_line != '':
                         logger.debug(telnet_line)
 

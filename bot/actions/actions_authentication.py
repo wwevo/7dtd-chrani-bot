@@ -9,15 +9,15 @@ def on_player_join(self):
 
 
 actions_authentication.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "joined the game",
-        "usage" : None
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "joined the game",
+        "usage": None
     },
-    "action" : on_player_join,
+    "action": on_player_join,
     "env": "(self)",
     "group": "authentication",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -43,7 +43,7 @@ def on_enter_gameworld(self):
 
     if player_object.initialized is not True:
         player_object.initialized = True
-        self.bot.players.upsert(player_object, save=True)
+        self.bot.players.upsert(player_object)
 
 
 actions_authentication.append({

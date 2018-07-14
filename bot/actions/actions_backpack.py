@@ -36,15 +36,15 @@ def on_player_death(self):
 
 
 actions_backpack.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "died",
-        "usage" : None
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "died",
+        "usage": None
     },
-    "action" : on_player_death,
+    "action": on_player_death,
     "env": "(self)",
     "group": "backpack",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -53,15 +53,15 @@ def on_player_kill(self):
 
 
 actions_backpack.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "killed by",
-        "usage" : None
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "killed by",
+        "usage": None
     },
-    "action" : on_player_kill,
+    "action": on_player_kill,
     "env": "(self)",
     "group": "backpack",
-    "essential" : False
+    "essential": False
 })
 
 

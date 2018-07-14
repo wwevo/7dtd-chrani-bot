@@ -37,15 +37,15 @@ def password(self, command):
 
 
 actions_lobby.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "password",
-        "usage" : "/password <password>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "password",
+        "usage": "/password <password>"
     },
-    "action" : password,
+    "action": password,
     "env": "(self)",
     "group": "lobby",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -84,10 +84,10 @@ def set_up_lobby(self):
 
 
 actions_lobby.append({
-    "match_mode" : "isequal",
+    "match_mode": "isequal",
     "command" : {
-        "trigger" : "add lobby",
-        "usage" : "/add lobby"
+        "trigger": "add lobby",
+        "usage": "/add lobby"
     },
     "action" : set_up_lobby,
     "env": "(self)",
@@ -128,10 +128,10 @@ def set_up_lobby_outer_perimeter(self):
 
 
 actions_lobby.append({
-    "match_mode" : "isequal",
+    "match_mode": "isequal",
     "command" : {
-        "trigger" : "edit lobby outer perimeter",
-        "usage" : "/edit lobby outer perimeter"
+        "trigger": "edit lobby outer perimeter",
+        "usage": "/edit lobby outer perimeter"
     },
     "action" : set_up_lobby_outer_perimeter,
     "env": "(self)",
@@ -165,10 +165,10 @@ def set_up_lobby_inner_perimeter(self):
 
 
 actions_lobby.append({
-    "match_mode" : "isequal",
+    "match_mode": "isequal",
     "command" : {
-        "trigger" : "edit lobby inner perimeter",
-        "usage" : "/edit lobby inner perimeter"
+        "trigger": "edit lobby inner perimeter",
+        "usage": "/edit lobby inner perimeter"
     },
     "action" : set_up_lobby_inner_perimeter,
     "env": "(self)",
@@ -192,10 +192,10 @@ def goto_lobby(self):
 
 
 actions_lobby.append({
-    "match_mode" : "isequal",
+    "match_mode": "isequal",
     "command" : {
-        "trigger" : "goto lobby",
-        "usage" : "/goto lobby"
+        "trigger": "goto lobby",
+        "usage": "/goto lobby"
     },
     "action" : goto_lobby,
     "env": "(self)",
@@ -218,10 +218,10 @@ def remove_lobby(self):
 
 
 actions_lobby.append({
-    "match_mode" : "isequal",
+    "match_mode": "isequal",
     "command" : {
-        "trigger" : "remove lobby",
-        "usage" : "/remove lobby"
+        "trigger": "remove lobby",
+        "usage": "/remove lobby"
     },
     "action" : remove_lobby,
     "env": "(self)",
@@ -250,10 +250,10 @@ def set_up_lobby_teleport(self):
 
 
 actions_lobby.append({
-    "match_mode" : "isequal",
+    "match_mode": "isequal",
     "command" : {
-        "trigger" : "edit lobby teleport",
-        "usage" : "/edit lobby teleport"
+        "trigger": "edit lobby teleport",
+        "usage": "/edit lobby teleport"
     },
     "action" : set_up_lobby_teleport,
     "env": "(self)",
