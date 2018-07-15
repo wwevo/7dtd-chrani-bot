@@ -132,6 +132,31 @@ class TelnetConnection:
 
         return telnet_response
 
+    def listplayerfriends(self, player_object):
+        try:
+            connection = self.tn
+            connection.write("lpf " + player_object.steamid + b" \r\n")
+        except Exception as e:
+            log_message = 'trying to listplayerfriends on telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
+
+        telnet_response = ""
+        friendslist = ""
+        poll_is_finished = False
+        while poll_is_finished is not True:
+            try:
+                telnet_line = connection.read_until(b"\r\n")
+                telnet_response += telnet_line
+            except Exception as e:
+                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                raise IOError(log_message)
+            m = re.search(r"FriendsOf id=" + str(player_object.steamid) + ", friends=(?P<friendslist>.*)\r\n", telnet_line)
+            if m:
+                friendslist = m.group("friendslist").split(',')
+                poll_is_finished = True
+
+        return friendslist
+
     def listlandprotection(self):
         try:
             connection = self.tn

@@ -77,9 +77,10 @@ class ChraniBot:
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
+        self.active_player_threads_dict = {}
+
         self.listplayers_interval = 1.5
         self.listplayers_interval_idle = self.listplayers_interval * 10
-        self.active_player_threads_dict = {}
 
         self.listlandprotection_interval = 45
         self.listlandprotection_interval_idle = 0
@@ -132,6 +133,8 @@ class ChraniBot:
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n",
             # to parse the telnets listlandprotection response
             'listlandprotection_result_regexp': r"Player \"(?:.+)\((?P<player_steamid>\d+)\)\" owns \d+ keystones \(.+\)\s(?P<keystones>(\s+\(.+\)\s){1,})",
+            # to parse the telnets listlandplayerfriends response
+            'listplayerfriends_result_regexp': r"FriendsOf id=(?P<player_steamid>([0-9]{17})), friends=(?P<friendslist>([0-9,]{17,}))",
             # to parse the telnets getgameprefs response
             'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
             # player joined / died messages
@@ -375,6 +378,16 @@ class ChraniBot:
                         player_object = self.players.load(player_id)
                         active_player_thread = self.active_player_threads_dict[player_id]
                         active_player_thread["thread"].trigger_action(player_object, command)
+                    except KeyError:
+                        pass
+
+                # handle listplayer output
+                m = re.search(self.match_types_system["listplayerfriends_result_regexp"], telnet_line)
+                if m:
+                    try:
+                        steamid = m.group("player_steamid")
+                        friendslist = m.group("friendslist")
+
                     except KeyError:
                         pass
 
