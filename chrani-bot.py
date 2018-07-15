@@ -11,7 +11,7 @@ if __name__ == '__main__':
     while True:
         try:
             bot = ChraniBot()
-            bot.bot_version = "0.3c"
+            bot.bot_version = "0.3d"
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
             log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
             logger.info(log_message)
-            logger.exception(error)
+            logger.exception(log_message)
             time.sleep(wait_until_reconnect)
             pass
 
