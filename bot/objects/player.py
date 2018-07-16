@@ -38,6 +38,10 @@ class Player():
     last_responsive = float
     initialized = bool
 
+    playerfriends_list = list
+    poll_listplayerfriends_lastpoll = float
+    poll_listplayerfriends_interval = dict
+
     def get_id(self):
         return unicode(self.steamid)
 
@@ -49,6 +53,10 @@ class Player():
         self.entityid = None
         self.authenticated = False
         self.initialized = False
+
+        self.playerfriends_list = []
+        self.poll_listplayerfriends_lastpoll = 0
+        self.poll_listplayerfriends_interval = 30
 
         self.old_rot_x = 0.0
         self.old_rot_y = 0.0

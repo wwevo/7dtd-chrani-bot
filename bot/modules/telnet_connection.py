@@ -141,7 +141,7 @@ class TelnetConnection:
             raise IOError(log_message)
 
         telnet_response = ""
-        friendslist = ""
+        friendslist = []
         poll_is_finished = False
         while poll_is_finished is not True:
             try:

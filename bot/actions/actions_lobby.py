@@ -67,10 +67,10 @@ def set_up_lobby(self):
         location_object.set_shape("sphere")
 
         messages_dict = location_object.get_messages_dict()
-        messages_dict["entering_core"] = None
-        messages_dict["leaving_core"] = None
-        messages_dict["entering_boundary"] = None
-        messages_dict["leaving_boundary"] = None
+        messages_dict["entered_locations_core"] = None
+        messages_dict["left_locations_core"] = None
+        messages_dict["entered_location"] = None
+        messages_dict["left_location"] = None
         location_object.set_messages(messages_dict)
         location_object.set_list_of_players_inside([player_object.steamid])
 

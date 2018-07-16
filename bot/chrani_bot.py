@@ -9,10 +9,10 @@ from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 from bot.actions.actions_spawn import actions_spawn
 from bot.actions.actions_authentication import actions_authentication
-from bot.actions.actions_dev import actions_dev, observers_dev
+from bot.actions.actions_dev import actions_dev
 from bot.actions.actions_home import actions_home
 from bot.actions.actions_lobby import actions_lobby, observers_lobby
-from bot.actions.actions_players import actions_players
+from bot.actions.actions_players import actions_players, observers_players
 from bot.actions.actions_locations import actions_locations, observers_locations
 from bot.actions.actions_whitelist import actions_whitelist, observers_whitelist
 from bot.actions.actions_scheduler import observers_scheduler
@@ -52,13 +52,13 @@ class ChraniBot:
     server_settings_dict = dict
 
     active_player_threads_dict = dict  # contains link to the players observer-thread
+    landclaims_dict = dict
 
     players = object
     locations = object
     whitelist = object
     permission = object
     settings = object
-    landclaims_dict = dict
 
     observers = list
     player_actions = list
@@ -73,17 +73,17 @@ class ChraniBot:
         self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
 
         self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_backpack + actions_lobby + actions_dev + actions_players
-        self.observers = observers_whitelist + observers_dev + observers_lobby + observers_locations + observers_scheduler
+        self.observers = observers_whitelist + observers_players + observers_lobby + observers_locations + observers_scheduler
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
         self.active_player_threads_dict = {}
+        self.landclaims_dict = {}
 
         self.listplayers_interval = 1.5
         self.listplayers_interval_idle = self.listplayers_interval * 10
 
         self.listlandprotection_interval = 45
-        self.listlandprotection_interval_idle = 0
 
         self.whitelist = Whitelist()
         if self.settings.get_setting_by_name('whitelist_active') is not False:

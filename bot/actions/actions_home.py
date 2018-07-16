@@ -58,10 +58,10 @@ def set_up_home(self):
         location_object.set_shape("sphere")
 
         messages_dict = location_object.get_messages_dict()
-        messages_dict["entering_core"] = None
-        messages_dict["leaving_core"] = None
-        messages_dict["entering_boundary"] = "you have entered {}\'s estate".format(player_object.name)
-        messages_dict["leaving_boundary"] = "you have left {}\'s estate".format(player_object.name)
+        messages_dict["entered_locations_core"] = None
+        messages_dict["left_locations_core"] = None
+        messages_dict["entered_location"] = "you have entered {}\'s estate".format(player_object.name)
+        messages_dict["left_location"] = "you have left {}\'s estate".format(player_object.name)
         location_object.set_messages(messages_dict)
         location_object.set_list_of_players_inside([player_object.steamid])
 
@@ -240,10 +240,10 @@ def set_up_home_name(self, command):
 
     location_object.set_description(description)
     messages_dict = {
-        "leaving_core": "you are leaving {}\'s core".format(description),
-        "leaving_boundary": "you are leaving {}".format(description),
-        "entering_boundary": "you are entering {}".format(description),
-        "entering_core": "you are entering {}\'s core".format(description)
+        "left_locations_core": "you are leaving {}\'s core".format(description),
+        "left_location": "you are leaving {}".format(description),
+        "entered_location": "you are entering {}".format(description),
+        "entered_locations_core": "you are entering {}\'s core".format(description)
     }
     location_object.set_messages(messages_dict)
     self.bot.locations.upsert(location_object, save=True)

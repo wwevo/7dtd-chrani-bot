@@ -48,10 +48,10 @@ class Location(object):
 
     def __init__(self, **kwargs):
         self.messages_dict = {
-            "entering_boundary": "entering boundary",
-            "entering_core": "entering core",
-            "leaving_core": "leaving core",
-            "leaving_boundary": "leaving boundary"
+            "entered_location": "entering boundary",
+            "entered_locations_core": "entering core",
+            "left_locations_core": "leaving core",
+            "left_location": "leaving boundary"
         }
         self.radius = 20
         self.is_public = False
@@ -226,7 +226,7 @@ class Location(object):
     def set_list_of_players_inside_core(self, list_of_players_inside_core):
         self.list_of_players_inside_core = list_of_players_inside_core
 
-    def eject_player(self, player_object):
+    def get_ejection_coords_tuple(self, player_object):
         if self.shape == "sphere":
             angle = random.randint(0, 359)
             x = self.pos_x + (self.radius + 2) * math.cos(angle)
@@ -324,7 +324,7 @@ class Location(object):
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside_core:
-                # and was inside before, so he left the location
+                # and was inside before, so he left the core
                 self.list_of_players_inside_core.remove(player_object.steamid)
                 player_status = 'has left core'
 
