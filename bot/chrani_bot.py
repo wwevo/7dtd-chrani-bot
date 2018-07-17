@@ -423,7 +423,7 @@ class ChraniBot:
                         except TypeError:
                             command["action"](command["command_parameters"])
 
-            time.sleep(0.05)  # to limit the speed a bit ^^
+            time.sleep(0.2)  # to limit the speed a bit ^^
 
     def shutdown(self):
         self.is_active = False

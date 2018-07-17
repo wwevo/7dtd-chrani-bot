@@ -69,6 +69,8 @@ class PlayerObserver(Thread):
 
             execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
+            # logger.debug("{} has {} of {} seconds left for calculations!".format(player_object.name, self.run_observers_interval - execution_time, self.run_observers_interval))
+
         logger.debug("thread has stopped")
 
     """
