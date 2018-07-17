@@ -33,7 +33,7 @@ def set_up_location(self, command):
             messages_dict["left_location"] = "you have left the location {}".format(name)
 
             location_object.set_messages(messages_dict)
-            location_object.set_list_of_players_inside([player_object.steamid])
+#            location_object.set_list_of_players_inside([player_object.steamid])
 
             self.bot.locations.upsert(location_object, save=True)
 
