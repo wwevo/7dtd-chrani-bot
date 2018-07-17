@@ -402,8 +402,6 @@ here come the observers
 """
 observers_players = []
 
-observers_dev = []
-
 
 def record_time_of_last_activity(self):
     try:
@@ -416,7 +414,7 @@ def record_time_of_last_activity(self):
         pass
 
 
-observers_dev.append({
+observers_players.append({
     "type": "monitor",
     "title": "player is active",
     "action": record_time_of_last_activity,
@@ -436,7 +434,7 @@ def update_player_region(self):
         pass
 
 
-observers_dev.append({
+observers_players.append({
     "type": "monitor",
     "title": "player changed region",
     "action": update_player_region,

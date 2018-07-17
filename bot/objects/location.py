@@ -202,21 +202,23 @@ class Location(object):
             top = self.pos_z - self.radius
             left = self.pos_x - self.radius
             # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get the total possible width and height
-            width_in_regions = math.ceil(float(2 * self.radius) / 512) + 1
-            height_in_regions = math.ceil(float(2 * self.radius) / 512) + 1
+            width_in_regions = math.ceil(float(self.radius) / 512) * 2
+            height_in_regions = math.ceil(float(self.radius) / 512) * 2
         elif self.shape == "cube" or self.shape == "room":
             # untested
             top = self.pos_z
             left = self.pos_x
-            width_in_regions = math.ceil(float(self.width) / 512) + 1
-            height_in_regions = math.ceil(float(self.height) / 512) + 1
+            width_in_regions = math.ceil(float(self.width / 2) / 512) * 2
+            height_in_regions = math.ceil(float(self.height / 2) / 512) * 2
         else:
             return False
 
         # translate occupied coordinates into the region-grid provided by allocs webmap
         for column in range(int(width_in_regions + 1)):
             for row in range(int(height_in_regions + 1)):
-                self.region_list.append(get_region_string(left + ((column - 1) * 512), top - ((row - 1) * 512)))
+                if row == 0 or column == 0:
+                    continue
+                self.region_list.append(get_region_string(left + ((column - 1) * 512), top + ((row - 1) * 512)))
 
         return self.region_list
 
