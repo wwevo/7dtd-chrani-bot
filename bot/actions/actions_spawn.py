@@ -1,7 +1,6 @@
 from bot.objects.location import Location
 from bot.modules.logger import logger
-
-actions_spawn = []
+import common
 
 
 def on_player_join(self):
@@ -34,7 +33,7 @@ def on_player_join(self):
     return True
 
 
-actions_spawn.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "entered the stream",
@@ -47,7 +46,7 @@ actions_spawn.append({
 })
 
 
-actions_spawn.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "Died",
@@ -78,7 +77,7 @@ def on_player_death(self):
     return True
 
 
-actions_spawn.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "died",

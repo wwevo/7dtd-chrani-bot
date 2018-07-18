@@ -3,8 +3,7 @@ import urllib
 
 from bot.assorted_functions import ObjectView
 from bot.modules.logger import logger
-
-actions_whitelist = []
+import common
 
 
 def add_player_to_whitelist(self, command):
@@ -41,7 +40,7 @@ def add_player_to_whitelist(self, command):
         pass
 
 
-actions_whitelist.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "add player",
@@ -87,7 +86,7 @@ def remove_player_from_whitelist(self, command):
         pass
 
 
-actions_whitelist.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "remove player",
@@ -109,7 +108,7 @@ def activate_whitelist(self):
         pass
 
 
-actions_whitelist.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "activate whitelist",
@@ -131,7 +130,7 @@ def deactivate_whitelist(self):
         pass
 
 
-actions_whitelist.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "deactivate whitelist",
@@ -146,7 +145,6 @@ actions_whitelist.append({
 here come the observers
 # these whitelist functions are special because they run as a monitor AND are used as triggers during login, to catch players before they even enter the game
 """
-observers_whitelist = []
 
 
 def check_if_player_is_on_whitelist(self, player_object=None):
@@ -171,7 +169,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
         pass
 
 
-observers_whitelist.append({
+common.observers_list.append({
     "type" : "monitor",
     "title" : "set to online",
     "action" : check_if_player_is_on_whitelist,
@@ -179,7 +177,7 @@ observers_whitelist.append({
     "essential" : True
 })
 
-observers_whitelist.append({
+common.observers_list.append({
     "type" : "trigger",
     "title" : "entered the stream",
     "action" : check_if_player_is_on_whitelist,
@@ -207,7 +205,7 @@ def check_if_player_has_url_name(self, player_object=None):
         pass
 
 
-observers_whitelist.append({
+common.observers_list.append({
     "type" : "monitor",
     "title" : "set to online",
     "action" : check_if_player_has_url_name,
@@ -215,7 +213,7 @@ observers_whitelist.append({
     "essential" : True
 })
 
-observers_whitelist.append({
+common.observers_list.append({
     "type" : "trigger",
     "title" : "entered the stream",
     "action" : check_if_player_has_url_name,
@@ -264,7 +262,7 @@ def check_ip_country(self, player_object=None):
         pass
 
 
-observers_whitelist.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "set to online",
     "action": check_ip_country,
@@ -272,7 +270,7 @@ observers_whitelist.append({
     "essential": True
 })
 
-observers_whitelist.append({
+common.observers_list.append({
     "type": "trigger",
     "title": "entered the stream",
     "action": check_ip_country,

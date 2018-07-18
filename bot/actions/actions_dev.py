@@ -1,6 +1,5 @@
 from bot.modules.logger import logger
-
-actions_dev = []
+import common
 
 
 def fix_players_legs(self):
@@ -28,7 +27,7 @@ def fix_players_legs(self):
         pass
 
 
-actions_dev.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "fix my legs please",
@@ -65,7 +64,7 @@ def stop_the_bleeding(self):
         pass
 
 
-actions_dev.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "make me stop leaking",
@@ -102,7 +101,7 @@ def apply_first_aid(self):
         pass
 
 
-actions_dev.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "heal me up scotty",
@@ -136,7 +135,7 @@ def reload_from_db(self):
         pass
 
 
-actions_dev.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "reinitialize",
@@ -174,7 +173,7 @@ def shutdown_bot(self):
         pass
 
 
-actions_dev.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "shut down the matrix",

@@ -1,8 +1,7 @@
 import re
 from bot.objects.location import Location
 from bot.modules.logger import logger
-
-actions_home = []
+import common
 
 
 def check_building_site(self):
@@ -21,7 +20,7 @@ def check_building_site(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "can i build here",
@@ -74,7 +73,7 @@ def set_up_home(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "add home",
@@ -106,7 +105,7 @@ def remove_home(self):
     return True
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "remove home",
@@ -140,7 +139,7 @@ def set_up_home_teleport(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "edit home teleport",
@@ -174,7 +173,7 @@ def protect_inner_core(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "enable home protection",
@@ -208,7 +207,7 @@ def unprotect_inner_core(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "disable home protection",
@@ -252,7 +251,7 @@ def set_up_home_name(self, command):
     return True
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "startswith",
     "command": {
         "trigger": "edit home name",
@@ -282,7 +281,7 @@ def take_me_home(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "take me home",
@@ -320,7 +319,7 @@ def goto_player_home(self, command):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "startswith",
     "command": {
         "trigger": "take me to player",
@@ -365,7 +364,7 @@ def set_up_home_outer_perimeter(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "edit home outer perimeter",
@@ -402,7 +401,7 @@ def set_up_home_inner_perimeter(self):
         pass
 
 
-actions_home.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "edit home inner perimeter",

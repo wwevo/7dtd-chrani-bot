@@ -36,13 +36,13 @@ class PlayerObserver(Thread):
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
-            if self.bot.observers:
+            if self.bot.observers_list:
                 """ execute real-time observers
                 these are run regardless of telnet activity!
                 Everything that meeds to be checked periodically should be done in observers
                 """
                 command_queue = []
-                for observer in self.bot.observers:
+                for observer in self.bot.observers_list:
                     if observer["type"] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
                         observer_function_name = observer["action"]
                         observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
@@ -79,9 +79,9 @@ class PlayerObserver(Thread):
     """
     def trigger_action(self, player_object, command_parameters):
         command_queue = []
-        if self.bot.player_actions is not None:
+        if self.bot.actions_list is not None:
             denied = False
-            for player_action in self.bot.player_actions:
+            for player_action in self.bot.actions_list:
                 function_category = player_action["group"]
                 function_name = getattr(player_action["action"], 'func_name')
                 if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command_parameters) or (player_action["match_mode"] == "startswith" and command_parameters.startswith(player_action["command"]["trigger"])):

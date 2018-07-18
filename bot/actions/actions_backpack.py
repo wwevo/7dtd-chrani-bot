@@ -1,7 +1,6 @@
 from bot.modules.logger import logger
 from bot.objects.location import Location
-
-actions_backpack = []
+import common
 
 
 def on_player_death(self):
@@ -35,7 +34,7 @@ def on_player_death(self):
     return True
 
 
-actions_backpack.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "died",
@@ -52,7 +51,7 @@ def on_player_kill(self):
     return on_player_death(self)
 
 
-actions_backpack.append({
+common.actions_list.append({
     "match_mode": "startswith",
     "command": {
         "trigger": "killed by",
@@ -102,7 +101,7 @@ def take_me_to_my_backpack(self):
         pass
 
 
-actions_backpack.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "take me to my pack",

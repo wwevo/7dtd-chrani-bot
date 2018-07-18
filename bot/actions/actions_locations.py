@@ -2,8 +2,7 @@ import re
 
 from bot.objects.location import Location
 from bot.modules.logger import logger
-
-actions_locations = []
+import common
 
 
 def set_up_location(self, command):
@@ -44,7 +43,7 @@ def set_up_location(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "add location",
@@ -79,7 +78,7 @@ def set_up_location_teleport(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location teleport",
@@ -117,7 +116,7 @@ def set_up_location_name(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location name",
@@ -161,7 +160,7 @@ def change_location_visibility(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "make players",
@@ -209,7 +208,7 @@ def set_up_location_outer_perimeter(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location outer perimeter",
@@ -250,7 +249,7 @@ def set_up_location_inner_perimeter(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "edit location inner perimeter",
@@ -282,7 +281,7 @@ def list_locations(self):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "available locations",
@@ -318,7 +317,7 @@ def goto_location(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "goto location",
@@ -352,7 +351,7 @@ def remove_location(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "remove location",
@@ -388,7 +387,7 @@ def protect_inner_core(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "enable location protection",
@@ -424,7 +423,7 @@ def unprotect_inner_core(self, command):
         pass
 
 
-actions_locations.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "disable location protection",
@@ -438,7 +437,6 @@ actions_locations.append({
 """
 here come the observers
 """
-observers_locations = []
 
 
 def player_crossed_boundary(self):
@@ -495,7 +493,7 @@ def player_crossed_boundary(self):
         pass
 
 
-observers_locations.append({
+common.observers_list.append({
     "type" : "monitor",
     "title" : "player crossed location boundary",
     "action" : player_crossed_boundary,

@@ -4,8 +4,7 @@ import re
 from time import time
 from bot.assorted_functions import get_region_string
 from bot.assorted_functions import timeout_occurred
-
-actions_players = []
+import common
 
 
 def teleport_self_to_player(self, command):
@@ -41,7 +40,7 @@ def teleport_self_to_player(self, command):
     return True
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "goto player",
@@ -87,7 +86,7 @@ def teleport_player_to_self(self, command):
     return True
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "summon player",
@@ -130,7 +129,7 @@ def list_online_players(self):
         pass
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "online players",
@@ -165,8 +164,8 @@ def list_available_player_actions(self):
         raise KeyError
 
     available_player_actions = []
-    if self.bot.player_actions is not None:
-        for player_action in self.bot.player_actions:
+    if self.bot.actions_list is not None:
+        for player_action in self.bot.actions_list:
             function_category = player_action["group"]
             function_name = getattr(player_action["action"], 'func_name')
             action_string = player_action["command"]["usage"]
@@ -182,7 +181,7 @@ def list_available_player_actions(self):
     return False
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "list actions",
@@ -229,7 +228,7 @@ def obliterate_player(self):
         pass
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "isequal",
     "command" : {
         "trigger" : "obliterate me",
@@ -288,7 +287,7 @@ def ban_player(self, command):
         pass
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "ban player",
@@ -336,7 +335,7 @@ def unban_player(self, command):
         pass
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "unban player",
@@ -386,7 +385,7 @@ def kick_player(self, command):
         pass
 
 
-actions_players.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "kick player",
@@ -400,7 +399,6 @@ actions_players.append({
 """
 here come the observers
 """
-observers_players = []
 
 
 def record_time_of_last_activity(self):
@@ -414,7 +412,7 @@ def record_time_of_last_activity(self):
         pass
 
 
-observers_players.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "player is active",
     "action": record_time_of_last_activity,
@@ -434,7 +432,7 @@ def update_player_region(self):
         pass
 
 
-observers_players.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "player changed region",
     "action": update_player_region,
@@ -458,7 +456,7 @@ def poll_playerfriends(self):
         pass
 
 
-observers_players.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "poll playerfriends",
     "action": poll_playerfriends,

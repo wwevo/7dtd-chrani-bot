@@ -7,16 +7,8 @@ from collections import deque
 
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
-from bot.actions.actions_spawn import actions_spawn
-from bot.actions.actions_authentication import actions_authentication
-from bot.actions.actions_dev import actions_dev
-from bot.actions.actions_home import actions_home
-from bot.actions.actions_lobby import actions_lobby, observers_lobby
-from bot.actions.actions_players import actions_players, observers_players
-from bot.actions.actions_locations import actions_locations, observers_locations
-from bot.actions.actions_whitelist import actions_whitelist, observers_whitelist
-from bot.actions.actions_scheduler import observers_scheduler
-from bot.actions.actions_backpack import actions_backpack
+
+import bot.actions
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
@@ -60,8 +52,8 @@ class ChraniBot:
     permission = object
     settings = object
 
-    observers = list
-    player_actions = list
+    observers_list = list
+    actions_list = list
 
     def __init__(self):
         self.settings = Settings()
@@ -72,8 +64,8 @@ class ChraniBot:
         self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
         self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
 
-        self.player_actions = actions_spawn + actions_whitelist + actions_authentication + actions_locations + actions_home + actions_backpack + actions_lobby + actions_dev + actions_players
-        self.observers = observers_whitelist + observers_players + observers_lobby + observers_locations + observers_scheduler
+        self.actions_list = bot.actions.actions_list
+        self.observers_list = bot.actions.observers_list
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
@@ -99,7 +91,7 @@ class ChraniBot:
         }
 
         self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
-        self.permissions = Permissions(self.player_actions, self.permission_levels_list)
+        self.permissions = Permissions(self.actions_list, self.permission_levels_list)
 
         self.load_from_db()
 
@@ -225,7 +217,7 @@ class ChraniBot:
         return game_preferences_dict
 
     def find_action_help(self, key, value):
-        for i, dic in enumerate(self.player_actions):
+        for i, dic in enumerate(self.actions_list):
             if dic["group"] == key and dic["command"]["trigger"] == value:
                 return dic["command"]["usage"]
         return None
@@ -408,7 +400,7 @@ class ChraniBot:
 
                     logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
                     command_queue = []
-                    for observer in self.observers:
+                    for observer in self.observers_list:
                         if observer["type"] == 'trigger':  # we only want the triggers here
                             observer_function_name = observer["action"]
                             observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
@@ -423,7 +415,7 @@ class ChraniBot:
                         except TypeError:
                             command["action"](command["command_parameters"])
 
-            time.sleep(0.2)  # to limit the speed a bit ^^
+            time.sleep(0.1)  # to limit the speed a bit ^^
 
     def shutdown(self):
         self.is_active = False

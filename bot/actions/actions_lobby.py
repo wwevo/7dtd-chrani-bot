@@ -1,8 +1,7 @@
 import re
 from bot.objects.location import Location
 from bot.modules.logger import logger
-
-actions_lobby = []
+import common
 
 
 def password(self, command):
@@ -36,7 +35,7 @@ def password(self, command):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "startswith",
     "command": {
         "trigger": "password",
@@ -83,7 +82,7 @@ def set_up_lobby(self):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command" : {
         "trigger": "add lobby",
@@ -127,7 +126,7 @@ def set_up_lobby_outer_perimeter(self):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command" : {
         "trigger": "edit lobby outer perimeter",
@@ -164,7 +163,7 @@ def set_up_lobby_inner_perimeter(self):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command" : {
         "trigger": "edit lobby inner perimeter",
@@ -191,7 +190,7 @@ def goto_lobby(self):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command" : {
         "trigger": "goto lobby",
@@ -217,7 +216,7 @@ def remove_lobby(self):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command" : {
         "trigger": "remove lobby",
@@ -249,7 +248,7 @@ def set_up_lobby_teleport(self):
         pass
 
 
-actions_lobby.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command" : {
         "trigger": "edit lobby teleport",
@@ -263,7 +262,6 @@ actions_lobby.append({
 """
 here come the observers
 """
-observers_lobby = []
 
 
 # the only lobby specific observer. since it is a location, generic observers can be found in actions_locations
@@ -290,7 +288,7 @@ def player_is_outside_boundary(self):
         pass
 
 
-observers_lobby.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "player left lobby",
     "action": player_is_outside_boundary,

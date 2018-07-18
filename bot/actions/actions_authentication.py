@@ -1,14 +1,13 @@
 import re
 from bot.modules.logger import logger
-
-actions_authentication = []
+import common
 
 
 def on_player_join(self):
     return True
 
 
-actions_authentication.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "joined the game",
@@ -46,7 +45,7 @@ def on_enter_gameworld(self):
         self.bot.players.upsert(player_object)
 
 
-actions_authentication.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "EnterMultiplayer",
@@ -59,7 +58,7 @@ actions_authentication.append({
 })
 
 
-actions_authentication.append({
+common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "JoinMultiplayer",
@@ -133,7 +132,7 @@ def password(self, command):
     return True
 
 
-actions_authentication.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "password",
@@ -193,7 +192,7 @@ def add_player_to_permission_group(self, command):
         self.bot.players.upsert(player_object_to_modify, save=True)
 
 
-actions_authentication.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "add player",
@@ -253,7 +252,7 @@ def remove_player_from_permission_group(self, command):
         self.bot.players.upsert(player_object_to_modify, save=True)
 
 
-actions_authentication.append({
+common.actions_list.append({
     "match_mode" : "startswith",
     "command" : {
         "trigger" : "remove player",

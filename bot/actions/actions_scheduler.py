@@ -1,6 +1,5 @@
 from bot.modules.logger import logger
-
-observers_scheduler = []
+import common
 
 
 def mute_unauthenticated_player(self):
@@ -21,7 +20,7 @@ def mute_unauthenticated_player(self):
         pass
 
 
-observers_scheduler.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "mute unauthenticated players",
     "action": mute_unauthenticated_player,
@@ -45,7 +44,7 @@ def initialize_player(self):
         pass
 
 
-observers_scheduler.append({
+common.observers_list.append({
     "type": "monitor",
     "title": "initialize player",
     "action": initialize_player,
