@@ -338,7 +338,6 @@ class ChraniBot:
             if telnet_lines is not None:
                 for line in telnet_lines:
                     self.telnet_lines_list.append(line)  # get the current global telnet-response
-                telnet_lines = None
 
             try:
                 telnet_line = self.telnet_lines_list.popleft()

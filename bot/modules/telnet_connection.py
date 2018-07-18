@@ -262,7 +262,7 @@ class TelnetConnection:
             except:
                 return False
 
-        if player_object.is_responsive() and timeout_occurred(self.bot.listplayers_interval * 2, player_object.last_teleport) and player_object.initialized == True:
+        if player_object.is_responsive() and timeout_occurred(self.bot.listplayers_interval * 2, player_object.last_teleport) and player_object.initialized is True:
             try:
                 connection = self.tn
                 command = "teleportplayer " + player_object.steamid + " " + str(coord_tuple[0]) + " " + str(coord_tuple[1]) + " " + str(coord_tuple[2])

@@ -152,6 +152,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
         if player_object is None:
             player_object = self.bot.players.get(self.player_steamid)
         else:
+            logger.debug("checking player {} for being on the whitelist".format(player_object.name))
             called_by_trigger = True
             self.bot = self
             try:
@@ -179,7 +180,7 @@ common.observers_list.append({
 
 common.observers_list.append({
     "type" : "trigger",
-    "title" : "entered the stream",
+    "title" : "set to online",
     "action" : check_if_player_is_on_whitelist,
     "env": "(self, player_object)",
     "essential" : True
@@ -191,6 +192,7 @@ def check_if_player_has_url_name(self, player_object=None):
         if player_object is None:
             player_object = self.bot.players.get(self.player_steamid)
         else:
+            logger.debug("checking player {} for having a 'bad' username".format(player_object.name))
             called_by_trigger = True
             self.bot = self
 
@@ -215,7 +217,7 @@ common.observers_list.append({
 
 common.observers_list.append({
     "type" : "trigger",
-    "title" : "entered the stream",
+    "title" : "set to online",
     "action" : check_if_player_has_url_name,
     "env": "(self, player_object)",
     "essential" : True
@@ -230,6 +232,7 @@ def check_ip_country(self, player_object=None):
             player_object = self.bot.players.get(self.player_steamid)
         else:
             # the scope changes when called by the bots main-loop
+            logger.debug("checking player {} for being from blacklisted countries".format(player_object.name))
             called_by_trigger = True
             self.bot = self
 
@@ -238,7 +241,6 @@ def check_ip_country(self, player_object=None):
         if self.bot.whitelist.player_is_allowed(player_object) or (users_country is not None and users_country not in self.bot.banned_countries_list):
             return False
 
-        logger.debug("checking player {} for being from blacklisted countries".format(player_object.name))
         try:
             if users_country is None:
                 f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings.get_setting_by_name('ipinfo.io_password')))
@@ -248,7 +250,7 @@ def check_ip_country(self, player_object=None):
 
         try:
             player_object.set_country_code(users_country)
-            self.bot.players.upsert(player_object)
+            self.bot.players.upsert(player_object, save=True)
         except Exception as e:
             logger.exception(e)
 
@@ -272,7 +274,7 @@ common.observers_list.append({
 
 common.observers_list.append({
     "type": "trigger",
-    "title": "entered the stream",
+    "title": "set to online",
     "action": check_ip_country,
     "env": "(self, player_object)",
     "essential": True
