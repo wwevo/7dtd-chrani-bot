@@ -102,13 +102,13 @@ def take_me_to_my_backpack(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "take me to my pack",
-        "usage" : "/take me to my pack"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "take me to my pack",
+        "usage": "/take me to my pack"
     },
-    "action" : take_me_to_my_backpack,
+    "action": take_me_to_my_backpack,
     "env": "(self)",
     "group": "backpack",
-    "essential" : False
+    "essential": False
 })

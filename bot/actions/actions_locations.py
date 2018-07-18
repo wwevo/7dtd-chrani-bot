@@ -44,15 +44,15 @@ def set_up_location(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "add location",
-        "usage" : "/add location <location name>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "add location",
+        "usage": "/add location <location name>"
     },
-    "action" : set_up_location,
+    "action": set_up_location,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -79,15 +79,15 @@ def set_up_location_teleport(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "edit location teleport",
-        "usage" : "/edit location teleport <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "edit location teleport",
+        "usage": "/edit location teleport <location_identifier>"
     },
-    "action" : set_up_location_teleport,
+    "action": set_up_location_teleport,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -117,15 +117,15 @@ def set_up_location_name(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "edit location name",
-        "usage" : "/edit location name <location_identifier> = <location name>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "edit location name",
+        "usage": "/edit location name <location_identifier> = <location name>"
     },
-    "action" : set_up_location_name,
+    "action": set_up_location_name,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -161,15 +161,15 @@ def change_location_visibility(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "make players",
-        "usage" : "/make players <steamid/entityid> location <location_identifier> <'public' or 'private'>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "make players",
+        "usage": "/make players <steamid/entityid> location <location_identifier> <'public' or 'private'>"
     },
-    "action" : change_location_visibility,
+    "action": change_location_visibility,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -209,15 +209,15 @@ def set_up_location_outer_perimeter(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "edit location outer perimeter",
-        "usage" : "/edit location outer perimeter <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "edit location outer perimeter",
+        "usage": "/edit location outer perimeter <location_identifier>"
     },
-    "action" : set_up_location_outer_perimeter,
+    "action": set_up_location_outer_perimeter,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -250,15 +250,15 @@ def set_up_location_inner_perimeter(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "edit location inner perimeter",
-        "usage" : "/edit location inner perimeter <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "edit location inner perimeter",
+        "usage": "/edit location inner perimeter <location_identifier>"
     },
-    "action" : set_up_location_inner_perimeter,
+    "action": set_up_location_inner_perimeter,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -282,15 +282,15 @@ def list_locations(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "available locations",
-        "usage" : "/available locations"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "available locations",
+        "usage": "/available locations"
     },
-    "action" : list_locations,
+    "action": list_locations,
     "env": "(self)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -318,15 +318,15 @@ def goto_location(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "goto location",
-        "usage" : "/goto location <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "goto location",
+        "usage": "/goto location <location_identifier>"
     },
-    "action" : goto_location,
+    "action": goto_location,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -352,15 +352,15 @@ def remove_location(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "remove location",
-        "usage" : "/remove location <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "remove location",
+        "usage": "/remove location <location_identifier>"
     },
-    "action" : remove_location,
+    "action": remove_location,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -388,15 +388,15 @@ def protect_inner_core(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "enable location protection",
-        "usage" : "/enable location protection <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "enable location protection",
+        "usage": "/enable location protection <location_identifier>"
     },
-    "action" : protect_inner_core,
+    "action": protect_inner_core,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -424,15 +424,15 @@ def unprotect_inner_core(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "disable location protection",
-        "usage" : "/disable location protection <location_identifier>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "disable location protection",
+        "usage": "/disable location protection <location_identifier>"
     },
-    "action" : unprotect_inner_core,
+    "action": unprotect_inner_core,
     "env": "(self, command)",
     "group": "locations",
-    "essential" : False
+    "essential": False
 })
 """
 here come the observers
@@ -494,9 +494,9 @@ def player_crossed_boundary(self):
 
 
 common.observers_list.append({
-    "type" : "monitor",
-    "title" : "player crossed location boundary",
-    "action" : player_crossed_boundary,
+    "type": "monitor",
+    "title": "player crossed location boundary",
+    "action": player_crossed_boundary,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })

@@ -41,15 +41,15 @@ def add_player_to_whitelist(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "add player",
-        "usage" : "/add player <steamid/entityid> to whitelist"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "add player",
+        "usage": "/add player <steamid/entityid> to whitelist"
     },
-    "action" : add_player_to_whitelist,
+    "action": add_player_to_whitelist,
     "env": "(self, command)",
     "group": "whitelist",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -87,15 +87,15 @@ def remove_player_from_whitelist(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "remove player",
-        "usage" : "/remove player <steamid/entityid> from whitelist"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "remove player",
+        "usage": "/remove player <steamid/entityid> from whitelist"
     },
-    "action" : remove_player_from_whitelist,
+    "action": remove_player_from_whitelist,
     "env": "(self, command)",
     "group": "whitelist",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -109,15 +109,15 @@ def activate_whitelist(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "activate whitelist",
-        "usage" : "/activate whitelist"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "activate whitelist",
+        "usage": "/activate whitelist"
     },
-    "action" : activate_whitelist,
+    "action": activate_whitelist,
     "env": "(self)",
     "group": "whitelist",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -131,15 +131,15 @@ def deactivate_whitelist(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "deactivate whitelist",
-        "usage" : "/deactivate whitelist"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "deactivate whitelist",
+        "usage": "/deactivate whitelist"
     },
-    "action" : deactivate_whitelist,
+    "action": deactivate_whitelist,
     "env": "(self)",
     "group": "whitelist",
-    "essential" : False
+    "essential": False
 })
 """
 here come the observers
@@ -171,19 +171,19 @@ def check_if_player_is_on_whitelist(self, player_object=None):
 
 
 common.observers_list.append({
-    "type" : "monitor",
-    "title" : "set to online",
-    "action" : check_if_player_is_on_whitelist,
+    "type": "monitor",
+    "title": "set to online",
+    "action": check_if_player_is_on_whitelist,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })
 
 common.observers_list.append({
-    "type" : "trigger",
-    "title" : "set to online",
-    "action" : check_if_player_is_on_whitelist,
+    "type": "trigger",
+    "title": "set to online",
+    "action": check_if_player_is_on_whitelist,
     "env": "(self, player_object)",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -208,19 +208,19 @@ def check_if_player_has_url_name(self, player_object=None):
 
 
 common.observers_list.append({
-    "type" : "monitor",
-    "title" : "set to online",
-    "action" : check_if_player_has_url_name,
+    "type": "monitor",
+    "title": "set to online",
+    "action": check_if_player_has_url_name,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })
 
 common.observers_list.append({
-    "type" : "trigger",
-    "title" : "set to online",
-    "action" : check_if_player_has_url_name,
+    "type": "trigger",
+    "title": "set to online",
+    "action": check_if_player_has_url_name,
     "env": "(self, player_object)",
-    "essential" : True
+    "essential": True
 })
 
 

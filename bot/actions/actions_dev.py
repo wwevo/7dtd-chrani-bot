@@ -28,15 +28,15 @@ def fix_players_legs(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "fix my legs please",
-        "usage" : "/fix my legs please"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "fix my legs please",
+        "usage": "/fix my legs please"
     },
-    "action" : fix_players_legs,
+    "action": fix_players_legs,
     "env": "(self)",
     "group": "testing",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -65,15 +65,15 @@ def stop_the_bleeding(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "make me stop leaking",
-        "usage" : "/make me stop leaking"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "make me stop leaking",
+        "usage": "/make me stop leaking"
     },
-    "action" : stop_the_bleeding,
+    "action": stop_the_bleeding,
     "env": "(self)",
     "group": "testing",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -102,15 +102,15 @@ def apply_first_aid(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "heal me up scotty",
-        "usage" : "/heal me up scotty"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "heal me up scotty",
+        "usage": "/heal me up scotty"
     },
-    "action" : apply_first_aid,
+    "action": apply_first_aid,
     "env": "(self)",
     "group": "testing",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -136,15 +136,15 @@ def reload_from_db(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "reinitialize",
-        "usage" : "/reinitialize"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "reinitialize",
+        "usage": "/reinitialize"
     },
-    "action" : reload_from_db,
+    "action": reload_from_db,
     "env": "(self)",
     "group": "testing",
-    "essential" : False
+    "essential": False
 })
 
 

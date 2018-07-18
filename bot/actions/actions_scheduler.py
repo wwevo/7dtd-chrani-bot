@@ -25,7 +25,7 @@ common.observers_list.append({
     "title": "mute unauthenticated players",
     "action": mute_unauthenticated_player,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -49,5 +49,5 @@ common.observers_list.append({
     "title": "initialize player",
     "action": initialize_player,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })

@@ -84,14 +84,14 @@ def set_up_lobby(self):
 
 common.actions_list.append({
     "match_mode": "isequal",
-    "command" : {
+    "command": {
         "trigger": "add lobby",
         "usage": "/add lobby"
     },
-    "action" : set_up_lobby,
+    "action": set_up_lobby,
     "env": "(self)",
     "group": "lobby",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -128,14 +128,14 @@ def set_up_lobby_outer_perimeter(self):
 
 common.actions_list.append({
     "match_mode": "isequal",
-    "command" : {
+    "command": {
         "trigger": "edit lobby outer perimeter",
         "usage": "/edit lobby outer perimeter"
     },
-    "action" : set_up_lobby_outer_perimeter,
+    "action": set_up_lobby_outer_perimeter,
     "env": "(self)",
     "group": "lobby",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -165,14 +165,14 @@ def set_up_lobby_inner_perimeter(self):
 
 common.actions_list.append({
     "match_mode": "isequal",
-    "command" : {
+    "command": {
         "trigger": "edit lobby inner perimeter",
         "usage": "/edit lobby inner perimeter"
     },
-    "action" : set_up_lobby_inner_perimeter,
+    "action": set_up_lobby_inner_perimeter,
     "env": "(self)",
     "group": "lobby",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -192,14 +192,14 @@ def goto_lobby(self):
 
 common.actions_list.append({
     "match_mode": "isequal",
-    "command" : {
+    "command": {
         "trigger": "goto lobby",
         "usage": "/goto lobby"
     },
-    "action" : goto_lobby,
+    "action": goto_lobby,
     "env": "(self)",
     "group": "lobby",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -218,14 +218,14 @@ def remove_lobby(self):
 
 common.actions_list.append({
     "match_mode": "isequal",
-    "command" : {
+    "command": {
         "trigger": "remove lobby",
         "usage": "/remove lobby"
     },
-    "action" : remove_lobby,
+    "action": remove_lobby,
     "env": "(self)",
     "group": "lobby",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -250,14 +250,14 @@ def set_up_lobby_teleport(self):
 
 common.actions_list.append({
     "match_mode": "isequal",
-    "command" : {
+    "command": {
         "trigger": "edit lobby teleport",
         "usage": "/edit lobby teleport"
     },
-    "action" : set_up_lobby_teleport,
+    "action": set_up_lobby_teleport,
     "env": "(self)",
     "group": "lobby",
-    "essential" : False
+    "essential": False
 })
 """
 here come the observers
@@ -293,5 +293,5 @@ common.observers_list.append({
     "title": "player left lobby",
     "action": player_is_outside_boundary,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })

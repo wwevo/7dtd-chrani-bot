@@ -34,28 +34,28 @@ def on_player_join(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "entered the stream",
-        "usage" : None
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "entered the stream",
+        "usage": None
     },
-    "action" : on_player_join,
+    "action": on_player_join,
     "env": "(self)",
     "group": "spawn",
-    "essential" : True
+    "essential": True
 })
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "Died",
-        "usage" : None
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "Died",
+        "usage": None
     },
-    "action" : on_player_join,
+    "action": on_player_join,
     "env": "(self)",
     "group": "spawn",
-    "essential" : True
+    "essential": True
 })
 
 

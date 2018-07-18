@@ -41,15 +41,15 @@ def teleport_self_to_player(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "goto player",
-        "usage" : "/goto player <steamid/entityid>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "goto player",
+        "usage": "/goto player <steamid/entityid>"
     },
-    "action" : teleport_self_to_player,
+    "action": teleport_self_to_player,
     "env": "(self, command)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -87,15 +87,15 @@ def teleport_player_to_self(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "summon player",
-        "usage" : "/summon player <steamid/entityid>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "summon player",
+        "usage": "/summon player <steamid/entityid>"
     },
-    "action" : teleport_player_to_self,
+    "action": teleport_player_to_self,
     "env": "(self, command)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -130,15 +130,15 @@ def list_online_players(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "online players",
-        "usage" : "/online players"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "online players",
+        "usage": "/online players"
     },
-    "action" : list_online_players,
+    "action": list_online_players,
     "env": "(self)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -182,15 +182,15 @@ def list_available_player_actions(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "list actions",
-        "usage" : "/list actions"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "list actions",
+        "usage": "/list actions"
     },
-    "action" : list_available_player_actions,
+    "action": list_available_player_actions,
     "env": "(self)",
     "group": "players",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -229,15 +229,15 @@ def obliterate_player(self):
 
 
 common.actions_list.append({
-    "match_mode" : "isequal",
-    "command" : {
-        "trigger" : "obliterate me",
-        "usage" : "/obliterate me"
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "obliterate me",
+        "usage": "/obliterate me"
     },
-    "action" : obliterate_player,
+    "action": obliterate_player,
     "env": "(self)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -288,15 +288,15 @@ def ban_player(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "ban player",
-        "usage" : "/ban player <steamid/entityid> for <reason>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "ban player",
+        "usage": "/ban player <steamid/entityid> for <reason>"
     },
-    "action" : ban_player,
+    "action": ban_player,
     "env": "(self, command)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -336,15 +336,15 @@ def unban_player(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "unban player",
-        "usage" : "/unban player <steamid/entityid>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "unban player",
+        "usage": "/unban player <steamid/entityid>"
     },
-    "action" : unban_player,
+    "action": unban_player,
     "env": "(self, command)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -386,15 +386,15 @@ def kick_player(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "kick player",
-        "usage" : "/kick player <steamid/entityid> for <reason>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "kick player",
+        "usage": "/kick player <steamid/entityid> for <reason>"
     },
-    "action" : kick_player,
+    "action": kick_player,
     "env": "(self, command)",
     "group": "players",
-    "essential" : False
+    "essential": False
 })
 """
 here come the observers
@@ -461,7 +461,7 @@ common.observers_list.append({
     "title": "poll playerfriends",
     "action": poll_playerfriends,
     "env": "(self)",
-    "essential" : True
+    "essential": True
 })
 
 

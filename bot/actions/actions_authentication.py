@@ -133,15 +133,15 @@ def password(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "password",
-        "usage" : "/password <password>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "password",
+        "usage": "/password <password>"
     },
-    "action" : password,
+    "action": password,
     "env": "(self, command)",
     "group": "authentication",
-    "essential" : True
+    "essential": True
 })
 
 
@@ -193,15 +193,15 @@ def add_player_to_permission_group(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "add player",
-        "usage" : "/add player <steamid/entityid> to group <group name>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "add player",
+        "usage": "/add player <steamid/entityid> to group <group name>"
     },
-    "action" : add_player_to_permission_group,
+    "action": add_player_to_permission_group,
     "env": "(self, command)",
     "group": "authentication",
-    "essential" : False
+    "essential": False
 })
 
 
@@ -253,13 +253,13 @@ def remove_player_from_permission_group(self, command):
 
 
 common.actions_list.append({
-    "match_mode" : "startswith",
-    "command" : {
-        "trigger" : "remove player",
-        "usage" : "/remove player <steamid/entityid> from group <group name>"
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "remove player",
+        "usage": "/remove player <steamid/entityid> from group <group name>"
     },
-    "action" : remove_player_from_permission_group,
+    "action": remove_player_from_permission_group,
     "env": "(self, command)",
     "group": "authentication",
-    "essential" : False
+    "essential": False
 })
