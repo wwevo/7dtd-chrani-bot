@@ -466,9 +466,18 @@ def player_crossed_boundary(self):
 
                 save_location_to_disc = False
                 if player_status == "is inside core":
-                    if location_object.protected_core is True and (player_object.steamid != location_object.owner and location_object.owner not in player_object.playerfriends_list):
-                        if self.tn.teleportplayer(player_object, coord_tuple=location_object.get_ejection_coords_tuple(player_object)):
-                            self.tn.send_message_to_player(player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object.owner), color=self.bot.chat_colors['warning'])
+                    if location_object.protected_core is True:
+                        if any(x in ["admin", "mod"] for x in player_object.permission_levels):
+                            continue
+                        elif player_object.steamid == location_object.owner:
+                            continue
+                        elif location_object.owner in player_object.playerfriends_list:
+                            continue
+                        elif player_object.steamid in location_object.protected_core_whitelist:
+                            continue
+                        else:
+                            if self.tn.teleportplayer(player_object, coord_tuple=location_object.get_ejection_coords_tuple(player_object)):
+                                self.tn.send_message_to_player(player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object.owner), color=self.bot.chat_colors['warning'])
                 if player_status == "has left":
                     # save_location_to_disc = True
                     if location_object.messages_dict["left_location"] is not None:
