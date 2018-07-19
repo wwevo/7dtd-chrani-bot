@@ -450,7 +450,8 @@ def player_crossed_boundary(self):
             """
             for location_name, location_object in locations_dict[location_owner_steamid].iteritems():
                 # if player_object.region not in location_object.region_list:
-                #     # we only need to check a location if a player is near it
+                #
+                # we only need to check a location if a player is near it
                 #     continue
 
                 """ different status-conditions for a player
@@ -464,7 +465,6 @@ def player_crossed_boundary(self):
                 """
                 player_status = location_object.get_player_status(player_object)
 
-                save_location_to_disc = False
                 if player_status == "is inside core":
                     if location_object.protected_core is True:
                         if any(x in ["admin", "mod"] for x in player_object.permission_levels):
@@ -479,24 +479,19 @@ def player_crossed_boundary(self):
                             if self.tn.teleportplayer(player_object, coord_tuple=location_object.get_ejection_coords_tuple(player_object)):
                                 self.tn.send_message_to_player(player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object.owner), color=self.bot.chat_colors['warning'])
                 if player_status == "has left":
-                    # save_location_to_disc = True
                     if location_object.messages_dict["left_location"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
                 if player_status == "has entered":
-                    # save_location_to_disc = True
                     if location_object.messages_dict["entered_location"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                 if player_status == "has left core":
-                    # save_location_to_disc = True
                     if location_object.messages_dict["left_locations_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
                 if player_status == "has entered core":
-                    # save_location_to_disc = True
                     if location_object.messages_dict["entered_locations_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
 
-                # self.tn.send_message_to_player(player_object, player_status + location_object.name)
-                self.bot.locations.upsert(location_object, save=save_location_to_disc)
+                self.bot.locations.upsert(location_object)
     except Exception as e:
         logger.exception(e)
         pass
