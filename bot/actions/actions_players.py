@@ -122,7 +122,7 @@ def list_online_players(self):
             players_to_list.append(player_object_to_list)
 
         for player_object_to_list in players_to_list:
-            self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: {}".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=self.bot.chat_colors['success'])
+            self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=self.bot.chat_colors['success'])
 
     except Exception as e:
         logger.exception(e)
@@ -171,12 +171,13 @@ def list_available_player_actions(self):
             action_string = player_action["command"]["usage"]
             has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
             if isinstance(has_permission, bool) and has_permission is True and action_string is not None:
-                available_player_actions.append(action_string)
+                available_player_actions.append("({}) - [ffffff]{}[-]".format(function_category, action_string))
 
         self.tn.send_message_to_player(player_object, "The following actions are available to you:", color=self.bot.chat_colors['success'])
-        available_player_actions = list(set(available_player_actions))
+        # available_player_actions = list(set(available_player_actions))
+
         for player_action in available_player_actions:
-            self.tn.send_message_to_player(player_object, "{}".format(player_action), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "{}".format(player_action), color=self.bot.chat_colors['success'])
 
     return False
 

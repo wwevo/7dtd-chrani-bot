@@ -32,7 +32,6 @@ def set_up_location(self, command):
             messages_dict["left_location"] = "you have left the location {}".format(name)
 
             location_object.set_messages(messages_dict)
-#            location_object.set_list_of_players_inside([player_object.steamid])
 
             self.bot.locations.upsert(location_object, save=True)
 
@@ -59,9 +58,9 @@ common.actions_list.append({
 def set_up_location_teleport(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"edit\slocation\steleport\s(?P<identifier>[\W\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\steleport\s(?P<location_identifier>[\W\w\s]{1,19})$", command)
         if p:
-            identifier = p.group("identifier")
+            identifier = p.group("location_identifier")
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
             except KeyError:
@@ -94,10 +93,10 @@ common.actions_list.append({
 def set_up_location_name(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"edit\slocation\sname\s(?P<identifier>[\W\w\s]{1,19})\s=\s(?P<name>[\W\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\sname\s(?P<location_identifier>[\W\w\s]{1,19})\s=\s(?P<location_name>[\W\w\s]{1,19})$", command)
         if p:
-            identifier = p.group("identifier")
-            name = p.group("name")
+            identifier = p.group("location_identifier")
+            name = p.group("location_name")
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
                 location_object.set_name(name)
@@ -132,13 +131,13 @@ common.actions_list.append({
 def change_location_visibility(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"make\splayers\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\slocation\s(?P<identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
+        p = re.search(r"make\splayers\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
         if p:
-            identifier = p.group("identifier")
+            identifier = p.group("location_identifier")
             status_to_set = p.group("status") == 'public'
-
             location_owner_steamid = p.group("steamid")
             location_owner_entityid = p.group("entityid")
+
             if location_owner_steamid is None:
                 location_owner_steamid = self.bot.players.entityid_to_steamid(location_owner_entityid)
                 if location_owner_steamid is False:
@@ -149,7 +148,7 @@ def change_location_visibility(self, command):
             try:
                 location_object = self.bot.locations.get(location_owner.steamid, identifier)
                 if location_object.set_visibility(status_to_set):
-                    self.tn.send_message_to_player(player_object, "You've made your location {} {}".format(location_object.name, p.group("status")), color=self.bot.chat_colors['background'])
+                    self.tn.send_message_to_player(player_object, "You've made your location {} {}".format(location_object.name, str(status_to_set)), color=self.bot.chat_colors['background'])
                     self.bot.locations.upsert(location_object, save=True)
                 else:
                     self.tn.send_message_to_player(player_object, "A public location with the identifier {} already exists".format(location_object.identifier), color=self.bot.chat_colors['background'])
@@ -176,9 +175,9 @@ common.actions_list.append({
 def set_up_location_outer_perimeter(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"edit\slocation\souter\sperimeter\s([\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\souter\sperimeter\s(?P<location_identifier>[\w\s]{1,19})$", command)
         if p:
-            identifier = p.group(1)
+            identifier = p.group("location_identifier")
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
             except KeyError:
@@ -224,9 +223,9 @@ common.actions_list.append({
 def set_up_location_inner_perimeter(self, command):
     try:
         player_object = self.bot.players.get(self.player_steamid)
-        p = re.search(r"edit\slocation\sinner\sperimeter\s([\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\sinner\sperimeter\s(?P<location_identifier>[\w\s]{1,19})$", command)
         if p:
-            identifier = p.group(1)
+            identifier = p.group("location_identifier")
             try:
                 location_object = self.bot.locations.get(player_object.steamid, identifier)
             except KeyError:
@@ -269,10 +268,10 @@ def list_locations(self):
             output_list = []
             location_objects_dict = self.bot.locations.get_available_locations(player_object)
             for name, location_object in location_objects_dict.iteritems():
-                output_list.append("{} @ ({} x:{}, y:{}, z:{}) - {}".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z, 'public' if location_object.is_public else 'private'))
+                output_list.append("{} @ ([ffffff]{}[-] x:[ffffff]{}[-], y:[ffffff]{}[-], z:[ffffff]{}[-]) - [ffffff]{}[-]".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z, 'public' if location_object.is_public else 'private'))
 
             for output_line in output_list:
-                self.tn.send_message_to_player(player_object, output_line)
+                self.tn.send_message_to_player(player_object, output_line, color=self.bot.chat_colors['success'])
 
         except KeyError:
             self.tn.send_message_to_player(player_object, "{} can not list that which you do not have!".format(player_object.name), color=self.bot.chat_colors['warning'])
@@ -341,7 +340,6 @@ def remove_location(self, command):
                 raise KeyError
 
             try:
-                location_object = self.bot.locations.get(player_object.steamid, identifier)
                 self.bot.locations.remove(player_object.steamid, identifier)
                 self.tn.say("{} deleted location {}".format(player_object.name, identifier), color=self.bot.chat_colors['background'])
             except KeyError:
@@ -376,11 +374,11 @@ def protect_inner_core(self, command):
                 self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the location first!", color=self.bot.chat_colors['warning'])
                 return False
 
-        if location_object.set_protected_core(True):
-            self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The location {} is now protected!".format(location_object.identifier), color=self.bot.chat_colors['success'])
-        else:
-            self.tn.send_message_to_player(player_object, "could not enable protection for location {} :(".format(location_object.identifier), color=self.bot.chat_colors['warning'])
+            if location_object.set_protected_core(True):
+                self.bot.locations.upsert(location_object, save=True)
+                self.tn.send_message_to_player(player_object, "The location {} is now protected!".format(location_object.identifier), color=self.bot.chat_colors['success'])
+            else:
+                self.tn.send_message_to_player(player_object, "could not enable protection for location {} :(".format(location_object.identifier), color=self.bot.chat_colors['warning'])
 
     except Exception as e:
         logger.exception(e)
@@ -412,11 +410,11 @@ def unprotect_inner_core(self, command):
                 self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the location first!", color=self.bot.chat_colors['warning'])
                 return False
 
-        if location_object.set_protected_core(False):
-            self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "The location {} is now unprotected!".format(location_object.identifier), color=self.bot.chat_colors['success'])
-        else:
-            self.tn.send_message_to_player(player_object, "could not disable protection for location {} :(".format(location_object.identifier), color=self.bot.chat_colors['warning'])
+            if location_object.set_protected_core(False):
+                self.bot.locations.upsert(location_object, save=True)
+                self.tn.send_message_to_player(player_object, "The location {} is now unprotected!".format(location_object.identifier), color=self.bot.chat_colors['success'])
+            else:
+                self.tn.send_message_to_player(player_object, "could not disable protection for location {} :(".format(location_object.identifier), color=self.bot.chat_colors['warning'])
 
     except Exception as e:
         logger.exception(e)
