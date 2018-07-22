@@ -2,7 +2,6 @@ import re
 import sys
 import time
 import math
-from threading import Event
 from collections import deque
 
 from bot.modules.logger import logger
@@ -14,7 +13,6 @@ from bot.modules.settings import Settings
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.objects.player import Player
-from bot.player_observer import PlayerObserver
 from bot.modules.players import Players
 from bot.modules.telnet_connection import TelnetConnection
 from bot.modules.whitelist import Whitelist
@@ -132,9 +130,9 @@ class ChraniBot:
             # player joined / died messages
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
             # pretty much the first usable line during a players login
-            #'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
+            # 'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
             # player is 'valid' from here on
-            #'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
+            # 'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
             'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
         }
 
@@ -152,32 +150,6 @@ class ChraniBot:
         self.shutdown()
 
         sys.exit()
-
-    def poll_players(self):
-        online_players_dict = {}
-        listplayers_result = self.poll_tn.listplayers()
-        for m in re.finditer(self.match_types_system["listplayers_result_regexp"], listplayers_result):
-            online_players_dict.update({m.group(16): {
-                "entityid": m.group(1),
-                "name":     str(m.group(2)),
-                "pos_x":    float(m.group(3)),
-                "pos_y":    float(m.group(4)),
-                "pos_z":    float(m.group(5)),
-                "rot_x":    float(m.group(6)),
-                "rot_y":    float(m.group(7)),
-                "rot_z":    float(m.group(8)),
-                "remote":   bool(m.group(9)),
-                "health":   int(m.group(10)),
-                "deaths":   int(m.group(11)),
-                "zombies":  int(m.group(12)),
-                "players":  int(m.group(13)),
-                "score":    m.group(14),
-                "level":    m.group(15),
-                "steamid":  m.group(16),
-                "ip":       str(m.group(17)),
-                "ping":     int(m.group(18))
-            }})
-        return online_players_dict
 
     def poll_lcb(self):
         lcb_dict = {}
@@ -215,12 +187,6 @@ class ChraniBot:
                 "Server-IP": m.group("server_ip").rstrip()
             })
         return game_preferences_dict
-
-    def find_action_help(self, key, value):
-        for i, dic in enumerate(self.actions_list):
-            if dic["group"] == key and dic["command"]["trigger"] == value:
-                return dic["command"]["usage"]
-        return None
 
     def landclaims_find_by_distance(self, start_coords, distance_in_blocks):
         landclaims_in_reach_list = []
@@ -271,61 +237,13 @@ class ChraniBot:
                 listlandprotection_timeout_start = time.time()
 
             if timeout_occurred(listplayers_interval, listplayers_timeout_start):
-                # get all currently online players and store them in a dictionary
-                last_listplayers_dict = listplayers_dict
-                listplayers_dict = self.poll_players()
                 if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
                     listplayers_interval = self.listplayers_interval_idle
                 else:
                     listplayers_interval = self.listplayers_interval
 
+                listplayers_dict = self.players.manage_online_players(self, listplayers_dict)
                 listplayers_timeout_start = time.time()
-
-                # prune players not online anymore
-                for player in set(self.players.players_dict) - set(listplayers_dict.keys()):
-                    del self.players.players_dict[player]
-
-                # create new player entries / update existing ones
-                for player_steamid, player_dict in listplayers_dict.iteritems():
-                    try:
-                        player_object = self.players.get(player_steamid)
-                        # player is already online and needs updating
-                        player_object.update(**player_dict)
-                        if last_listplayers_dict != listplayers_dict:  # but only if they have changed at all!
-                            """ we only update this if things have changed since this poll is slow and might
-                            be out of date. Any teleport issued by the bot or a player would generate more accurate data
-                            If it HAS changed it is by all means current and can be used to update the object.
-                            """
-                            self.players.upsert(player_object)
-                    except KeyError:  # player has just come online
-                        try:
-                            player_object = self.players.load(player_steamid)
-                            # player has a file on disc, update database!
-                            player_object.update(**player_dict)
-                            self.players.upsert(player_object)
-                        except KeyError:  # player is totally new, create file!
-                            player_object = Player(**player_dict)
-                            self.players.upsert(player_object, save=True)
-                    # there should be a valid object state here now ^^
-
-                """ handle player-threads """
-                for player_steamid, player_object in self.players.players_dict.iteritems():
-                    """ start player_observer_thread for each player not already being observed """
-                    if player_steamid not in self.active_player_threads_dict:
-                        player_observer_thread_stop_flag = Event()
-                        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self, str(player_steamid))  # I'm passing the bot (self) into it to have easy access to it's variables
-                        player_observer_thread.name = player_steamid  # nice to have for the logs
-                        player_observer_thread.isDaemon()
-                        player_observer_thread.trigger_action(player_object, "entered the stream")
-                        player_observer_thread.start()
-                        self.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
-
-                for player_steamid in set(self.active_player_threads_dict) - set(self.players.players_dict.keys()):
-                    """ prune all active_player_threads from players no longer online """
-                    active_player_thread = self.active_player_threads_dict[player_steamid]
-                    stop_flag = active_player_thread["thread"]
-                    stop_flag.stopped.set()
-                    del self.active_player_threads_dict[player_steamid]
 
             """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
             I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
@@ -369,16 +287,6 @@ class ChraniBot:
                         player_object = self.players.load(player_id)
                         active_player_thread = self.active_player_threads_dict[player_id]
                         active_player_thread["thread"].trigger_action(player_object, command)
-                    except KeyError:
-                        pass
-
-                # handle listplayer output
-                m = re.search(self.match_types_system["listplayerfriends_result_regexp"], telnet_line)
-                if m:
-                    try:
-                        steamid = m.group("player_steamid")
-                        friendslist = m.group("friendslist")
-
                     except KeyError:
                         pass
 

@@ -76,7 +76,7 @@ def set_up_lobby(self):
         self.bot.locations.upsert(location_object, save=True)
 
         self.tn.send_message_to_player(player_object, "You have set up a lobby", color=self.bot.chat_colors['success'])
-        self.tn.send_message_to_player(player_object, "Set up the perimeter with {}, while standing on the edge of it.".format(self.bot.find_action_help("lobby", "edit lobby outer perimeter")), color=self.bot.chat_colors['warning'])
+        self.tn.send_message_to_player(player_object, "Set up the perimeter with {}, while standing on the edge of it.".format(common.find_action_help("lobby", "edit lobby outer perimeter")), color=self.bot.chat_colors['warning'])
     except Exception as e:
         logger.exception(e)
         pass

@@ -192,7 +192,6 @@ class Location(object):
 
         return True
 
-    # TODO: region should be a list as a location and it's effect can spawn several regions. capture all regions if empty
     def update_region_list(self):
         # a'ight, I suck at maths. Still need this to be done so here it goes.
         self.region_list = []

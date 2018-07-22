@@ -25,7 +25,7 @@ def teleport_self_to_player(self, command):
             else:
                 player_object_to_teleport_to = self.bot.players.get(steamid_to_teleport_to)
         else:
-            self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(self.bot.find_action_help("players", "goto player")), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(common.find_action_help("players", "goto player")), color=self.bot.chat_colors['warning'])
             return False
 
     except Exception as e:
@@ -71,7 +71,7 @@ def teleport_player_to_self(self, command):
             else:
                 player_object_to_teleport_to = self.bot.players.get(steamid_to_fetch)
         else:
-            self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(self.bot.find_action_help("players", "summon player")), color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(common.find_action_help("players", "summon player")), color=self.bot.chat_colors['warning'])
             return False
 
     except Exception as e:
