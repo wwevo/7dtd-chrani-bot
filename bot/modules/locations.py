@@ -33,8 +33,8 @@ class Locations(object):
                             locations_dict[str(location_dict['owner'])].update({str(location_dict['identifier']): Location(**location_dict)})
                         except KeyError:
                             locations_dict[str(location_dict['owner'])] = {str(location_dict['identifier']): Location(**location_dict)}
-            if store is True:
-                self.locations_dict = locations_dict
+
+            self.locations_dict = locations_dict
             return locations_dict
 
     def upsert(self, location_object, save=False):

@@ -167,7 +167,7 @@ def shutdown_bot(self):
     try:
         player_object = self.bot.players.get(self.player_steamid)
         self.tn.send_message_to_player(player_object, "bot is shutting down...", color=self.bot.chat_colors['success'])
-        self.bot.shutdown_bot()
+        self.bot.shutdown()
     except Exception as e:
         logger.exception(e)
         pass

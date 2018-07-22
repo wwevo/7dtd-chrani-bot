@@ -138,18 +138,11 @@ class ChraniBot:
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
 
-        self.server_settings_dict = self.get_game_preferences()
-
     def load_from_db(self):
         self.settings.load_all()
-        self.locations.load_all(store=True)  # load all location data to memory
+        self.locations.load_all()  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file
-
-    def shutdown_bot(self):
-        self.shutdown()
-
-        sys.exit()
 
     def poll_lcb(self):
         lcb_dict = {}
@@ -219,7 +212,8 @@ class ChraniBot:
         return clean_bases_near_list, clean_landclaims_near_list
 
     def run(self):
-        self.is_active = True  # this is set so the main loop can be started / stopped
+        self.server_settings_dict = self.get_game_preferences()
+
         self.tn.togglechatcommandhide("/")
 
         listplayers_dict = {}
@@ -231,6 +225,7 @@ class ChraniBot:
 
         self.telnet_lines_list = deque()
 
+        self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active:
             if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
                 self.landclaims_dict = self.poll_lcb()
@@ -334,4 +329,5 @@ class ChraniBot:
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = None
         self.tn.tn.close()
+        sys.exit()
 
