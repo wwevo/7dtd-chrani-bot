@@ -5,7 +5,7 @@ import common
 
 def on_player_death(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -82,7 +82,7 @@ def take_me_to_my_backpack(self):
     the place of death will be removed after a successful teleport
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "death")
             if location_object.player_is_inside_boundary(player_object):

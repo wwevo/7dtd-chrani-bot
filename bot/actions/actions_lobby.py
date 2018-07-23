@@ -11,7 +11,7 @@ def password(self, command):
         except KeyError:
             return False
 
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"password\s(\w+)$", command)
         if p:
             pwd = p.group(1)
@@ -50,7 +50,7 @@ common.actions_list.append({
 
 def set_up_lobby(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
 
         location_object = Location()
         location_object.set_owner('system')
@@ -97,7 +97,7 @@ common.actions_list.append({
 
 def set_up_lobby_outer_perimeter(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get('system', 'lobby')
         except KeyError:
@@ -141,7 +141,7 @@ common.actions_list.append({
 
 def set_up_lobby_inner_perimeter(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get('system', 'lobby')
         except KeyError:
@@ -178,7 +178,7 @@ common.actions_list.append({
 
 def goto_lobby(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get('system', 'lobby')
             if self.tn.teleportplayer(player_object, location_object=location_object):
@@ -205,7 +205,7 @@ common.actions_list.append({
 
 def remove_lobby(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             self.bot.locations.remove('system', 'lobby')
         except KeyError:
@@ -231,7 +231,7 @@ common.actions_list.append({
 
 def set_up_lobby_teleport(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get('system', 'lobby')
         except KeyError:
@@ -267,7 +267,7 @@ here come the observers
 # the only lobby specific observer. since it is a location, generic observers can be found in actions_locations
 def player_is_outside_boundary(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         if player_object.authenticated is True:
             return
 

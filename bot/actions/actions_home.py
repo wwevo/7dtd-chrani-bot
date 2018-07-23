@@ -6,7 +6,7 @@ import common
 
 def check_building_site(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
 
         bases_near_list, landclaims_near_list = self.bot.check_for_homes(player_object)
 
@@ -35,7 +35,7 @@ common.actions_list.append({
 
 def set_up_home(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         bases_near_list, landclaims_near_list = self.bot.check_for_homes(player_object)
 
         if bases_near_list or landclaims_near_list:
@@ -88,7 +88,7 @@ common.actions_list.append({
 
 def remove_home(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             self.bot.locations.remove(player_object.steamid, 'home')
 
@@ -120,7 +120,7 @@ common.actions_list.append({
 
 def set_up_home_teleport(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
 
@@ -154,7 +154,7 @@ common.actions_list.append({
 
 def protect_inner_core(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
 
@@ -188,7 +188,7 @@ common.actions_list.append({
 
 def unprotect_inner_core(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
 
@@ -222,7 +222,7 @@ common.actions_list.append({
 
 def set_up_home_name(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"edit\shome\sname\s([\W\w\s]{1,19})$", command)
         if p:
             description = p.group(1)
@@ -266,7 +266,7 @@ common.actions_list.append({
 
 def take_me_home(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
             if location_object.player_is_inside_boundary(player_object):
@@ -296,7 +296,7 @@ common.actions_list.append({
 
 def goto_player_home(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"take\sme\sto\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\shome", command)
         if p:
             player_steamid = p.group("steamid")
@@ -334,7 +334,7 @@ common.actions_list.append({
 
 def set_up_home_outer_perimeter(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
         except KeyError:
@@ -379,7 +379,7 @@ common.actions_list.append({
 
 def set_up_home_inner_perimeter(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             location_object = self.bot.locations.get(player_object.steamid, "home")
         except KeyError:

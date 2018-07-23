@@ -5,7 +5,7 @@ import common
 
 def on_player_join(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -61,7 +61,7 @@ common.actions_list.append({
 
 def on_player_death(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError

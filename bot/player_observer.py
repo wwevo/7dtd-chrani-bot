@@ -26,7 +26,7 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.trigger_action(player_object, "joined the game")
 
         if player_object.initialized is True:

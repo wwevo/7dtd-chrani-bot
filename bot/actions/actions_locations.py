@@ -7,7 +7,7 @@ import common
 
 def set_up_location(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"add\slocation\s(?P<location_name>[\W\w\s]{1,19})$", command)
         if p:
             name = p.group("location_name")
@@ -57,7 +57,7 @@ common.actions_list.append({
 
 def set_up_location_teleport(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"edit\slocation\steleport\s(?P<location_identifier>[\W\w\s]{1,19})$", command)
         if p:
             identifier = p.group("location_identifier")
@@ -92,7 +92,7 @@ common.actions_list.append({
 
 def set_up_location_name(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"edit\slocation\sname\s(?P<location_identifier>[\W\w\s]{1,19})\s=\s(?P<location_name>[\W\w\s]{1,19})$", command)
         if p:
             identifier = p.group("location_identifier")
@@ -130,7 +130,7 @@ common.actions_list.append({
 
 def change_location_visibility(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"make\splayers\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
         if p:
             identifier = p.group("location_identifier")
@@ -144,7 +144,7 @@ def change_location_visibility(self, command):
                     self.tn.send_message_to_player(player_object, "could not find player", color=self.bot.chat_colors['error'])
                     return False
 
-            location_owner = self.bot.players.get(location_owner_steamid)
+            location_owner = self.bot.players.get_by_steamid(location_owner_steamid)
             try:
                 location_object = self.bot.locations.get(location_owner.steamid, identifier)
                 if location_object.set_visibility(status_to_set):
@@ -174,7 +174,7 @@ common.actions_list.append({
 
 def set_up_location_outer_perimeter(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"edit\slocation\souter\sperimeter\s(?P<location_identifier>[\w\s]{1,19})$", command)
         if p:
             identifier = p.group("location_identifier")
@@ -222,7 +222,7 @@ common.actions_list.append({
 
 def set_up_location_inner_perimeter(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"edit\slocation\sinner\sperimeter\s(?P<location_identifier>[\w\s]{1,19})$", command)
         if p:
             identifier = p.group("location_identifier")
@@ -263,7 +263,7 @@ common.actions_list.append({
 
 def list_locations(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         try:
             output_list = []
             location_objects_dict = self.bot.locations.get_available_locations(player_object)
@@ -295,7 +295,7 @@ common.actions_list.append({
 
 def goto_location(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"goto\slocation\s([\w\s]{1,19})$", command)
         if p:
             location_identifier = p.group(1)
@@ -331,7 +331,7 @@ common.actions_list.append({
 
 def remove_location(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"remove\slocation\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
@@ -364,7 +364,7 @@ common.actions_list.append({
 
 def protect_inner_core(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"enable\slocation\sprotection\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
@@ -400,7 +400,7 @@ common.actions_list.append({
 
 def unprotect_inner_core(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"disable\slocation\sprotection\s([\w\s]{1,19})$", command)
         if p:
             identifier = p.group(1)
@@ -439,7 +439,7 @@ here come the observers
 
 def player_crossed_boundary(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         locations_dict = self.bot.locations.locations_dict
         for location_owner_steamid in locations_dict:
             """ go through each location and check if the player is inside

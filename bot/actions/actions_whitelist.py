@@ -8,7 +8,7 @@ import common
 
 def add_player_to_whitelist(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sto whitelist", command)
         if p:
             steamid_to_whitelist = p.group("steamid")
@@ -19,7 +19,7 @@ def add_player_to_whitelist(self, command):
                     raise KeyError
 
             try:
-                player_object = self.bot.players.get(steamid_to_whitelist)
+                player_object = self.bot.players.get_by_steamid(steamid_to_whitelist)
                 player_dict_to_whitelist = {
                     "steamid": player_object.steamid,
                     "name": player_object.name
@@ -55,7 +55,7 @@ common.actions_list.append({
 
 def remove_player_from_whitelist(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom whitelist", command)
         if p:
             steamid_to_dewhitelist = p.group("steamid")
@@ -67,7 +67,7 @@ def remove_player_from_whitelist(self, command):
 
             player_dict = ObjectView
             try:
-                player_object_to_dewhitelist = self.bot.players.get(steamid_to_dewhitelist)
+                player_object_to_dewhitelist = self.bot.players.get_by_steamid(steamid_to_dewhitelist)
                 player_dict.steamid = player_object_to_dewhitelist.steamid
                 player_dict.name = player_object_to_dewhitelist.name
             except KeyError:
@@ -150,7 +150,7 @@ here come the observers
 def check_if_player_is_on_whitelist(self, player_object=None):
     try:
         if player_object is None:
-            player_object = self.bot.players.get(self.player_steamid)
+            player_object = self.bot.players.get_by_steamid(self.player_steamid)
         else:
             logger.debug("checking player {} for being on the whitelist".format(player_object.name))
             called_by_trigger = True
@@ -190,7 +190,7 @@ common.observers_list.append({
 def check_if_player_has_url_name(self, player_object=None):
     try:
         if player_object is None:
-            player_object = self.bot.players.get(self.player_steamid)
+            player_object = self.bot.players.get_by_steamid(self.player_steamid)
         else:
             logger.debug("checking player {} for having a 'bad' username".format(player_object.name))
             called_by_trigger = True
@@ -229,7 +229,7 @@ def check_ip_country(self, player_object=None):
         if self.bot.settings.get_setting_by_name('ipinfo.io_password') is None:
             return
         if player_object is None:
-            player_object = self.bot.players.get(self.player_steamid)
+            player_object = self.bot.players.get_by_steamid(self.player_steamid)
         else:
             # the scope changes when called by the bots main-loop
             logger.debug("checking player {} for being from blacklisted countries".format(player_object.name))

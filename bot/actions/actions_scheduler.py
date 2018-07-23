@@ -7,7 +7,7 @@ def mute_unauthenticated_player(self):
         return
 
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         if player_object.authenticated is not True:
             if self.tn.muteplayerchat(player_object, True):
                 self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
@@ -31,7 +31,7 @@ common.observers_list.append({
 
 def initialize_player(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         if player_object.old_rot_x != player_object.rot_x:
             player_object.initialized = True
         if player_object.old_rot_y != player_object.rot_y:

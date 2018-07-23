@@ -9,7 +9,7 @@ import common
 
 def teleport_self_to_player(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"goto\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
         if p:
             steamid_to_teleport_to = p.group("steamid")
@@ -23,7 +23,7 @@ def teleport_self_to_player(self, command):
                 self.tn.send_message_to_player(player_object, "Try meditation, if you want to find yourself ^^", color=self.bot.chat_colors['warning'])
                 return False
             else:
-                player_object_to_teleport_to = self.bot.players.get(steamid_to_teleport_to)
+                player_object_to_teleport_to = self.bot.players.get_by_steamid(steamid_to_teleport_to)
         else:
             self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(common.find_action_help("players", "goto player")), color=self.bot.chat_colors['warning'])
             return False
@@ -55,7 +55,7 @@ common.actions_list.append({
 
 def teleport_player_to_self(self, command):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"summon\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
         if p:
             steamid_to_fetch = p.group("steamid")
@@ -69,7 +69,7 @@ def teleport_player_to_self(self, command):
                 self.tn.send_message_to_player(player_object, "Hands off those drugs man. They ain't good for you!", color=self.bot.chat_colors['warning'])
                 return False
             else:
-                player_object_to_teleport_to = self.bot.players.get(steamid_to_fetch)
+                player_object_to_teleport_to = self.bot.players.get_by_steamid(steamid_to_fetch)
         else:
             self.tn.send_message_to_player(player_object, "you did not specify a player. Use {}".format(common.find_action_help("players", "summon player")), color=self.bot.chat_colors['warning'])
             return False
@@ -115,7 +115,7 @@ def list_online_players(self):
     Will list players and show their entityId
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         active_players_dict = self.bot.players.players_dict
         players_to_list = []
         for steamid, player_object_to_list in active_players_dict.iteritems():
@@ -158,7 +158,7 @@ def list_available_player_actions(self):
     It will only show the commands the player has access to.
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -212,7 +212,7 @@ def obliterate_player(self):
     like if the player is inside a location while obliterated, the location file will not be purged. YET.
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.tn.kick(player_object, "You wanted it! Time to be born again!!")
         location_objects_dict = self.bot.locations.get(player_object.steamid)
         locations_to_remove = []
@@ -260,7 +260,7 @@ def ban_player(self, command):
     there is no timeframe, bans are permanent for now
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"ban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<ban_reason>.+)", command)
         if p:
             steamid_to_ban = p.group("steamid")
@@ -272,7 +272,7 @@ def ban_player(self, command):
 
             reason_for_ban = p.group("ban_reason")
             try:
-                player_object_to_ban = self.bot.players.get(steamid_to_ban)
+                player_object_to_ban = self.bot.players.get_by_steamid(steamid_to_ban)
             except KeyError:
                 player_dict = {'steamid': steamid_to_ban, "name": 'unknown offline player'}
                 player_object_to_ban = Player(**player_dict)
@@ -315,7 +315,7 @@ def unban_player(self, command):
     /unban player 76561198040658370
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"unban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
         if p:
             steamid_to_unban = p.group("steamid")
@@ -363,7 +363,7 @@ def kick_player(self, command):
     /kick player 76561198040658370 for Stinking up the room!
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"kick\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<kick_reason>.+)", command)
         if p:
             steamid_to_kick = p.group("steamid")
@@ -373,7 +373,7 @@ def kick_player(self, command):
 
             reason_for_kick = p.group("kick_reason")
             try:
-                player_object_to_kick = self.bot.players.get(steamid_to_kick)
+                player_object_to_kick = self.bot.players.get_by_steamid(steamid_to_kick)
             except KeyError:
                 self.tn.send_message_to_player(player_object, "could not find a player with id {}".format(steamid_to_kick), color=self.bot.chat_colors['warning'])
                 return
@@ -404,7 +404,7 @@ here come the observers
 
 def record_time_of_last_activity(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         if player_object.is_responsive() is True:
             player_object.last_seen = time()
             self.bot.players.upsert(player_object)
@@ -424,7 +424,7 @@ common.observers_list.append({
 
 def update_player_region(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         if player_object.is_responsive() is True:
             player_object.region = get_region_string(player_object.pos_x, player_object.pos_z)
             self.bot.players.upsert(player_object)
@@ -444,7 +444,7 @@ common.observers_list.append({
 
 def poll_playerfriends(self):
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
 
         if timeout_occurred(player_object.poll_listplayerfriends_interval, player_object.poll_listplayerfriends_lastpoll):
             player_object.playerfriends_list = self.tn.listplayerfriends(player_object)

@@ -18,7 +18,7 @@ def fix_players_legs(self):
     does not check if the player is injured at all
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.tn.debuffplayer(player_object, "brokenLeg")
         self.tn.debuffplayer(player_object, "sprainedLeg")
         self.tn.send_message_to_player(player_object, "your legs have been taken care of ^^", color=self.bot.chat_colors['success'])
@@ -56,7 +56,7 @@ def stop_the_bleeding(self):
     does not check if the player is injured at all
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.tn.debuffplayer(player_object, "bleeding")
         self.tn.send_message_to_player(player_object, "your wounds have been bandaided ^^", color=self.bot.chat_colors['success'])
     except Exception as e:
@@ -93,7 +93,7 @@ def apply_first_aid(self):
     does not check if the player is injured at all
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.tn.buffplayer(player_object, "firstAidLarge")
         self.tn.send_message_to_player(player_object, "feel the power flowing through you!! ^^", color=self.bot.chat_colors['success'])
     except Exception as e:
@@ -127,7 +127,7 @@ def reload_from_db(self):
     /reinitialize
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.bot.load_from_db()
         self.tn.send_message_to_player(player_object, "loaded all from storage!", color=self.bot.chat_colors['success'])
     except Exception as e:
@@ -165,7 +165,7 @@ def shutdown_bot(self):
     used for restarting it from within the game
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.tn.send_message_to_player(player_object, "bot is shutting down...", color=self.bot.chat_colors['success'])
         self.bot.shutdown()
     except Exception as e:

@@ -65,7 +65,7 @@ class Players(object):
         # create new player entries / update existing ones
         for player_steamid, player_dict in listplayers_dict.iteritems():
             try:
-                player_object = self.get(player_steamid)
+                player_object = self.get_by_steamid(player_steamid)
                 # player is already online and needs updating
                 player_object.update(**player_dict)
                 if last_listplayers_dict != listplayers_dict:  # but only if they have changed at all!
@@ -132,7 +132,7 @@ class Players(object):
 
         return False
 
-    def get(self, steamid):
+    def get_by_steamid(self, steamid):
         try:
             player_object = self.players_dict[steamid]
             return player_object

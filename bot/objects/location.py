@@ -200,7 +200,7 @@ class Location(object):
             # determine the top left corner of the square the circle occupies
             top = self.pos_z - self.radius
             left = self.pos_x - self.radius
-            # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get the total possible width and height
+            # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get_by_steamid the total possible width and height
             width_in_regions = math.ceil(float(self.radius) / 512) * 2
             height_in_regions = math.ceil(float(self.radius) / 512) * 2
         elif self.shape == "cube" or self.shape == "room":

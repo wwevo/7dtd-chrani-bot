@@ -30,7 +30,7 @@ def on_enter_gameworld(self):
     does nothing for autrhenticated players
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -88,7 +88,7 @@ def password(self, command):
     the password must exist in the password dictionary
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -162,7 +162,7 @@ def add_player_to_permission_group(self, command):
     the group must exist
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -182,7 +182,7 @@ def add_player_to_permission_group(self, command):
             return False
 
         try:
-            player_object_to_modify = self.bot.players.get(steamid_to_modify)
+            player_object_to_modify = self.bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.add_permission_level(group)
             self.tn.send_message_to_player(player_object, "{} has been added to the group {}".format(player_object.name, group), color=self.bot.chat_colors['success'])
         except Exception:
@@ -222,7 +222,7 @@ def remove_player_from_permission_group(self, command):
     the group must exist
     """
     try:
-        player_object = self.bot.players.get(self.player_steamid)
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except Exception as e:
         logger.exception(e)
         raise KeyError
@@ -242,7 +242,7 @@ def remove_player_from_permission_group(self, command):
             return False
 
         try:
-            player_object_to_modify = self.bot.players.get(steamid_to_modify)
+            player_object_to_modify = self.bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.remove_permission_level(group)
             self.tn.send_message_to_player(player_object, "{} has been removed from the group {}".format(player_object.name, group), color=self.bot.chat_colors['success'])
         except Exception:
