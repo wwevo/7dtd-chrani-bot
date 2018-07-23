@@ -126,8 +126,6 @@ class Locations(object):
             "tele_z": location_object.tele_z,
             "shape": location_object.shape,
             "region_list": location_object.region_list,
-            "list_of_players_inside": location_object.list_of_players_inside,
-            "list_of_players_inside_core": location_object.list_of_players_inside_core
         }
 
         try:

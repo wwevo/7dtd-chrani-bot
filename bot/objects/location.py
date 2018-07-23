@@ -300,7 +300,6 @@ class Location(object):
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
                 player_status = 'has entered'
-                return player_status
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
@@ -311,16 +310,17 @@ class Location(object):
             else:
                 # and already was outside before
                 player_status = 'is outside'
+                return player_status
 
         player_is_inside_core = self.player_is_inside_core(player_object)
         if player_is_inside_core is True:
             # player is inside core
             if player_object.steamid in self.list_of_players_inside_core:
-                # and already was inside the location
+                # and already was inside the locations core
                 player_status = 'is inside core'
                 return player_status
             else:
-                # newly entered the location
+                # newly entered the locations core
                 self.list_of_players_inside_core.append(player_object.steamid)
                 player_status = 'has entered core'
                 return player_status
@@ -332,4 +332,4 @@ class Location(object):
                 player_status = 'has left core'
                 return player_status
 
-        return None
+        return player_status
