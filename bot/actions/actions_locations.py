@@ -26,8 +26,8 @@ def set_up_location(self, command):
             location_object.set_shape("sphere")
 
             messages_dict = location_object.get_messages_dict()
-            messages_dict["entered_locations_core"] = None
-            messages_dict["left_locations_core"] = None
+            messages_dict["entered_locations_core"] = "you have entered {}s core".format(name)
+            messages_dict["left_locations_core"] = "you have left {}s core".format(name)
             messages_dict["entered_location"] = "you have entered the location {}".format(name)
             messages_dict["left_location"] = "you have left the location {}".format(name)
 
@@ -479,12 +479,12 @@ def player_crossed_boundary(self):
                 if player_status == "has left":
                     if location_object.messages_dict["left_location"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
-                if player_status == "has entered":
-                    if location_object.messages_dict["entered_location"] is not None:
-                        self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                 if player_status == "has left core":
                     if location_object.messages_dict["left_locations_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
+                if player_status == "has entered":
+                    if location_object.messages_dict["entered_location"] is not None:
+                        self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                 if player_status == "has entered core":
                     if location_object.messages_dict["entered_locations_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])

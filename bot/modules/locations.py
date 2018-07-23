@@ -103,7 +103,33 @@ class Locations(object):
             raise
 
     def save(self, location_object):
-        dict_to_save = location_object.__dict__
+        dict_to_save = {
+            "messages_dict": location_object.messages_dict,
+            "radius": location_object.radius,
+            "is_public": location_object.is_public,
+            "warning_boundary": location_object.warning_boundary,
+            "width": location_object.width,
+            "length": location_object.length,
+            "height": location_object.height,
+            "enabled": location_object.enabled,
+            "protected_core": location_object.protected_core,
+            "protected_core_whitelist": location_object.protected_core_whitelist,
+            "identifier": location_object.identifier,
+            "owner": location_object.owner,
+            "name": location_object.name,
+            "description": location_object.description,
+            "pos_x": location_object.pos_x,
+            "pos_y": location_object.pos_y,
+            "pos_z": location_object.pos_z,
+            "tele_x": location_object.tele_x,
+            "tele_y": location_object.tele_y,
+            "tele_z": location_object.tele_z,
+            "shape": location_object.shape,
+            "region_list": location_object.region_list,
+            "list_of_players_inside": location_object.list_of_players_inside,
+            "list_of_players_inside_core": location_object.list_of_players_inside_core
+        }
+
         try:
             with open("{}/{}_{}_{}.{}".format(self.root, self.prefix, location_object.owner, location_object.identifier, self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)

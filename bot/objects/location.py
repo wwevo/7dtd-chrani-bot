@@ -41,8 +41,6 @@ class Location(object):
 
     region_list = list
 
-    last_player_activity_dict = {}
-
     list_of_players_inside = list
     list_of_players_inside_core = list
 
@@ -302,12 +300,14 @@ class Location(object):
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
                 player_status = 'has entered'
+                return player_status
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
                 # and was inside before, so he left the location
                 self.list_of_players_inside.remove(player_object.steamid)
                 player_status = 'has left'
+                return player_status
             else:
                 # and already was outside before
                 player_status = 'is outside'
@@ -318,15 +318,18 @@ class Location(object):
             if player_object.steamid in self.list_of_players_inside_core:
                 # and already was inside the location
                 player_status = 'is inside core'
+                return player_status
             else:
                 # newly entered the location
                 self.list_of_players_inside_core.append(player_object.steamid)
                 player_status = 'has entered core'
+                return player_status
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside_core:
                 # and was inside before, so he left the core
                 self.list_of_players_inside_core.remove(player_object.steamid)
                 player_status = 'has left core'
+                return player_status
 
-        return player_status
+        return None
