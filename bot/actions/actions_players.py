@@ -446,7 +446,7 @@ def poll_playerfriends(self):
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
 
-        if timeout_occurred(player_object.poll_listplayerfriends_interval, player_object.poll_listplayerfriends_lastpoll):
+        if timeout_occurred(self.bot.players.poll_listplayerfriends_interval, player_object.poll_listplayerfriends_lastpoll):
             player_object.playerfriends_list = self.tn.listplayerfriends(player_object)
             player_object.poll_listplayerfriends_lastpoll = time()
             player_object.update()

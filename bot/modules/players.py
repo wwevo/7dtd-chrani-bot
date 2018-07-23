@@ -20,12 +20,15 @@ class Players(object):
 
     players_dict = dict
 
+    poll_listplayerfriends_interval = float
+
     def __init__(self):
         self.root = 'data/players'
         self.prefix = args_dict['Database-file']
         self.extension = "json"
 
         self.players_dict = {}
+        self.poll_listplayerfriends_interval = 30
 
     def manage_online_players(self, bot, listplayers_dict):
         def poll_players():
@@ -174,7 +177,25 @@ class Players(object):
             return False
 
     def save(self, player_object):
-        dict_to_save = player_object.__dict__
+        dict_to_save = {
+            "id": player_object.id,
+            "name": player_object.name,
+            "permission_levels": player_object.permission_levels,
+            "death_x": player_object.death_x,
+            "death_y": player_object.death_y,
+            "death_z": player_object.death_z,
+            "steamid": player_object.steamid,
+            "entityid": player_object.entityid,
+            "ip": player_object.ip,
+            "ping": player_object.ping,
+            "region": player_object.region,
+            "country_code": player_object.country_code,
+            "authenticated": player_object.authenticated,
+            "is_muted": player_object.is_muted,
+            "last_teleport": player_object.last_teleport,
+            "last_responsive": player_object.last_responsive,
+            "playerfriends_list": player_object.playerfriends_list,
+        }
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
