@@ -28,7 +28,11 @@ class Locations(object):
             for filename in files:
                 if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
                     with open("{}/{}".format(self.root, filename)) as file_to_read:
-                        location_dict = byteify(json.load(file_to_read))
+                        try:
+                            location_dict = byteify(json.load(file_to_read))
+                        except ValueError:
+                            continue
+
                         try:
                             locations_dict[str(location_dict['owner'])].update({str(location_dict['identifier']): Location(**location_dict)})
                         except KeyError:
