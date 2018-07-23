@@ -54,9 +54,9 @@ class PlayerObserver(Thread):
                 for command in command_queue:
                     if player_object.is_responsive():
                         try:
-                            command["action"](*command["command_parameters"])
-                        except TypeError:
                             command["action"](command["command_parameters"])
+                        except TypeError:
+                            command["action"](*command["command_parameters"])
                     else:
                         break
 
@@ -70,6 +70,7 @@ class PlayerObserver(Thread):
             execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - execution_time
             # logger.debug("{} has {} of {} seconds left for calculations!".format(player_object.name, self.run_observers_interval - execution_time, self.run_observers_interval))
+            # logger.debug("{} needed {} seconds to execute all scripts!".format(player_object.name, execution_time))
 
         logger.debug("thread has stopped")
 
