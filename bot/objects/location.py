@@ -90,7 +90,9 @@ class Location(object):
         self.pos_x = player_object.pos_x
         self.pos_y = player_object.pos_y
         self.pos_z = player_object.pos_z
-        self.set_teleport_coordinates(player_object)
+        self.tele_x = player_object.pos_x
+        self.tele_y = player_object.pos_y
+        self.tele_z = player_object.pos_z
         self.update_region_list()
         return True
 

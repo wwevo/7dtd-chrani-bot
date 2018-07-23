@@ -21,9 +21,11 @@ def set_up_location(self, command):
 
             location_object.set_coordinates(player_object)
             location_object.set_name(name)
+            location_object.set_description(name)
             identifier = location_object.set_identifier(name)  # generate the identifier from the name
             location_object.set_owner(player_object.steamid)
             location_object.set_shape("sphere")
+            location_object.protected_core_whitelist = []
 
             messages_dict = location_object.get_messages_dict()
             messages_dict["entered_locations_core"] = "you have entered {}s core".format(name)
