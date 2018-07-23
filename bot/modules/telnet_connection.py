@@ -269,6 +269,11 @@ class TelnetConnection:
                 logger.info(command)
                 connection.write(command + b"\r\n")
                 player_object.set_last_teleport()
+                player_object.pos_x = coord_tuple[0]
+                player_object.pos_y = coord_tuple[1]
+                player_object.pos_z = coord_tuple[2]
+                self.bot.players.upsert(player_object)
+
                 return True
             except Exception:
                 pass
