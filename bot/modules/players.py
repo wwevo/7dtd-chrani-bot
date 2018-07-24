@@ -205,5 +205,5 @@ class Players(object):
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
             # logger.debug("Saved player-record for player {}.".format(dict_to_save['steamid']))
         except Exception as e:
-            logger.debug("Saving player-record for player {} failed.".format(dict_to_save['steamid']))
+            logger.debug("Saving player-record for player {} failed: {}".format(dict_to_save['steamid'], e.message))
             pass

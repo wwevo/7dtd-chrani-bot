@@ -136,8 +136,8 @@ class Locations(object):
             with open("{}/{}_{}_{}.{}".format(self.root, self.prefix, location_object.owner, location_object.identifier, self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
             logger.debug("Saved location-record {} for player {}.".format(location_object.identifier, location_object.owner))
-        except Exception:
-            logger.exception("Saving location-record {} for player {} failed.".format(location_object.identifier, location_object.owner))
+        except Exception as e:
+            logger.exception("Saving location-record {} for player {} failed: {}.".format(location_object.identifier, location_object.owner, e.message))
             return False
 
         return True

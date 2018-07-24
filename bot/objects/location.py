@@ -53,6 +53,7 @@ class Location(object):
         }
         self.radius = 20
         self.is_public = False
+        self.description = None
         self.warning_boundary = 16
         self.width = self.radius * 2
         self.length = self.radius * 2

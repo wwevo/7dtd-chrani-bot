@@ -54,6 +54,7 @@ class Player():
         self.initialized = False
         self.ip = None
         self.id = None
+        self.ping = None
         self.region = None
         self.country_code = None
 
