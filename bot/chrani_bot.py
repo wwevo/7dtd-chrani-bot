@@ -313,9 +313,10 @@ class ChraniBot:
 
                     for command in command_queue:
                         try:
-                            command["action"](*command["command_parameters"])
-                        except TypeError:
                             command["action"](command["command_parameters"])
+                        except TypeError:
+                            command["action"](*command["command_parameters"])
+                            logger.debug("nah")
 
             time.sleep(0.1)  # to limit the speed a bit ^^
 
