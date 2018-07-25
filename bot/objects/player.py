@@ -1,7 +1,8 @@
 from time import time
+from flask_login import UserMixin
 
 
-class Player():
+class Player(UserMixin):
     id = long
     name = str
     permission_levels = list
@@ -40,10 +41,6 @@ class Player():
 
     playerfriends_list = list
     poll_listplayerfriends_lastpoll = float
-
-    is_authenticated = bool
-    is_active = bool
-    is_anonymous = bool
 
     def get_id(self):
         return unicode(self.steamid)

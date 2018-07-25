@@ -22,16 +22,16 @@ class RestfulApi(Thread):
         bot_port = self.bot.settings.get_setting_by_name('bot_port')
 
         login_manager = flask_login.LoginManager()
+        login_manager.init_app(app)
 
         @login_manager.user_loader
         def user_loader(steamid):
             try:
                 player_object = self.bot.players.get_by_steamid(steamid)
                 if any(x in ["admin", "mod", "donator", "authenticated"] for x in player_object.permission_levels):
-                    flask_login.login_user(player_object)
                     return player_object
             except:
-                return False
+                return None
 
         @app.route('/')
         def index():
@@ -59,8 +59,11 @@ class RestfulApi(Thread):
                 steamid = p.group("steamid")
                 try:
                     player_object = self.bot.players.get_by_steamid(steamid)
-                    if flask_login.login_user(player_object) is not False:
-                        return flask.redirect(flask.url_for('protected'))
+                    status = flask_login.login_user(player_object)
+
+                    print "^^" + player_object.name + "^^"
+                    print "^^" + str(status) + "^^"
+                    return flask.redirect(flask.url_for('protected'))
                 except:
                     pass
 
@@ -88,5 +91,4 @@ class RestfulApi(Thread):
             output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^'
             return output
 
-        login_manager.init_app(app)
         app.run(host=bot_ip)
