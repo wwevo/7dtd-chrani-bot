@@ -113,7 +113,7 @@ class PlayerObserver(Thread):
                         command["action"](self, command["command_parameters"])
                         logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command["group"], command["func_name"], command["command_parameters"]))
                     except Exception as e:
-                        logger.debug("Player {} tried to execute {}:{} with '/{}', which lead to: {}".format(player_object.name, command["group"], command["func_name"], command["command_parameters"], e))
+                        logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(player_object.name, command["group"], command["func_name"], command["command_parameters"], e))
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):

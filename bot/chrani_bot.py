@@ -292,6 +292,9 @@ class ChraniBot:
                         player_id = m.group("player_id")
                         player_object = self.players.load(player_id)
                     except KeyError:
+                        # no available player on record. we need to create a minimized dataset to be able to make use
+                        # of the the existing observer approach. Since the observers are built to run within the scope
+                        # of the player_ovserver script, we need to add the created player_object
                         player_dict = {
                             'entityid': int(m.group("entity_id")),
                             'steamid': m.group("player_id"),
@@ -312,11 +315,11 @@ class ChraniBot:
                             })
 
                     for command in command_queue:
-                        try:
-                            command["action"](command["command_parameters"])
-                        except TypeError:
-                            command["action"](*command["command_parameters"])
-                            logger.debug("nah")
+                        if isinstance(command["command_parameters"], tuple):
+                            if len(command["command_parameters"]) > 1:
+                                command["action"](*command["command_parameters"])
+                            else:
+                                command["action"](command["command_parameters"])
 
             time.sleep(0.1)  # to limit the speed a bit ^^
 
