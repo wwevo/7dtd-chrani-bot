@@ -18,6 +18,8 @@ class RestfulApi(Thread):
         steam_openid_url = 'https://steamcommunity.com/openid/login'
         app = flask.Flask(self.bot.bot_name + " webservice")
         app.secret_key = 'super secret string'  # Change this!
+        bot_ip = self.bot.settings.get_setting_by_name('bot_ip')
+        bot_port = self.bot.settings.get_setting_by_name('bot_port')
 
         login_manager = flask_login.LoginManager()
 
@@ -33,7 +35,7 @@ class RestfulApi(Thread):
 
         @app.route('/')
         def index():
-            return '<a href="http://localhost:5000/login">Login with steam</a>'
+            return '<a href="http://' + bot_ip + ':' + str(bot_port) + '/login">Login with steam</a>'
 
         @app.route('/login')
         def login():
@@ -42,8 +44,8 @@ class RestfulApi(Thread):
                 'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
                 'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
                 'openid.mode': 'checkid_setup',
-                'openid.return_to': 'http://127.0.0.1:5000/authorize',
-                'openid.realm': 'http://127.0.0.1:5000'
+                'openid.return_to': 'http://' + bot_ip + ':' + str(bot_port) + '/authorize',
+                'openid.realm': 'http://' + bot_ip + ':' + str(bot_port)
             }
 
             query_string = urlencode(params)
@@ -72,7 +74,7 @@ class RestfulApi(Thread):
             else:
                 status = "not in game"
             output = 'Logged in as: ' + str(flask_login.current_user.name) + ", currently " + status + "<br />"
-            output += '<a href="http://localhost:5000/logout">logout</a>'
+            output += '<a href="http://' + bot_ip + ':' + str(bot_port) + '/logout">logout</a>'
             return output
 
         @app.route('/logout')
@@ -87,4 +89,4 @@ class RestfulApi(Thread):
             return output
 
         login_manager.init_app(app)
-        app.run()
+        app.run(host=bot_ip)
