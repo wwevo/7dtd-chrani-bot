@@ -1,6 +1,7 @@
 import math
 import random
 from bot.assorted_functions import get_region_string
+from bot.modules.logger import logger
 
 
 # noinspection SpellCheckingInspection
@@ -250,6 +251,7 @@ class Location(object):
         got some math-skills? contact me :)
         """
         if player_object.pos_x is 0.0 and player_object.pos_x is 0.0 and player_object.pos_x is 0.0:
+            logger.debug("Can't check boundaries: No locationdata found for Player {} ".format(player_object.name))
             return False
 
         player_is_inside_boundary = False
@@ -277,6 +279,7 @@ class Location(object):
 
     def player_is_inside_core(self, player_object):
         if player_object.pos_x is 0.0 and player_object.pos_x is 0.0 and player_object.pos_x is 0.0:
+            logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return False
 
         player_is_inside_core = False

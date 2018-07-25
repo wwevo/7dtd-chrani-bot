@@ -41,6 +41,10 @@ class Player():
     playerfriends_list = list
     poll_listplayerfriends_lastpoll = float
 
+    is_authenticated = bool
+    is_active = bool
+    is_anonymous = bool
+
     def get_id(self):
         return unicode(self.steamid)
 

@@ -1,3 +1,4 @@
+from threading import *
 import re
 import sys
 import time
@@ -11,6 +12,7 @@ import bot.actions
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
+from bot.modules.restfulapi import RestfulApi
 from bot.modules.permissions import Permissions
 from bot.objects.player import Player
 from bot.modules.players import Players
@@ -47,6 +49,7 @@ class ChraniBot:
     players = object
     locations = object
     whitelist = object
+    webapi = object
     permission = object
     settings = object
 
@@ -137,6 +140,13 @@ class ChraniBot:
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+
+        restful_api_thread_stop_flag = Event()
+        restful_api_thread = RestfulApi(restful_api_thread_stop_flag, self)  # I'm passing the bot (self) into it to have easy access to it's variables
+        restful_api_thread.name = self.bot_name + " restful api"  # nice to have for the logs
+        restful_api_thread.isDaemon()
+        restful_api_thread.start()
+        self.webapi = restful_api_thread
 
     def load_from_db(self):
         self.settings.load_all()

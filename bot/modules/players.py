@@ -190,8 +190,6 @@ class Players(object):
             "death_z": player_object.death_z,
             "steamid": player_object.steamid,
             "entityid": player_object.entityid,
-            "ip": player_object.ip,
-            "ping": player_object.ping,
             "region": player_object.region,
             "country_code": player_object.country_code,
             "authenticated": player_object.authenticated,

@@ -138,7 +138,7 @@ common.actions_list.append({
     "action": list_online_players,
     "env": "(self)",
     "group": "players",
-    "essential": False
+    "essential": True
 })
 
 
