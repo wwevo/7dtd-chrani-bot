@@ -61,6 +61,9 @@ class Player():
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0
 
+        self.pos_x = 0.0
+        self.pos_y = 0.0
+        self.pos = 0.0
         self.old_rot_x = 0.0
         self.old_rot_y = 0.0
         self.old_rot_z = 0.0
