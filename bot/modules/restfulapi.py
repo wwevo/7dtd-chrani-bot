@@ -35,7 +35,10 @@ class RestfulApi(Thread):
 
         @app.route('/')
         def index():
-            return '<a href="http://' + bot_ip + ':' + str(bot_port) + '/login">Login with steam</a>'
+            if flask_login.current_user.is_authenticated:
+                return flask.redirect(flask.url_for('protected'))
+            else:
+                return '<a href="http://' + bot_ip + ':' + str(bot_port) + '/login">Login with steam</a>'
 
         @app.route('/login')
         def login():
@@ -60,9 +63,6 @@ class RestfulApi(Thread):
                 try:
                     player_object = self.bot.players.get_by_steamid(steamid)
                     status = flask_login.login_user(player_object)
-
-                    print "^^" + player_object.name + "^^"
-                    print "^^" + str(status) + "^^"
                     return flask.redirect(flask.url_for('protected'))
                 except:
                     pass
@@ -72,18 +72,34 @@ class RestfulApi(Thread):
         @app.route('/protected')
         @flask_login.login_required
         def protected():
-            if flask_login.current_user.steamid in self.bot.active_player_threads_dict:
+            player_object = flask_login.current_user
+            if player_object.steamid in self.bot.active_player_threads_dict:
                 status = "in game"
             else:
                 status = "not in game"
-            output = 'Logged in as: ' + str(flask_login.current_user.name) + ", currently " + status + "<br />"
-            output += '<a href="http://' + bot_ip + ':' + str(bot_port) + '/logout">logout</a>'
+            output = 'Logged in as: ' + str(player_object.name) + ", currently " + status + "<br />"
+
+            if any(x in ["admin", "mod"] for x in player_object.permission_levels):
+                output += '<a href="http://' + bot_ip + ':' + str(bot_port) + '/shutdown">shutdown bot</a><br />'
+
+            output += '<a href="http://' + bot_ip + ':' + str(bot_port) + '/logout">logout</a><br />'
+
             return output
 
         @app.route('/logout')
         def logout():
             flask_login.logout_user()
             return flask.redirect('/')
+
+        @app.route('/shutdown')
+        @flask_login.login_required
+        def shutdown():
+            func = flask.request.environ.get('werkzeug.server.shutdown')
+            if func is None:
+                raise RuntimeError('Not running with the Werkzeug Server')
+            func()
+            self.bot.shutdown()
+            return flask.redirect(flask.url_for('protected'))
 
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler

@@ -165,8 +165,6 @@ def shutdown_bot(self):
     used for restarting it from within the game
     """
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.tn.send_message_to_player(player_object, "bot is shutting down...", color=self.bot.chat_colors['success'])
         self.bot.shutdown()
     except Exception as e:
         logger.exception(e)

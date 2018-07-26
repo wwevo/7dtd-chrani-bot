@@ -333,7 +333,10 @@ class ChraniBot:
 
             time.sleep(0.1)  # to limit the speed a bit ^^
 
+        sys.exit()
+
     def shutdown(self):
+        self.tn.say("bot is shutting down...", color=self.chat_colors['warning'])
         self.is_active = False
         for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
@@ -342,6 +345,9 @@ class ChraniBot:
             stop_flag.stopped.set()
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = None
+        self.tn.say("...bot has shut down!", color=self.chat_colors['success'])
         self.tn.tn.close()
-        sys.exit()
+
+        self.webapi.stopped.set()
+
 
