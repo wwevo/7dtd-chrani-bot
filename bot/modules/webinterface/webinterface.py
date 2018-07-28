@@ -1,8 +1,8 @@
-import os
 from urllib import urlencode
 import flask
 import flask_login
 import re
+from bot.modules.logger import logger
 from threading import *
 
 
@@ -17,7 +17,8 @@ class Webinterface(Thread):
 
     def run(self):
         steam_openid_url = 'https://steamcommunity.com/openid/login'
-        template_dir = self.bot.app_root + '/data/templates'
+        template_dir = str(self.bot.app_root) + '/data/templates'
+        logger.debug("Path for webinterface templates: {}".format(template_dir))
 
         app = flask.Flask(self.bot.name + " webservice", template_folder=template_dir)
         app.secret_key = 'super secret string'  # Change this!
