@@ -1,5 +1,6 @@
 import os
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+app_root = os.path.dirname(os.path.abspath(__file__))
+os.chdir(app_root)
 
 import time
 from bot.modules.logger import logger
@@ -12,6 +13,7 @@ if __name__ == '__main__':
         try:
             bot = ChraniBot()
             bot.bot_version = "0.3f"
+            bot.app_root = app_root
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
