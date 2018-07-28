@@ -14,7 +14,11 @@ if __name__ == '__main__':
             bot = ChraniBot()
             bot.bot_version = "0.3f"
             logger.debug(app_root)
-            bot.app_root = app_root
+            if len(app_root) == 0:
+                bot.app_root = ""
+            else:
+                bot.app_root = app_root
+
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
