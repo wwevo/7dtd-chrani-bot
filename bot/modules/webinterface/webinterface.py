@@ -17,7 +17,7 @@ class Webinterface(Thread):
 
     def run(self):
         steam_openid_url = 'https://steamcommunity.com/openid/login'
-        template_dir = self.bot.app_root + '/data/templates'
+        template_dir = './data/templates'
         logger.debug("Path for webinterface templates: {}".format(template_dir))
 
         app = flask.Flask(self.bot.name + " webservice", template_folder=template_dir)
