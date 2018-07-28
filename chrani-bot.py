@@ -13,6 +13,7 @@ if __name__ == '__main__':
         try:
             bot = ChraniBot()
             bot.bot_version = "0.3f"
+            logger.debug(app_root)
             bot.app_root = app_root
             bot.run()
         except (IOError, NameError) as error:
