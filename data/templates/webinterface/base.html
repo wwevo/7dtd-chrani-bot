@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }} - webinterface ({{ bot.name }})</title>
+</head>
+<body>
+    <h1>{{ bot.name }} - webinterface</h1>
+    <hr />
+    {% if authenticated %}
+    <p>
+        Welcome {{ player_object.name }},
+    </p>
+    {% else %}
+    <p>
+        Welcome visitor,
+    </p>
+    {% endif %}
+    {% block content %}{% endblock %}
+    <hr />
+    {% if authenticated %}
+    <p>
+        <a href="{{ logout_url }}">logout</a>
+    </p>
+    {% else %}
+    <p>
+        Please <a href="{{ login_url }}">login with your steam account</a>.<br />
+        You can only use the webinterface if you are authenticated with the bot, you can only do that in-game!
+    </p>
+    {% endif %}
+</body>
+</html>
