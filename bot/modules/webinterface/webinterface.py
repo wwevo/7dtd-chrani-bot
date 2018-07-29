@@ -2,10 +2,11 @@ from urllib import urlencode
 import flask
 import flask_login
 import re
+from bot.modules.logger import logger
 from threading import *
 
 
-class RestfulApi(Thread):
+class Webinterface(Thread):
     bot = object
     app = object
 
@@ -16,7 +17,10 @@ class RestfulApi(Thread):
 
     def run(self):
         steam_openid_url = 'https://steamcommunity.com/openid/login'
-        app = flask.Flask(self.bot.bot_name + " webservice")
+        template_dir = './data/templates'
+        logger.debug("Path for webinterface templates: {}".format(template_dir))
+
+        app = flask.Flask(self.bot.name + " webservice", template_folder=template_dir)
         app.secret_key = 'super secret string'  # Change this!
         bot_ip = self.bot.settings.get_setting_by_name('bot_ip')
         bot_port = self.bot.settings.get_setting_by_name('bot_port')
@@ -35,7 +39,11 @@ class RestfulApi(Thread):
 
         @app.route('/')
         def index():
-            return '<a href="http://' + bot_ip + ':' + str(bot_port) + '/login">Login with steam</a>'
+            authenticated = flask_login.current_user.is_authenticated
+            if authenticated:
+                return flask.render_template("webinterface/index.html", authenticated=True, bot=self.bot, player_object=flask_login.current_user, logout_url="/logout")
+            else:
+                return flask.render_template("webinterface/index.html", authenticated=False, bot=self.bot, login_url="/login")
 
         @app.route('/login')
         def login():
@@ -60,35 +68,31 @@ class RestfulApi(Thread):
                 try:
                     player_object = self.bot.players.get_by_steamid(steamid)
                     status = flask_login.login_user(player_object)
-
-                    print "^^" + player_object.name + "^^"
-                    print "^^" + str(status) + "^^"
-                    return flask.redirect(flask.url_for('protected'))
+                    return flask.redirect("/")
                 except:
                     pass
 
             return flask.redirect('/unauthorized')
 
-        @app.route('/protected')
-        @flask_login.login_required
-        def protected():
-            if flask_login.current_user.steamid in self.bot.active_player_threads_dict:
-                status = "in game"
-            else:
-                status = "not in game"
-            output = 'Logged in as: ' + str(flask_login.current_user.name) + ", currently " + status + "<br />"
-            output += '<a href="http://' + bot_ip + ':' + str(bot_port) + '/logout">logout</a>'
-            return output
-
         @app.route('/logout')
+        @flask_login.login_required
         def logout():
             flask_login.logout_user()
             return flask.redirect('/')
 
+        @app.route('/shutdown')
+        @flask_login.login_required
+        def shutdown():
+            func = flask.request.environ.get('werkzeug.server.shutdown')
+            if func is None:
+                raise RuntimeError('Not running with the Werkzeug Server')
+            func()
+            self.bot.shutdown()
+            return flask.redirect("/logout")
+
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
         def unauthorized_handler():
-            output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^'
-            return output
+            return flask.render_template("webinterface/unauthorized.html", bot=self.bot, login_url="/login")
 
         app.run(host=bot_ip)

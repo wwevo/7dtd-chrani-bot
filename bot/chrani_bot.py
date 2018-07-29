@@ -12,7 +12,7 @@ import bot.actions
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
-from bot.modules.restfulapi import RestfulApi
+from bot.modules.webinterface.webinterface import Webinterface
 from bot.modules.permissions import Permissions
 from bot.objects.player import Player
 from bot.modules.players import Players
@@ -21,7 +21,8 @@ from bot.modules.whitelist import Whitelist
 
 
 class ChraniBot:
-    bot_name = str
+    app_root = str
+    name = str
     bot_version = str
     is_active = bool  # used for restarting the bot safely after connection loss
 
@@ -49,7 +50,7 @@ class ChraniBot:
     players = object
     locations = object
     whitelist = object
-    webapi = object
+    webinterface = object
     permission = object
     settings = object
 
@@ -59,8 +60,8 @@ class ChraniBot:
     def __init__(self):
         self.settings = Settings()
 
-        self.bot_name = self.settings.get_setting_by_name('bot_name')
-        logger.info("{} started".format(self.bot_name))
+        self.name = self.settings.get_setting_by_name('bot_name')
+        logger.info("{} started".format(self.name))
 
         self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
         self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
@@ -141,12 +142,12 @@ class ChraniBot:
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
 
-        restful_api_thread_stop_flag = Event()
-        restful_api_thread = RestfulApi(restful_api_thread_stop_flag, self)  # I'm passing the bot (self) into it to have easy access to it's variables
-        restful_api_thread.name = self.bot_name + " restful api"  # nice to have for the logs
-        restful_api_thread.isDaemon()
-        restful_api_thread.start()
-        self.webapi = restful_api_thread
+        webinterface_thread_stop_flag = Event()
+        webinterface_thread = Webinterface(webinterface_thread_stop_flag, self)  # I'm passing the bot (self) into it to have easy access to it's variables
+        webinterface_thread.name = self.name + " restful api"  # nice to have for the logs
+        webinterface_thread.isDaemon()
+        webinterface_thread.start()
+        self.webinterface = webinterface_thread
 
     def load_from_db(self):
         self.settings.load_all()
@@ -333,7 +334,10 @@ class ChraniBot:
 
             time.sleep(0.1)  # to limit the speed a bit ^^
 
+        sys.exit()
+
     def shutdown(self):
+        self.tn.say("bot is shutting down...", color=self.chat_colors['warning'])
         self.is_active = False
         for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
@@ -342,6 +346,9 @@ class ChraniBot:
             stop_flag.stopped.set()
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = None
+        self.tn.say("...bot has shut down!", color=self.chat_colors['success'])
         self.tn.tn.close()
-        sys.exit()
+
+        self.webinterface.stopped.set()
+
 
