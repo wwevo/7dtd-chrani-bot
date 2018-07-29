@@ -25,6 +25,7 @@ class ChraniBot:
     name = str
     bot_version = str
     is_active = bool  # used for restarting the bot safely after connection loss
+    time_launched = float
 
     match_types = dict
     match_types_system = dict
@@ -59,6 +60,7 @@ class ChraniBot:
 
     def __init__(self):
         self.settings = Settings()
+        self.time_launched = time.time()
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -151,6 +153,7 @@ class ChraniBot:
 
     def load_from_db(self):
         self.settings.load_all()
+        self.players.load_all()
         self.locations.load_all()  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file

@@ -19,6 +19,7 @@ class Players(object):
     filename = str
 
     players_dict = dict
+    all_players_dict = dict
 
     poll_listplayerfriends_interval = float
 
@@ -124,6 +125,7 @@ class Players(object):
                         player_dict['health'] = 0
                         all_players_dict[player_dict['steamid']] = Player(**player_dict)
 
+        self.all_players_dict = all_players_dict
         return all_players_dict
 
     def entityid_to_steamid(self, entityid):

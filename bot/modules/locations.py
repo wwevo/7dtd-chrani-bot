@@ -13,6 +13,7 @@ class Locations(object):
     prefix = str
     extension = str
 
+    all_locations_dict = dict
     locations_dict = dict
 
     def __init__(self):
@@ -38,8 +39,9 @@ class Locations(object):
                         except KeyError:
                             locations_dict[str(location_dict['owner'])] = {str(location_dict['identifier']): Location(**location_dict)}
 
-            self.locations_dict = locations_dict
-            return locations_dict
+        self.locations_dict = locations_dict
+        self.all_locations_dict = locations_dict
+        return locations_dict
 
     def upsert(self, location_object, save=False):
         try:
