@@ -25,8 +25,8 @@ class Webinterface(Thread):
                 'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
                 'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
                 'openid.mode': 'checkid_setup',
-                'openid.return_to': 'http://127.0.0.1:5000/authenticate',
-                'openid.realm': 'http://127.0.0.1:5000'
+                'openid.return_to': "http://{}:{}/authenticate".format(self.bot.settings.get_setting_by_name('bot_ip'), self.bot.settings.get_setting_by_name('bot_port')),
+                'openid.realm': "http://{}:{}".format(self.bot.settings.get_setting_by_name('bot_ip'), self.bot.settings.get_setting_by_name('bot_port'))
             }
             query_string = urlencode(u)
             auth_url = steam_openid_url + "?" + query_string
@@ -73,4 +73,4 @@ class Webinterface(Thread):
         def protected():
             return "Welcome to the protected area"
 
-        app.run()
+        app.run(host=self.bot.settings.get_setting_by_name('bot_ip'), port=self.bot.settings.get_setting_by_name('bot_port'), debug=False)
