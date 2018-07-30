@@ -80,18 +80,24 @@ class Webinterface(Thread):
 
         @app.route('/protected')
         def protected():
+            if self.bot.is_paused is True:
+                bot_paused_status = "paused"
+            else:
+                bot_paused_status = "active"
+
             output = "Welcome to the protected area<br />"
-            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>'
+            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a><br />'
+            output += 'the bot is currently {}!'.format(bot_paused_status)
             return output
 
         @app.route('/protected/system/pause')
         def pause_bot():
             self.bot.is_paused = True
-            return redirect("/")
+            return redirect("/protected")
 
         @app.route('/protected/system/resume')
         def resume_bot():
             self.bot.is_paused = False
-            return redirect("/")
+            return redirect("/protected")
 
         app.run(host=self.bot.settings.get_setting_by_name('bot_ip'), port=self.bot.settings.get_setting_by_name('bot_port'), debug=False)
