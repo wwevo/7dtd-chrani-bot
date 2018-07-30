@@ -254,8 +254,9 @@ def check_ip_country(self, player_object=None):
         except Exception as e:
             logger.exception(e)
 
-        if users_country in self.bot.banned_countries_list:
+        if users_country in self.bot.banned_countries_list and player_object.is_blacklisted() is False:
             if self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"):
+                player_object.blacklisted = True
                 logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
                 self.tn.say("{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country), color=self.bot.chat_colors['alert'])
 

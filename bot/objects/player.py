@@ -33,6 +33,7 @@ class Player(UserMixin):
     ping = int
     region = str
     country_code = str
+    blacklisted = bool
     authenticated = bool
     is_muted = bool
     last_teleport = int
@@ -58,6 +59,7 @@ class Player(UserMixin):
         self.ping = None
         self.region = None
         self.country_code = None
+        self.blacklisted = False
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0
@@ -122,6 +124,12 @@ class Player(UserMixin):
 
     def is_responsive(self):
         if self.health is not 0 and (isinstance(self.pos_x, float) and isinstance(self.pos_z, float)):
+            return True
+        else:
+            return False
+
+    def is_blacklisted(self):
+        if self.blacklisted is True:
             return True
         else:
             return False
