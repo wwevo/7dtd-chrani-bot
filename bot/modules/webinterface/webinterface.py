@@ -1,5 +1,6 @@
 from flask import Flask, redirect, request
 import time
+import datetime
 from urllib import urlencode
 import requests
 from threading import *
@@ -65,12 +66,32 @@ class Webinterface(Thread):
 
         @app.route('/')
         def hello_world():
-            output = "Welcome to the {}. I have been running for {}<br />".format(self.bot.name, time.strftime("%H:%M:%S", time.gmtime(time.time() - self.bot.time_launched)))
+            if self.bot.is_paused is True:
+                bot_paused_status = "paused"
+            else:
+                bot_paused_status = "active"
+
+            time_running_seconds = int(time.time() - self.bot.time_launched)
+            time_running = datetime.datetime(1,1,1) + datetime.timedelta(seconds=time_running_seconds)
+
+            output = "Welcome to the {}. I have been running for {}. I am currently {}<br />".format(self.bot.name, "{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
             output += "I have {} players on record and manage {} locations.<br />".format(len(self.bot.players.all_players_dict), len(self.bot.locations.all_locations_dict))
             return output
 
         @app.route('/protected')
         def protected():
-            return "Welcome to the protected area"
+            output = "Welcome to the protected area<br />"
+            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>'
+            return output
+
+        @app.route('/protected/system/pause')
+        def pause_bot():
+            self.bot.is_paused = True
+            return redirect("/")
+
+        @app.route('/protected/system/resume')
+        def resume_bot():
+            self.bot.is_paused = False
+            return redirect("/")
 
         app.run(host=self.bot.settings.get_setting_by_name('bot_ip'), port=self.bot.settings.get_setting_by_name('bot_port'), debug=False)

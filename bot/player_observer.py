@@ -1,5 +1,5 @@
 import re
-from time import time
+from time import time, sleep
 from threading import *
 
 from bot.modules.logger import logger
@@ -34,6 +34,10 @@ class PlayerObserver(Thread):
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
+            if self.bot.is_paused is True:
+                sleep(1)
+                continue
+
             profile_start = time()
 
             if self.bot.observers_list:

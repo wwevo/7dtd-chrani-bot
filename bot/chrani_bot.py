@@ -25,6 +25,7 @@ class ChraniBot:
     name = str
     bot_version = str
     is_active = bool  # used for restarting the bot safely after connection loss
+    is_paused = bool # used to pause all processing without shutting down the bot
     time_launched = float
 
     match_types = dict
@@ -59,6 +60,7 @@ class ChraniBot:
     actions_list = list
 
     def __init__(self):
+        self.paused = False
         self.settings = Settings()
         self.time_launched = time.time()
 
@@ -241,6 +243,10 @@ class ChraniBot:
 
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active:
+            if self.is_paused is True:
+                time.sleep(1)
+                continue
+
             if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
                 self.landclaims_dict = self.poll_lcb()
                 listlandprotection_timeout_start = time.time()
