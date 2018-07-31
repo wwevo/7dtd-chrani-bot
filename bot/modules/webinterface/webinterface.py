@@ -1,5 +1,5 @@
-from flask import Flask, redirect, request, url_for
-from flask_login import LoginManager, login_user, logout_user, login_required
+import flask
+import flask_login
 import time
 import re
 import datetime
@@ -18,11 +18,13 @@ class Webinterface(Thread):
         Thread.__init__(self)
 
     def run(self):
-        app = Flask(__name__)
+        app = flask.Flask(__name__)
         app.config["SECRET_KEY"] = "totallyasecret"
-        login = LoginManager(app)
 
-        @login.user_loader
+        login_manager = flask_login.LoginManager()
+        login_manager.init_app(app)
+
+        @login_manager.user_loader
         def user_loader(steamid):
             try:
                 player_object = self.bot.players.get_by_steamid(steamid)
@@ -44,29 +46,29 @@ class Webinterface(Thread):
             }
             query_string = urlencode(u)
             auth_url = steam_openid_url + "?" + query_string
-            return redirect(auth_url)
+            return flask.redirect(auth_url)
 
         @app.route("/logout")
-        @login_required
+        @flask_login.login_required
         def logout():
-            logout_user()
-            return redirect("/")
+            flask_login.logout_user()
+            return flask.redirect("/")
 
         @app.route('/authenticate', methods=['GET'])
         def setup():
-            valid = validate(request.args)
+            valid = validate(flask.request.args)
             if valid is True:
-                p = re.search(r"/(?P<steamid>([0-9]{17}))", str(request.args["openid.claimed_id"]))
+                p = re.search(r"/(?P<steamid>([0-9]{17}))", str(flask.request.args["openid.claimed_id"]))
                 if p:
                     steamid = p.group("steamid")
                     try:
                         player_object = self.bot.players.get_by_steamid(steamid)
-                        login_user(player_object)
-                        return redirect(url_for('protected'))
+                        flask_login.login_user(player_object)
+                        return flask.redirect(flask.url_for('protected'))
                     except:
                         pass
 
-            return redirect("/")
+            return flask.redirect("/")
 
         def validate(signed_params):
             steam_login_url_base = "https://steamcommunity.com/openid/login"
@@ -106,7 +108,7 @@ class Webinterface(Thread):
             return output
 
         @app.route('/protected')
-        @login_required
+        @flask_login.login_required
         def protected():
             if self.bot.is_paused is True:
                 bot_paused_status = "paused"
@@ -121,18 +123,27 @@ class Webinterface(Thread):
             return output
 
         @app.route('/protected/system/pause')
+        @flask_login.login_required
         def pause_bot():
             self.bot.is_paused = True
-            return redirect(url_for('protected'))
+            return flask.redirect(flask.url_for('protected'))
 
         @app.route('/protected/system/resume')
+        @flask_login.login_required
         def resume_bot():
             self.bot.is_paused = False
-            return redirect(url_for('protected'))
+            return flask.redirect(flask.url_for('protected'))
 
         @app.route('/protected/system/shutdown')
+        @flask_login.login_required
         def shutdown():
             self.bot.shutdown()
-            return redirect(url_for('protected'))
+            return flask.redirect(flask.url_for('protected'))
+
+        @app.route('/unauthorized')
+        @login_manager.unauthorized_handler
+        def unauthorized_handler():
+            output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^'
+            return output
 
         app.run(host=self.bot.settings.get_setting_by_name('bot_ip'), port=self.bot.settings.get_setting_by_name('bot_port'), debug=False)
