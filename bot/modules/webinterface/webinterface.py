@@ -56,6 +56,29 @@ class Webinterface(Thread):
 
         @app.route('/authenticate', methods=['GET'])
         def setup():
+            def validate(signed_params):
+                steam_login_url_base = "https://steamcommunity.com/openid/login"
+                params = {
+                    "openid.assoc_handle": signed_params["openid.assoc_handle"],
+                    "openid.sig": signed_params["openid.sig"],
+                    "openid.ns": signed_params["openid.ns"],
+                    "openid.mode": "check_authentication"
+                }
+
+                params_dict = signed_params.to_dict()
+                params_dict.update(params)
+
+                params_dict["openid.mode"] = "check_authentication"
+                params_dict["openid.signed"] = params_dict["openid.signed"]
+
+                r = requests.post(steam_login_url_base, data=params_dict)
+
+                if "is_valid:true" in r.text:
+                    return True
+
+                # this fucntion should always return false if the payload is not valid
+                return False
+
             valid = validate(flask.request.args)
             if valid is True:
                 p = re.search(r"/(?P<steamid>([0-9]{17}))", str(flask.request.args["openid.claimed_id"]))
@@ -64,34 +87,28 @@ class Webinterface(Thread):
                     try:
                         player_object = self.bot.players.get_by_steamid(steamid)
                         flask_login.login_user(player_object)
-                        return flask.redirect(flask.url_for('protected'))
                     except:
                         pass
 
             return flask.redirect("/")
 
-        def validate(signed_params):
-            steam_login_url_base = "https://steamcommunity.com/openid/login"
-            params = {
-                "openid.assoc_handle": signed_params["openid.assoc_handle"],
-                "openid.sig": signed_params["openid.sig"],
-                "openid.ns": signed_params["openid.ns"],
-                "openid.mode": "check_authentication"
-            }
+        @app.route('/protected/system/pause')
+        @flask_login.login_required
+        def pause_bot():
+            self.bot.is_paused = True
+            return flask.redirect("/")
 
-            params_dict = signed_params.to_dict()
-            params_dict.update(params)
+        @app.route('/protected/system/resume')
+        @flask_login.login_required
+        def resume_bot():
+            self.bot.is_paused = False
+            return flask.redirect("/")
 
-            params_dict["openid.mode"] = "check_authentication"
-            params_dict["openid.signed"] = params_dict["openid.signed"]
-
-            r = requests.post(steam_login_url_base, data=params_dict)
-
-            if "is_valid:true" in r.text:
-                return True
-
-            # this fucntion should always return false if the payload is not valid
-            return False
+        @app.route('/protected/system/shutdown')
+        @flask_login.login_required
+        def shutdown():
+            self.bot.shutdown()
+            return flask.redirect("/")
 
         @app.route('/')
         def hello_world():
@@ -101,44 +118,24 @@ class Webinterface(Thread):
                 bot_paused_status = "active"
 
             time_running_seconds = int(time.time() - self.bot.time_launched)
-            time_running = datetime.datetime(1,1,1) + datetime.timedelta(seconds=time_running_seconds)
+            time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
 
-            output = "Welcome to the {}. I have been running for {}. I am currently {}<br />".format(self.bot.name, "{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
-            output += "I have {} players on record and manage {} locations.<br />".format(len(self.bot.players.all_players_dict), len(self.bot.locations.all_locations_dict))
-            return output
-
-        @app.route('/protected')
-        @flask_login.login_required
-        def protected():
-            if self.bot.is_paused is True:
-                bot_paused_status = "paused"
+            output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
+            output += "I have been running for <strong>{}</strong> and am currently <strong>{}</strong><br />".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
+            output += "I have <strong>{} players</strong> on record and manage <strong>{} locations</strong>.<br /><br />".format(len(self.bot.players.all_players_dict), sum(len(v) for v in self.bot.locations.all_locations_dict.itervalues()))
+            if not flask_login.current_user.is_authenticated:
+                output += '<a href="/login">log in with your steam-account</a>'
+                return output
             else:
-                bot_paused_status = "active"
+                output += 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
 
-            output = "Welcome to the protected area<br />"
-            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a><br />'
+            output += "Welcome to the protected area<br />"
+            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>: '
             output += 'the bot is currently {}!<br /><br />'.format(bot_paused_status)
-            output += '<a href="/logout">logout user</a><br /><br />'
+            output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
+
             return output
-
-        @app.route('/protected/system/pause')
-        @flask_login.login_required
-        def pause_bot():
-            self.bot.is_paused = True
-            return flask.redirect(flask.url_for('protected'))
-
-        @app.route('/protected/system/resume')
-        @flask_login.login_required
-        def resume_bot():
-            self.bot.is_paused = False
-            return flask.redirect(flask.url_for('protected'))
-
-        @app.route('/protected/system/shutdown')
-        @flask_login.login_required
-        def shutdown():
-            self.bot.shutdown()
-            return flask.redirect(flask.url_for('protected'))
 
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler

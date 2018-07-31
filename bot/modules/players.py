@@ -30,6 +30,7 @@ class Players(object):
 
         self.players_dict = {}
         self.poll_listplayerfriends_interval = 30
+        self.load_all()
 
     def manage_online_players(self, bot, listplayers_dict):
         def poll_players():
@@ -129,14 +130,8 @@ class Players(object):
         return all_players_dict
 
     def entityid_to_steamid(self, entityid):
-        for steamid, player_object in self.players_dict.iteritems():
+        for steamid, player_object in self.all_players_dict.iteritems():
             if player_object.entityid == entityid:
-                return steamid
-
-        all_players_dict = self.load_all()
-
-        for steamid, player_object in all_players_dict.iteritems():
-            if player_object.entityid == entityid or player_object.id == entityid:
                 return steamid
 
         return False
@@ -203,7 +198,7 @@ class Players(object):
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
-            # logger.debug("Saved player-record for player {}.".format(dict_to_save['steamid']))
+            logger.debug("Saved player-record for player {}.".format(dict_to_save['steamid']))
         except Exception as e:
             logger.debug("Saving player-record for player {} failed: {}".format(dict_to_save['steamid'], e.message))
             pass

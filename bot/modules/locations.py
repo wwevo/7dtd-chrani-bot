@@ -21,9 +21,9 @@ class Locations(object):
         self.prefix = args_dict['Database-file']
         self.extension = "json"
 
-        self.locations_dict = {}
+        self.load_all()
 
-    def load_all(self, store=False):
+    def load_all(self):
         locations_dict = {}
         for root, dirs, files in os.walk(self.root):
             for filename in files:

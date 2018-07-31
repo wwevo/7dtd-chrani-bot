@@ -1,8 +1,8 @@
 from time import time
-from flask_login import UserMixin
+import flask_login
 
 
-class Player(UserMixin):
+class Player(flask_login.UserMixin):
     id = long
     name = str
     permission_levels = list
