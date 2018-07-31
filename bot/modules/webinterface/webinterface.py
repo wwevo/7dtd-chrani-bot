@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, url_for
 import time
 import datetime
 from urllib import urlencode
@@ -37,7 +37,7 @@ class Webinterface(Thread):
         def setup():
             valid = validate(request.args)
             if valid is True:
-                return redirect("/protected")
+                return redirect(url_for('protected'))
             else:
                 return redirect("/")
 
@@ -87,17 +87,23 @@ class Webinterface(Thread):
 
             output = "Welcome to the protected area<br />"
             output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a><br />'
-            output += 'the bot is currently {}!'.format(bot_paused_status)
+            output += 'the bot is currently {}!<br /><br />'.format(bot_paused_status)
+            output += '<a href="/protected/system/shutdown">shutdown bot</a><br />'
             return output
 
         @app.route('/protected/system/pause')
         def pause_bot():
             self.bot.is_paused = True
-            return redirect("/protected")
+            return redirect(url_for('protected'))
 
         @app.route('/protected/system/resume')
         def resume_bot():
             self.bot.is_paused = False
-            return redirect("/protected")
+            return redirect(url_for('protected'))
+
+        @app.route('/protected/system/shutdown')
+        def shutdown():
+            self.bot.shutdown()
+            return redirect(url_for('protected'))
 
         app.run(host=self.bot.settings.get_setting_by_name('bot_ip'), port=self.bot.settings.get_setting_by_name('bot_port'), debug=False)

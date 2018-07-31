@@ -1,6 +1,7 @@
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+import sys
 import time
 from bot.modules.logger import logger
 from bot.chrani_bot import ChraniBot
@@ -30,3 +31,5 @@ if __name__ == '__main__':
             time.sleep(wait_until_reconnect)
             pass
 
+        if bot.is_active is False:
+            sys.exit()
