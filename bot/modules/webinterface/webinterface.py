@@ -1,5 +1,7 @@
 from flask import Flask, redirect, request, url_for
+from flask_login import LoginManager, login_user, logout_user, login_required
 import time
+import re
 import datetime
 from urllib import urlencode
 import requests
@@ -17,6 +19,17 @@ class Webinterface(Thread):
 
     def run(self):
         app = Flask(__name__)
+        app.config["SECRET_KEY"] = "totallyasecret"
+        login = LoginManager(app)
+
+        @login.user_loader
+        def user_loader(steamid):
+            try:
+                player_object = self.bot.players.get_by_steamid(steamid)
+                if any(x in ["admin", "mod", "donator", "authenticated"] for x in player_object.permission_levels):
+                    return player_object
+            except:
+                return None
 
         @app.route('/login')
         def login():
@@ -33,13 +46,27 @@ class Webinterface(Thread):
             auth_url = steam_openid_url + "?" + query_string
             return redirect(auth_url)
 
+        @app.route("/logout")
+        @login_required
+        def logout():
+            logout_user()
+            return redirect("/")
+
         @app.route('/authenticate', methods=['GET'])
         def setup():
             valid = validate(request.args)
             if valid is True:
-                return redirect(url_for('protected'))
-            else:
-                return redirect("/")
+                p = re.search(r"/(?P<steamid>([0-9]{17}))", str(request.args["openid.claimed_id"]))
+                if p:
+                    steamid = p.group("steamid")
+                    try:
+                        player_object = self.bot.players.get_by_steamid(steamid)
+                        login_user(player_object)
+                        return redirect(url_for('protected'))
+                    except:
+                        pass
+
+            return redirect("/")
 
         def validate(signed_params):
             steam_login_url_base = "https://steamcommunity.com/openid/login"
@@ -79,6 +106,7 @@ class Webinterface(Thread):
             return output
 
         @app.route('/protected')
+        @login_required
         def protected():
             if self.bot.is_paused is True:
                 bot_paused_status = "paused"
@@ -88,7 +116,8 @@ class Webinterface(Thread):
             output = "Welcome to the protected area<br />"
             output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a><br />'
             output += 'the bot is currently {}!<br /><br />'.format(bot_paused_status)
-            output += '<a href="/protected/system/shutdown">shutdown bot</a><br />'
+            output += '<a href="/logout">logout user</a><br /><br />'
+            output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
             return output
 
         @app.route('/protected/system/pause')
