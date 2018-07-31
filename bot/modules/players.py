@@ -149,6 +149,30 @@ class Players(object):
         except KeyError:
             raise
 
+    def get_online_players(self):
+        try:
+            active_players_dict = self.players_dict
+            players_to_list = []
+            for steamid, player_object_to_list in active_players_dict.iteritems():
+                players_to_list.append(player_object_to_list)
+
+            return players_to_list
+
+        except KeyError:
+            raise
+
+    def get_all_players(self):
+        try:
+            active_players_dict = self.load_all()
+            players_to_list = []
+            for steamid, player_object_to_list in active_players_dict.iteritems():
+                players_to_list.append(player_object_to_list)
+
+            return players_to_list
+
+        except KeyError:
+            raise
+
     def load(self, steamid):
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, str(steamid), self.extension)) as file_to_read:

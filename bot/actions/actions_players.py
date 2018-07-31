@@ -116,10 +116,7 @@ def list_online_players(self):
     """
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        active_players_dict = self.bot.players.players_dict
-        players_to_list = []
-        for steamid, player_object_to_list in active_players_dict.iteritems():
-            players_to_list.append(player_object_to_list)
+        players_to_list = self.bot.players.get_online_players()
 
         for player_object_to_list in players_to_list:
             self.tn.send_message_to_player(player_object, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=self.bot.chat_colors['success'])
@@ -261,7 +258,7 @@ def ban_player(self, command):
     """
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        p = re.search(r"ban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<ban_reason>.+)", command)
+        p = re.search(r"ban\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfor\s(?P<ban_reason>.+)", command)
         if p:
             steamid_to_ban = p.group("steamid")
             entityid_to_ban = p.group("entityid")
@@ -364,7 +361,7 @@ def kick_player(self, command):
     """
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        p = re.search(r"kick\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfor\s(?P<kick_reason>.+)", command)
+        p = re.search(r"kick\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfor\s(?P<kick_reason>.+)", command)
         if p:
             steamid_to_kick = p.group("steamid")
             entityid_to_kick = p.group("entityid")

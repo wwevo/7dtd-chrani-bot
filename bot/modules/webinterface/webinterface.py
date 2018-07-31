@@ -86,7 +86,7 @@ class Webinterface(Thread):
                     steamid = p.group("steamid")
                     try:
                         player_object = self.bot.players.get_by_steamid(steamid)
-                        flask_login.login_user(player_object)
+                        flask_login.login_user(player_object, remember=True)
                         return flask.redirect("/protected")
                     except:
                         pass
@@ -109,6 +109,15 @@ class Webinterface(Thread):
         @flask_login.login_required
         def shutdown():
             self.bot.shutdown()
+            return flask.redirect("/protected")
+
+        @app.route('/protected/players/kick/<steamid>/<reason>')
+        @flask_login.login_required
+        def kick_player(steamid, reason):
+            active_player_thread = self.bot.active_player_threads_dict[steamid]
+
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            active_player_thread["thread"].trigger_action(player_object, "kick player {} for {}".format(active_player_thread["thread"].player_steamid, reason))
             return flask.redirect("/protected")
 
         @app.route('/')
@@ -141,6 +150,18 @@ class Webinterface(Thread):
             output += "Welcome to the protected area<br />"
             output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>: '
             output += 'the bot is currently {}!<br /><br />'.format(bot_paused_status)
+
+            output += '<hr/>'
+            players_to_list = self.bot.players.get_online_players()
+            for player_object_to_list in players_to_list:
+                output += "{} (id {}, steamid {}) / authenticated: {}<br />".format(player_object_to_list.name, player_object_to_list.entityid, player_object_to_list.steamid, str(player_object_to_list.authenticated))
+
+            output += '<hr/>'
+            players_to_list = self.bot.players.get_all_players()
+            for player_object_to_list in players_to_list:
+                output += "{} ({}) / authenticated: {}<br />".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated))
+
+            output += '<hr/>'
             output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
 
