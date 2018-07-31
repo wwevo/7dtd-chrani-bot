@@ -154,7 +154,7 @@ class Webinterface(Thread):
             output += '<hr/>'
             players_to_list = self.bot.players.get_online_players()
             for player_object_to_list in players_to_list:
-                output += "{} (id {}, steamid {}) / authenticated: {}<br />".format(player_object_to_list.name, player_object_to_list.entityid, player_object_to_list.steamid, str(player_object_to_list.authenticated))
+                output += '{} (id {}, steamid {}) / authenticated: {} (<a href="/protected/players/kick/{}/webinterface">kick</a>)<br />'.format(player_object_to_list.name, player_object_to_list.entityid, player_object_to_list.steamid, str(player_object_to_list.authenticated), player_object_to_list.steamid)
 
             output += '<hr/>'
             players_to_list = self.bot.players.get_all_players()
