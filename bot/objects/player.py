@@ -2,7 +2,7 @@ from time import time
 import flask_login
 
 
-class Player(flask_login.UserMixin):
+class Player(flask_login.UserMixin, flask_login.AnonymousUserMixin):
     id = long
     name = str
     permission_levels = list
