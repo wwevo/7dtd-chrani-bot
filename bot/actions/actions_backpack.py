@@ -3,33 +3,27 @@ from bot.objects.location import Location
 import common
 
 
-def on_player_death(self):
+def on_player_death(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
-
-    try:
-        location_object = self.bot.locations.get(player_object.steamid, 'death')
+        location_object = bot.locations.get(target_player.steamid, 'death')
     except KeyError:
         location_dict = dict(
             identifier='death',
             name='Place of Death',
-            owner=player_object.steamid,
+            owner=target_player.steamid,
             shape='point',
             radius=None,
             region=None
         )
         location_object = Location(**location_dict)
 
-    location_object.set_coordinates(player_object)
+    location_object.set_coordinates(target_player)
     try:
-        self.bot.locations.upsert(location_object, save=True)
+        bot.locations.upsert(location_object, save=True)
     except:
         return False
 
-    self.tn.send_message_to_player(player_object, "your place of death has been recorded ^^", color=self.bot.chat_colors['background'])
+    bot.tn.send_message_to_player(target_player, "your place of death has been recorded ^^", color=bot.chat_colors['background'])
 
     return True
 
@@ -47,8 +41,8 @@ common.actions_list.append({
 })
 
 
-def on_player_kill(self):
-    return on_player_death(self)
+def on_player_kill(bot, source_player, target_player, command):
+    return on_player_death(bot, source_player, target_player, command)
 
 
 common.actions_list.append({
@@ -64,7 +58,7 @@ common.actions_list.append({
 })
 
 
-def take_me_to_my_backpack(self):
+def take_me_to_my_backpack(bot, source_player, target_player, command):
     """Teleports a player to their place of death
 
     Keyword arguments:
@@ -82,23 +76,18 @@ def take_me_to_my_backpack(self):
     the place of death will be removed after a successful teleport
     """
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        try:
-            location_object = self.bot.locations.get(player_object.steamid, "death")
-            if location_object.player_is_inside_boundary(player_object):
-                self.tn.send_message_to_player(player_object, "eh, you already ARE near your pack oO".format(player_object.name), color=self.bot.chat_colors['warning'])
-            else:
-                coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
-                self.tn.teleportplayer(player_object, coord_tuple=coord_tuple)
-                self.tn.say("{} can't live without their stuff".format(player_object.name), color=self.bot.chat_colors['background'])
+        location_object = bot.locations.get(target_player.steamid, "death")
+        if location_object.player_is_inside_boundary(target_player):
+            bot.tn.send_message_to_player(target_player, "eh, you already ARE near your pack oO".format(target_player.name), color=bot.chat_colors['warning'])
+        else:
+            coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
+            bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple)
+            bot.tn.say("{} can't live without their stuff".format(target_player.name), color=bot.chat_colors['background'])
 
-            self.bot.locations.remove(player_object.steamid, 'death')
+        bot.locations.remove(target_player.steamid, 'death')
 
-        except KeyError:
-            self.tn.send_message_to_player(player_object, "I don't have your last death on record, sorry :(".format(player_object.name), color=self.bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+    except KeyError:
+        bot.tn.send_message_to_player(target_player, "I don't have your last death on record, sorry :(".format(target_player.name), color=bot.chat_colors['warning'])
 
 
 common.actions_list.append({

@@ -250,20 +250,21 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
-        if player_object.pos_x is 0.0 and player_object.pos_x is 0.0 and player_object.pos_x is 0.0:
-            logger.debug("Can't check boundaries: No locationdata found for Player {} ".format(player_object.name))
-            return False
-
         player_is_inside_boundary = False
         if self.shape == "sphere":
             """ we determine the location by the locations radius and the distance of the player from it's center,
             spheres make this especially easy, so I picked them first ^^
             """
-            distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
-            player_is_inside_boundary = distance_to_location_center <= float(self.radius)
+            try:
+                distance_to_location_center = float(math.sqrt(
+                    (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                        float(self.pos_z) - float(player_object.pos_z)) ** 2))
+                player_is_inside_boundary = distance_to_location_center <= float(self.radius)
+            except:
+                logger.debug("Can't check boundaries: No locationdata found for Player {} ".format(player_object.name))
+                pass
+
         if self.shape == "cube":
             """ we determine the area of the location by the locations center and it's radius (half a sides-length)
             """
@@ -284,11 +285,14 @@ class Location(object):
 
         player_is_inside_core = False
         if self.shape == "sphere":
-            distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
-            player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
+            try:
+                distance_to_location_center = float(math.sqrt(
+                    (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                        float(self.pos_z) - float(player_object.pos_z)) ** 2))
+                player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
+            except:
+                pass
         if self.shape == "cube":
             if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True

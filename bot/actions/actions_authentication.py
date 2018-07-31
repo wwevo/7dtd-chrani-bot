@@ -3,7 +3,7 @@ from bot.modules.logger import logger
 import common
 
 
-def on_player_join(self):
+def on_player_join(bot, source_player, target_player, command):
     return True
 
 
@@ -20,29 +20,23 @@ common.actions_list.append({
 })
 
 
-def on_enter_gameworld(self):
+def on_enter_gameworld(bot, source_player, target_player, command):
     """Will greet an unauthenticated player
 
     Keyword arguments:
     self -- the bot
 
     notes:
-    does nothing for autrhenticated players
+    does nothing for authenticated players
     """
-    try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
+    if target_player.has_permission_level("authenticated") is not True:
+        bot.tn.send_message_to_player(target_player, "read the rules on https://chrani.net/chrani-bot", color=bot.chat_colors['warning'])
+        bot.tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
+        bot.tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
 
-    if player_object.has_permission_level("authenticated") is not True:
-        self.tn.send_message_to_player(player_object, "read the rules on https://chrani.net/chrani-bot", color=self.bot.chat_colors['warning'])
-        self.tn.send_message_to_player(player_object, "this is a development server. you can play here, but there's no support or anything really.", color=self.bot.chat_colors['info'])
-        self.tn.send_message_to_player(player_object, "Enjoy!", color=self.bot.chat_colors['info'])
-
-    if player_object.initialized is not True:
-        player_object.initialized = True
-        self.bot.players.upsert(player_object)
+    if target_player.initialized is not True:
+        target_player.initialized = True
+        bot.players.upsert(target_player)
 
 
 common.actions_list.append({
@@ -71,7 +65,7 @@ common.actions_list.append({
 })
 
 
-def password(self, command):
+def password(bot, source_player, target_player, command):
     """Adds player to permission-group(s) according to the password entered
 
     Keyword arguments:
@@ -87,48 +81,42 @@ def password(self, command):
     notes:
     the password must exist in the password dictionary
     """
-    try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
-
     p = re.search(r"password\s(?P<password>\w+)$", command)
     try:
         pwd = p.group("password")
     except (AttributeError, IndexError) as e:
-        self.tn.send_message_to_player(player_object, "You have entered no password. Use {}".format(common.find_action_help("authentication", "password")), color=self.bot.chat_colors['warning'])
+        bot.tn.send_message_to_player(target_player, "You have entered no password. Use {}".format(common.find_action_help("authentication", "password")), color=bot.chat_colors['warning'])
         return False
 
-    if pwd not in self.bot.passwords.values() and player_object.authenticated is not True :
-        self.tn.send_message_to_player(player_object, "You have entered a wrong password!", color=self.bot.chat_colors['warning'])
+    if pwd not in bot.passwords.values() and target_player.authenticated is not True :
+        bot.tn.send_message_to_player(target_player, "You have entered a wrong password!", color=bot.chat_colors['warning'])
         return False
-    elif pwd not in self.bot.passwords.values() and player_object.authenticated is True:
-        player_object.set_authenticated(False)
-        player_object.remove_permission_level("authenticated")
-        self.tn.send_message_to_player(player_object, "You have lost your authentication!", color=self.bot.chat_colors['warning'])
+    elif pwd not in bot.passwords.values() and target_player.authenticated is True:
+        target_player.set_authenticated(False)
+        target_player.remove_permission_level("authenticated")
+        bot.tn.send_message_to_player(target_player, "You have lost your authentication!", color=bot.chat_colors['warning'])
 
-        self.bot.players.upsert(player_object, save=True)
+        bot.players.upsert(target_player, save=True)
         return False
 
-    if player_object.authenticated is not True:
-        player_object.set_authenticated(True)
-        player_object.add_permission_level("authenticated")
-        self.tn.say("{} joined the ranks of literate people. Welcome!".format(player_object.name), color=self.bot.chat_colors['background'])
+    if target_player.authenticated is not True:
+        target_player.set_authenticated(True)
+        target_player.add_permission_level("authenticated")
+        bot.tn.say("{} joined the ranks of literate people. Welcome!".format(target_player.name), color=bot.chat_colors['background'])
 
     """ makeshift promotion system """
     # TODO: well, this action should only care about general authentication. things like admin and mod should be handled somewhere else really
-    if pwd == self.bot.passwords['admin']:
-        player_object.add_permission_level("admin")
-        self.tn.send_message_to_player(player_object, "you are an Admin", color=self.bot.chat_colors['success'])
-    elif pwd == self.bot.passwords['mod']:
-        player_object.add_permission_level("mod")
-        self.tn.send_message_to_player(player_object, "you are a Moderator", color=self.bot.chat_colors['success'])
-    elif pwd == self.bot.passwords['donator']:
-        player_object.add_permission_level("donator")
-        self.tn.send_message_to_player(player_object, "you are a Donator. Thank you <3", color=self.bot.chat_colors['success'])
+    if pwd == bot.passwords['admin']:
+        target_player.add_permission_level("admin")
+        bot.tn.send_message_to_player(target_player, "you are an Admin", color=bot.chat_colors['success'])
+    elif pwd == bot.passwords['mod']:
+        target_player.add_permission_level("mod")
+        bot.tn.send_message_to_player(target_player, "you are a Moderator", color=bot.chat_colors['success'])
+    elif pwd == bot.passwords['donator']:
+        target_player.add_permission_level("donator")
+        bot.tn.send_message_to_player(target_player, "you are a Donator. Thank you <3", color=bot.chat_colors['success'])
 
-    self.bot.players.upsert(player_object, save=True)
+    bot.players.upsert(target_player, save=True)
     return True
 
 
@@ -145,7 +133,7 @@ common.actions_list.append({
 })
 
 
-def add_player_to_permission_group(self, command):
+def add_player_to_permission_group(bot, source_player, target_player, command):
     """Adds player to permission-group
 
     Keyword arguments:
@@ -161,35 +149,29 @@ def add_player_to_permission_group(self, command):
     notes:
     the group must exist
     """
-    try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
-
     p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\sgroup\s(?P<group_name>\w+)$", command)
     if p:
         steamid_to_modify = p.group("steamid")
         entityid_to_modify = p.group("entityid")
         if steamid_to_modify is None:
-            steamid_to_modify = self.bot.players.entityid_to_steamid(entityid_to_modify)
+            steamid_to_modify = bot.players.entityid_to_steamid(entityid_to_modify)
             if steamid_to_modify is False:
                 raise KeyError
 
         group = str(p.group("group_name"))
-        if group not in self.bot.permission_levels_list:
-            self.tn.send_message_to_player(player_object, "the group {} does not exist!".format(group), color=self.bot.chat_colors['success'])
+        if group not in bot.permission_levels_list:
+            bot.tn.send_message_to_player(target_player, "the group {} does not exist!".format(group), color=bot.chat_colors['success'])
             return False
 
         try:
-            player_object_to_modify = self.bot.players.get_by_steamid(steamid_to_modify)
+            player_object_to_modify = bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.add_permission_level(group)
-            self.tn.send_message_to_player(player_object, "{} has been added to the group {}".format(player_object.name, group), color=self.bot.chat_colors['success'])
+            bot.tn.send_message_to_player(target_player, "{} has been added to the group {}".format(target_player.name, group), color=bot.chat_colors['success'])
         except Exception:
-            self.tn.send_message_to_player(player_object,"could not find a player with steamid {}".format(steamid_to_modify), color=self.bot.chat_colors['warning'])
+            bot.tn.send_message_to_player(target_player,"could not find a player with steamid {}".format(steamid_to_modify), color=bot.chat_colors['warning'])
             return
 
-        self.bot.players.upsert(player_object_to_modify, save=True)
+        bot.players.upsert(player_object_to_modify, save=True)
 
 
 common.actions_list.append({
@@ -205,7 +187,7 @@ common.actions_list.append({
 })
 
 
-def remove_player_from_permission_group(self, command):
+def remove_player_from_permission_group(bot, source_player, target_player, command):
     """Removes player from permission-group
 
     Keyword arguments:
@@ -221,35 +203,29 @@ def remove_player_from_permission_group(self, command):
     notes:
     the group must exist
     """
-    try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
-
     p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom\sgroup\s(?P<group_name>\w+)$", command)
     if p:
         steamid_to_modify = p.group("steamid")
         entityid_to_modify = p.group("entityid")
         if steamid_to_modify is None:
-            steamid_to_modify = self.bot.players.entityid_to_steamid(entityid_to_modify)
+            steamid_to_modify = bot.players.entityid_to_steamid(entityid_to_modify)
             if steamid_to_modify is False:
                 raise KeyError
 
         group = str(p.group("group_name"))
-        if group not in self.bot.permission_levels_list:
-            self.tn.send_message_to_player(player_object, "the group {} does not exist!".format(group), color=self.bot.chat_colors['success'])
+        if group not in bot.permission_levels_list:
+            bot.tn.send_message_to_player(target_player, "the group {} does not exist!".format(group), color=bot.chat_colors['success'])
             return False
 
         try:
-            player_object_to_modify = self.bot.players.get_by_steamid(steamid_to_modify)
+            player_object_to_modify = bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.remove_permission_level(group)
-            self.tn.send_message_to_player(player_object, "{} has been removed from the group {}".format(player_object.name, group), color=self.bot.chat_colors['success'])
+            bot.tn.send_message_to_player(target_player, "{} has been removed from the group {}".format(target_player.name, group), color=bot.chat_colors['success'])
         except Exception:
-            self.tn.send_message_to_player(player_object,"could not find a player with steamid {}".format(steamid_to_modify), color=self.bot.chat_colors['warning'])
+            bot.tn.send_message_to_player(target_player,"could not find a player with steamid {}".format(steamid_to_modify), color=bot.chat_colors['warning'])
             return
 
-        self.bot.players.upsert(player_object_to_modify, save=True)
+        bot.players.upsert(player_object_to_modify, save=True)
 
 
 common.actions_list.append({

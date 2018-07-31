@@ -2,6 +2,7 @@ import re
 from time import time, sleep
 from threading import *
 
+import bot.actions
 from bot.modules.logger import logger
 from bot.modules.telnet_connection import TelnetConnection
 
@@ -9,12 +10,16 @@ from bot.modules.telnet_connection import TelnetConnection
 class PlayerObserver(Thread):
     tn = object
     bot = object
-    run_observers_interval = int  # loop this every run_observers_interval seconds
 
     player_steamid = str
+    player_object = object
+
+    run_observers_interval = int  # loop this every run_observers_interval seconds
 
     def __init__(self, event, bot, player_steamid):
         self.player_steamid = str(player_steamid)
+        self.player_object = bot.players.get_by_steamid(self.player_steamid)
+
         logger.info("thread started for player " + self.player_steamid)
 
         self.tn = TelnetConnection(bot, bot.settings.get_setting_by_name('telnet_ip'), bot.settings.get_setting_by_name('telnet_port'), bot.settings.get_setting_by_name('telnet_password'))
@@ -26,8 +31,8 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.trigger_action(player_object, "joined the game")
+        player_object = self.player_object
+        bot.actions.common.trigger_action(self.bot, None, player_object, "joined the game")
 
         if player_object.initialized is True:
             self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
@@ -43,7 +48,7 @@ class PlayerObserver(Thread):
             if self.bot.observers_list:
                 """ execute real-time observers
                 these are run regardless of telnet activity!
-                Everything that meeds to be checked periodically should be done in observers
+                Everything that needs to be checked periodically should be done in observers
                 """
                 command_queue = []
                 for observer in self.bot.observers_list:
@@ -78,46 +83,8 @@ class PlayerObserver(Thread):
 
         logger.debug("thread has stopped")
 
-    """
-    loop through all available actions if they are a match for the given command and create a queue of actions to be fired
-    loop though the command queue
-    """
-    def trigger_action(self, player_object, command_parameters):
-        command_queue = []
-        if self.bot.actions_list is not None:
-            denied = False
-            for player_action in self.bot.actions_list:
-                function_category = player_action["group"]
-                function_name = getattr(player_action["action"], 'func_name')
-                if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command_parameters) or (player_action["match_mode"] == "startswith" and command_parameters.startswith(player_action["command"]["trigger"])):
-                    has_permission = self.bot.permissions.player_has_permission(player_object, function_name, function_category)
-                    if (isinstance(has_permission, bool) and has_permission is True) or (player_action["essential"] is True):
-                        function_object = player_action["action"]
-                        command_queue.append({
-                            "action": function_object,
-                            "func_name": function_name,
-                            "group": function_category,
-                            "command_parameters": command_parameters
-                        })
-                    else:
-                        denied = True
-                        logger.info("Player {} denied trying to execute {}:{}".format(player_object.name, function_category, function_name))
-
-            if len(command_queue) == 0:
-                logger.debug("Player {} tried the command '/{}' for which I have no handler.".format(player_object.name, command_parameters))
-
-            if denied is True:
-                self.tn.send_message_to_player(player_object, "Access to this command is denied!", color=self.bot.chat_colors['warning'])
-
-            for command in command_queue:
-                try:
-                    command["action"](self)
-                except TypeError:
-                    try:
-                        command["action"](self, command["command_parameters"])
-                        logger.info("Player {} has executed {}:{} with '/{}'".format(player_object.name, command["group"], command["func_name"], command["command_parameters"]))
-                    except Exception as e:
-                        logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(player_object.name, command["group"], command["func_name"], command["command_parameters"], e))
+    def trigger_action(self, target_player, command):
+        bot.actions.common.trigger_action(self.bot, self.player_object, target_player, command)
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):

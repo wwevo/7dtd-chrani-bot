@@ -3,32 +3,26 @@ from bot.modules.logger import logger
 import common
 
 
-def on_player_join(self):
+def on_player_join(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
-
-    try:
-        location_object = self.bot.locations.get(player_object.steamid, 'spawn')
+        location_object = bot.locations.get(target_player.steamid, 'spawn')
     except KeyError:
         location_dict = dict(
             identifier='spawn',
             name='Place of Birth',
-            owner=player_object.steamid,
+            owner=target_player.steamid,
             shape='point',
             radius=None,
             region=None
         )
         location_object = Location(**location_dict)
-        location_object.set_coordinates(player_object)
+        location_object.set_coordinates(target_player)
         try:
-            self.bot.locations.upsert(location_object, save=True)
+            bot.locations.upsert(location_object, save=True)
         except:
             return False
 
-        logger.debug("spawn for player {} created".format(player_object.name))
+        logger.debug("spawn for player {} created".format(target_player.name))
 
     return True
 
@@ -59,18 +53,12 @@ common.actions_list.append({
 })
 
 
-def on_player_death(self):
+def on_player_death(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-    except Exception as e:
-        logger.exception(e)
-        raise KeyError
-
-    try:
-        location = self.bot.locations.get(player_object.steamid, 'spawn')
-        if player_object.authenticated is False:
+        location = bot.locations.get(target_player.steamid, 'spawn')
+        if target_player.authenticated is False:
             location.enabled = False
-            logger.debug("spawn for player {} removed, a new one will be created".format(player_object.name))
+            logger.debug("spawn for player {} removed, a new one will be created".format(target_player.name))
     except KeyError:
         return
 

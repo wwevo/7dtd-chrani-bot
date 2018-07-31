@@ -1,3 +1,4 @@
+import bot.actions
 import flask
 import flask_login
 import time
@@ -114,10 +115,9 @@ class Webinterface(Thread):
         @app.route('/protected/players/kick/<steamid>/<reason>')
         @flask_login.login_required
         def kick_player(steamid, reason):
-            active_player_thread = self.bot.active_player_threads_dict[steamid]
-
             player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            active_player_thread["thread"].trigger_action(player_object, "kick player {} for {}".format(active_player_thread["thread"].player_steamid, reason))
+            target_player = self.bot.players.get_by_steamid(steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
             return flask.redirect("/protected")
 
         @app.route('/')

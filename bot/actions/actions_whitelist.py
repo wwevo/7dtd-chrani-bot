@@ -6,23 +6,22 @@ from bot.modules.logger import logger
 import common
 
 
-def add_player_to_whitelist(self, command):
+def add_player_to_whitelist(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sto whitelist", command)
         if p:
             steamid_to_whitelist = p.group("steamid")
             entityid_to_whitelist = p.group("entityid")
             if steamid_to_whitelist is None:
-                steamid_to_whitelist = self.bot.players.entityid_to_steamid(entityid_to_whitelist)
+                steamid_to_whitelist = bot.players.entityid_to_steamid(entityid_to_whitelist)
                 if steamid_to_whitelist is False:
                     raise KeyError
 
             try:
-                player_object = self.bot.players.get_by_steamid(steamid_to_whitelist)
+                target_player = bot.players.get_by_steamid(steamid_to_whitelist)
                 player_dict_to_whitelist = {
-                    "steamid": player_object.steamid,
-                    "name": player_object.name
+                    "steamid": target_player.steamid,
+                    "name": target_player.name
                 }
             except KeyError:
                 player_dict_to_whitelist = {
@@ -30,11 +29,11 @@ def add_player_to_whitelist(self, command):
                     "name": 'unknown offline player'
                 }
 
-            if not self.bot.whitelist.add(player_object, player_dict_to_whitelist):
-                self.tn.send_message_to_player(player_object, "could not find a player with steamid {}".format(steamid_to_whitelist), color=self.bot.chat_colors['warning'])
+            if not bot.whitelist.add(target_player, player_dict_to_whitelist):
+                bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_whitelist), color=bot.chat_colors['warning'])
                 return False
 
-            self.tn.send_message_to_player(player_object, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=self.bot.chat_colors['success'])
+            bot.tn.send_message_to_player(target_player, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -53,21 +52,20 @@ common.actions_list.append({
 })
 
 
-def remove_player_from_whitelist(self, command):
+def remove_player_from_whitelist(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom whitelist", command)
         if p:
             steamid_to_dewhitelist = p.group("steamid")
             entityid_to_dewhitelist = p.group("entityid")
             if steamid_to_dewhitelist is None:
-                steamid_to_dewhitelist = self.bot.players.entityid_to_steamid(entityid_to_dewhitelist)
+                steamid_to_dewhitelist = bot.players.entityid_to_steamid(entityid_to_dewhitelist)
                 if steamid_to_dewhitelist is False:
                     raise KeyError
 
             player_dict = ObjectView
             try:
-                player_object_to_dewhitelist = self.bot.players.get_by_steamid(steamid_to_dewhitelist)
+                player_object_to_dewhitelist = bot.players.get_by_steamid(steamid_to_dewhitelist)
                 player_dict.steamid = player_object_to_dewhitelist.steamid
                 player_dict.name = player_object_to_dewhitelist.name
             except KeyError:
@@ -75,12 +73,12 @@ def remove_player_from_whitelist(self, command):
                 player_dict.name = 'unknown offline player'
                 player_object_to_dewhitelist = player_dict
 
-            if self.bot.whitelist.remove(player_object_to_dewhitelist):
-                self.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(player_object.name), color=self.bot.chat_colors['alert'])
+            if bot.whitelist.remove(player_object_to_dewhitelist):
+                bot.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(target_player.name), color=bot.chat_colors['alert'])
             else:
-                self.tn.send_message_to_player(player_object, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=self.bot.chat_colors['warning'])
+                bot.tn.send_message_to_player(target_player, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=bot.chat_colors['warning'])
                 return False
-            self.tn.send_message_to_player(player_object, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=self.bot.chat_colors['success'])
+            bot.tn.send_message_to_player(target_player, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -99,10 +97,10 @@ common.actions_list.append({
 })
 
 
-def activate_whitelist(self):
+def activate_whitelist(bot, source_player, target_player, command):
     try:
-        self.bot.whitelist.activate()
-        self.tn.say("Whitelist is in effect! Feeling safer already :)", color=self.bot.chat_colors['alert'])
+        bot.whitelist.activate()
+        bot.tn.say("Whitelist is in effect! Feeling safer already :)", color=bot.chat_colors['alert'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -121,10 +119,10 @@ common.actions_list.append({
 })
 
 
-def deactivate_whitelist(self):
+def deactivate_whitelist(bot, source_player, target_player, command):
     try:
-        self.bot.whitelist.deactivate()
-        self.tn.say("Whitelist has been disabled. We are feeling adventureous :)", color=self.bot.chat_colors['alert'])
+        bot.whitelist.deactivate()
+        bot.tn.say("Whitelist has been disabled. We are feeling adventureous :)", color=bot.chat_colors['alert'])
     except Exception as e:
         logger.exception(e)
         pass

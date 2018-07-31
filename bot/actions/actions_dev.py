@@ -2,7 +2,7 @@ from bot.modules.logger import logger
 import common
 
 
-def fix_players_legs(self):
+def fix_players_legs(bot, source_player, target_player, command):
     """Fixes the legs of the player issuing this action
 
     Keyword arguments:
@@ -18,10 +18,9 @@ def fix_players_legs(self):
     does not check if the player is injured at all
     """
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.tn.debuffplayer(player_object, "brokenLeg")
-        self.tn.debuffplayer(player_object, "sprainedLeg")
-        self.tn.send_message_to_player(player_object, "your legs have been taken care of ^^", color=self.bot.chat_colors['success'])
+        bot.tn.debuffplayer(target_player, "brokenLeg")
+        bot.tn.debuffplayer(target_player, "sprainedLeg")
+        bot.tn.send_message_to_player(target_player, "your legs have been taken care of ^^", color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -40,7 +39,7 @@ common.actions_list.append({
 })
 
 
-def stop_the_bleeding(self):
+def stop_the_bleeding(bot, source_player, target_player, command):
     """Removes the 'bleeding' buff from the player issuing this action
 
     Keyword arguments:
@@ -56,9 +55,8 @@ def stop_the_bleeding(self):
     does not check if the player is injured at all
     """
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.tn.debuffplayer(player_object, "bleeding")
-        self.tn.send_message_to_player(player_object, "your wounds have been bandaided ^^", color=self.bot.chat_colors['success'])
+        bot.tn.debuffplayer(target_player, "bleeding")
+        bot.tn.send_message_to_player(target_player, "your wounds have been bandaided ^^", color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -77,7 +75,7 @@ common.actions_list.append({
 })
 
 
-def apply_first_aid(self):
+def apply_first_aid(bot, source_player, target_player, command):
     """Applies the 'firstAidLarge' buff to the player issuing this action
 
     Keyword arguments:
@@ -93,9 +91,8 @@ def apply_first_aid(self):
     does not check if the player is injured at all
     """
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.tn.buffplayer(player_object, "firstAidLarge")
-        self.tn.send_message_to_player(player_object, "feel the power flowing through you!! ^^", color=self.bot.chat_colors['success'])
+        bot.tn.buffplayer(target_player, "firstAidLarge")
+        bot.tn.send_message_to_player(target_player, "feel the power flowing through you!! ^^", color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -114,7 +111,7 @@ common.actions_list.append({
 })
 
 
-def reload_from_db(self):
+def reload_from_db(bot, source_player, target_player, command):
     """Reloads config and location files from storage
 
     Keyword arguments:
@@ -127,9 +124,8 @@ def reload_from_db(self):
     /reinitialize
     """
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.bot.load_from_db()
-        self.tn.send_message_to_player(player_object, "loaded all from storage!", color=self.bot.chat_colors['success'])
+        bot.load_from_db()
+        bot.tn.send_message_to_player(target_player, "loaded all from storage!", color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -148,7 +144,7 @@ common.actions_list.append({
 })
 
 
-def shutdown_bot(self):
+def shutdown_bot(bot, source_player, target_player, command):
     """Shuts down the bot
 
     Keyword arguments:
@@ -165,7 +161,7 @@ def shutdown_bot(self):
     used for restarting it from within the game
     """
     try:
-        self.bot.shutdown()
+        bot.shutdown()
     except Exception as e:
         logger.exception(e)
         pass
@@ -182,6 +178,3 @@ common.actions_list.append({
     "group": "testing",
     "essential": False
 })
-""" 
-here come the observers
-"""

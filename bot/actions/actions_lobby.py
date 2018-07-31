@@ -4,28 +4,27 @@ from bot.modules.logger import logger
 import common
 
 
-def password(self, command):
+def password(bot, source_player, target_player, command):
     try:
         try:
-            location_object = self.bot.locations.get('system', "lobby")
+            location_object = bot.locations.get('system', "lobby")
         except KeyError:
             return False
 
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         p = re.search(r"password\s(\w+)$", command)
         if p:
             pwd = p.group(1)
-            if pwd in self.bot.passwords.values():
+            if pwd in bot.passwords.values():
                 try:
-                    location_object = self.bot.locations.get(player_object.steamid, 'spawn')
+                    location_object = bot.locations.get(target_player.steamid, 'spawn')
                     # if the spawn is enabled, do port the player and disable it.
                     if location_object.enabled is True:
-                        if self.tn.teleportplayer(player_object, location_object=location_object):
-                            self.tn.send_message_to_player(player_object, "You have been ported back to your original spawn!", color=self.bot.chat_colors['success'])
+                        if bot.tn.teleportplayer(target_player, location_object=location_object):
+                            bot.tn.send_message_to_player(target_player, "You have been ported back to your original spawn!", color=bot.chat_colors['success'])
                             location_object.enabled = False
-                            self.bot.locations.upsert(location_object, save=True)
+                            bot.locations.upsert(location_object, save=True)
                         else:
-                            self.tn.send_message_to_player(player_object, "Taking you to your original spawn failed oO!", color=self.bot.chat_colors['warning'])
+                            bot.tn.send_message_to_player(target_player, "Taking you to your original spawn failed oO!", color=bot.chat_colors['warning'])
                     else:
                         return False
                 except KeyError:
@@ -48,19 +47,17 @@ common.actions_list.append({
 })
 
 
-def set_up_lobby(self):
+def set_up_lobby(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-
         location_object = Location()
         location_object.set_owner('system')
         name = 'The Lobby'
 
         location_object.set_name(name)
-        location_object.radius = float(self.bot.settings.get_setting_by_name("location_default_radius"))
-        location_object.warning_boundary = float(self.bot.settings.get_setting_by_name("location_default_radius")) * float(self.bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
+        location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
+        location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_radius")) * float(bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
 
-        location_object.set_coordinates(player_object)
+        location_object.set_coordinates(target_player)
         identifier = location_object.set_identifier('lobby')
         location_object.set_description('The \"there is no escape\" Lobby')
         location_object.set_shape("sphere")
@@ -71,12 +68,12 @@ def set_up_lobby(self):
         messages_dict["entered_location"] = None
         messages_dict["left_location"] = None
         location_object.set_messages(messages_dict)
-        location_object.set_list_of_players_inside([player_object.steamid])
+        location_object.set_list_of_players_inside([target_player.steamid])
 
-        self.bot.locations.upsert(location_object, save=True)
+        bot.locations.upsert(location_object, save=True)
 
-        self.tn.send_message_to_player(player_object, "You have set up a lobby", color=self.bot.chat_colors['success'])
-        self.tn.send_message_to_player(player_object, "Set up the perimeter with {}, while standing on the edge of it.".format(common.find_action_help("lobby", "edit lobby outer perimeter")), color=self.bot.chat_colors['warning'])
+        bot.tn.send_message_to_player(target_player, "You have set up a lobby", color=bot.chat_colors['success'])
+        bot.tn.send_message_to_player(target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(common.find_action_help("lobby", "edit lobby outer perimeter")), color=bot.chat_colors['warning'])
     except Exception as e:
         logger.exception(e)
         pass
@@ -95,35 +92,30 @@ common.actions_list.append({
 })
 
 
-def set_up_lobby_outer_perimeter(self):
+def set_up_lobby_outer_perimeter(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        try:
-            location_object = self.bot.locations.get('system', 'lobby')
-        except KeyError:
-            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby", color=self.bot.chat_colors['warning'])
-            return False
+        location_object = bot.locations.get('system', 'lobby')
+    except KeyError:
+        bot.tn.send_message_to_player(target_player, "you need to set up a lobby first silly: /set up lobby", color=bot.chat_colors['warning'])
+        return False
 
-        coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
-        distance_to_location = location_object.get_distance(coords)
-        set_radius, allowed_range = location_object.set_radius(distance_to_location)
+    coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+    distance_to_location = location_object.get_distance(coords)
+    set_radius, allowed_range = location_object.set_radius(distance_to_location)
+    if set_radius is True:
+        bot.tn.send_message_to_player(target_player, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=bot.chat_colors['success'])
+    else:
+        bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=bot.chat_colors['warning'])
+        return False
+
+    if location_object.radius <= location_object.warning_boundary:
+        set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
         if set_radius is True:
-            self.tn.send_message_to_player(player_object, "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['success'])
+            bot.tn.send_message_to_player(target_player, "the inner core has been set to match the outer perimeter.", color=bot.chat_colors['warning'])
         else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=self.bot.chat_colors['warning'])
             return False
 
-        if location_object.radius <= location_object.warning_boundary:
-            set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
-            if set_radius is True:
-                self.tn.send_message_to_player(player_object, "the inner core has been set to match the outer perimeter.", color=self.bot.chat_colors['warning'])
-            else:
-                return False
-
-        self.bot.locations.upsert(location_object, save=True)
-    except Exception as e:
-        logger.exception(e)
-        pass
+    bot.locations.upsert(location_object, save=True)
 
 
 common.actions_list.append({
@@ -139,28 +131,23 @@ common.actions_list.append({
 })
 
 
-def set_up_lobby_inner_perimeter(self):
+def set_up_lobby_inner_perimeter(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        try:
-            location_object = self.bot.locations.get('system', 'lobby')
-        except KeyError:
-            self.tn.send_message_to_player(player_object, "you need to set up a lobby first silly: /set up lobby", color=self.bot.chat_colors['warning'])
-            return False
+        location_object = bot.locations.get('system', 'lobby')
+    except KeyError:
+        bot.tn.send_message_to_player(target_player, "you need to set up a lobby first silly: /set up lobby", color=bot.chat_colors['warning'])
+        return False
 
-        coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
-        distance_to_location = location_object.get_distance(coords)
-        set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
-        if set_radius is True:
-            self.tn.send_message_to_player(player_object, "the lobby ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['success'])
-        else:
-            self.tn.send_message_to_player(player_object, "you given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2)), color=self.bot.chat_colors['warning'])
-            return False
+    coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+    distance_to_location = location_object.get_distance(coords)
+    set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
+    if set_radius is True:
+        bot.tn.send_message_to_player(target_player, "the lobby ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['success'])
+    else:
+        bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['warning'])
+        return False
 
-        self.bot.locations.upsert(location_object, save=True)
-    except Exception as e:
-        logger.exception(e)
-        pass
+    bot.locations.upsert(location_object, save=True)
 
 
 common.actions_list.append({
@@ -176,18 +163,13 @@ common.actions_list.append({
 })
 
 
-def goto_lobby(self):
+def goto_lobby(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        try:
-            location_object = self.bot.locations.get('system', 'lobby')
-            if self.tn.teleportplayer(player_object, location_object=location_object):
-                self.tn.send_message_to_player(player_object, "You have ported to the lobby", color=self.bot.chat_colors['background'])
-        except KeyError:
-            self.tn.send_message_to_player(player_object, "There is no lobby :(", color=self.bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        location_object = bot.locations.get('system', 'lobby')
+        if bot.tn.teleportplayer(target_player, location_object=location_object):
+            bot.tn.send_message_to_player(target_player, "You have ported to the lobby", color=bot.chat_colors['background'])
+    except KeyError:
+        bot.tn.send_message_to_player(target_player, "There is no lobby :(", color=bot.chat_colors['warning'])
 
 
 common.actions_list.append({
@@ -203,17 +185,12 @@ common.actions_list.append({
 })
 
 
-def remove_lobby(self):
+def remove_lobby(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        try:
-            self.bot.locations.remove('system', 'lobby')
-        except KeyError:
-            self.tn.send_message_to_player(player_object, "no lobby found oO", color=self.bot.chat_colors['warning'])
-            return False
-    except Exception as e:
-        logger.exception(e)
-        pass
+        bot.locations.remove('system', 'lobby')
+    except KeyError:
+        bot.tn.send_message_to_player(target_player, "no lobby found oO", color=bot.chat_colors['warning'])
+        return False
 
 
 common.actions_list.append({
@@ -229,23 +206,18 @@ common.actions_list.append({
 })
 
 
-def set_up_lobby_teleport(self):
+def set_up_lobby_teleport(bot, source_player, target_player, command):
     try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        try:
-            location_object = self.bot.locations.get('system', 'lobby')
-        except KeyError:
-            self.tn.send_message_to_player(player_object, "coming from the wrong end... set up the lobby first!", color=self.bot.chat_colors['warning'])
-            return False
+        location_object = bot.locations.get('system', 'lobby')
+    except KeyError:
+        bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up the lobby first!", color=bot.chat_colors['warning'])
+        return False
 
-        if location_object.set_teleport_coordinates(player_object):
-            self.bot.locations.upsert(location_object, save=True)
-            self.tn.send_message_to_player(player_object, "the teleport for {} has been set up!".format('lobby'), color=self.bot.chat_colors['success'])
-        else:
-            self.tn.send_message_to_player(player_object, "your position seems to be outside of the location", color=self.bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+    if location_object.set_teleport_coordinates(target_player):
+        bot.locations.upsert(location_object, save=True)
+        bot.tn.send_message_to_player(target_player, "the teleport for {} has been set up!".format('lobby'), color=bot.chat_colors['success'])
+    else:
+        bot.tn.send_message_to_player(target_player, "your position seems to be outside of the location", color=bot.chat_colors['warning'])
 
 
 common.actions_list.append({

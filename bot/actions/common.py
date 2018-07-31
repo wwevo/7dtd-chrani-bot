@@ -1,4 +1,5 @@
 import os
+from bot.modules.logger import logger
 
 
 actions_list = []
@@ -18,4 +19,41 @@ def find_action_help(key, value):
             return dic["command"]["usage"]
     return None
 
+
+def trigger_action(bot, source_player, target_player, command_parameters):
+    command_queue = []
+    if bot.actions_list is not None:
+        denied = False
+        for player_action in bot.actions_list:
+            function_category = player_action["group"]
+            function_name = getattr(player_action["action"], 'func_name')
+            if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command_parameters) or (player_action["match_mode"] == "startswith" and command_parameters.startswith(player_action["command"]["trigger"])):
+                has_permission = bot.permissions.player_has_permission(source_player, function_name, function_category)
+                if (isinstance(has_permission, bool) and has_permission is True) or (player_action["essential"] is True):
+                    function_object = player_action["action"]
+                    command_queue.append({
+                        "action": function_object,
+                        "func_name": function_name,
+                        "group": function_category,
+                        "command_parameters": command_parameters
+                    })
+                else:
+                    denied = True
+                    logger.info("Player {} denied trying to execute {}:{}".format(source_player.name, function_category, function_name))
+
+        if len(command_queue) == 0:
+            logger.debug("Player {} tried the command '/{}' for which I have no handler.".format(source_player.name, command_parameters))
+
+        if denied is True:
+            bot.tn.send_message_to_player(source_player, "Access to this command is denied!", color=bot.chat_colors['warning'])
+
+        for command in command_queue:
+            try:
+                command["action"](bot, source_player, target_player)
+            except TypeError:
+                try:
+                    command["action"](bot, source_player, target_player, command["command_parameters"])
+                    logger.info("Player {} has executed {}:{} with '/{}'".format(target_player.name, command["group"], command["func_name"], command["command_parameters"]))
+                except Exception as e:
+                    logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(target_player.name, command["group"], command["func_name"], command["command_parameters"], e))
 
