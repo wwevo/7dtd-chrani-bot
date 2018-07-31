@@ -153,6 +153,12 @@ class Webinterface(Thread):
             output += '<a href="/">home</a><br /><br />'
             return output
 
+        @app.errorhandler(404)
+        def page_not_found(error):
+            output = 'Page not found :(<br />'
+            output += '<a href="/">home</a><br /><br />'
+            return output, 404
+
         app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),
             port=self.bot.settings.get_setting_by_name('bot_port'),
