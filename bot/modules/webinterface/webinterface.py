@@ -87,6 +87,7 @@ class Webinterface(Thread):
                     try:
                         player_object = self.bot.players.get_by_steamid(steamid)
                         flask_login.login_user(player_object)
+                        return flask.redirect("/protected")
                     except:
                         pass
 
@@ -96,19 +97,19 @@ class Webinterface(Thread):
         @flask_login.login_required
         def pause_bot():
             self.bot.is_paused = True
-            return flask.redirect("/")
+            return flask.redirect("/protected")
 
         @app.route('/protected/system/resume')
         @flask_login.login_required
         def resume_bot():
             self.bot.is_paused = False
-            return flask.redirect("/")
+            return flask.redirect("/protected")
 
         @app.route('/protected/system/shutdown')
         @flask_login.login_required
         def shutdown():
             self.bot.shutdown()
-            return flask.redirect("/")
+            return flask.redirect("/protected")
 
         @app.route('/')
         def hello_world():
@@ -124,14 +125,19 @@ class Webinterface(Thread):
             output += "I have been running for <strong>{}</strong> and am currently <strong>{}</strong><br />".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
             output += "I have <strong>{} players</strong> on record and manage <strong>{} locations</strong>.<br /><br />".format(len(self.bot.players.all_players_dict), sum(len(v) for v in self.bot.locations.all_locations_dict.itervalues()))
 
-            try:
-                if flask_login.current_user.is_anonymous:
-                    output += '<a href="/login">log in with your steam-account</a>'
-                    return output
-            except:
-                pass
+            output += '<a href="/login">log in with your steam-account</a>'
 
-            output += 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
+            return output
+
+        @app.route('/protected')
+        @flask_login.login_required
+        def protected():
+            if self.bot.is_paused is True:
+                bot_paused_status = "paused"
+            else:
+                bot_paused_status = "active"
+
+            output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
             output += "Welcome to the protected area<br />"
             output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>: '
             output += 'the bot is currently {}!<br /><br />'.format(bot_paused_status)
