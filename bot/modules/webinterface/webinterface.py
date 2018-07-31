@@ -143,7 +143,8 @@ class Webinterface(Thread):
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
         def unauthorized_handler():
-            output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^'
+            output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
+            output += '<a href="/">home</a><br /><br />'
             return output
 
         app.run(host=self.bot.settings.get_setting_by_name('bot_ip'), port=self.bot.settings.get_setting_by_name('bot_port'), debug=False)
