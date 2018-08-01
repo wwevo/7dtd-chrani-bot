@@ -71,7 +71,7 @@ class Locations(object):
                 location_object = self.locations_dict[location_owner][location_identifier]
                 return location_object
             except KeyError:
-                pass
+                raise
 
         return {}
 

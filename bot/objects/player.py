@@ -66,7 +66,7 @@ class Player(flask_login.UserMixin):
 
         self.pos_x = 0.0
         self.pos_y = 0.0
-        self.pos = 0.0
+        self.pos_z = 0.0
         self.old_rot_x = 0.0
         self.old_rot_y = 0.0
         self.old_rot_z = 0.0
@@ -134,6 +134,7 @@ class Player(flask_login.UserMixin):
         if self.health is not 0 and (isinstance(self.pos_x, float) and isinstance(self.pos_z, float)):
             return True
         else:
+            self.initialized = False
             return False
 
     def is_blacklisted(self):

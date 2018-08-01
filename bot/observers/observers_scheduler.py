@@ -32,14 +32,22 @@ common.observers_list.append({
 def initialize_player(self):
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
+        player_moved_mouse = False
+
         if player_object.initialized is not True:
             if player_object.old_rot_x != player_object.rot_x:
-                player_object.initialized = True
-            if player_object.old_rot_y != player_object.rot_y:
-                player_object.initialized = True
+                player_moved_mouse = True
+            # if player_object.old_rot_y != player_object.rot_y:
+            #     player_moved_mouse = True
             if player_object.old_rot_z != player_object.rot_z:
-                player_object.initialized = True
+                player_moved_mouse = True
 
+            if player_moved_mouse is True:
+                player_object.initialized = True
+                logger.debug("{} has been caught moving their head :)".format(player_object.name))
+                return True
+
+        return False
     except Exception as e:
         logger.exception(e)
         pass

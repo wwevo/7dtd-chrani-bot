@@ -6,8 +6,6 @@ import common
 
 
 def on_player_leave(bot, source_player, target_player, command):
-    target_player.last_responsive = time()
-    bot.players.upsert(target_player, save=True)
     return True
 
 
