@@ -129,7 +129,7 @@ common.actions_list.append({
 
 def change_location_visibility(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\splayers\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
+        p = re.search(r"make\splayers\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
         if p:
             identifier = p.group("location_identifier")
             status_to_set = p.group("status") == 'public'

@@ -149,7 +149,7 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
     notes:
     the group must exist
     """
-    p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\sgroup\s(?P<group_name>\w+)$", command)
+    p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\sgroup\s(?P<group_name>\w+)", command)
     if p:
         steamid_to_modify = p.group("steamid")
         entityid_to_modify = p.group("entityid")
@@ -203,7 +203,7 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
     notes:
     the group must exist
     """
-    p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom\sgroup\s(?P<group_name>\w+)$", command)
+    p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfrom\sgroup\s(?P<group_name>\w+)", command)
     if p:
         steamid_to_modify = p.group("steamid")
         entityid_to_modify = p.group("entityid")

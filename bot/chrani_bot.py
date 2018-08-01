@@ -97,7 +97,7 @@ class ChraniBot:
             "admin": self.settings.get_setting_by_name('admin_pass')
         }
 
-        self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated', None]
+        self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated']
         self.permissions = Permissions(self.actions_list, self.permission_levels_list)
 
         self.load_from_db()

@@ -100,10 +100,16 @@ class Player(flask_login.UserMixin):
 
     def set_permission_levels(self, level_list):
         self.permission_levels = level_list
+        if "authenticated" in level_list:
+            self.set_authenticated(True)
+        else:
+            self.set_authenticated(False)
 
     def add_permission_level(self, level):
         if level not in self.permission_levels:
             self.permission_levels.append(level)
+            if level == "authenticated":
+                self.set_authenticated(True)
 
     def has_permission_level(self, level):
         if level in self.permission_levels:
@@ -112,6 +118,8 @@ class Player(flask_login.UserMixin):
     def remove_permission_level(self, level):
         if level in self.permission_levels:
             self.permission_levels.remove(level)
+            if len(self.permission_levels) == 0 or level == "authenticated":
+                self.set_authenticated(False)
 
     def set_last_teleport(self):
         self.last_teleport = time()

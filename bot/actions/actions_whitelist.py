@@ -8,8 +8,8 @@ import common
 
 def add_player_to_whitelist(bot, source_player, target_player, command):
     try:
-        p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sto whitelist", command)
-        if p:
+        p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7}))\s(?P<command>.+)", command)
+        if p and p.group("command") == "to whitelist":
             steamid_to_whitelist = p.group("steamid")
             entityid_to_whitelist = p.group("entityid")
             if steamid_to_whitelist is None:
@@ -54,8 +54,8 @@ common.actions_list.append({
 
 def remove_player_from_whitelist(bot, source_player, target_player, command):
     try:
-        p = re.search(r"remove\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\sfrom whitelist", command)
-        if p:
+        p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\s(?P<command>.+))", command)
+        if p and p.group("command") == "from whitelist":
             steamid_to_dewhitelist = p.group("steamid")
             entityid_to_dewhitelist = p.group("entityid")
             if steamid_to_dewhitelist is None:

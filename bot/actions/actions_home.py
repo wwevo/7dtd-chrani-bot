@@ -257,7 +257,7 @@ common.actions_list.append({
 
 
 def goto_player_home(bot, source_player, target_player, command):
-    p = re.search(r"take\sme\sto\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\shome", command)
+    p = re.search(r"take\sme\sto\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\shome", command)
     if p:
         player_steamid = p.group("steamid")
         player_entityid = p.group("entityid")

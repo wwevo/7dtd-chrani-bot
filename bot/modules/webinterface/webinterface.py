@@ -128,6 +128,22 @@ class Webinterface(Thread):
             bot.actions.common.trigger_action(self.bot, player_object, target_player, "obliterate player {}".format(steamid))
             return flask.redirect("/protected")
 
+        @app.route('/protected/authentication/add/group/<steamid>/<group>')
+        @flask_login.login_required
+        def add_player_to_group(steamid, group):
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            target_player = self.bot.players.get_by_steamid(steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, target_player, "add player {} to group {}".format(steamid, group))
+            return flask.redirect("/protected")
+
+        @app.route('/protected/authentication/remove/group/<steamid>/<group>')
+        @flask_login.login_required
+        def remove_player_from_group(steamid, group):
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            target_player = self.bot.players.get_by_steamid(steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, target_player, "remove player {} from group {}".format(steamid, group))
+            return flask.redirect("/protected")
+
         @app.route('/')
         def hello_world():
             if self.bot.is_paused is True:
@@ -172,9 +188,18 @@ class Webinterface(Thread):
                 output += '<td>{}</td>'.format(player_object_to_list.name)
                 output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
                 output += '<td>authenticated: {}</td>'.format(str(player_object_to_list.authenticated))
+                output += '<td>blacklisted: {}</td>'.format(str(player_object_to_list.blacklisted))
                 output += '<td>locations: {}</td>'.format(len(self.bot.locations.get(player_object_to_list.steamid)))
                 output += '<td>(<a href="/protected/players/obliterate/{}">obliterate</a>)</td>'.format(player_object_to_list.steamid)
+                output += '<td>('
+                for permission_level in self.bot.permission_levels_list:
+                    if player_object_to_list.has_permission_level(permission_level):
+                        output += ' <a href="/protected/authentication/remove/group/{}/{}"><strong>{}</strong></a> '.format(player_object_to_list.steamid, permission_level, permission_level)
+                    else:
+                        output += ' <a href="/protected/authentication/add/group/{}/{}">{}</a> '.format(player_object_to_list.steamid, permission_level, permission_level)
 
+
+                output += ')</td>'
                 last_responsive = int(time.time() - player_object_to_list.last_responsive)
                 time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=last_responsive)
                 output += "<td>{}</td>".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second))
