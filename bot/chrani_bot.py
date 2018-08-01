@@ -9,6 +9,7 @@ from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
 import bot.actions
+import bot.observers
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
@@ -71,7 +72,7 @@ class ChraniBot:
         self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
 
         self.actions_list = bot.actions.actions_list
-        self.observers_list = bot.actions.observers_list
+        self.observers_list = bot.observers.observers_list
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
