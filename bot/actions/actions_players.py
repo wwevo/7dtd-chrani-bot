@@ -17,14 +17,53 @@ common.actions_list.append({
     },
     "action": on_player_leave,
     "env": "(self)",
-    "group": "authentication",
+    "group": "players",
+    "essential": True
+})
+
+
+def teleport_player_to_coords(bot, source_player, target_player, command):
+    try:
+        p = re.search(r"send\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\s\((?P<coords>.*)\)", command)
+        if p:
+            steamid_to_teleport = p.group("steamid")
+            entityid_to_teleport = p.group("entityid")
+            coords_to_teleport_to = p.group("coords")
+            coord_tuple = tuple(item for item in coords_to_teleport_to.split(',') if item.strip())
+            if steamid_to_teleport is None:
+                steamid_to_teleport = bot.players.entityid_to_steamid(entityid_to_teleport)
+                if steamid_to_teleport is False:
+                    bot.tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
+                    return False
+            else:
+                player_object_to_teleport = bot.players.get_by_steamid(steamid_to_teleport)
+        else:
+            bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(common.find_action_help("players", "send player")), color=bot.chat_colors['warning'])
+            return False
+
+    except Exception as e:
+        logger.exception(e)
+        raise KeyError
+
+    return bot.tn.teleportplayer(player_object_to_teleport, coord_tuple=coord_tuple)
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "send player",
+        "usage": "/send player <steamid/entityid> to <coords>"
+    },
+    "action": teleport_player_to_coords,
+    "env": "(self, command)",
+    "group": "players",
     "essential": True
 })
 
 
 def teleport_self_to_player(bot, source_player, target_player, command):
     try:
-        p = re.search(r"goto\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
+        p = re.search(r"goto\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
         if p:
             steamid_to_teleport_to = p.group("steamid")
             entityid_to_teleport_to = p.group("entityid")

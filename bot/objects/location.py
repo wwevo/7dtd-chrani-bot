@@ -115,6 +115,12 @@ class Location(object):
         else:
             return False
 
+    def get_teleport_coordinates(self):
+        if self.tele_x != self.pos_x or self.tele_y != self.pos_y or self.tele_z != self.pos_z:
+            return self.tele_x, self.tele_y, self.tele_z
+        else:
+            return self.pos_x, self.pos_y, self.pos_z
+
     def set_shape(self, shape):
         allowed_shapes = ['cube', 'sphere', 'room']
         if shape not in allowed_shapes or shape == self.shape:

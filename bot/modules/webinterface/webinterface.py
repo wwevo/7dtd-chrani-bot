@@ -144,6 +144,36 @@ class Webinterface(Thread):
             bot.actions.common.trigger_action(self.bot, player_object, target_player, "remove player {} from group {}".format(steamid, group))
             return flask.redirect("/protected")
 
+        @app.route('/protected/players/send/<steamid>/home')
+        @flask_login.login_required
+        def send_player_home(steamid):
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            target_player = self.bot.players.get_by_steamid(steamid)
+            try:
+                location_object = self.bot.locations.get(steamid, 'home')
+                pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+                coord_tuple = (pos_x, pos_y, pos_z)
+                bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
+            except:
+                pass
+
+            return flask.redirect("/protected")
+
+        @app.route('/protected/players/send/<steamid>/to/lobby')
+        @flask_login.login_required
+        def send_player_to_lobby(steamid):
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            target_player = self.bot.players.get_by_steamid(steamid)
+            try:
+                location_object = self.bot.locations.get('system', 'lobby')
+                pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+                coord_tuple = (pos_x, pos_y, pos_z)
+                bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
+            except:
+                pass
+
+            return flask.redirect("/protected")
+
         @app.route('/')
         def hello_world():
             if self.bot.is_paused is True:
@@ -197,9 +227,8 @@ class Webinterface(Thread):
                         output += ' <a href="/protected/authentication/remove/group/{}/{}"><strong>{}</strong></a> '.format(player_object_to_list.steamid, permission_level, permission_level)
                     else:
                         output += ' <a href="/protected/authentication/add/group/{}/{}">{}</a> '.format(player_object_to_list.steamid, permission_level, permission_level)
-
-
                 output += ')</td>'
+                output += '<td>(<a href="/protected/players/send/{}/home">send home</a>, <a href="/protected/players/send/{}/to/lobby">lobby</a>)</td>'.format(player_object_to_list.steamid, player_object_to_list.steamid)
                 last_responsive = int(time.time() - player_object_to_list.last_responsive)
                 time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=last_responsive)
                 output += "<td>{}</td>".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second))
