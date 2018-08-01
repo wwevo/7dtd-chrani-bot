@@ -20,23 +20,6 @@ common.actions_list.append({
 })
 
 
-def on_player_leave(bot, source_player, target_player, command):
-    return True
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "left the game",
-        "usage": None
-    },
-    "action": on_player_leave,
-    "env": "(self)",
-    "group": "authentication",
-    "essential": True
-})
-
-
 def on_enter_gameworld(bot, source_player, target_player, command):
     """Will greet an unauthenticated player
 

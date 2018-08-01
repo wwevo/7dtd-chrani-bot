@@ -26,18 +26,26 @@ class Locations(object):
     def load_all(self):
         locations_dict = {}
         for root, dirs, files in os.walk(self.root):
+            files_to_remove_list = []
             for filename in files:
                 if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
                     with open("{}/{}".format(self.root, filename)) as file_to_read:
                         try:
                             location_dict = byteify(json.load(file_to_read))
                         except ValueError:
+                            files_to_remove_list.append("{}/{}".format(self.root, filename))
                             continue
 
                         try:
                             locations_dict[str(location_dict['owner'])].update({str(location_dict['identifier']): Location(**location_dict)})
                         except KeyError:
                             locations_dict[str(location_dict['owner'])] = {str(location_dict['identifier']): Location(**location_dict)}
+
+            for file_to_remove in files_to_remove_list:
+                try:
+                    os.remove(file_to_remove)
+                except OSError, e:
+                    logger.exception(e)
 
         self.locations_dict = locations_dict
         self.all_locations_dict = locations_dict
@@ -57,13 +65,15 @@ class Locations(object):
                 locations_dict = self.locations_dict[location_owner]
                 return locations_dict
             except KeyError:
-                raise
+                pass
         else:
             try:
                 location_object = self.locations_dict[location_owner][location_identifier]
                 return location_object
             except KeyError:
-                raise
+                pass
+
+        return {}
 
     def find_by_distance(self, start_coords, distance_in_blocks, location_identifier=None):
         location_in_reach_list = []

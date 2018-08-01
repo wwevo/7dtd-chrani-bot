@@ -120,6 +120,14 @@ class Webinterface(Thread):
             bot.actions.common.trigger_action(self.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
             return flask.redirect("/protected")
 
+        @app.route('/protected/players/obliterate/<steamid>')
+        @flask_login.login_required
+        def obliterate_player(steamid):
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            target_player = self.bot.players.get_by_steamid(steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, target_player, "obliterate player {}".format(steamid))
+            return flask.redirect("/protected")
+
         @app.route('/')
         def hello_world():
             if self.bot.is_paused is True:
@@ -157,10 +165,23 @@ class Webinterface(Thread):
                 output += '{} (id {}, steamid {}) / authenticated: {} (<a href="/protected/players/kick/{}/webinterface">kick</a>)<br />'.format(player_object_to_list.name, player_object_to_list.entityid, player_object_to_list.steamid, str(player_object_to_list.authenticated), player_object_to_list.steamid)
 
             output += '<hr/>'
+            output += '<table>'
             players_to_list = self.bot.players.get_all_players()
             for player_object_to_list in players_to_list:
-                output += "{} ({}) / authenticated: {}<br />".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated))
+                output += '<tr>'
+                output += '<td>{}</td>'.format(player_object_to_list.name)
+                output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
+                output += '<td>authenticated: {}</td>'.format(str(player_object_to_list.authenticated))
+                output += '<td>locations: {}</td>'.format(len(self.bot.locations.get(player_object_to_list.steamid)))
+                output += '<td>(<a href="/protected/players/obliterate/{}">obliterate</a>)</td>'.format(player_object_to_list.steamid)
 
+                last_responsive = int(time.time() - player_object_to_list.last_responsive)
+                time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=last_responsive)
+                output += "<td>{}</td>".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second))
+
+                output += '</tr>'
+
+            output += '</table>'
             output += '<hr/>'
             output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'

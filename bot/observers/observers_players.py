@@ -9,7 +9,7 @@ def record_time_of_last_activity(self):
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
         if player_object.is_responsive() is True:
-            player_object.last_seen = time()
+            player_object.last_responsive = time()
             self.bot.players.upsert(player_object)
     except Exception as e:
         logger.exception(e)
@@ -53,7 +53,7 @@ def poll_playerfriends(self):
             player_object.playerfriends_list = self.tn.listplayerfriends(player_object)
             player_object.poll_listplayerfriends_lastpoll = time()
             player_object.update()
-            self.bot.players.upsert(player_object, save=True)
+            self.bot.players.upsert(player_object)
 
     except Exception as e:
         logger.exception(e)

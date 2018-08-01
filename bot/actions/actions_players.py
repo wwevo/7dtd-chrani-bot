@@ -2,9 +2,26 @@ from bot.modules.logger import logger
 from bot.objects.player import Player
 import re
 from time import time
-from bot.assorted_functions import get_region_string
-from bot.assorted_functions import timeout_occurred
 import common
+
+
+def on_player_leave(bot, source_player, target_player, command):
+    target_player.last_responsive = time()
+    bot.players.upsert(target_player, save=True)
+    return True
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "left the game",
+        "usage": None
+    },
+    "action": on_player_leave,
+    "env": "(self)",
+    "group": "authentication",
+    "essential": True
+})
 
 
 def teleport_self_to_player(bot, source_player, target_player, command):
@@ -184,6 +201,63 @@ common.actions_list.append({
 
 
 def obliterate_player(bot, source_player, target_player, command):
+    """Kicks the player and removes all bot-accessible data for the player issuing this action
+
+    Keyword arguments:
+    self -- the bot
+
+    expected bot command:
+    /obliterate player <steamid/entityid>
+
+    example:
+    /obliterate player <steamid/entityid>
+
+    notes:
+    it will delete all locations and all playerdata plus the whitelist entry.
+    """
+    try:
+        p = re.search(r"obliterate\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
+        if p:
+            steamid_to_obliterate = p.group("steamid")
+            entityid_to_obliterate = p.group("entityid")
+            if steamid_to_obliterate is None:
+                steamid_to_obliterate = bot.players.entityid_to_steamid(entityid_to_obliterate)
+                if steamid_to_obliterate is False:
+                    raise KeyError
+
+            if target_player.is_responsive():
+                bot.tn.kick(target_player, "Time to be born again!!")
+
+            location_objects_dict = bot.locations.get(target_player.steamid)
+            locations_to_remove = []
+            for name, location_object in location_objects_dict.iteritems():
+                locations_to_remove.append(location_object)
+
+            for location_object in locations_to_remove:
+                bot.locations.remove(target_player.steamid, location_object.identifier)
+
+            bot.players.remove(target_player)
+            bot.whitelist.remove(target_player)
+
+    except Exception as e:
+            logger.exception(e)
+            pass
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "obliterate player",
+        "usage": "/obliterate player <steamid/entityid>"
+    },
+    "action": obliterate_player,
+    "env": "(self, command)",
+    "group": "players",
+    "essential": False
+})
+
+
+def obliterate_me(bot, source_player, target_player, command):
     """Kicks the player and removes all bot-accessible datafor the player issuing this action
 
     Keyword arguments:
@@ -200,17 +274,7 @@ def obliterate_player(bot, source_player, target_player, command):
     like if the player is inside a location while obliterated, the location file will not be purged. YET.
     """
     try:
-        bot.tn.kick(target_player, "You wanted it! Time to be born again!!")
-        location_objects_dict = bot.locations.get(target_player.steamid)
-        locations_to_remove = []
-        for name, location_object in location_objects_dict.iteritems():
-            locations_to_remove.append(location_object)
-
-        for location_object in locations_to_remove:
-            bot.locations.remove(target_player.steamid, location_object.identifier)
-
-        bot.players.remove(target_player)
-        bot.whitelist.remove(target_player)
+        obliterate_player(bot, source_player, target_player, "obliterate player {}".format(target_player.steamid))
     except Exception as e:
         logger.exception(e)
         pass
@@ -222,7 +286,7 @@ common.actions_list.append({
         "trigger": "obliterate me",
         "usage": "/obliterate me"
     },
-    "action": obliterate_player,
+    "action": obliterate_me,
     "env": "(self)",
     "group": "players",
     "essential": False
