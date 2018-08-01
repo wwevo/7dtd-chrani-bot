@@ -6,9 +6,11 @@ class Player(flask_login.UserMixin):
     id = long
     name = str
     permission_levels = list
+
     pos_x = float
     pos_y = float
     pos_z = float
+
     rot_x = float
     rot_y = float
     rot_z = float
@@ -17,9 +19,6 @@ class Player(flask_login.UserMixin):
     old_rot_y = float
     old_rot_z = float
 
-    death_x = float
-    death_y = float
-    death_z = float
     remote = bool
     health = int
     deaths = int
@@ -63,16 +62,6 @@ class Player(flask_login.UserMixin):
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0
-
-        self.pos_x = 0.0
-        self.pos_y = 0.0
-        self.pos_z = 0.0
-        self.old_rot_x = 0.0
-        self.old_rot_y = 0.0
-        self.old_rot_z = 0.0
-        self.death_x = 0.0
-        self.death_y = 0.0
-        self.death_z = 0.0
 
         """ populate player-data """
         for (k, v) in kwargs.iteritems():

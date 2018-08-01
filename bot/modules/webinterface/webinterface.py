@@ -250,7 +250,7 @@ class Webinterface(Thread):
                 location_objects_list = self.bot.locations.get(player_object_to_list.steamid)
                 location_object_to_list = None
                 for location_name, location_object_to_list in location_objects_list.iteritems():
-                    output += '{} ({})<br />'.format(location_object_to_list.name, location_name)
+                    output += '({}) {}<br />'.format(location_object_to_list.name, location_name)
                 if location_object_to_list is None:
                     output += '0'
                 output += '<td>('
