@@ -164,7 +164,7 @@ class Players(object):
 
     def get_all_players(self):
         try:
-            active_players_dict = self.load_all()
+            active_players_dict = self.all_players_dict
             players_to_list = []
             for steamid, player_object_to_list in active_players_dict.iteritems():
                 players_to_list.append(player_object_to_list)

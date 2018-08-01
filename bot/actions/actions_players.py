@@ -57,7 +57,7 @@ common.actions_list.append({
     "action": teleport_player_to_coords,
     "env": "(self, command)",
     "group": "players",
-    "essential": True
+    "essential": False
 })
 
 
