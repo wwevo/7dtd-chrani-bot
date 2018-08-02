@@ -287,7 +287,7 @@ class Webinterface(Thread):
             output += template_dir + "<br />"
             output += static_dir
             markup = flask.Markup(output)
-            return flask.render_template('index.html', title=self.bot.name, content=markup)
+            return output
 
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
