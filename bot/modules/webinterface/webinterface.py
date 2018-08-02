@@ -212,6 +212,73 @@ class Webinterface(Thread):
                 bot_paused_status = "active"
 
             output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
+            output += "Welcome to the protected area<br />"
+            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>: '
+            output += 'the bot is currently <strong>{}</strong>!<br /><br />'.format(bot_paused_status)
+
+            output += '<hr/>'
+            players_to_list = self.bot.players.get_online_players()
+            output += '<table width="100%">'
+            output += '<tr>'
+            output += '<th>Name</th>'
+            output += '<th>EntityID / SteamID</th>'
+            output += '<th>Authenticated</th>'
+            output += '<th>Actions</th>'
+            output += '<tr>'
+            player_object_to_list = None
+            for player_object_to_list in players_to_list:
+                output += '<tr valign="top">'
+                output += '<td>{}</td>'.format(player_object_to_list.name)
+                output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
+                output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
+                output += '<td>(<a href="/protected/players/send/{}/home">send home</a>, <a href="/protected/players/send/{}/to/lobby">lobby</a>, <a href="/protected/players/kick/{}/webinterface">kick</a>)</td>'.format(player_object_to_list.steamid, player_object_to_list.steamid, player_object_to_list.steamid)
+                output += '</tr>'
+            if player_object_to_list is None:
+                output += '<td colspan="4" align="center">No players online</td>'
+            output += '</table>'
+
+            output += '<hr/>'
+            output += '<table width="100%">'
+            output += '<tr>'
+            output += '<th>Name</th>'
+            output += '<th>EntityID / SteamID</th>'
+            output += '<th>Authenticated</th>'
+            output += '<th>Blacklisted</th>'
+            output += '<th>Locations</th>'
+            output += '<th>Groups</th>'
+            output += '<th>Actions</th>'
+            output += '<tr>'
+            players_to_list = self.bot.players.get_all_players()
+            player_object_to_list = None
+            for player_object_to_list in players_to_list:
+                output += '<tr valign="top">'
+                output += '<td>{}</td>'.format(player_object_to_list.name)
+                output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
+                output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
+                output += '<td>{}</td>'.format(str(player_object_to_list.blacklisted))
+                output += '<td>'
+                location_objects_list = self.bot.locations.get(player_object_to_list.steamid)
+                location_object_to_list = None
+                for location_name, location_object_to_list in location_objects_list.iteritems():
+                    output += '({}) {}<br />'.format(location_object_to_list.name, location_name)
+                if location_object_to_list is None:
+                    output += '0'
+                output += '<td>('
+                for permission_level in self.bot.permission_levels_list:
+                    if player_object_to_list.has_permission_level(permission_level):
+                        output += ' <a href="/protected/authentication/remove/group/{}/{}"><strong>{}</strong></a> '.format(player_object_to_list.steamid, permission_level, permission_level)
+                    else:
+                        output += ' <a href="/protected/authentication/add/group/{}/{}">{}</a> '.format(player_object_to_list.steamid, permission_level, permission_level)
+                output += ')</td>'
+                output += '<td>(<a href="/protected/players/obliterate/{}">obliterate</a>)</td>'.format(player_object_to_list.steamid)
+                output += '</tr>'
+            if player_object_to_list is None:
+                output += '<td colspan="7" align="center">No players found</td>'
+
+            output += '</table>'
+            output += '<hr/>'
+            output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
+            output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
 
             output += template_dir + "<br />"
             output += static_dir
