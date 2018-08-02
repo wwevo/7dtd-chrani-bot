@@ -250,6 +250,28 @@ class Webinterface(Thread):
             output += '</tr>'
             players_to_list = self.bot.players.get_all_players()
             player_object_to_list = None
+            for player_object_to_list in players_to_list:
+                output += '<tr valign="top">'
+                output += '<td>{}</td>'.format(player_object_to_list.name)
+                output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
+                output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
+                output += '<td>{}</td>'.format(str(player_object_to_list.blacklisted))
+                output += '<td>'
+                location_objects_list = self.bot.locations.get(player_object_to_list.steamid)
+                location_object_to_list = None
+                for location_name, location_object_to_list in location_objects_list.iteritems():
+                    output += '({}) {}<br />'.format(location_object_to_list.name, location_name)
+                if location_object_to_list is None:
+                    output += '0'
+                output += '<td>('
+                for permission_level in self.bot.permission_levels_list:
+                    if player_object_to_list.has_permission_level(permission_level):
+                        output += ' <a href="/protected/authentication/remove/group/{}/{}"><strong>{}</strong></a> '.format(player_object_to_list.steamid, permission_level, permission_level)
+                    else:
+                        output += ' <a href="/protected/authentication/add/group/{}/{}">{}</a> '.format(player_object_to_list.steamid, permission_level, permission_level)
+                output += ')</td>'
+                output += '<td>(<a href="/protected/players/obliterate/{}">obliterate</a>)</td>'.format(player_object_to_list.steamid)
+                output += '</tr>'
             if player_object_to_list is None:
                 output += '<tr>'
                 output += '<td colspan="7" align="center">No players found</td>'
