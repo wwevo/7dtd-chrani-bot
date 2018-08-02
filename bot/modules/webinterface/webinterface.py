@@ -249,13 +249,15 @@ class Webinterface(Thread):
             players_to_list = self.bot.players.get_all_players()
             player_object_to_list = None
             for player_object_to_list in players_to_list:
-                output += '<tr valign="top">'
-                output += '<td>{}</td>'.format(player_object_to_list.name)
-                output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
-                output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
-                output += '<td>{}</td>'.format(str(player_object_to_list.blacklisted))
-                output += '<td>(<a href="/protected/players/obliterate/{}">obliterate</a>)</td>'.format(player_object_to_list.steamid)
-                output += '</tr>'
+                print player_object_to_list
+                print player_object_to_list.name
+                print player_object_to_list.steamid
+                print player_object_to_list.entityid
+                print player_object_to_list.authenticated
+                print player_object_to_list.blacklisted
+
+
+
             if player_object_to_list is None:
                 output += '<tr>'
                 output += '<td colspan="5" align="center">No players found</td>'
