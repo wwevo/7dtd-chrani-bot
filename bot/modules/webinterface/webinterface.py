@@ -192,7 +192,7 @@ class Webinterface(Thread):
             time_running_seconds = int(time.time() - self.bot.time_launched)
             time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
 
-            output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name.decode('utf-8'))
+            output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
             output += "I have been running for <strong>{}</strong> and am currently <strong>{}</strong><br />".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
             output += "I have <strong>{} players</strong> on record and manage <strong>{} locations</strong>.<br /><br />".format(len(self.bot.players.all_players_dict), sum(len(v) for v in self.bot.locations.all_locations_dict.itervalues()))
             output += '<a href="/login">log in with your steam-account</a>'
@@ -208,7 +208,7 @@ class Webinterface(Thread):
             else:
                 bot_paused_status = "active"
 
-            output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name.decode('utf-8'))
+            output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
             output += "Welcome to the protected area<br />"
             output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>: '
             output += 'the bot is currently <strong>{}</strong>!<br /><br />'.format(bot_paused_status)
@@ -225,7 +225,7 @@ class Webinterface(Thread):
             player_object_to_list = None
             for player_object_to_list in players_to_list:
                 output += '<tr valign="top">'
-                output += '<td>{}</td>'.format(player_object_to_list.name.decode('utf-8'))
+                output += '<td>{}</td>'.format(player_object_to_list.name)
                 output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
                 output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
                 output += '<td>(<a href="/protected/players/send/{}/home">send home</a>, <a href="/protected/players/send/{}/to/lobby">lobby</a>, <a href="/protected/players/kick/{}/webinterface">kick</a>)</td>'.format(player_object_to_list.steamid, player_object_to_list.steamid, player_object_to_list.steamid)
@@ -249,7 +249,7 @@ class Webinterface(Thread):
             player_object_to_list = None
             for player_object_to_list in players_to_list:
                 output += '<tr valign="top">'
-                output += '<td>{}</td>'.format(player_object_to_list.name.decode('utf-8'))
+                output += '<td>{}</td>'.format(player_object_to_list.name)
                 output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
                 output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
                 output += '<td>{}</td>'.format(str(player_object_to_list.blacklisted))
@@ -279,7 +279,7 @@ class Webinterface(Thread):
             output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
 
-            markup = flask.Markup(output)
+            markup = flask.Markup(output.decode('utf-8'))
             return flask.render_template('index.html', title=self.bot.name, content=markup)
 
         @app.route('/unauthorized')
