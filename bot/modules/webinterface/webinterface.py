@@ -206,10 +206,17 @@ class Webinterface(Thread):
         @app.route('/protected')
         @flask_login.login_required
         def protected():
-            output = template_dir + "<br />"
+            if self.bot.is_paused is True:
+                bot_paused_status = "paused"
+            else:
+                bot_paused_status = "active"
+
+            output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
+
+            output += template_dir + "<br />"
             output += static_dir
             markup = flask.Markup(output)
-            return output
+            return flask.render_template('index.html', title=self.bot.name, content=markup)
 
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
