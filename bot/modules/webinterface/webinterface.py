@@ -198,6 +198,8 @@ class Webinterface(Thread):
 
             output += '<a href="/login">log in with your steam-account</a>'
 
+            output += template_dir + "<br />"
+            output += static_dir
             markup = flask.Markup(output)
             return flask.render_template('index.html', title=self.bot.name, content=markup)
 
@@ -282,6 +284,8 @@ class Webinterface(Thread):
             output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
 
+            output += template_dir + "<br />"
+            output += static_dir
             markup = flask.Markup(output)
             return flask.render_template('index.html', title=self.bot.name, content=markup)
 
