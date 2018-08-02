@@ -1,5 +1,6 @@
 import os
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+root_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(root_dir)
 
 import sys
 import time
@@ -12,6 +13,7 @@ if __name__ == '__main__':
     while True:
         try:
             bot = ChraniBot()
+            bot.app_root = root_dir
             bot.bot_version = "0.4b"
             bot.run()
         except (IOError, NameError) as error:

@@ -3,6 +3,7 @@ import flask
 import flask_login
 import time
 import re
+import os
 import datetime
 from urllib import urlencode
 import requests
@@ -19,10 +20,13 @@ class Webinterface(Thread):
         Thread.__init__(self)
 
     def run(self):
+        template_dir = os.path.join(os.getcwd(), 'templates')
+        static_dir = os.path.join(template_dir, 'static')
+
         app = flask.Flask(
             __name__,
-            template_folder='../../../templates',
-            static_folder='../../../templates/static'
+            template_folder=template_dir,
+            static_folder=static_dir
         )
         app.config["SECRET_KEY"] = "totallyasecret"
 
