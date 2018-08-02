@@ -19,7 +19,11 @@ class Webinterface(Thread):
         Thread.__init__(self)
 
     def run(self):
-        app = flask.Flask(__name__)
+        app = flask.Flask(
+            __name__,
+            template_folder='../../../templates',
+            static_folder='../../../templates/static'
+        )
         app.config["SECRET_KEY"] = "totallyasecret"
 
         login_manager = flask_login.LoginManager()
@@ -190,7 +194,8 @@ class Webinterface(Thread):
 
             output += '<a href="/login">log in with your steam-account</a>'
 
-            return output
+            markup = flask.Markup(output)
+            return flask.render_template('index.html', title=self.bot.name, content=markup)
 
         @app.route('/protected')
         @flask_login.login_required
@@ -273,20 +278,23 @@ class Webinterface(Thread):
             output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
 
-            return output
+            markup = flask.Markup(output)
+            return flask.render_template('index.html', title=self.bot.name, content=markup)
 
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
         def unauthorized_handler():
             output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
             output += '<a href="/">home</a><br /><br />'
-            return output
+            markup = flask.Markup(output)
+            return flask.render_template('index.html', title=self.bot.name, content=markup)
 
         @app.errorhandler(404)
         def page_not_found(error):
             output = 'Page not found :(<br />'
             output += '<a href="/">home</a><br /><br />'
-            return output, 404
+            markup = flask.Markup(output)
+            return flask.render_template('index.html', title=self.bot.name, content=markup), 404
 
         app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),
