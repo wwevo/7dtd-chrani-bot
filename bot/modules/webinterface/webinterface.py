@@ -228,7 +228,7 @@ class Webinterface(Thread):
             player_object_to_list = None
             for player_object_to_list in players_to_list:
                 output += '<tr valign="top">'
-                output += u'<td>{}</td>'.format(player_object_to_list.name)
+                output += '<td>{}</td>'
                 output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
                 output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
                 output += '<td>(<a href="/protected/players/send/{}/home">send home</a>, <a href="/protected/players/send/{}/to/lobby">lobby</a>, <a href="/protected/players/kick/{}/webinterface">kick</a>)</td>'.format(player_object_to_list.steamid, player_object_to_list.steamid, player_object_to_list.steamid)
@@ -252,7 +252,7 @@ class Webinterface(Thread):
             player_object_to_list = None
             for player_object_to_list in players_to_list:
                 output += '<tr valign="top">'
-                output += u'<td>{}</td>'.format(player_object_to_list.name.encode('utf-8'))
+                output += '<td>{}</td>'
                 output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
                 output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
                 output += '<td>{}</td>'.format(str(player_object_to_list.blacklisted))
