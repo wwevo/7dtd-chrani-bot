@@ -240,7 +240,6 @@ class Webinterface(Thread):
             output += '<hr/>'
             output += '<table width="100%">'
             output += '<tr>'
-            output += '<th>Name</th>'
             output += '<th>EntityID / SteamID</th>'
             output += '<th>Authenticated</th>'
             output += '<th>Blacklisted</th>'
@@ -252,7 +251,6 @@ class Webinterface(Thread):
             player_object_to_list = None
             for player_object_to_list in players_to_list:
                 output += '<tr valign="top">'
-                output += '<td>{}</td>'.format(player_object_to_list.name.encode('utf-8'))
                 output += '<td>({} / {})</td>'.format(player_object_to_list.entityid, player_object_to_list.steamid)
                 output += '<td>{}</td>'.format(str(player_object_to_list.authenticated))
                 output += '<td>{}</td>'.format(str(player_object_to_list.blacklisted))
@@ -260,7 +258,7 @@ class Webinterface(Thread):
                 location_objects_list = self.bot.locations.get(player_object_to_list.steamid)
                 location_object_to_list = None
                 for location_name, location_object_to_list in location_objects_list.iteritems():
-                    output += '({}) {}<br />'.format(location_object_to_list.name, location_name.encode('utf-8'))
+                    output += '({}) {}<br />'.format(location_object_to_list.name, location_name)
                 if location_object_to_list is None:
                     output += '0'
                 output += '<td>('
@@ -274,7 +272,7 @@ class Webinterface(Thread):
                 output += '</tr>'
             if player_object_to_list is None:
                 output += '<tr>'
-                output += '<td colspan="7" align="center">No players found</td>'
+                output += '<td colspan="6" align="center">No players found</td>'
                 output += '</tr>'
 
             output += '</table>'
