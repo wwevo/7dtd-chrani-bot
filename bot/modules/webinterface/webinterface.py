@@ -237,6 +237,29 @@ class Webinterface(Thread):
                 output += '<td colspan="4" align="center">No players online</td>'
             output += '</table>'
 
+            output += '<hr/>'
+            output += '<table width="100%">'
+            output += '<tr>'
+            output += '<th>Name</th>'
+            output += '<th>EntityID / SteamID</th>'
+            output += '<th>Authenticated</th>'
+            output += '<th>Blacklisted</th>'
+            output += '<th>Locations</th>'
+            output += '<th>Groups</th>'
+            output += '<th>Actions</th>'
+            output += '</tr>'
+            players_to_list = self.bot.players.get_all_players()
+            player_object_to_list = None
+            if player_object_to_list is None:
+                output += '<tr>'
+                output += '<td colspan="7" align="center">No players found</td>'
+                output += '</tr>'
+
+            output += '</table>'
+            output += '<hr/>'
+            output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
+            output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
+
             output += template_dir + "<br />"
             output += static_dir
             markup = flask.Markup(output)
