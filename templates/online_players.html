@@ -1,0 +1,16 @@
+<table width="100%">
+<tr>
+    <th>Name</th>
+    <th>EntityID / SteamID</th>
+    <th>Authenticated</th>
+    <th>Actions</th>
+</tr>
+{% for player_object in player_objects_to_list %}
+<tr valign="top"class="{{ loop.cycle('odd', 'even') }}">
+    <td>{{ player_object.name.decode('utf-8') }}</td>
+    <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
+    <td>{{ player_object.authenticated }}</td>
+    <td>(<a href="/protected/players/send/{{ player_object.steamid }}/home">send home</a>, <a href="/protected/players/send/{{ player_object.steamid }}/to/lobby">lobby</a>, <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface">kick</a>)</td>
+</tr>
+{% endfor %}
+</table>

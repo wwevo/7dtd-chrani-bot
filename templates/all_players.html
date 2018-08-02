@@ -1,0 +1,20 @@
+<table width="100%">
+<tr>
+    <th>Name</th>
+    <th>EntityID / SteamID</th>
+    <th>Authenticated</th>
+    <th>Blacklisted</th>
+    <th>Locations</th>
+    <th>Groups</th>
+</tr>
+{% for player_object in player_objects_to_list %}
+<tr valign="top" class="{{ loop.cycle('odd', 'even') }}">
+    <td>{{ player_object.name.decode('utf-8') }}</td>
+    <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
+    <td>{{ player_object.authenticated }}</td>
+    <td>{{ player_object.blacklisted }}</td>
+    <td>{% for player_location in player_locations_to_list[player_object.steamid] %}{{ player_location.name }}<br />{% endfor %}</td>
+    <td>{% for player_group in player_groups_to_list[player_object.steamid] %}{{ player_group }}{% endfor %}</td>
+</tr>
+{% endfor %}
+</table>
