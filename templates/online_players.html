@@ -3,6 +3,7 @@
     <th>Name</th>
     <th>EntityID / SteamID</th>
     <th>Authenticated</th>
+    <th>Health</th>
     <th>Actions</th>
 </tr>
 {% for player_object in player_objects_to_list %}
@@ -10,7 +11,8 @@
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
     <td>{{ player_object.authenticated }}</td>
-    <td class="actions">(<a href="/protected/players/send/{{ player_object.steamid }}/home">send home</a>, <a href="/protected/players/send/{{ player_object.steamid }}/to/lobby">lobby</a>, <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface">kick</a>)</td>
+    <td>{{ player_object.health }}</td>
+    <td class="actions"><a href="/protected/players/send/{{ player_object.steamid }}/home">send home</a><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby">lobby</a><a href="/protected/players/kick/{{ player_object.steamid }}/webinterface">kick</a><a href="/protected/players/obliterate/{{ player_object.steamid }}">obliterate</a></td>
 </tr>
 {% endfor %}
 </table>

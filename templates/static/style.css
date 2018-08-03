@@ -6,6 +6,10 @@ tr.even {
     background-color: #cccccc
 }
 
+tr th {
+    text-align: left
+}
+
 td.actions a.active {
     font-weight: bold
 }
