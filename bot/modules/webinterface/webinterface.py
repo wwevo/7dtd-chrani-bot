@@ -272,5 +272,6 @@ class Webinterface(Thread):
         app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),
             port=self.bot.settings.get_setting_by_name('bot_port'),
-            debug=False
+            use_reloader=False, # makes flasks debug mode work
+            debug=True
         )

@@ -6,6 +6,7 @@
     <th>Blacklisted</th>
     <th>Locations</th>
     <th>Groups</th>
+    <th>Actions</th>
 </tr>
 {% for player_object in player_objects_to_list %}
 <tr valign="top" class="{{ loop.cycle('odd', 'even') }}">
@@ -15,6 +16,7 @@
     <td>{{ player_object.blacklisted }}</td>
     <td>{% for player_location in player_locations_to_list[player_object.steamid] %}{{ player_location.name }}<br />{% endfor %}</td>
     <td>{% for player_group in player_groups_to_list[player_object.steamid] %}{{ player_group }}{% endfor %}</td>
+    <td>(<a href="/protected/players/obliterate/{{ player_object.steamid }}">obliterate</a>)</td>
 </tr>
 {% endfor %}
 </table>
