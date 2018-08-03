@@ -187,6 +187,7 @@ class Players(object):
         if os.path.isfile(filename):
             try:
                 os.remove(filename)
+                del self.players_dict[player_object.steamid]
             except Exception as e:
                 logger.exception(e)
                 pass
