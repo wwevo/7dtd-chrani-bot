@@ -198,7 +198,7 @@ class Webinterface(Thread):
             output += '<a href="/login">log in with your steam-account</a>'
 
             markup = flask.Markup(output)
-            return flask.render_template('index.html', title=self.bot.name, content=markup)
+            return flask.render_template('index.html', bot=self.bot, content=markup)
 
         @app.route('/protected')
         @flask_login.login_required
@@ -252,7 +252,7 @@ class Webinterface(Thread):
             output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
 
             markup = flask.Markup(output)
-            return flask.render_template('index.html', title=self.bot.name, content=markup)
+            return flask.render_template('index.html', bot=self.bot, content=markup)
 
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
