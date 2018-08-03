@@ -194,7 +194,7 @@ class Webinterface(Thread):
 
             output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
             output += "I have been running for <strong>{}</strong> and am currently <strong>{}</strong><br />".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
-            output += "I have <strong>{} players</strong> on record and manage <strong>{} locations</strong>.<br /><br />".format(len(self.bot.players.all_players_dict), sum(len(v) for v in self.bot.locations.all_locations_dict.itervalues()))
+            output += "I have <strong>{} players</strong> on record and manage <strong>{} locations</strong>.<br /><br />".format(len(self.bot.players.players_dict), sum(len(v) for v in self.bot.locations.all_locations_dict.itervalues()))
             output += '<a href="/login">log in with your steam-account</a>'
 
             markup = flask.Markup(output)
