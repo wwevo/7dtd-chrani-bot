@@ -5,3 +5,15 @@ html {
 tr.even {
     background-color: #cccccc
 }
+
+td.actions a.active {
+    font-weight: bold
+}
+
+td.actions a {
+    margin-right: 0.5em
+}
+
+td.actions a:last-child {
+    margin-right: 0em
+}

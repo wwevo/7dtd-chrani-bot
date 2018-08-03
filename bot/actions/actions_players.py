@@ -167,7 +167,7 @@ def list_online_players(bot, source_player, target_player, command):
     Will list players and show their entityId
     """
     try:
-        players_to_list = bot.players.get_online_players()
+        players_to_list = bot.players.get_all_players(get_online_only=True)
 
         for player_object_to_list in players_to_list:
             bot.tn.send_message_to_player(target_player, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=bot.chat_colors['success'])

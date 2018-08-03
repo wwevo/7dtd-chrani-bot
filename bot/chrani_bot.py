@@ -320,7 +320,7 @@ class ChraniBot:
                             'entityid': int(m.group("entity_id")),
                             'steamid': m.group("player_id"),
                             'name': m.group("player_name"),
-                            'ip': m.group("player_ip")
+                            'ip': m.group("player_ip"),
                         }
                         player_object = Player(**player_dict)
 

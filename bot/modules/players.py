@@ -39,24 +39,25 @@ class Players(object):
             listplayers_result = bot.poll_tn.listplayers()
             for m in re.finditer(bot.match_types_system["listplayers_result_regexp"], listplayers_result):
                 online_players_dict.update({m.group(16): {
-                    "entityid": m.group(1),
-                    "name":     str(m.group(2)),
-                    "pos_x":    float(m.group(3)),
-                    "pos_y":    float(m.group(4)),
-                    "pos_z":    float(m.group(5)),
-                    "rot_x":    float(m.group(6)),
-                    "rot_y":    float(m.group(7)),
-                    "rot_z":    float(m.group(8)),
-                    "remote":   bool(m.group(9)),
-                    "health":   int(m.group(10)),
-                    "deaths":   int(m.group(11)),
-                    "zombies":  int(m.group(12)),
-                    "players":  int(m.group(13)),
-                    "score":    m.group(14),
-                    "level":    m.group(15),
-                    "steamid":  m.group(16),
-                    "ip":       str(m.group(17)),
-                    "ping":     int(m.group(18))
+                    "entityid":     m.group(1),
+                    "name":         str(m.group(2)),
+                    "pos_x":        float(m.group(3)),
+                    "pos_y":        float(m.group(4)),
+                    "pos_z":        float(m.group(5)),
+                    "rot_x":        float(m.group(6)),
+                    "rot_y":        float(m.group(7)),
+                    "rot_z":        float(m.group(8)),
+                    "remote":       bool(m.group(9)),
+                    "health":       int(m.group(10)),
+                    "deaths":       int(m.group(11)),
+                    "zombies":      int(m.group(12)),
+                    "players":      int(m.group(13)),
+                    "score":        m.group(14),
+                    "level":        m.group(15),
+                    "steamid":      m.group(16),
+                    "ip":           str(m.group(17)),
+                    "ping":         int(m.group(18)),
+                    "is_online":    True
                 }})
             return online_players_dict
 
@@ -66,7 +67,7 @@ class Players(object):
 
         # prune players not online anymore
         for player in set(self.players_dict) - set(listplayers_dict.keys()):
-            del self.players_dict[player]
+            self.players_dict[player].is_online = False
 
         # create new player entries / update existing ones
         for player_steamid, player_dict in listplayers_dict.iteritems():
@@ -94,7 +95,7 @@ class Players(object):
         """ handle player-threads """
         for player_steamid, player_object in self.players_dict.iteritems():
             """ start player_observer_thread for each player not already being observed """
-            if player_steamid not in bot.active_player_threads_dict:
+            if player_steamid not in bot.active_player_threads_dict and player_object.is_online:
                 player_observer_thread_stop_flag = Event()
                 player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, bot, str(player_steamid))  # I'm passing the bot (self) into it to have easy access to it's variables
                 player_observer_thread.name = player_steamid  # nice to have for the logs
@@ -103,18 +104,19 @@ class Players(object):
                 player_observer_thread.start()
                 bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
-        for player_steamid in set(bot.active_player_threads_dict) - set(self.players_dict.keys()):
-            """ prune all active_player_threads from players no longer online """
-            active_player_thread = bot.active_player_threads_dict[player_steamid]
-            stop_flag = active_player_thread["thread"]
-            stop_flag.stopped.set()
-            del bot.active_player_threads_dict[player_steamid]
+        for player_steamid, player_object in self.players_dict.iteritems():
+            if player_steamid in bot.active_player_threads_dict and not player_object.is_online:
+                """ prune all active_player_threads from players no longer online """
+                active_player_thread = bot.active_player_threads_dict[player_steamid]
+                stop_flag = active_player_thread["thread"]
+                stop_flag.stopped.set()
+                del bot.active_player_threads_dict[player_steamid]
 
         return listplayers_dict
 
     def load_all(self):
         # TODO: this need to be cached or whatever!
-        all_players_dict = {}
+        players_dict = {}
         for root, dirs, files in os.walk(self.root):
             for filename in files:
                 if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
@@ -125,13 +127,12 @@ class Players(object):
                             continue
 
                         player_dict['health'] = 0
-                        all_players_dict[player_dict['steamid']] = Player(**player_dict)
+                        players_dict[player_dict['steamid']] = Player(**player_dict)
 
-        self.all_players_dict = all_players_dict
-        return all_players_dict
+        self.players_dict = players_dict
 
     def entityid_to_steamid(self, entityid):
-        for steamid, player_object in self.all_players_dict.iteritems():
+        for steamid, player_object in self.players_dict.iteritems():
             if player_object.entityid == entityid:
                 return steamid
 
@@ -150,24 +151,14 @@ class Players(object):
         except KeyError:
             raise
 
-    def get_online_players(self):
+    def get_all_players(self, get_online_only=False):
         try:
-            active_players_dict = self.players_dict
             players_to_list = []
-            for steamid, player_object_to_list in active_players_dict.iteritems():
-                players_to_list.append(player_object_to_list)
-
-            return players_to_list
-
-        except KeyError:
-            raise
-
-    def get_all_players(self):
-        try:
-            active_players_dict = self.load_all()
-            players_to_list = []
-            for steamid, player_object_to_list in active_players_dict.iteritems():
-                players_to_list.append(player_object_to_list)
+            for steamid, player_object_to_list in self.players_dict.iteritems():
+                if not get_online_only:
+                    players_to_list.append(player_object_to_list)
+                elif player_object_to_list.is_online:
+                    players_to_list.append(player_object_to_list)
 
             return players_to_list
 

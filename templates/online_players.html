@@ -10,7 +10,7 @@
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
     <td>{{ player_object.authenticated }}</td>
-    <td>(<a href="/protected/players/send/{{ player_object.steamid }}/home">send home</a>, <a href="/protected/players/send/{{ player_object.steamid }}/to/lobby">lobby</a>, <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface">kick</a>)</td>
+    <td class="actions">(<a href="/protected/players/send/{{ player_object.steamid }}/home">send home</a>, <a href="/protected/players/send/{{ player_object.steamid }}/to/lobby">lobby</a>, <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface">kick</a>)</td>
 </tr>
 {% endfor %}
 </table>

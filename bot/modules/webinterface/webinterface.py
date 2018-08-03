@@ -214,7 +214,7 @@ class Webinterface(Thread):
             output += 'the bot is currently <strong>{}</strong>!<br /><br />'.format(bot_paused_status)
 
             output += '<hr/>'
-            player_objects_to_list = self.bot.players.get_online_players()
+            player_objects_to_list = self.bot.players.get_all_players(get_online_only=True)
             output += flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
 
             output += '<hr/>'
@@ -237,7 +237,7 @@ class Webinterface(Thread):
                         href = "/protected/authentication/remove/group/{}/{}".format(player_object.steamid, permission_level)
                         player_groups.append(flask.Markup(flask.render_template('link_active.html', href=href, text=permission_level)))
                     else:
-                        href = "/protected/authentication/remove/group/{}/{}".format(player_object.steamid, permission_level)
+                        href = "/protected/authentication/add/group/{}/{}".format(player_object.steamid, permission_level)
                         player_groups.append(flask.Markup(flask.render_template('link_inactive.html', href=href, text=permission_level)))
 
                 try:
