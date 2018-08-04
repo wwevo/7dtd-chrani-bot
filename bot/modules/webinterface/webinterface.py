@@ -260,14 +260,14 @@ class Webinterface(Thread):
             output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
             output += '<a href="/">home</a><br /><br />'
             markup = flask.Markup(output)
-            return flask.render_template('index.html', title=self.bot.name, content=markup)
+            return flask.render_template('index.html', bot=self.bot, content=markup)
 
         @app.errorhandler(404)
         def page_not_found(error):
             output = 'Page not found :(<br />'
             output += '<a href="/">home</a><br /><br />'
             markup = flask.Markup(output)
-            return flask.render_template('index.html', title=self.bot.name, content=markup), 404
+            return flask.render_template('index.html', bot=self.bot, content=markup), 404
 
         app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),

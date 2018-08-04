@@ -32,7 +32,7 @@ class PlayerObserver(Thread):
     def run(self):
         next_cycle = 0
         player_object = self.player_object
-        bot.actions.common.trigger_action(self.bot, None, player_object, "joined the game")
+        bot.actions.common.trigger_action(self.bot, player_object, player_object, "joined the game")
 
         if player_object.initialized is True:
             self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])

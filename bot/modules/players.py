@@ -100,7 +100,7 @@ class Players(object):
                 player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, bot, str(player_steamid))  # I'm passing the bot (self) into it to have easy access to it's variables
                 player_observer_thread.name = player_steamid  # nice to have for the logs
                 player_observer_thread.isDaemon()
-                actions.common.trigger_action(bot, None, player_object, "entered the stream")
+                actions.common.trigger_action(bot, player_object, player_object, "entered the stream")
                 player_observer_thread.start()
                 bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
