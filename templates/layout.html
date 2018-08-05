@@ -3,6 +3,19 @@
     <head>{% block head %}
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>{% block title %}{% endblock %}</title>
+        <script language="javascript">
+            function calldislike(link_clicked){
+                xmlhttp=new XMLHttpRequest();
+                xmlhttp.onreadystatechange=function(){
+                    if (xmlhttp.readyState==4 && xmlhttp.status==200){
+                        alert(xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.open("GET", link_clicked.href);
+                xmlhttp.setRequestHeader('Accept', 'application/json');
+                xmlhttp.send();
+            }
+        </script>
     {% endblock %}</head>
     <body>
         <div id="content">{% block content %}

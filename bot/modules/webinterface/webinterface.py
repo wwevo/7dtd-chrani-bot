@@ -106,13 +106,33 @@ class Webinterface(Thread):
         @flask_login.login_required
         def pause_bot():
             self.bot.is_paused = True
-            return flask.redirect("/protected")
+            response = {
+                "actionResponse": "{} has been paused".format(self.bot.name),
+                "actionResult": True
+            }
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/protected/system/resume')
         @flask_login.login_required
         def resume_bot():
             self.bot.is_paused = False
-            return flask.redirect("/protected")
+            response = {
+                "actionResponse": "{} has been resumed".format(self.bot.name),
+                "actionResult": True
+            }
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/protected/system/shutdown')
         @flask_login.login_required
@@ -210,7 +230,7 @@ class Webinterface(Thread):
 
             output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
             output += "Welcome to the protected area<br />"
-            output += '<a href="/protected/system/pause">pause</a>, <a href="/protected/system/resume">resume</a>: '
+            output += '<a href="/protected/system/pause" onclick="calldislike(this); return false;">pause</a>, <a href="/protected/system/resume" onclick="calldislike(this); return false;">resume</a>: '
             output += 'the bot is currently <strong>{}</strong>!<br /><br />'.format(bot_paused_status)
 
             output += '<hr/>'

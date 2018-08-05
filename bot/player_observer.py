@@ -35,7 +35,7 @@ class PlayerObserver(Thread):
         bot.actions.common.trigger_action(self.bot, player_object, player_object, "joined the game")
 
         if player_object.initialized is True:
-            self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.bot_name, self.bot.bot_version), color=self.bot.chat_colors['info'])
+            self.tn.send_message_to_player(player_object, "{} is ready and listening (v{})".format(self.bot.name, self.bot.bot_version), color=self.bot.chat_colors['info'])
 
         # this will run until the active_player_thread gets nuked from the bots main loop or shutdown method
         while not self.stopped.wait(next_cycle):
