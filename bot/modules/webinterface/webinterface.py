@@ -105,11 +105,13 @@ class Webinterface(Thread):
         @app.route('/protected/system/pause')
         @flask_login.login_required
         def pause_bot():
-            self.bot.is_paused = True
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, player_object, "pause bot")
             response = {
                 "actionResponse": "{} has been paused".format(self.bot.name),
                 "actionResult": True
             }
+
             if flask.request.accept_mimetypes.best == 'application/json':
                 return app.response_class(
                     response=flask.json.dumps(response),
@@ -121,7 +123,8 @@ class Webinterface(Thread):
         @app.route('/protected/system/resume')
         @flask_login.login_required
         def resume_bot():
-            self.bot.is_paused = False
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, player_object, "resume bot")
             response = {
                 "actionResponse": "{} has been resumed".format(self.bot.name),
                 "actionResult": True
@@ -137,8 +140,19 @@ class Webinterface(Thread):
         @app.route('/protected/system/shutdown')
         @flask_login.login_required
         def shutdown():
-            self.bot.shutdown()
-            return flask.redirect("/protected")
+            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
+            bot.actions.common.trigger_action(self.bot, player_object, player_object, "shut down the matrix")
+            response = {
+                "actionResponse": "{} has been shut down".format(self.bot.name),
+                "actionResult": True
+            }
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/protected/players/kick/<steamid>/<reason>')
         @flask_login.login_required
@@ -230,7 +244,7 @@ class Webinterface(Thread):
 
             output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
             output += "Welcome to the protected area<br />"
-            output += '<a href="/protected/system/pause" onclick="calldislike(this); return false;">pause</a>, <a href="/protected/system/resume" onclick="calldislike(this); return false;">resume</a>: '
+            output += '<a href="/protected/system/pause" onclick="apicall(this); return false;">pause</a>, <a href="/protected/system/resume" onclick="apicall(this); return false;">resume</a>: '
             output += 'the bot is currently <strong>{}</strong>!<br /><br />'.format(bot_paused_status)
 
             output += '<hr/>'
@@ -269,7 +283,7 @@ class Webinterface(Thread):
 
             output += '<hr/>'
             output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
-            output += '<a href="/protected/system/shutdown">shutdown bot</a><br /><br />'
+            output += '<a href="/protected/system/shutdown" onclick="apicall(this); return false;">shutdown bot</a><br /><br />'
 
             markup = flask.Markup(output)
             return flask.render_template('index.html', bot=self.bot, content=markup)
