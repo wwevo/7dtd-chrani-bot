@@ -19,7 +19,7 @@
     {% endblock %}</head>
     <body>
         <header>
-            <div id="info">{% if bot.name %}{{ bot.name }}{% else %}chrani-bot{% endif %} - webinterface</div>
+            <div id="info">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %} - webinterface</div>
             <div id="status">uptime: {% if bot.uptime %}{{ bot.uptime }}{% else %}not available{% endif %}{% if current_user.is_authenticated %} - the bot is currently {% if bot.is_paused == True %}paused (<a href="/protected/system/resume" onclick="apicall(this); return false;">resume</a>){% else %}running (<a href="/protected/system/pause" onclick="apicall(this); return false;">pause</a>){% endif %} (<a href="/protected/system/shutdown" onclick="apicall(this); return false;">shutdown bot</a>){% endif %}</div>
             <div id="user">{% if current_user.is_authenticated %}{{ current_user.name }} - <a href="/logout">logout</a>{% else %}guest - <a href="/login">log in with steam!</a>{% endif %}</div>
         </header>
