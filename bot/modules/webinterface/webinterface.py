@@ -178,7 +178,7 @@ class Webinterface(Thread):
         def obliterate_player(steamid):
             player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
             target_player = self.bot.players.get_by_steamid(steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, target_player, "obliterate player {}".format(steamid))
+            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "obliterate player {}".format(steamid))
             response = {
                 "actionResponse": action_response,
                 "actionResult": True
@@ -257,7 +257,7 @@ class Webinterface(Thread):
 
         @app.route('/')
         def hello_world():
-            if flask_login.current_user.is_authenticated:
+            if not flask_login.current_user.is_anonymous or flask_login.current_user.is_authenticated:
                 return flask.redirect("/protected")
 
             output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
