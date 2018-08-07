@@ -49,8 +49,8 @@ def trigger_action(bot, source_player, target_player, command_parameters):
 
         for command in command_queue:
             try:
-                command["action"](bot, source_player, target_player, command["command_parameters"])
                 logger.info("Player {} has executed {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
+                return command["action"](bot, source_player, target_player, command["command_parameters"])
             except Exception as e:
                 logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(source_player.name, command["group"], command["func_name"], command["command_parameters"], e))
 

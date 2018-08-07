@@ -12,7 +12,7 @@
     <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
     <td>{{ player_object.authenticated }}</td>
     <td>{{ player_object.health }}</td>
-    <td class="actions"><a href="/protected/players/send/{{ player_object.steamid }}/home">send home</a><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby">lobby</a><a href="/protected/players/kick/{{ player_object.steamid }}/webinterface">kick</a><a href="/protected/players/obliterate/{{ player_object.steamid }}">obliterate</a></td>
+    <td class="actions"><a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="apicall(this); return false;">send home</a><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="apicall(this); return false;">lobby</a><a href="/protected/players/kick/{{ player_object.steamid }}/webinterface" onclick="apicall(this); return false;">kick</a><a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="apicall(this); return false;">obliterate</a></td>
 </tr>
 {% endfor %}
 </table>

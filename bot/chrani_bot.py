@@ -2,6 +2,7 @@ from flask import request
 from threading import *
 import re
 import time
+import datetime
 import math
 from collections import deque
 
@@ -25,13 +26,15 @@ class ChraniBot:
     app_root = str
     name = str
     bot_version = str
-    is_active = bool  # used for restarting the bot safely after connection loss
-    is_paused = bool # used to pause all processing without shutting down the bot
+
     time_launched = float
+    time_running = float
+    uptime = str
+    is_active = bool  # used for restarting the bot safely after connection loss
+    is_paused = bool  # used to pause all processing without shutting down the bot
 
     match_types = dict
     match_types_system = dict
-    banned_countries_list = list
 
     tn = object  # telnet connection to use for everything except player-actions and player-poll
     poll_tn = object
@@ -43,6 +46,7 @@ class ChraniBot:
     chat_colors = dict
     passwords = dict
     api_key = str
+    banned_countries_list = list
 
     settings_dict = dict
     server_settings_dict = dict
@@ -64,6 +68,8 @@ class ChraniBot:
         self.paused = False
         self.settings = Settings()
         self.time_launched = time.time()
+        self.time_running = 0
+        self.uptime = "not available"
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -244,6 +250,10 @@ class ChraniBot:
 
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active:
+            time_running_seconds = int(time.time() - self.time_launched)
+            self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
+            self.uptime = "{}d, {}h{}m{}s".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute, self.time_running.second)
+
             if self.is_paused is True:
                 time.sleep(1)
                 continue

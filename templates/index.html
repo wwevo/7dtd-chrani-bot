@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
-{% block title %}{{ bot.name }} - {{ bot.bot_version }}{% endblock %}
+{% block title %}{% if title %}{{ bot.name }} - {{ bot.bot_version }}{% else %}{{ super() }}{% endif %}{% endblock %}
 {% block head %}{{ super() }}{% endblock %}
-{% block content %}{{ content }}{% endblock %}
+{% block header %}{% if header %}{{ header }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block content %}{% if content %}{{ content }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block footer %}{% if footer %}{{ footer }}{% else %}{{ super() }}{% endif %}{% endblock %}

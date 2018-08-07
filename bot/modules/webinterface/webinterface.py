@@ -159,8 +159,19 @@ class Webinterface(Thread):
         def kick_player(steamid, reason):
             player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
             target_player = self.bot.players.get_by_steamid(steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
-            return flask.redirect("/protected")
+            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
+            response = {
+                "actionResponse": action_response,
+                "actionResult": True
+            }
+
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/protected/players/obliterate/<steamid>')
         @flask_login.login_required
@@ -168,7 +179,18 @@ class Webinterface(Thread):
             player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
             target_player = self.bot.players.get_by_steamid(steamid)
             bot.actions.common.trigger_action(self.bot, player_object, target_player, "obliterate player {}".format(steamid))
-            return flask.redirect("/protected")
+            response = {
+                "actionResponse": action_response,
+                "actionResult": True
+            }
+
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/protected/authentication/add/group/<steamid>/<group>')
         @flask_login.login_required
@@ -191,45 +213,54 @@ class Webinterface(Thread):
         def send_player_home(steamid):
             player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
             target_player = self.bot.players.get_by_steamid(steamid)
-            try:
-                location_object = self.bot.locations.get(steamid, 'home')
-                pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-                coord_tuple = (pos_x, pos_y, pos_z)
-                bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
-            except:
-                pass
+            location_object = self.bot.locations.get(steamid, 'home')
+            pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+            coord_tuple = (pos_x, pos_y, pos_z)
+            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
 
-            return flask.redirect("/protected")
+            response = {
+                "actionResponse": action_response,
+                "actionResult": True
+            }
+
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/protected/players/send/<steamid>/to/lobby')
         @flask_login.login_required
         def send_player_to_lobby(steamid):
             player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
             target_player = self.bot.players.get_by_steamid(steamid)
-            try:
-                location_object = self.bot.locations.get('system', 'lobby')
-                pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-                coord_tuple = (pos_x, pos_y, pos_z)
-                bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
-            except:
-                pass
 
-            return flask.redirect("/protected")
+            location_object = self.bot.locations.get('system', 'lobby')
+            pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+            coord_tuple = (pos_x, pos_y, pos_z)
+            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
+
+            response = {
+                "actionResponse": action_response,
+                "actionResult": True
+            }
+
+            if flask.request.accept_mimetypes.best == 'application/json':
+                return app.response_class(
+                    response=flask.json.dumps(response),
+                    mimetype='application/json'
+                )
+            else:
+                return flask.redirect("/protected?{}".format(urlencode(response)))
 
         @app.route('/')
         def hello_world():
-            if self.bot.is_paused is True:
-                bot_paused_status = "paused"
-            else:
-                bot_paused_status = "active"
-
-            time_running_seconds = int(time.time() - self.bot.time_launched)
-            time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
+            if flask_login.current_user.is_authenticated:
+                return flask.redirect("/protected")
 
             output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
-            output += "I have been running for <strong>{}</strong> and am currently <strong>{}</strong><br />".format("{}d, {}h{}m{}s".format(time_running.day-1, time_running.hour, time_running.minute, time_running.second), bot_paused_status)
-            output += "I have <strong>{} players</strong> on record and manage <strong>{} locations</strong>.<br /><br />".format(len(self.bot.players.players_dict), sum(len(v) for v in self.bot.locations.all_locations_dict.itervalues()))
-            output += '<a href="/login">log in with your steam-account</a>'
 
             markup = flask.Markup(output)
             return flask.render_template('index.html', bot=self.bot, content=markup)
@@ -237,19 +268,8 @@ class Webinterface(Thread):
         @app.route('/protected')
         @flask_login.login_required
         def protected():
-            if self.bot.is_paused is True:
-                bot_paused_status = "paused"
-            else:
-                bot_paused_status = "active"
-
-            output = 'Hello <strong>{}</strong><br /><br />'.format(flask_login.current_user.name)
-            output += "Welcome to the protected area<br />"
-            output += '<a href="/protected/system/pause" onclick="apicall(this); return false;">pause</a>, <a href="/protected/system/resume" onclick="apicall(this); return false;">resume</a>: '
-            output += 'the bot is currently <strong>{}</strong>!<br /><br />'.format(bot_paused_status)
-
-            output += '<hr/>'
             player_objects_to_list = self.bot.players.get_all_players(get_online_only=True)
-            output += flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
+            output = flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
 
             output += '<hr/>'
             player_objects_to_list = self.bot.players.get_all_players()
@@ -280,10 +300,6 @@ class Webinterface(Thread):
                     player_groups_to_list = {player_object.steamid: player_groups}
 
             output += flask.render_template('all_players.html', player_objects_to_list=player_objects_to_list, player_locations_to_list=player_locations_to_list, player_groups_to_list=player_groups_to_list)
-
-            output += '<hr/>'
-            output += '<a href="/logout">logout user {}</a><br /><br />'.format(flask_login.current_user.name)
-            output += '<a href="/protected/system/shutdown" onclick="apicall(this); return false;">shutdown bot</a><br /><br />'
 
             markup = flask.Markup(output)
             return flask.render_template('index.html', bot=self.bot, content=markup)

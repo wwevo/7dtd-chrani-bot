@@ -1,6 +1,28 @@
 html {
+    width: 100%; height: 100%;
     margin: 0; padding: 0;
 }
+
+header {
+    display: flex;
+    background-color: #acacac;
+    height: 1.33em; line-height: 1.33em;
+}
+
+footer {
+    text-align: right;
+    background-color: #acacac;
+    height: 1.33em; line-height: 1.33em;
+}
+
+header #info {}
+
+header #status {
+    text-align: center;
+    flex: 1;
+}
+
+header #user {}
 
 tr.even {
     background-color: #cccccc
