@@ -1,4 +1,4 @@
-from flask import request
+from bot.external.flask import request
 from threading import *
 import re
 import time
