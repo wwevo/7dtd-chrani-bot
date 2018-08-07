@@ -257,7 +257,7 @@ class Webinterface(Thread):
 
         @app.route('/')
         def hello_world():
-            if not flask_login.current_user.is_anonymous or flask_login.current_user.is_authenticated:
+            if flask_login.current_user.is_authenticated is True:
                 return flask.redirect("/protected")
 
             output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
