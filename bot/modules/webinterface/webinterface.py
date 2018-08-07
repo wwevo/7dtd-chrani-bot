@@ -1,10 +1,8 @@
 import bot.actions
-import flask
-import flask_login
-import time
+import bot.external.flask as flask
+import bot.external.flask_login as flask_login
 import re
 import os
-import datetime
 from urllib import urlencode
 import requests
 from threading import *

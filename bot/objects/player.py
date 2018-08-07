@@ -1,5 +1,5 @@
 from time import time
-import flask_login
+import bot.external.flask_login as flask_login
 
 
 class Player(flask_login.UserMixin):
