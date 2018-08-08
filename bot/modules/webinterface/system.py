@@ -6,10 +6,15 @@ from urllib import urlencode
 
 def pause_bot():
     webinterface = __main__.bot.webinterface
-    player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
-    bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "pause bot")
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "pause bot")
     response = {
-        "actionResponse": "{} has been paused".format(webinterface.bot.name),
+        "actionResponse": action_response,
         "actionResult": True
     }
 
@@ -26,16 +31,21 @@ common.actions_list.append({
     "title": "pause bot",
     "route": "/protected/system/pause",
     "action": pause_bot,
-    "authenticated": True
+    "authenticated": False
 })
 
 
 def resume_bot():
     webinterface = __main__.bot.webinterface
-    player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
-    bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "resume bot")
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "resume bot")
     response = {
-        "actionResponse": "{} has been resumed".format(webinterface.bot.name),
+        "actionResponse": action_response,
         "actionResult": True
     }
     if webinterface.flask.request.accept_mimetypes.best == 'application/json':
@@ -57,10 +67,15 @@ common.actions_list.append({
 
 def shutdown():
     webinterface = __main__.bot.webinterface
-    player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
-    bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "shut down the matrix")
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "shut down the matrix")
     response = {
-        "actionResponse": "{} has been shut down".format(webinterface.bot.name),
+        "actionResponse": action_response,
         "actionResult": True
     }
     if webinterface.flask.request.accept_mimetypes.best == 'application/json':

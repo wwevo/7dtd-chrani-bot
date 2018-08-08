@@ -49,6 +49,7 @@ class Webinterface(Thread):
             except:
                 return None
 
+        @self.app.route('/login')
         def login():
             steam_openid_url = 'https://steamcommunity.com/openid/login'
             u = {
@@ -63,6 +64,7 @@ class Webinterface(Thread):
             auth_url = steam_openid_url + "?" + query_string
             return self.flask.redirect(auth_url)
 
+        @self.app.route('/logout')
         @self.flask_login.login_required
         def logout():
             self.flask_login.logout_user()
@@ -107,7 +109,8 @@ class Webinterface(Thread):
 
             return self.flask.redirect("/")
 
-        def hello_world():
+        @self.app.route('/')
+        def index():
             if self.flask_login.current_user.is_authenticated is True:
                 return self.flask.redirect("/protected")
 
@@ -170,15 +173,6 @@ class Webinterface(Thread):
             markup = self.flask.Markup(output)
             return self.flask.render_template('index.html', bot=self.bot, content=markup), 404
 
-        self.app.add_url_rule('/', 'index')
-        self.app.view_functions['index'] = hello_world
-
-        self.app.add_url_rule('/login', 'login')
-        self.app.view_functions['login'] = login
-
-        self.app.add_url_rule('/logout', 'logout')
-        self.app.view_functions['logout'] = logout
-
         for actions_list_entry in bot.modules.webinterface.actions_list:
             if actions_list_entry['authenticated'] is True:
                 action = actions_list_entry['action']
@@ -186,7 +180,7 @@ class Webinterface(Thread):
                 self.app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action)
             else:
                 action = actions_list_entry['action']
-                self.app.add_url_rule(actions_list_entry['route'], view_function=action)
+                self.app.add_url_rule(actions_list_entry['route'], view_func=action)
 
         self.app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),

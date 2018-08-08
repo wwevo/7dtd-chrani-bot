@@ -4,11 +4,16 @@ import __main__  # my ide throws a warning here, but it works oO
 from urllib import urlencode
 
 
-def remove_player_from_group(steamid, group):
+def remove_player_from_group(target_player_steamid, group):
     webinterface = __main__.bot.webinterface
-    player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
-    target_player = webinterface.bot.players.get_by_steamid(steamid)
-    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "remove player {} from group {}".format(steamid, group))
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
+    target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "remove player {} from group {}".format(target_player_steamid, group))
     response = {
         "actionResponse": action_response,
         "actionResult": True
@@ -25,17 +30,22 @@ def remove_player_from_group(steamid, group):
 
 common.actions_list.append({
     "title": "remove player from group",
-    "route": "/protected/authentication/remove/group/<steamid>/<group>",
+    "route": "/protected/authentication/remove/group/<target_player_steamid>/<group>",
     "action": remove_player_from_group,
     "authenticated": True
 })
 
 
-def add_player_to_group(steamid, group):
+def add_player_to_group(target_player_steamid, group):
     webinterface = __main__.bot.webinterface
-    player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
-    target_player = webinterface.bot.players.get_by_steamid(steamid)
-    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "add player {} to group {}".format(steamid, group))
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
+    target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "add player {} to group {}".format(target_player_steamid, group))
     response = {
         "actionResponse": action_response,
         "actionResult": True
@@ -52,7 +62,7 @@ def add_player_to_group(steamid, group):
 
 common.actions_list.append({
     "title": "add player to group",
-    "route": "/protected/authentication/add/group/<steamid>/<group>",
+    "route": "/protected/authentication/add/group/<target_player_steamid>/<group>",
     "action": add_player_to_group,
     "authenticated": True
 })
