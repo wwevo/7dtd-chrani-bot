@@ -71,7 +71,7 @@ def obliterate_player(steamid):
     webinterface = __main__.bot.webinterface
     player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
     target_player = webinterface.bot.players.get_by_steamid(steamid)
-    action_response = webinterface.bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "obliterate player {}".format(steamid))
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "obliterate player {}".format(steamid))
     response = {
         "actionResponse": action_response,
         "actionResult": True
@@ -98,7 +98,7 @@ def kick_player(steamid, reason):
     webinterface = __main__.bot.webinterface
     player_object = webinterface.bot.players.get_by_steamid(webinterface.flask_login.current_user.steamid)
     target_player = webinterface.bot.players.get_by_steamid(steamid)
-    action_response = webinterface.bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
+    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
     response = {
         "actionResponse": action_response,
         "actionResult": True
