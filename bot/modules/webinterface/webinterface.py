@@ -11,6 +11,9 @@ from threading import *
 class Webinterface(Thread):
     bot = object
     app = object
+    flask = object
+    flask_login = object
+    login_manager = object
 
     def __init__(self, event, bot):
         self.bot = bot
@@ -21,17 +24,23 @@ class Webinterface(Thread):
         template_dir = os.path.join(os.getcwd(), 'templates')
         static_dir = os.path.join(template_dir, 'static')
 
-        app = flask.Flask(
+        self.flask = flask
+
+        app = self.flask.Flask(
             __name__,
             template_folder=template_dir,
             static_folder=static_dir
         )
-        app.config["SECRET_KEY"] = "totallyasecret"
+        self.app = app
+        self.app.config["SECRET_KEY"] = "totallyasecret"
 
-        login_manager = flask_login.LoginManager()
-        login_manager.init_app(app)
+        self.flask_login = flask_login
 
-        @login_manager.user_loader
+        login_manager = self.flask_login.LoginManager()
+        self.login_manager = login_manager
+        self.login_manager.init_app(app)
+
+        @self.login_manager.user_loader
         def user_loader(steamid):
             try:
                 player_object = self.bot.players.get_by_steamid(steamid)
@@ -40,7 +49,6 @@ class Webinterface(Thread):
             except:
                 return None
 
-        @app.route('/login')
         def login():
             steam_openid_url = 'https://steamcommunity.com/openid/login'
             u = {
@@ -53,15 +61,14 @@ class Webinterface(Thread):
             }
             query_string = urlencode(u)
             auth_url = steam_openid_url + "?" + query_string
-            return flask.redirect(auth_url)
+            return self.flask.redirect(auth_url)
 
-        @app.route("/logout")
-        @flask_login.login_required
+        @self.flask_login.login_required
         def logout():
-            flask_login.logout_user()
-            return flask.redirect("/")
+            self.flask_login.logout_user()
+            return self.flask.redirect("/")
 
-        @app.route('/authenticate', methods=['GET'])
+        @self.app.route('/authenticate', methods=['GET'])
         def setup():
             def validate(signed_params):
                 steam_login_url_base = "https://steamcommunity.com/openid/login"
@@ -86,188 +93,34 @@ class Webinterface(Thread):
                 # this fucntion should always return false if the payload is not valid
                 return False
 
-            valid = validate(flask.request.args)
+            valid = validate(self.flask.request.args)
             if valid is True:
-                p = re.search(r"/(?P<steamid>([0-9]{17}))", str(flask.request.args["openid.claimed_id"]))
+                p = re.search(r"/(?P<steamid>([0-9]{17}))", str(self.flask.request.args["openid.claimed_id"]))
                 if p:
                     steamid = p.group("steamid")
                     try:
                         player_object = self.bot.players.get_by_steamid(steamid)
-                        flask_login.login_user(player_object, remember=True)
-                        return flask.redirect("/protected")
+                        self.flask_login.login_user(player_object, remember=True)
+                        return self.flask.redirect("/protected")
                     except:
                         pass
 
-            return flask.redirect("/")
+            return self.flask.redirect("/")
 
-        @app.route('/protected/system/pause')
-        @flask_login.login_required
-        def pause_bot():
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, player_object, "pause bot")
-            response = {
-                "actionResponse": "{} has been paused".format(self.bot.name),
-                "actionResult": True
-            }
-
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/protected/system/resume')
-        @flask_login.login_required
-        def resume_bot():
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, player_object, "resume bot")
-            response = {
-                "actionResponse": "{} has been resumed".format(self.bot.name),
-                "actionResult": True
-            }
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/protected/system/shutdown')
-        @flask_login.login_required
-        def shutdown():
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, player_object, "shut down the matrix")
-            response = {
-                "actionResponse": "{} has been shut down".format(self.bot.name),
-                "actionResult": True
-            }
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/protected/players/kick/<steamid>/<reason>')
-        @flask_login.login_required
-        def kick_player(steamid, reason):
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            target_player = self.bot.players.get_by_steamid(steamid)
-            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "kick player {} for {}".format(steamid, reason))
-            response = {
-                "actionResponse": action_response,
-                "actionResult": True
-            }
-
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/protected/players/obliterate/<steamid>')
-        @flask_login.login_required
-        def obliterate_player(steamid):
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            target_player = self.bot.players.get_by_steamid(steamid)
-            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "obliterate player {}".format(steamid))
-            response = {
-                "actionResponse": action_response,
-                "actionResult": True
-            }
-
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/protected/authentication/add/group/<steamid>/<group>')
-        @flask_login.login_required
-        def add_player_to_group(steamid, group):
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            target_player = self.bot.players.get_by_steamid(steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, target_player, "add player {} to group {}".format(steamid, group))
-            return flask.redirect("/protected")
-
-        @app.route('/protected/authentication/remove/group/<steamid>/<group>')
-        @flask_login.login_required
-        def remove_player_from_group(steamid, group):
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            target_player = self.bot.players.get_by_steamid(steamid)
-            bot.actions.common.trigger_action(self.bot, player_object, target_player, "remove player {} from group {}".format(steamid, group))
-            return flask.redirect("/protected")
-
-        @app.route('/protected/players/send/<steamid>/home')
-        @flask_login.login_required
-        def send_player_home(steamid):
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            target_player = self.bot.players.get_by_steamid(steamid)
-            location_object = self.bot.locations.get(steamid, 'home')
-            pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-            coord_tuple = (pos_x, pos_y, pos_z)
-            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
-
-            response = {
-                "actionResponse": action_response,
-                "actionResult": True
-            }
-
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/protected/players/send/<steamid>/to/lobby')
-        @flask_login.login_required
-        def send_player_to_lobby(steamid):
-            player_object = self.bot.players.get_by_steamid(flask_login.current_user.steamid)
-            target_player = self.bot.players.get_by_steamid(steamid)
-
-            location_object = self.bot.locations.get('system', 'lobby')
-            pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-            coord_tuple = (pos_x, pos_y, pos_z)
-            action_response = bot.actions.common.trigger_action(self.bot, player_object, target_player, "send player {} to {}".format(steamid, str(coord_tuple)))
-
-            response = {
-                "actionResponse": action_response,
-                "actionResult": True
-            }
-
-            if flask.request.accept_mimetypes.best == 'application/json':
-                return app.response_class(
-                    response=flask.json.dumps(response),
-                    mimetype='application/json'
-                )
-            else:
-                return flask.redirect("/protected?{}".format(urlencode(response)))
-
-        @app.route('/')
         def hello_world():
-            if flask_login.current_user.is_authenticated is True:
-                return flask.redirect("/protected")
+            if self.flask_login.current_user.is_authenticated is True:
+                return self.flask.redirect("/protected")
 
             output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
 
-            markup = flask.Markup(output)
-            return flask.render_template('index.html', bot=self.bot, content=markup)
+            markup = self.flask.Markup(output)
+            return self.flask.render_template('index.html', bot=self.bot, content=markup)
 
-        @app.route('/protected')
-        @flask_login.login_required
+        @self.app.route('/protected')
+        @self.flask_login.login_required
         def protected():
             player_objects_to_list = self.bot.players.get_all_players(get_online_only=True)
-            output = flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
+            output = self.flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
 
             output += '<hr/>'
             player_objects_to_list = self.bot.players.get_all_players()
@@ -287,37 +140,55 @@ class Webinterface(Thread):
                 for permission_level in self.bot.permission_levels_list:
                     if player_object.has_permission_level(permission_level):
                         href = "/protected/authentication/remove/group/{}/{}".format(player_object.steamid, permission_level)
-                        player_groups.append(flask.Markup(flask.render_template('link_active.html', href=href, text=permission_level)))
+                        player_groups.append(self.flask.Markup(self.flask.render_template('link_active.html', href=href, text=permission_level)))
                     else:
                         href = "/protected/authentication/add/group/{}/{}".format(player_object.steamid, permission_level)
-                        player_groups.append(flask.Markup(flask.render_template('link_inactive.html', href=href, text=permission_level)))
+                        player_groups.append(self.flask.Markup(self.flask.render_template('link_inactive.html', href=href, text=permission_level)))
 
                 try:
                     player_groups_to_list.update({player_object.steamid: player_groups})
                 except:
                     player_groups_to_list = {player_object.steamid: player_groups}
 
-            output += flask.render_template('all_players.html', player_objects_to_list=player_objects_to_list, player_locations_to_list=player_locations_to_list, player_groups_to_list=player_groups_to_list)
+            output += self.flask.render_template('all_players.html', player_objects_to_list=player_objects_to_list, player_locations_to_list=player_locations_to_list, player_groups_to_list=player_groups_to_list)
 
-            markup = flask.Markup(output)
-            return flask.render_template('index.html', bot=self.bot, content=markup)
+            markup = self.flask.Markup(output)
+            return self.flask.render_template('index.html', bot=self.bot, content=markup)
 
-        @app.route('/unauthorized')
-        @login_manager.unauthorized_handler
+        @self.app.route('/unauthorized')
+        @self.login_manager.unauthorized_handler
         def unauthorized_handler():
             output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
             output += '<a href="/">home</a><br /><br />'
-            markup = flask.Markup(output)
-            return flask.render_template('index.html', bot=self.bot, content=markup)
+            markup = self.flask.Markup(output)
+            return self.flask.render_template('index.html', bot=self.bot, content=markup)
 
-        @app.errorhandler(404)
+        @self.app.errorhandler(404)
         def page_not_found(error):
             output = 'Page not found :(<br />'
             output += '<a href="/">home</a><br /><br />'
-            markup = flask.Markup(output)
-            return flask.render_template('index.html', bot=self.bot, content=markup), 404
+            markup = self.flask.Markup(output)
+            return self.flask.render_template('index.html', bot=self.bot, content=markup), 404
 
-        app.run(
+        self.app.add_url_rule('/', 'index')
+        self.app.view_functions['index'] = hello_world
+
+        self.app.add_url_rule('/login', 'login')
+        self.app.view_functions['login'] = login
+
+        self.app.add_url_rule('/logout', 'logout')
+        self.app.view_functions['logout'] = logout
+
+        for actions_list_entry in bot.modules.webinterface.actions_list:
+            if actions_list_entry['authenticated'] is True:
+                action = actions_list_entry['action']
+                wrapped_action = self.flask_login.login_required(action)
+                self.app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action)
+            else:
+                action = actions_list_entry['action']
+                self.app.add_url_rule(actions_list_entry['route'], view_function=action)
+
+        self.app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),
             port=self.bot.settings.get_setting_by_name('bot_port'),
             use_reloader=False, # makes flasks debug mode work
