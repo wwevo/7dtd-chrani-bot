@@ -109,6 +109,21 @@ class Webinterface(Thread):
 
             return self.flask.redirect("/")
 
+        @self.app.route('/unauthorized')
+        @self.login_manager.unauthorized_handler
+        def unauthorized_handler():
+            output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
+            output += '<a href="/">home</a><br /><br />'
+            markup = self.flask.Markup(output)
+            return self.flask.render_template('index.html', bot=self.bot, content=markup)
+
+        @self.app.errorhandler(404)
+        def page_not_found(error):
+            output = 'Page not found :(<br />'
+            output += '<a href="/">home</a><br /><br />'
+            markup = self.flask.Markup(output)
+            return self.flask.render_template('index.html', bot=self.bot, content=markup), 404
+
         @self.app.route('/')
         def index():
             if self.flask_login.current_user.is_authenticated is True:
@@ -157,21 +172,6 @@ class Webinterface(Thread):
 
             markup = self.flask.Markup(output)
             return self.flask.render_template('index.html', bot=self.bot, content=markup)
-
-        @self.app.route('/unauthorized')
-        @self.login_manager.unauthorized_handler
-        def unauthorized_handler():
-            output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
-            output += '<a href="/">home</a><br /><br />'
-            markup = self.flask.Markup(output)
-            return self.flask.render_template('index.html', bot=self.bot, content=markup)
-
-        @self.app.errorhandler(404)
-        def page_not_found(error):
-            output = 'Page not found :(<br />'
-            output += '<a href="/">home</a><br /><br />'
-            markup = self.flask.Markup(output)
-            return self.flask.render_template('index.html', bot=self.bot, content=markup), 404
 
         for actions_list_entry in bot.modules.webinterface.actions_list:
             if actions_list_entry['authenticated'] is True:

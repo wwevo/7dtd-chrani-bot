@@ -7,36 +7,35 @@ import common
 
 
 def add_player_to_whitelist(bot, source_player, target_player, command):
-    try:
-        p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7}))\s(?P<command>.+)", command)
-        if p and p.group("command") == "to whitelist":
-            steamid_to_whitelist = p.group("steamid")
-            entityid_to_whitelist = p.group("entityid")
-            if steamid_to_whitelist is None:
-                steamid_to_whitelist = bot.players.entityid_to_steamid(entityid_to_whitelist)
-                if steamid_to_whitelist is False:
-                    raise KeyError
+    p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7}))\s(?P<command>.+)", command)
+    if p and p.group("command") == "to whitelist":
+        steamid_to_whitelist = p.group("steamid")
+        entityid_to_whitelist = p.group("entityid")
+        if steamid_to_whitelist is None:
+            steamid_to_whitelist = bot.players.entityid_to_steamid(entityid_to_whitelist)
+            if steamid_to_whitelist is False:
+                raise KeyError
 
-            try:
-                target_player = bot.players.get_by_steamid(steamid_to_whitelist)
-                player_dict_to_whitelist = {
-                    "steamid": target_player.steamid,
-                    "name": target_player.name
-                }
-            except KeyError:
-                player_dict_to_whitelist = {
-                    "steamid": steamid_to_whitelist,
-                    "name": 'unknown offline player'
-                }
+        try:
+            target_player = bot.players.get_by_steamid(steamid_to_whitelist)
+            player_dict_to_whitelist = {
+                "steamid": target_player.steamid,
+                "name": target_player.name
+            }
+        except KeyError:
+            player_dict_to_whitelist = {
+                "steamid": steamid_to_whitelist,
+                "name": 'unknown offline player'
+            }
 
-            if not bot.whitelist.add(target_player, player_dict_to_whitelist):
-                bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_whitelist), color=bot.chat_colors['warning'])
-                return False
+        if not bot.whitelist.add(target_player, player_dict_to_whitelist):
+            bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_whitelist), color=bot.chat_colors['warning'])
+            return False
 
-            bot.tn.send_message_to_player(target_player, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        bot.tn.send_message_to_player(target_player, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=bot.chat_colors['success'])
+    else:
+        raise ValueError("action does not fully match the trigger-string")
+
 
 
 common.actions_list.append({
@@ -53,35 +52,34 @@ common.actions_list.append({
 
 
 def remove_player_from_whitelist(bot, source_player, target_player, command):
-    try:
-        p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\s(?P<command>.+))", command)
-        if p and p.group("command") == "from whitelist":
-            steamid_to_dewhitelist = p.group("steamid")
-            entityid_to_dewhitelist = p.group("entityid")
-            if steamid_to_dewhitelist is None:
-                steamid_to_dewhitelist = bot.players.entityid_to_steamid(entityid_to_dewhitelist)
-                if steamid_to_dewhitelist is False:
-                    raise KeyError
+    p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\s(?P<command>.+))", command)
+    if p and p.group("command") == "from whitelist":
+        steamid_to_dewhitelist = p.group("steamid")
+        entityid_to_dewhitelist = p.group("entityid")
+        if steamid_to_dewhitelist is None:
+            steamid_to_dewhitelist = bot.players.entityid_to_steamid(entityid_to_dewhitelist)
+            if steamid_to_dewhitelist is False:
+                raise KeyError
 
-            player_dict = ObjectView
-            try:
-                player_object_to_dewhitelist = bot.players.get_by_steamid(steamid_to_dewhitelist)
-                player_dict.steamid = player_object_to_dewhitelist.steamid
-                player_dict.name = player_object_to_dewhitelist.name
-            except KeyError:
-                player_dict.steamid = steamid_to_dewhitelist
-                player_dict.name = 'unknown offline player'
-                player_object_to_dewhitelist = player_dict
+        player_dict = ObjectView
+        try:
+            player_object_to_dewhitelist = bot.players.get_by_steamid(steamid_to_dewhitelist)
+            player_dict.steamid = player_object_to_dewhitelist.steamid
+            player_dict.name = player_object_to_dewhitelist.name
+        except KeyError:
+            player_dict.steamid = steamid_to_dewhitelist
+            player_dict.name = 'unknown offline player'
+            player_object_to_dewhitelist = player_dict
 
-            if bot.whitelist.remove(player_object_to_dewhitelist):
-                bot.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(target_player.name), color=bot.chat_colors['alert'])
-            else:
-                bot.tn.send_message_to_player(target_player, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=bot.chat_colors['warning'])
-                return False
-            bot.tn.send_message_to_player(target_player, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        if bot.whitelist.remove(player_object_to_dewhitelist):
+            bot.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(target_player.name), color=bot.chat_colors['alert'])
+        else:
+            bot.tn.send_message_to_player(target_player, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=bot.chat_colors['warning'])
+            return False
+        bot.tn.send_message_to_player(target_player, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=bot.chat_colors['success'])
+
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({

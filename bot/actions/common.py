@@ -1,5 +1,6 @@
 import os
 from bot.modules.logger import logger
+from bot.assorted_functions import ResponseMessage
 
 
 actions_list = []
@@ -47,16 +48,13 @@ def trigger_action(bot, source_player, target_player, command_parameters):
         if denied is True:
             bot.tn.send_message_to_player(source_player, "Access to this command is denied!", color=bot.chat_colors['warning'])
 
-        result_list = []
+        response_messages = ResponseMessage()
         for command in command_queue:
             try:
+                response = command["action"](bot, source_player, target_player, command["command_parameters"])
+                response_messages.add_message(command["func_name"], response.get_message_dict())
                 logger.info("Player {} has executed {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
-                result = command["action"](bot, source_player, target_player, command["command_parameters"])
-                result_list.append(result)
             except Exception as e:
                 logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(source_player.name, command["group"], command["func_name"], command["command_parameters"], e))
 
-        if len(result_list) > 0:
-            return result_list
-        else:
-            return False
+        return response_messages

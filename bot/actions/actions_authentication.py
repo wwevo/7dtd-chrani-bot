@@ -1,23 +1,7 @@
 import re
 from bot.modules.logger import logger
 import common
-
-
-def on_player_join(bot, source_player, target_player, command):
-    return True
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "joined the game",
-        "usage": None
-    },
-    "action": on_player_join,
-    "env": "(self)",
-    "group": "authentication",
-    "essential": True
-})
+from bot.assorted_functions import ResponseMessage
 
 
 def on_enter_gameworld(bot, source_player, target_player, command):
@@ -158,20 +142,26 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
             if steamid_to_modify is False:
                 raise KeyError
 
+        response_messages = ResponseMessage()
         group = str(p.group("group_name"))
         if group not in bot.permission_levels_list:
-            bot.tn.send_message_to_player(target_player, "the group {} does not exist!".format(group), color=bot.chat_colors['success'])
-            return False
+            message = "the group {} does not exist!".format(group)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
         try:
             player_object_to_modify = bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.add_permission_level(group)
-            bot.tn.send_message_to_player(target_player, "{} has been added to the group {}".format(target_player.name, group), color=bot.chat_colors['success'])
+            message = "{} has been added to the group {}".format(target_player.name, group)
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.players.upsert(player_object_to_modify, save=True)
         except Exception:
-            bot.tn.send_message_to_player(target_player,"could not find a player with steamid {}".format(steamid_to_modify), color=bot.chat_colors['warning'])
-            return
+            message = "could not find a player with steamid {}".format(steamid_to_modify)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        bot.players.upsert(player_object_to_modify, save=True)
+        return response_messages
 
 
 common.actions_list.append({
@@ -212,20 +202,26 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
             if steamid_to_modify is False:
                 raise KeyError
 
+        response_messages = ResponseMessage()
         group = str(p.group("group_name"))
         if group not in bot.permission_levels_list:
-            bot.tn.send_message_to_player(target_player, "the group {} does not exist!".format(group), color=bot.chat_colors['success'])
-            return False
+            message = "the group {} does not exist!".format(group)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
         try:
             player_object_to_modify = bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.remove_permission_level(group)
-            bot.tn.send_message_to_player(target_player, "{} has been removed from the group {}".format(target_player.name, group), color=bot.chat_colors['success'])
+            message = "{} has been removed from the group {}".format(target_player.name, group)
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.players.upsert(player_object_to_modify, save=True)
         except Exception:
-            bot.tn.send_message_to_player(target_player,"could not find a player with steamid {}".format(steamid_to_modify), color=bot.chat_colors['warning'])
-            return
+            message = "could not find a player with steamid {}".format(steamid_to_modify)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        bot.players.upsert(player_object_to_modify, save=True)
+        return response_messages
 
 
 common.actions_list.append({

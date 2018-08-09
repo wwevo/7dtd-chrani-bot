@@ -56,3 +56,17 @@ def get_region_string(pos_x, pos_z):
 class ObjectView(object):
     def __init__(self, d):
         self.__dict__ = d
+
+
+class ResponseMessage(object):
+    messages = dict
+
+    def __init__(self):
+        self.messages = {}
+
+    def add_message(self, message, result):
+        self.messages.update({message: result})
+
+    def get_message_dict(self):
+        return self.messages
+

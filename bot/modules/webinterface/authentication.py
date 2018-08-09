@@ -15,7 +15,7 @@ def remove_player_from_group(target_player_steamid, group):
     target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
     action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "remove player {} from group {}".format(target_player_steamid, group))
     response = {
-        "actionResponse": action_response,
+        "actionResponse": action_response.get_message_dict(),
         "actionResult": True
     }
 
@@ -47,7 +47,7 @@ def add_player_to_group(target_player_steamid, group):
     target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
     action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "add player {} to group {}".format(target_player_steamid, group))
     response = {
-        "actionResponse": action_response,
+        "actionResponse": action_response.get_message_dict(),
         "actionResult": True
     }
 
