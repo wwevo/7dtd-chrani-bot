@@ -1,5 +1,30 @@
 import os
 from bot.modules.logger import logger
+import __main__  # my ide throws a warning here, but it works oO
+from functools import wraps
+from urllib import urlencode
+
+
+def build_response(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        webinterface = __main__.bot.webinterface
+
+        action_response = f(*args, **kwargs)
+        response = {
+            "actionResponse": action_response.get_message_dict(),
+            "actionResult": True
+        }
+
+        if webinterface.flask.request.accept_mimetypes.best == 'application/json':
+            return webinterface.app.response_class(
+                response=webinterface.flask.json.dumps(response),
+                mimetype='application/json'
+            )
+        else:
+            return webinterface.flask.redirect("/protected?{}".format(urlencode(response)))
+
+    return wrapped
 
 
 actions_list = []

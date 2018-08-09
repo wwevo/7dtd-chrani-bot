@@ -1,9 +1,9 @@
 import common
 import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
-from urllib import urlencode
 
 
+@common.build_response
 def send_player_home(target_player_steamid):
     webinterface = __main__.bot.webinterface
     try:
@@ -16,20 +16,8 @@ def send_player_home(target_player_steamid):
     location_object = webinterface.bot.locations.get(target_player_steamid, 'home')
     pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
     coord_tuple = (pos_x, pos_y, pos_z)
-    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
-    response = {
-        "actionResponse": action_response,
-        "actionResult": True
-    }
-
-    if webinterface.flask.request.accept_mimetypes.best == 'application/json':
-        return webinterface.app.response_class(
-            response=webinterface.flask.json.dumps(response),
-            mimetype='application/json'
-        )
-    else:
-        return webinterface.flask.redirect("/protected?{}".format(urlencode(response)))
+    return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
 
 common.actions_list.append({
@@ -40,6 +28,7 @@ common.actions_list.append({
 })
 
 
+@common.build_response
 def send_player_to_lobby(target_player_steamid):
     webinterface = __main__.bot.webinterface
     try:
@@ -53,20 +42,8 @@ def send_player_to_lobby(target_player_steamid):
     location_object = webinterface.bot.locations.get('system', 'lobby')
     pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
     coord_tuple = (pos_x, pos_y, pos_z)
-    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
-    response = {
-        "actionResponse": action_response,
-        "actionResult": True
-    }
-
-    if webinterface.flask.request.accept_mimetypes.best == 'application/json':
-        return webinterface.app.response_class(
-            response=webinterface.flask.json.dumps(response),
-            mimetype='application/json'
-        )
-    else:
-        return webinterface.flask.redirect("/protected?{}".format(urlencode(response)))
+    return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
 
 common.actions_list.append({
@@ -77,6 +54,7 @@ common.actions_list.append({
 })
 
 
+@common.build_response
 def obliterate_player(target_player_steamid):
     webinterface = __main__.bot.webinterface
     try:
@@ -86,19 +64,8 @@ def obliterate_player(target_player_steamid):
 
     player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
-    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "obliterate player {}".format(target_player_steamid))
-    response = {
-        "actionResponse": action_response,
-        "actionResult": True
-    }
 
-    if webinterface.flask.request.accept_mimetypes.best == 'application/json':
-        return webinterface.app.response_class(
-            response=webinterface.flask.json.dumps(response),
-            mimetype='application/json'
-        )
-    else:
-        return webinterface.flask.redirect("/protected?{}".format(urlencode(response)))
+    return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "obliterate player {}".format(target_player_steamid))
 
 
 common.actions_list.append({
@@ -109,6 +76,7 @@ common.actions_list.append({
 })
 
 
+@common.build_response
 def kick_player(target_player_steamid, reason):
     webinterface = __main__.bot.webinterface
     try:
@@ -118,19 +86,8 @@ def kick_player(target_player_steamid, reason):
 
     player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
-    action_response = bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
-    response = {
-        "actionResponse": action_response,
-        "actionResult": True
-    }
 
-    if webinterface.flask.request.accept_mimetypes.best == 'application/json':
-        return webinterface.app.response_class(
-            response=webinterface.flask.json.dumps(response),
-            mimetype='application/json'
-        )
-    else:
-        return webinterface.flask.redirect("/protected?{}".format(urlencode(response)))
+    return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
 
 
 common.actions_list.append({
