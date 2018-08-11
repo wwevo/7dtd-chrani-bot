@@ -5,9 +5,8 @@ html {
 
 header {
     display: flex;
-    background-color: #acacac;
-    height: 2.66em; line-height: 1.33em;
-    background: linear-gradient(#acacac 50%, #eaeaea 50%); /* Standard syntax (must be last) */
+    height: 5.32em; line-height: 1.33em;
+    background: #ffffff linear-gradient(#acacac, #acacac 25%, #bdbdbd 25%, #bdbdbd 50%, #cecece 50%, #ffffff 75%); /* Standard syntax (must be last) */
 }
 
 footer {

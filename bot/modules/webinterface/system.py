@@ -3,6 +3,22 @@ import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_system_status_widget():
+    webinterface = __main__.bot.webinterface
+    return webinterface.flask.Markup(webinterface.flask.render_template('system_status_widget.html', bot=webinterface.bot))
+
+
+common.actions_list.append({
+    "title": "fetches system status widget",
+    "route": "/protected/players/widgets/system_status_widget",
+    "action": get_system_status_widget,
+    "authenticated": True
+})
+
+
+def get_system_status():
+    return get_system_status_widget()
+
 @common.build_response
 def pause_bot():
     webinterface = __main__.bot.webinterface

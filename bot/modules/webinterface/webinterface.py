@@ -2,6 +2,7 @@ import bot.actions
 import bot.external.flask as flask
 import bot.external.flask_login as flask_login
 from bot.modules.webinterface.players import get_players_table
+from bot.modules.webinterface.system import get_system_status
 
 import re
 import os
@@ -134,7 +135,8 @@ class Webinterface(Thread):
             output = "Welcome to the <strong>{}</strong><br />".format(self.bot.name)
 
             markup = self.flask.Markup(output)
-            return self.flask.render_template('index.html', bot=self.bot, content=markup)
+            system_status_widget = get_system_status()
+            return self.flask.render_template('index.html', bot=self.bot, content=markup, system_status_widget=system_status_widget)
 
         @self.app.route('/protected')
         @self.flask_login.login_required
@@ -144,7 +146,8 @@ class Webinterface(Thread):
             output += get_players_table()
 
             markup = self.flask.Markup(output)
-            return self.flask.render_template('index.html', bot=self.bot, content=markup)
+            system_status_widget = get_system_status()
+            return self.flask.render_template('index.html', bot=self.bot, content=markup, system_status_widget=system_status_widget)
 
         """ collecting all defined actions and creating routes for them """
         for actions_list_entry in bot.modules.webinterface.actions_list:

@@ -4,38 +4,11 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>{% block title %}{% endblock %}</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script language="javascript">
-            function alter_permission_group(link_clicked, steamid, widget_id) {
-                $.when(
-                    $.ajax({
-                        url: link_clicked.href,
-                        type: "GET",
-                        beforeSend: function(xhr){
-                            xhr.setRequestHeader("Content-Type","application/json");
-                            xhr.setRequestHeader('Accept', 'application/json');
-                        },
-                        success: function(data) {
-                            return data["actionResponse"];
-                        }
-                    }),
-                    $.ajax({
-                        url: "/protected/players/widgets/permission_levels_widget/" + steamid,
-                        type: "GET",
-                        success: function(data) {
-                            return data;
-                        }
-                    })
-                ).then(function(responseText, html) {
-                    document.getElementById("messages").innerHTML = JSON.stringify(responseText[0]);
-                    document.getElementById(widget_id).innerHTML = html[0];
-                });
-            }
-        </script>
     {% endblock %}</head>
     <body>
         <header>
             <div id="info"><a href="/">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %}</a> - webinterface</div>
-            <div id="status">uptime: {% if bot.uptime %}{{ bot.uptime }}{% else %}not available{% endif %}{% if current_user.is_authenticated %} - the bot is currently {% if bot.is_paused == True %}paused (<a href="/protected/system/resume" onclick="apicall(this); return false;">resume</a>){% else %}running (<a href="/protected/system/pause" onclick="apicall(this); return false;">pause</a>){% endif %} (<a href="/protected/system/shutdown" onclick="apicall(this); return false;">shutdown bot</a>){% endif %}</div>
+            <div id="status">{{ system_status_widget }}</div>
             <div id="user">{% if current_user.is_authenticated %}{{ current_user.name }} - <a href="/logout">logout</a>{% else %}guest - <a href="/login">log in with steam!</a>{% endif %}</div>
         </header>
         <div id="content">
