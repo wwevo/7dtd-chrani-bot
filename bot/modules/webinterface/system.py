@@ -12,12 +12,13 @@ common.actions_list.append({
     "title": "fetches system status widget",
     "route": "/protected/players/widgets/system_status_widget",
     "action": get_system_status_widget,
-    "authenticated": True
+    "authenticated": False
 })
 
 
 def get_system_status():
     return get_system_status_widget()
+
 
 @common.build_response
 def pause_bot():

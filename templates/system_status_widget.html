@@ -1,3 +1,6 @@
-uptime: {% if bot.uptime %}{{ bot.uptime }}{% else %}not available{% endif %}<br />
-{% if current_user.is_authenticated %}the bot is currently {% if bot.is_paused == True %}paused (<a href="/protected/system/resume" onclick="apicall(this); return false;">resume</a>){% else %}running (<a href="/protected/system/pause" onclick="apicall(this); return false;">pause</a>){% endif %}<br />
-(<a href="/protected/system/shutdown" onclick="apicall(this); return false;">shutdown bot</a>){% endif %}
+
+<div id="bot_status">
+    uptime: {% if bot.uptime %}{{ bot.uptime }}{% else %}not available{% endif %}<br />
+    {% if current_user.is_authenticated %}the bot is currently {% if bot.is_paused == True %}paused (<a href="/protected/system/resume" onclick="bot_pause_resume(this, 'bot_status'); return false;">resume</a>){% else %}running (<a href="/protected/system/pause" onclick="bot_pause_resume(this, 'bot_status'); return false;">pause</a>){% endif %}<br />
+    (<a href="/protected/system/shutdown" onclick="apicall(this); return false;">shutdown bot</a>){% endif %}
+</div>
