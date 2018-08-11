@@ -1,6 +1,8 @@
 import bot.actions
 import bot.external.flask as flask
 import bot.external.flask_login as flask_login
+from bot.modules.webinterface.players import get_players_table
+
 import re
 import os
 from urllib import urlencode
@@ -137,42 +139,14 @@ class Webinterface(Thread):
         @self.app.route('/protected')
         @self.flask_login.login_required
         def protected():
-            player_objects_to_list = self.bot.players.get_all_players(get_online_only=True)
-            output = self.flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
+            output = get_players_table(online_only=True)
 
-            output += '<hr/>'
-            player_objects_to_list = self.bot.players.get_all_players()
-            player_locations_to_list = {}
-            player_groups_to_list = {}
-            for player_object in player_objects_to_list:
-                player_locations = []
-                for location_identifier, location_object in self.bot.locations.get(player_object.steamid).iteritems():
-                    player_locations.append(location_object)
-
-                try:
-                    player_locations_to_list.update({player_object.steamid: player_locations})
-                except:
-                    player_locations_to_list = {player_object.steamid: player_locations}
-
-                player_groups = []
-                for permission_level in self.bot.permission_levels_list:
-                    if player_object.has_permission_level(permission_level):
-                        href = "/protected/authentication/remove/group/{}/{}".format(player_object.steamid, permission_level)
-                        player_groups.append(self.flask.Markup(self.flask.render_template('link_active.html', href=href, text=permission_level)))
-                    else:
-                        href = "/protected/authentication/add/group/{}/{}".format(player_object.steamid, permission_level)
-                        player_groups.append(self.flask.Markup(self.flask.render_template('link_inactive.html', href=href, text=permission_level)))
-
-                try:
-                    player_groups_to_list.update({player_object.steamid: player_groups})
-                except:
-                    player_groups_to_list = {player_object.steamid: player_groups}
-
-            output += self.flask.render_template('all_players.html', player_objects_to_list=player_objects_to_list, player_locations_to_list=player_locations_to_list, player_groups_to_list=player_groups_to_list)
+            output += get_players_table()
 
             markup = self.flask.Markup(output)
             return self.flask.render_template('index.html', bot=self.bot, content=markup)
 
+        """ collecting all defined actions and creating routes for them """
         for actions_list_entry in bot.modules.webinterface.actions_list:
             if actions_list_entry['authenticated'] is True:
                 action = actions_list_entry['action']

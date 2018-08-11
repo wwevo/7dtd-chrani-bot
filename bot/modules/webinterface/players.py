@@ -3,6 +3,44 @@ import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_permission_levels_widget(player_object):
+    webinterface = __main__.bot.webinterface
+    player_permissions_dict = player_object.get_permission_levels_dict(webinterface.bot.permission_levels_list)
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_permissions_widget.html', player_object=player_object, player_permissions_dict=player_permissions_dict))
+
+
+def get_player_locations_widget(player_object):
+    webinterface = __main__.bot.webinterface
+    player_locations_dict = webinterface.bot.locations.get(player_object.steamid)
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_locations_widget.html', player_object=player_object, player_locations_dict=player_locations_dict))
+
+
+def get_online_players_table():
+    webinterface = __main__.bot.webinterface
+    player_objects_to_list = webinterface.bot.players.get_all_players(get_online_only=True)
+
+    return webinterface.flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
+
+
+def get_all_players_table():
+    webinterface = __main__.bot.webinterface
+
+    output = ""
+    for player_object in webinterface.bot.players.get_all_players():
+        player_permissions_widget = get_permission_levels_widget(player_object)
+        player_locations_widget = get_player_locations_widget(player_object)
+
+        output += webinterface.flask.Markup(webinterface.flask.render_template('all_players_entry.html', player_object=player_object, player_locations_widget=player_locations_widget, player_permissions_widget=player_permissions_widget))
+    return webinterface.flask.render_template('all_players.html', player_entries=output)
+
+
+def get_players_table(online_only=False):
+    if online_only:
+        return get_online_players_table()
+    else:
+        return get_all_players_table()
+
+
 @common.build_response
 def send_player_home(target_player_steamid):
     webinterface = __main__.bot.webinterface

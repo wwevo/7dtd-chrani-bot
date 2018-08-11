@@ -89,6 +89,16 @@ class Player(flask_login.UserMixin):
         self.authenticated = authenticated
         return True
 
+    def get_permission_levels_dict(self, permissions_list):
+        permission_levels_dict = {}
+        for permission_level in permissions_list:
+            if permission_level not in self.permission_levels:
+                permission_levels_dict[permission_level] = False
+            else:
+                permission_levels_dict[permission_level] = True
+
+        return permission_levels_dict
+
     def set_permission_levels(self, level_list):
         self.permission_levels = level_list
         if "authenticated" in level_list:

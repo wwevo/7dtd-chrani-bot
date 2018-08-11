@@ -6,13 +6,15 @@ html {
 header {
     display: flex;
     background-color: #acacac;
-    height: 1.33em; line-height: 1.33em;
+    height: 2.66em; line-height: 1.33em;
+    background: linear-gradient(#acacac 50%, #eaeaea 50%); /* Standard syntax (must be last) */
 }
 
 footer {
     text-align: right;
-    background-color: #acacac;
     height: 1.33em; line-height: 1.33em;
+    background: #acacac;
+    margin-top: 1.33em;
 }
 
 header #info {}
@@ -24,22 +26,52 @@ header #status {
 
 header #user {}
 
-tr.even {
-    background-color: #cccccc
+table {
+    border: 0;
+    border-spacing: 0;
+}
+
+tr:nth-child(odd) {
+    background-color: #cccccc;
+}
+
+tr th, tr td {
+    padding: 3px 0;
 }
 
 tr th {
-    text-align: left
+    text-align: left;
+    background: #666666;
+    color: #cccccc;
 }
 
 td.actions a.active {
-    font-weight: bold
+    font-weight: bold;
 }
 
 td.actions a {
-    margin-right: 0.5em
+    margin-right: 0.5em;
 }
 
 td.actions a:last-child {
-    margin-right: 0em
+    margin-right: 0em;
+}
+
+table ul {
+    padding: 0; margin: 0;
+    list-style-type: None;
+}
+
+table li {
+    padding: 0; margin: 0;
+}
+
+table li.flat {
+    float: left;
+    margin-right: 0.66em;
+}
+
+table li.flat:last-child {
+    float: left;
+    margin-right: 0;
 }
