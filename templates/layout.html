@@ -3,19 +3,34 @@
     <head>{% block head %}
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>{% block title %}{% endblock %}</title>
-        <script language="javascript">/*
-            function apicall(link_clicked){
-                xmlhttp=new XMLHttpRequest();
-                xmlhttp.onreadystatechange=function(){
-                    if (xmlhttp.readyState==4 && xmlhttp.status==200){
-                        alert(xmlhttp.responseText);
-                    }
-                }
-                xmlhttp.open("GET", link_clicked.href);
-                xmlhttp.setRequestHeader('Accept', 'application/json');
-                xmlhttp.send();
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script language="javascript">
+            function alter_permission_group(link_clicked, steamid, widget_id) {
+                $.when(
+                    $.ajax({
+                        url: link_clicked.href,
+                        type: "GET",
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader("Content-Type","application/json");
+                            xhr.setRequestHeader('Accept', 'application/json');
+                        },
+                        success: function(data) {
+                            return data["actionResponse"];
+                        }
+                    }),
+                    $.ajax({
+                        url: "/protected/players/widgets/permission_levels_widget/" + steamid,
+                        type: "GET",
+                        success: function(data) {
+                            return data;
+                        }
+                    })
+                ).then(function(responseText, html) {
+                    document.getElementById("messages").innerHTML = JSON.stringify(responseText[0]);
+                    document.getElementById(widget_id).innerHTML = html[0];
+                });
             }
-        */</script>
+        </script>
     {% endblock %}</head>
     <body>
         <header>
@@ -26,8 +41,12 @@
         <div id="content">
             {% block content %}
         {% endblock %}</div>
+        <div id="messages">
+            {% block messages %}
+        {% endblock %}</div>
         <footer>{% block footer %}
             &copy; Copyright 2018 by <a href="http://chrani.net/">wwevo</a>
         {% endblock %}</footer>
     </body>
 </html>
+

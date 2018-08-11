@@ -45,15 +45,15 @@ tr th {
     color: #cccccc;
 }
 
-td.actions a.active {
+td.player_permissions_widget a.active {
     font-weight: bold;
 }
 
-td.actions a {
+td.player_permissions_widget a {
     margin-right: 0.5em;
 }
 
-td.actions a:last-child {
+td.player_permissions_widget a:last-child {
     margin-right: 0em;
 }
 
