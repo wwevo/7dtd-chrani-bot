@@ -4,7 +4,7 @@ function alter_permission_group(link_clicked, steamid, widget_id) {
             url: link_clicked.href,
             type: "GET",
             beforeSend: function(xhr){
-                xhr.setRequestHeader("Content-Type","application/json");
+                xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.setRequestHeader('Accept', 'application/json');
             },
             success: function(data) {

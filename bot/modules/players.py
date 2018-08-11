@@ -208,9 +208,9 @@ class Players(object):
             "last_teleport": player_object.last_teleport,
             "last_responsive": player_object.last_responsive,
             "playerfriends_list": player_object.playerfriends_list,
-            "pos_x": player_object.pos_x,
-            "pos_y": player_object.pos_y,
-            "pos_z": player_object.pos_z,
+            "pos_x": player_object.pos_x if isinstance(player_object.pos_x, basestring) else 0,
+            "pos_y": player_object.pos_y if isinstance(player_object.pos_y, basestring) else 0,
+            "pos_z": player_object.pos_z if isinstance(player_object.pos_z, basestring) else 0,
         }
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:

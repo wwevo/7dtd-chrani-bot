@@ -1,9 +1,9 @@
 {% if player_permissions_dict %}
 <ul id="ppw_{{ player_object.entityid }}">{% for player_permission_identifier, player_permission_granted in player_permissions_dict.iteritems() %}
     <li class="flat">{% if player_permission_granted == True %}
-        <a href="/protected/authentication/remove/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" class="active" onclick="alter_permission_group(this, {{ player_object.steamid }}, 'ppw_{{ player_object.entityid }}'); return false;">{{ player_permission_identifier }}</a>
+        <a href="/protected/authentication/remove/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" class="active" onclick="alter_permission_group(this, '{{ player_object.steamid }}', 'ppw_{{ player_object.entityid }}'); return false;">{{ player_permission_identifier }}</a>
 {% else %}
-        <a href="/protected/authentication/add/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" onclick="alter_permission_group(this, {{ player_object.steamid }}, 'ppw_{{ player_object.entityid }}'); return false;">{{ player_permission_identifier }}</a>
+        <a href="/protected/authentication/add/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" onclick="alter_permission_group(this, '{{ player_object.steamid }}', 'ppw_{{ player_object.entityid }}'); return false;">{{ player_permission_identifier }}</a>
 {% endif %}    </li>{% endfor %}
 </ul>
 {% endif %}

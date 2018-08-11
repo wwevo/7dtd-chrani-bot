@@ -30,7 +30,7 @@ function refresh_system_status_widget() {
             type: "GET",
             success: function(data) {
                 document.getElementById('bot_status').innerHTML = data;
-                setTimeout(refresh_system_status_widget, 5000);
+                setTimeout(refresh_system_status_widget, 15000);
             }
         })
 }

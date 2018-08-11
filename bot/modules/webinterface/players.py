@@ -12,7 +12,7 @@ def get_permission_levels_widget(target_player_steamid):
 
 common.actions_list.append({
     "title": "fetches player permissions widget",
-    "route": "/protected/players/widgets/permission_levels_widget/<target_player_steamid>",
+    "route": "/protected/players/widgets/permission_levels_widget/<string:target_player_steamid>",
     "action": get_permission_levels_widget,
     "authenticated": True
 })
@@ -27,7 +27,7 @@ def get_player_locations_widget(target_player_steamid):
 
 common.actions_list.append({
     "title": "fetches player locations widget",
-    "route": "/protected/players/widgets/permission_locations_widget/<target_player_steamid>",
+    "route": "/protected/players/widgets/permission_locations_widget/<string:target_player_steamid>",
     "action": get_player_locations_widget,
     "authenticated": True
 })
@@ -62,6 +62,7 @@ def get_players_table(online_only=False):
 @common.build_response
 def send_player_home(target_player_steamid):
     webinterface = __main__.bot.webinterface
+    target_player_steamid = str(target_player_steamid)
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
@@ -78,7 +79,7 @@ def send_player_home(target_player_steamid):
 
 common.actions_list.append({
     "title": "send player home",
-    "route": "/protected/players/send/<target_player_steamid>/home",
+    "route": "/protected/players/send/<string:target_player_steamid>/home",
     "action": send_player_home,
     "authenticated": True
 })
@@ -87,6 +88,7 @@ common.actions_list.append({
 @common.build_response
 def send_player_to_lobby(target_player_steamid):
     webinterface = __main__.bot.webinterface
+    target_player_steamid = str(target_player_steamid)
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
@@ -104,7 +106,7 @@ def send_player_to_lobby(target_player_steamid):
 
 common.actions_list.append({
     "title": "send player home",
-    "route": "/protected/players/send/<target_player_steamid>/to/lobby",
+    "route": "/protected/players/send/<string:target_player_steamid>/to/lobby",
     "action": send_player_to_lobby,
     "authenticated": True
 })
@@ -113,6 +115,7 @@ common.actions_list.append({
 @common.build_response
 def obliterate_player(target_player_steamid):
     webinterface = __main__.bot.webinterface
+    target_player_steamid = str(target_player_steamid)
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
@@ -126,7 +129,7 @@ def obliterate_player(target_player_steamid):
 
 common.actions_list.append({
     "title": "obliterate player",
-    "route": "/protected/players/obliterate/<target_player_steamid>",
+    "route": "/protected/players/obliterate/<string:target_player_steamid>",
     "action": obliterate_player,
     "authenticated": True
 })
@@ -135,6 +138,7 @@ common.actions_list.append({
 @common.build_response
 def kick_player(target_player_steamid, reason):
     webinterface = __main__.bot.webinterface
+    target_player_steamid = str(target_player_steamid)
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
@@ -148,7 +152,7 @@ def kick_player(target_player_steamid, reason):
 
 common.actions_list.append({
     "title": "kick player",
-    "route": "/protected/players/kick/<target_player_steamid>/<reason>",
+    "route": "/protected/players/kick/<string:target_player_steamid>/<reason>",
     "action": kick_player,
     "authenticated": True
 })
