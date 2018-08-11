@@ -14,7 +14,7 @@ if __name__ == '__main__':
         try:
             bot = ChraniBot()
             bot.app_root = root_dir
-            bot.bot_version = "0.4f"
+            bot.bot_version = "0.4g"
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
@@ -33,5 +33,8 @@ if __name__ == '__main__':
             time.sleep(wait_until_reconnect)
             pass
 
-        if bot.is_active is False:
-            sys.exit()
+        try:
+            if bot.is_active is False:
+                sys.exit()
+        except NameError:
+            pass
