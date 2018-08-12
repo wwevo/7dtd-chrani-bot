@@ -3,7 +3,7 @@ $(document).ready(function(){
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
 
     socket.on('refresh_status', function(msg) {
-        refresh_system_status_widget()
+        refresh_system_status_widget(msg)
     });
 
     socket.on('refresh_permissions', function(msg) {

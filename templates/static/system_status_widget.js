@@ -4,7 +4,7 @@ function bot_pause_resume(link_clicked, widget_id) {
             url: link_clicked.href,
             type: "GET",
             beforeSend: function(xhr){
-                xhr.setRequestHeader("Content-Type","application/json");
+                xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.setRequestHeader('Accept', 'application/json');
             },
             success: function(data) {
@@ -12,11 +12,11 @@ function bot_pause_resume(link_clicked, widget_id) {
             }
         }),
     ).then(function(responseText, html) {
-        document.getElementById("messages").innerHTML = JSON.stringify(responseText[0]);
+        document.getElementById("messages").innerHTML = JSON.stringify(responseText["actionResponse"]);
     });
 }
 
-function refresh_system_status_widget() {
+function refresh_system_status_widget(msg) {
     $.ajax({
         url: "/protected/players/widgets/system_status_widget",
         type: "GET",

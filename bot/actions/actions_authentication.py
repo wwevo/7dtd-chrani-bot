@@ -154,7 +154,7 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
         try:
             player_object_to_modify = bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.add_permission_level(group)
-            message = "{} has been added to the group {}".format(target_player.name, group)
+            message = "{} has been added to the group {}".format(player_object_to_modify.name, group)
             response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
 
@@ -217,7 +217,7 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
         try:
             player_object_to_modify = bot.players.get_by_steamid(steamid_to_modify)
             player_object_to_modify.remove_permission_level(group)
-            message = "{} has been removed from the group {}".format(target_player.name, group)
+            message = "{} has been removed from the group {}".format(player_object_to_modify.name, group)
             response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
 

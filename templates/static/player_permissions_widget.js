@@ -12,7 +12,7 @@ function alter_permission_group(link_clicked, steamid) {
             }
         })
     ).then(function(responseText, html) {
-        document.getElementById("messages").innerHTML = JSON.stringify(responseText[0]);
+        document.getElementById("messages").innerHTML = JSON.stringify(responseText["actionResponse"]);
     });
 }
 
