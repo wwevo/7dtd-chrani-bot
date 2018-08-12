@@ -41,9 +41,9 @@ class Webinterface(Thread):
             static_folder=static_dir
         )
         self.app.config["SECRET_KEY"] = "totallyasecret"
-        # self.app.config["SERVER_NAME"] = "{}:{}".format(self.bot.settings.get_setting_by_name('bot_ip'), self.bot.settings.get_setting_by_name('bot_port'))
+        # self.app.config["SERVER_NAME"] = "0.0.0.0:{}".format(self.bot.settings.get_setting_by_name('bot_port'))
 
-        self.socketio = self.flask_socketio.SocketIO(self.app, async_mode='threading', host='0.0.0.0', port=5000)
+        self.socketio = self.flask_socketio.SocketIO(self.app, async_mode='threading', host=self.bot.settings.get_setting_by_name('bot_host'), port=5000)
 
         self.login_manager = self.flask_login.LoginManager()
         self.login_manager.init_app(self.app)
