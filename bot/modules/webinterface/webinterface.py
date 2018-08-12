@@ -1,7 +1,7 @@
 import bot.actions
-import bot.external.flask as flask
-import bot.external.flask_login as flask_login
-import bot.external.flask_socketio as flask_socketio
+import flask
+import flask_login
+import flask_socketio
 from bot.modules.webinterface.players import get_players_table
 from bot.modules.webinterface.system import get_system_status
 
@@ -43,7 +43,7 @@ class Webinterface(Thread):
         self.app.config["SECRET_KEY"] = "totallyasecret"
         self.app.config["SERVER_NAME"] = "{}:{}".format(self.bot.settings.get_setting_by_name('bot_ip'), self.bot.settings.get_setting_by_name('bot_port'))
 
-        self.socketio = flask_socketio.SocketIO(self.app, async_mode='threading')
+        self.socketio = self.flask_socketio.SocketIO(self.app, async_mode='threading')
 
         self.login_manager = self.flask_login.LoginManager()
         self.login_manager.init_app(self.app)
