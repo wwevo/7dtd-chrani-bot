@@ -1,5 +1,6 @@
 from bot.modules.logger import logger
 import common
+from bot.assorted_functions import ResponseMessage
 
 
 def reload_from_db(bot, source_player, target_player, command):
@@ -14,12 +15,20 @@ def reload_from_db(bot, source_player, target_player, command):
     example:
     /reinitialize
     """
+    response_messages = ResponseMessage()
     try:
         bot.load_from_db()
-        bot.tn.send_message_to_player(target_player, "loaded all from storage!", color=bot.chat_colors['success'])
+        message = "loaded all data from storage."
+        bot.tn.send_message_to_player(target_player, message , color=bot.chat_colors['success'])
+        response_messages.add_message(message, True)
     except Exception as e:
+        message = "loading data from storage failed."
+        bot.tn.send_message_to_player(target_player, message , color=bot.chat_colors['warning'])
+        response_messages.add_message(message, False)
         logger.exception(e)
         pass
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -51,11 +60,14 @@ def shutdown_bot(bot, source_player, target_player, command):
     Together with a cronjob starting the bot every minute, this can be
     used for restarting it from within the game
     """
+    response_messages = ResponseMessage()
     try:
         bot.shutdown()
     except Exception as e:
         logger.exception(e)
         pass
+
+    return ResponseMessage()
 
 
 common.actions_list.append({
@@ -84,12 +96,20 @@ def pause_bot(bot, source_player, target_player, command):
     /pause bot
 
     """
+    response_messages = ResponseMessage()
     try:
         bot.is_paused = True
-        bot.tn.say("bot operations have been suspended", color=bot.chat_colors['background'])
+        message = "The bot operations have been suspended"
+        response_messages.add_message(message, True)
+        bot.tn.say(message, color=bot.chat_colors['success'])
     except Exception as e:
+        message = "Pausing of the bot failed."
+        response_messages.add_message(message, False)
+        bot.tn.say(message, color=bot.chat_colors['warning'])
         logger.exception(e)
         pass
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -118,12 +138,20 @@ def resume_bot(bot, source_player, target_player, command):
     /resume bot
 
     """
+    response_messages = ResponseMessage()
     try:
         bot.is_paused = False
-        bot.tn.say("bot operations have been resumed", color=bot.chat_colors['background'])
+        message = "The bots operations have been resumed"
+        response_messages.add_message(message, True)
+        bot.tn.say(message, color=bot.chat_colors['success'])
     except Exception as e:
+        message = "Resuming of the bot failed."
+        response_messages.add_message(message, False)
+        bot.tn.say(message, color=bot.chat_colors['warning'])
         logger.exception(e)
         pass
+
+    return response_messages
 
 
 common.actions_list.append({

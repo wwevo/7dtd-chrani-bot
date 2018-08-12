@@ -28,20 +28,17 @@ class Webinterface(Thread):
         static_dir = os.path.join(template_dir, 'static')
 
         self.flask = flask
+        self.flask_login = flask_login
 
-        app = self.flask.Flask(
+        self.app = self.flask.Flask(
             __name__,
             template_folder=template_dir,
             static_folder=static_dir
         )
-        self.app = app
         self.app.config["SECRET_KEY"] = "totallyasecret"
 
-        self.flask_login = flask_login
-
-        login_manager = self.flask_login.LoginManager()
-        self.login_manager = login_manager
-        self.login_manager.init_app(app)
+        self.login_manager = self.flask_login.LoginManager()
+        self.login_manager.init_app(self.app)
 
         @self.login_manager.user_loader
         def user_loader(steamid):
@@ -162,6 +159,6 @@ class Webinterface(Thread):
         self.app.run(
             host=self.bot.settings.get_setting_by_name('bot_ip'),
             port=self.bot.settings.get_setting_by_name('bot_port'),
-            use_reloader=False, # makes flasks debug mode work
+            use_reloader=False,  # makes flasks debug mode work
             debug=True
         )
