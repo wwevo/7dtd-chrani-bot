@@ -1,6 +1,7 @@
 import bot.actions
 import bot.external.flask as flask
 import bot.external.flask_login as flask_login
+import bot.external.flask_socketio as flask_socketio
 from bot.modules.webinterface.players import get_players_table
 from bot.modules.webinterface.system import get_system_status
 
@@ -16,6 +17,9 @@ class Webinterface(Thread):
     app = object
     flask = object
     flask_login = object
+    flask_socketio = object
+    socketio = object
+
     login_manager = object
 
     def __init__(self, event, bot):
@@ -29,6 +33,7 @@ class Webinterface(Thread):
 
         self.flask = flask
         self.flask_login = flask_login
+        self.flask_socketio = flask_socketio
 
         self.app = self.flask.Flask(
             __name__,
@@ -36,6 +41,9 @@ class Webinterface(Thread):
             static_folder=static_dir
         )
         self.app.config["SECRET_KEY"] = "totallyasecret"
+        self.app.config["SERVER_NAME"] = "{}:{}".format(self.bot.settings.get_setting_by_name('bot_ip'), self.bot.settings.get_setting_by_name('bot_port'))
+
+        self.socketio = flask_socketio.SocketIO(self.app, async_mode='threading')
 
         self.login_manager = self.flask_login.LoginManager()
         self.login_manager.init_app(self.app)
@@ -156,9 +164,4 @@ class Webinterface(Thread):
                 action = actions_list_entry['action']
                 self.app.add_url_rule(actions_list_entry['route'], view_func=action)
 
-        self.app.run(
-            host=self.bot.settings.get_setting_by_name('bot_ip'),
-            port=self.bot.settings.get_setting_by_name('bot_port'),
-            use_reloader=False,  # makes flasks debug mode work
-            debug=True
-        )
+        self.socketio.run(self.app)

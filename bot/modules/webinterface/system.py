@@ -29,7 +29,7 @@ def pause_bot():
         return webinterface.flask.redirect("/")
 
     player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
-
+    webinterface.socketio.emit('refresh_status', '', namespace='/test')
     return bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "pause bot")
 
 
@@ -50,7 +50,7 @@ def resume_bot():
         return webinterface.flask.redirect("/")
 
     player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
-
+    webinterface.socketio.emit('refresh_status', '', namespace='/test')
     return bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "resume bot")
 
 

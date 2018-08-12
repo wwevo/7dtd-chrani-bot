@@ -11,30 +11,17 @@ function bot_pause_resume(link_clicked, widget_id) {
                 return data["actionResponse"];
             }
         }),
-        $.ajax({
-            url: "/protected/players/widgets/system_status_widget",
-            type: "GET",
-            success: function(data) {
-                return data;
-            }
-        })
     ).then(function(responseText, html) {
         document.getElementById("messages").innerHTML = JSON.stringify(responseText[0]);
-        document.getElementById(widget_id).innerHTML = html[0];
     });
 }
 
 function refresh_system_status_widget() {
     $.ajax({
-            url: "/protected/players/widgets/system_status_widget",
-            type: "GET",
-            success: function(data) {
-                document.getElementById('bot_status').innerHTML = data;
-                setTimeout(refresh_system_status_widget, 15000);
-            }
-        })
+        url: "/protected/players/widgets/system_status_widget",
+        type: "GET",
+        success: function(data) {
+            document.getElementById('bot_status').innerHTML = data;
+        }
+    })
 }
-
-$(document).ready(function(){
-    refresh_system_status_widget();
-});
