@@ -4,6 +4,7 @@ import flask_login
 import flask_socketio
 from bot.modules.webinterface.players import get_players_table
 from bot.modules.webinterface.system import get_system_status
+from bot.modules.webinterface.whitelist import get_whitelist_widget
 
 import re
 import os
@@ -151,7 +152,8 @@ class Webinterface(Thread):
 
             markup = self.flask.Markup(output)
             system_status_widget = get_system_status()
-            return self.flask.render_template('index.html', bot=self.bot, content=markup, system_status_widget=system_status_widget)
+            whitelist_widget = get_whitelist_widget()
+            return self.flask.render_template('index.html', bot=self.bot, content=markup, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget)
 
         """ collecting all defined actions and creating routes for them """
         for actions_list_entry in bot.modules.webinterface.actions_list:

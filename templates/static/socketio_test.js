@@ -13,4 +13,8 @@ $(document).ready(function(){
     socket.on('refresh_locations', function(msg) {
         refresh_player_locations_widget(msg)
     });
+
+    socket.on('refresh_whitelist', function(msg) {
+        refresh_whitelist_widget(msg)
+    });
 });

@@ -46,7 +46,7 @@ class Whitelist(object):
     def add(self, player_object, player_dict_to_whitelist, save=False):
         try:
             is_in_dict = self.whitelisted_players_dict[player_dict_to_whitelist["steamid"]]
-        except IndexError:
+        except:
             self.whitelisted_players_dict.update({player_dict_to_whitelist["steamid"]: {
                 'name': player_dict_to_whitelist["name"],
                 'whitelisted_by': player_object.steamid

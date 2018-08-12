@@ -1,13 +1,11 @@
 import re
-import urllib
-
 from bot.assorted_functions import ObjectView
 from bot.modules.logger import logger
 import common
 
 
 def add_player_to_whitelist(bot, source_player, target_player, command):
-    p = re.search(r"add\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7}))\s(?P<command>.+)", command)
+    p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7})))\s(?P<command>.+)", command)
     if p and p.group("command") == "to whitelist":
         steamid_to_whitelist = p.group("steamid")
         entityid_to_whitelist = p.group("entityid")
@@ -28,14 +26,14 @@ def add_player_to_whitelist(bot, source_player, target_player, command):
                 "name": 'unknown offline player'
             }
 
-        if not bot.whitelist.add(target_player, player_dict_to_whitelist):
+        if not bot.whitelist.add(target_player, player_dict_to_whitelist, save=True):
             bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_whitelist), color=bot.chat_colors['warning'])
             return False
 
+        bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
         bot.tn.send_message_to_player(target_player, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=bot.chat_colors['success'])
     else:
         raise ValueError("action does not fully match the trigger-string")
-
 
 
 common.actions_list.append({
@@ -52,7 +50,7 @@ common.actions_list.append({
 
 
 def remove_player_from_whitelist(bot, source_player, target_player, command):
-    p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)\s(?P<command>.+))", command)
+    p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7})))\s(?P<command>.+)", command)
     if p and p.group("command") == "from whitelist":
         steamid_to_dewhitelist = p.group("steamid")
         entityid_to_dewhitelist = p.group("entityid")
@@ -72,6 +70,7 @@ def remove_player_from_whitelist(bot, source_player, target_player, command):
             player_object_to_dewhitelist = player_dict
 
         if bot.whitelist.remove(player_object_to_dewhitelist):
+            bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
             bot.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(target_player.name), color=bot.chat_colors['alert'])
         else:
             bot.tn.send_message_to_player(target_player, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=bot.chat_colors['warning'])
@@ -98,6 +97,7 @@ common.actions_list.append({
 def activate_whitelist(bot, source_player, target_player, command):
     try:
         bot.whitelist.activate()
+        bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
         bot.tn.say("Whitelist is in effect! Feeling safer already :)", color=bot.chat_colors['alert'])
     except Exception as e:
         logger.exception(e)
@@ -120,6 +120,7 @@ common.actions_list.append({
 def deactivate_whitelist(bot, source_player, target_player, command):
     try:
         bot.whitelist.deactivate()
+        bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
         bot.tn.say("Whitelist has been disabled. We are feeling adventureous :)", color=bot.chat_colors['alert'])
     except Exception as e:
         logger.exception(e)

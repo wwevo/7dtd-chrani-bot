@@ -1,0 +1,5 @@
+{% if current_user.is_authenticated %}
+<div id="whitelist_status">
+    the whitelist is currently {% if bot.whitelist.whitelist_active == True %}active (<a href="/protected/whitelist/deactivate" onclick="whitelist_pause_resume(this, 'whitelist_status'); return false;">deactivate</a>){% else %}deactivated (<a href="/protected/whitelist/activate" onclick="whitelist_pause_resume(this, 'whitelist_status'); return false;">activate</a>){% endif %}
+</div>
+{% endif %}
