@@ -18,7 +18,7 @@ function alter_permission_group(link_clicked, steamid) {
 
 function refresh_player_permissions_widget(msg) {
         $.ajax({
-            url: "/protected/players/widgets/permission_levels_widget/" + msg.steamid,
+            url: "/protected/players/widgets/player_permissions_widget/" + msg.steamid,
             type: "GET",
             success: function(data) {
                 document.getElementById("ppw_" + msg.entityid).innerHTML = data;

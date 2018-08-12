@@ -3,7 +3,7 @@ import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
-def get_permission_levels_widget(target_player_steamid):
+def get_player_permissions_widget(target_player_steamid):
     webinterface = __main__.bot.webinterface
     player_object = webinterface.bot.players.get_by_steamid(target_player_steamid)
     player_permissions_dict = player_object.get_permission_levels_dict(webinterface.bot.permission_levels_list)
@@ -12,8 +12,8 @@ def get_permission_levels_widget(target_player_steamid):
 
 common.actions_list.append({
     "title": "fetches player permissions widget",
-    "route": "/protected/players/widgets/permission_levels_widget/<string:target_player_steamid>",
-    "action": get_permission_levels_widget,
+    "route": "/protected/players/widgets/player_permissions_widget/<string:target_player_steamid>",
+    "action": get_player_permissions_widget,
     "authenticated": True
 })
 
@@ -27,7 +27,7 @@ def get_player_locations_widget(target_player_steamid):
 
 common.actions_list.append({
     "title": "fetches player locations widget",
-    "route": "/protected/players/widgets/permission_locations_widget/<string:target_player_steamid>",
+    "route": "/protected/players/widgets/player_locations_widget/<string:target_player_steamid>",
     "action": get_player_locations_widget,
     "authenticated": True
 })
@@ -45,7 +45,7 @@ def get_all_players_table():
 
     output = ""
     for player_object in webinterface.bot.players.get_all_players():
-        player_permissions_widget = get_permission_levels_widget(player_object.steamid)
+        player_permissions_widget = get_player_permissions_widget(player_object.steamid)
         player_locations_widget = get_player_locations_widget(player_object.steamid)
 
         output += webinterface.flask.Markup(webinterface.flask.render_template('all_players_entry.html', player_object=player_object, player_locations_widget=player_locations_widget, player_permissions_widget=player_permissions_widget))
