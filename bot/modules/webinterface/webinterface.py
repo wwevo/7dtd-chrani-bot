@@ -41,9 +41,8 @@ class Webinterface(Thread):
             static_folder=static_dir
         )
         self.app.config["SECRET_KEY"] = "totallyasecret"
-        # self.app.config["SERVER_NAME"] = "0.0.0.0:{}".format(self.bot.settings.get_setting_by_name('bot_port'))
 
-        self.socketio = self.flask_socketio.SocketIO(self.app, async_mode='threading', host=self.bot.settings.get_setting_by_name('bot_host'), port=5000)
+        self.socketio = self.flask_socketio.SocketIO(self.app, async_mode='threading')
 
         self.login_manager = self.flask_login.LoginManager()
         self.login_manager.init_app(self.app)
@@ -164,4 +163,4 @@ class Webinterface(Thread):
                 action = actions_list_entry['action']
                 self.app.add_url_rule(actions_list_entry['route'], view_func=action)
 
-        self.socketio.run(self.app)
+        self.socketio.run(self.app, host='0.0.0.0', port=5000)
