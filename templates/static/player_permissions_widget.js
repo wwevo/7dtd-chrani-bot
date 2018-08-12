@@ -1,4 +1,4 @@
-function alter_permission_group(link_clicked, steamid, widget_id) {
+function alter_permission_group(link_clicked, steamid) {
     $.when(
         $.ajax({
             url: link_clicked.href,
@@ -10,16 +10,18 @@ function alter_permission_group(link_clicked, steamid, widget_id) {
             success: function(data) {
                 return data["actionResponse"];
             }
-        }),
-        $.ajax({
-            url: "/protected/players/widgets/permission_levels_widget/" + steamid,
-            type: "GET",
-            success: function(data) {
-                return data;
-            }
         })
     ).then(function(responseText, html) {
         document.getElementById("messages").innerHTML = JSON.stringify(responseText[0]);
-        document.getElementById(widget_id).innerHTML = html[0];
     });
+}
+
+function refresh_player_permissions_widget(msg) {
+        $.ajax({
+            url: "/protected/players/widgets/permission_levels_widget/" + msg.steamid,
+            type: "GET",
+            success: function(data) {
+                document.getElementById("ppw_" + msg.entityid).innerHTML = data;
+            }
+        })
 }

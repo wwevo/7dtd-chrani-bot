@@ -99,6 +99,7 @@ def pause_bot(bot, source_player, target_player, command):
     response_messages = ResponseMessage()
     try:
         bot.is_paused = True
+        bot.webinterface.socketio.emit('refresh_status', '', namespace='/test')
         message = "The bot operations have been suspended"
         response_messages.add_message(message, True)
         bot.tn.say(message, color=bot.chat_colors['success'])
@@ -141,6 +142,7 @@ def resume_bot(bot, source_player, target_player, command):
     response_messages = ResponseMessage()
     try:
         bot.is_paused = False
+        bot.webinterface.socketio.emit('refresh_status', '', namespace='/test')
         message = "The bots operations have been resumed"
         response_messages.add_message(message, True)
         bot.tn.say(message, color=bot.chat_colors['success'])

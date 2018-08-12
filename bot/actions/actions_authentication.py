@@ -157,6 +157,9 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
             message = "{} has been added to the group {}".format(target_player.name, group)
             response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+
+            bot.webinterface.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/test')
+
             bot.players.upsert(player_object_to_modify, save=True)
         except Exception:
             message = "could not find a player with steamid {}".format(steamid_to_modify)
@@ -217,6 +220,9 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
             message = "{} has been removed from the group {}".format(target_player.name, group)
             response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+
+            bot.webinterface.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/test')
+
             bot.players.upsert(player_object_to_modify, save=True)
         except Exception:
             message = "could not find a player with steamid {}".format(steamid_to_modify)
