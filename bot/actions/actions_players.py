@@ -1,8 +1,47 @@
+from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 from bot.objects.player import Player
 import re
-from time import time
 import common
+
+
+def on_enter_gameworld(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
+    try:
+        bot.players.upsert(target_player, save=True)
+        message = "stored player-record for player {}".format(target_player.steamid)
+        response_messages.add_message(message, True)
+    except:
+        message = "failed to player-record for player {}".format(target_player.steamid)
+        response_messages.add_message(message, False)
+
+    return response_messages
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "EnterMultiplayer",
+        "usage": None
+    },
+    "action": on_enter_gameworld,
+    "env": "(self)",
+    "group": "players",
+    "essential": True
+})
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "JoinMultiplayer",
+        "usage": None
+    },
+    "action": on_enter_gameworld,
+    "env": "(self)",
+    "group": "players",
+    "essential": True
+})
 
 
 def on_player_leave(bot, source_player, target_player, command):

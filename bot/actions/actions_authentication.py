@@ -22,6 +22,8 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         target_player.initialized = True
         bot.players.upsert(target_player)
 
+    return ResponseMessage()
+
 
 common.actions_list.append({
     "match_mode": "isequal",

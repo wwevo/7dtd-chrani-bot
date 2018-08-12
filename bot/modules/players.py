@@ -195,27 +195,31 @@ class Players(object):
             return False
 
     def save(self, player_object):
-        dict_to_save = {
-            "id": player_object.id,
-            "name": player_object.name,
-            "permission_levels": player_object.permission_levels,
-            "steamid": player_object.steamid,
-            "entityid": player_object.entityid,
-            "region": player_object.region,
-            "country_code": player_object.country_code,
-            "authenticated": player_object.authenticated,
-            "is_muted": player_object.is_muted,
-            "last_teleport": player_object.last_teleport,
-            "last_responsive": player_object.last_responsive,
-            "playerfriends_list": player_object.playerfriends_list,
-            "pos_x": player_object.pos_x if isinstance(player_object.pos_x, basestring) else 0,
-            "pos_y": player_object.pos_y if isinstance(player_object.pos_y, basestring) else 0,
-            "pos_z": player_object.pos_z if isinstance(player_object.pos_z, basestring) else 0,
-        }
+        try:
+            dict_to_save = {
+                "id": player_object.id,
+                "name": player_object.name,
+                "permission_levels": player_object.permission_levels,
+                "steamid": player_object.steamid,
+                "entityid": player_object.entityid,
+                "region": player_object.region,
+                "country_code": player_object.country_code,
+                "authenticated": player_object.authenticated,
+                "is_muted": player_object.is_muted,
+                "last_teleport": player_object.last_teleport,
+                "last_responsive": player_object.last_responsive,
+                "playerfriends_list": player_object.playerfriends_list,
+                "pos_x": player_object.pos_x if isinstance(player_object.pos_x, float) else 0,
+                "pos_y": player_object.pos_y if isinstance(player_object.pos_y, float) else 0,
+                "pos_z": player_object.pos_z if isinstance(player_object.pos_z, float) else 0,
+            }
+        except Exception as e:
+            logger.debug("Preparing player-record for player {} failed: {}".format(player_object.steamid, e.message))
+            dict_to_save = {}  # this will fail the next
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
-            logger.debug("Saved player-record for player {}.".format(dict_to_save['steamid']))
+            logger.debug("Saved player-record for player {}.".format(player_object.steamid))
         except Exception as e:
-            logger.debug("Saving player-record for player {} failed: {}".format(dict_to_save['steamid'], e.message))
+            logger.debug("Saving player-record for player {} failed: {}".format(player_object.steamid, e.message))
             pass
