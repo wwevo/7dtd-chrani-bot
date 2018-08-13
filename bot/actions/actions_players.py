@@ -427,7 +427,7 @@ def ban_player(bot, source_player, target_player, command):
                 bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(target_player.name), color=bot.chat_colors['alert'])
                 bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
                 bot.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, target_player.name, reason_for_ban), color=bot.chat_colors['success'])
-                bot.webinterface.socketio.emit('remove_player_table_row', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/test')
+                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/test')
             else:
                 bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_ban), color=bot.chat_colors['warning'])
     except Exception as e:
@@ -526,7 +526,7 @@ def kick_player(bot, source_player, target_player, command):
             if bot.tn.kick(player_object_to_kick, reason_for_kick):
                 bot.tn.send_message_to_player(target_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
                 bot.tn.say("{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, target_player.name, reason_for_kick), color=bot.chat_colors['success'])
-                bot.webinterface.socketio.emit('remove_player_table_row', {"steamid": player_object_to_kick.steamid, "entityid": player_object_to_kick.entityid}, namespace='/test')
+                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object_to_kick.steamid, "entityid": player_object_to_kick.entityid}, namespace='/test')
     except Exception as e:
         logger.exception(e)
         pass
