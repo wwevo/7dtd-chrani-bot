@@ -14,7 +14,7 @@ if __name__ == '__main__':
         try:
             bot = ChraniBot()
             bot.app_root = root_dir
-            bot.bot_version = "0.4k"
+            bot.bot_version = "0.5"
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """
