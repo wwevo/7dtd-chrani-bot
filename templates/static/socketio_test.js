@@ -17,4 +17,9 @@ $(document).ready(function(){
     socket.on('refresh_whitelist', function(msg) {
         refresh_whitelist_widget(msg)
     });
+
+    socket.on('remove_player_table_row', function(msg) {
+        remove_player_table_row(msg)
+    });
+
 });

@@ -1,5 +1,5 @@
 
-<tr valign="top" id="{{ player_object.entityid }}">
+<tr valign="top" id="opw_{{ player_object.entityid }}">
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
     <td>{{ player_object.authenticated }}</td>
@@ -7,5 +7,5 @@
     <td>{{ player_object.is_online }}</td>
     <td>{{ player_locations_widget }}</td>
     <td class="player_permissions_widget">{{ player_permissions_widget }}</td>
-    <td>(<a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="apicall(this); return false;">obliterate</a>)</td>
+    <td class="obliterate_player_widget">{{ obliterate_player_widget }}</td>
 </tr>

@@ -1,4 +1,4 @@
-function whitelist_pause_resume(link_clicked, widget_id) {
+function obliterate_player(link_clicked, steamid) {
     $.when(
         $.ajax({
             url: link_clicked.href,
@@ -10,18 +10,12 @@ function whitelist_pause_resume(link_clicked, widget_id) {
             success: function(data) {
                 return data["actionResponse"];
             }
-        }),
+        })
     ).then(function(responseText, html) {
         $('#messages').html(JSON.stringify(responseText["actionResponse"]));
     });
 }
 
-function refresh_whitelist_widget(msg) {
-    $.ajax({
-        url: "/protected/players/widgets/whitelist_widget",
-        type: "GET",
-        success: function(data) {
-            $('#whitelist_status').html(data);
-        }
-    })
+function remove_player_table_row(msg) {
+    $('#opw_' + msg.entityid).fadeOut(600, function() { $(this).remove(); });
 }

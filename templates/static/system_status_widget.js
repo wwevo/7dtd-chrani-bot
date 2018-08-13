@@ -12,7 +12,7 @@ function bot_pause_resume(link_clicked, widget_id) {
             }
         }),
     ).then(function(responseText, html) {
-        document.getElementById("messages").innerHTML = JSON.stringify(responseText["actionResponse"]);
+        $('#messages').html(JSON.stringify(responseText["actionResponse"]));
     });
 }
 
@@ -21,7 +21,7 @@ function refresh_system_status_widget(msg) {
         url: "/protected/players/widgets/system_status_widget",
         type: "GET",
         success: function(data) {
-            document.getElementById('bot_status').innerHTML = data;
+            $('#bot_status').html(data);
         }
     })
 }

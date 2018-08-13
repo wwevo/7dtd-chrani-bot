@@ -12,7 +12,7 @@ function alter_permission_group(link_clicked, steamid) {
             }
         })
     ).then(function(responseText, html) {
-        document.getElementById("messages").innerHTML = JSON.stringify(responseText["actionResponse"]);
+        $('#messages').html(JSON.stringify(responseText["actionResponse"]));
     });
 }
 
@@ -21,7 +21,7 @@ function refresh_player_permissions_widget(msg) {
             url: "/protected/players/widgets/player_permissions_widget/" + msg.steamid,
             type: "GET",
             success: function(data) {
-                document.getElementById("ppw_" + msg.entityid).innerHTML = data;
+                $('#ppw_' + msg.entityid).html(data);
             }
         })
 }
