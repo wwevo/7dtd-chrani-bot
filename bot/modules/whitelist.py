@@ -95,6 +95,24 @@ class Whitelist(object):
             except Exception:
                 return False
 
+    def player_is_on_whitelist(self, player_object):
+        """Checks if a player may play while whitelist is active
+
+        checks if the player has been manually whitelisted
+        checks if player has an auto-whitelisted role
+
+        returns False if player is not allowed
+
+        Keyword arguments:
+        self -- the bot
+        player_object -- player to check
+        """
+        try:
+            is_in_dict = self.whitelisted_players_dict[player_object.steamid]
+            return True
+        except KeyError:
+            return False
+
     def save(self, dict_to_save):
         try:
             with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:

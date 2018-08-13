@@ -291,33 +291,48 @@ def obliterate_player(bot, source_player, target_player, command):
     notes:
     it will delete all locations and all playerdata plus the whitelist entry.
     """
-    try:
-        p = re.search(r"obliterate\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
-        if p:
-            steamid_to_obliterate = p.group("steamid")
-            entityid_to_obliterate = p.group("entityid")
-            if steamid_to_obliterate is None:
-                steamid_to_obliterate = bot.players.entityid_to_steamid(entityid_to_obliterate)
-                if steamid_to_obliterate is False:
-                    raise KeyError
+    response_messages = ResponseMessage()
+    p = re.search(r"obliterate\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
+    if p:
+        steamid_to_obliterate = p.group("steamid")
+        entityid_to_obliterate = p.group("entityid")
+        if steamid_to_obliterate is None:
+            steamid_to_obliterate = bot.players.entityid_to_steamid(entityid_to_obliterate)
+            if steamid_to_obliterate is False:
+                raise KeyError
 
-            if target_player.is_responsive():
-                bot.tn.kick(target_player, "Time to be born again!!")
+        if target_player.is_responsive() and bot.tn.kick(target_player, "Time to be born again!!"):
+            response_messages.add_message("player {} has been kicked, soon to be obliterated".format(target_player.name), True)
+        else:
+            response_messages.add_message("player {} has not been kicked :(".format(target_player.name), False)
 
-            location_objects_dict = bot.locations.get(target_player.steamid)
-            locations_to_remove = []
-            for name, location_object in location_objects_dict.iteritems():
-                locations_to_remove.append(location_object)
+        location_objects_dict = bot.locations.get(target_player.steamid)
+        locations_to_remove = []
+        for name, location_object in location_objects_dict.iteritems():
+            locations_to_remove.append(location_object)
 
-            for location_object in locations_to_remove:
-                bot.locations.remove(target_player.steamid, location_object.identifier)
+        response_messages.add_message("found {} locations for player {}".format(len(locations_to_remove), target_player.name), True)
 
-            bot.players.remove(target_player)
-            bot.whitelist.remove(target_player)
+        for location_object in locations_to_remove:
+            if bot.locations.remove(target_player.steamid, location_object.identifier):
+                response_messages.add_message("locations {} has been removed".format(location_object.name), True)
+            else:
+                response_messages.add_message("failed to remove location {}".format(location_object.name), False)
 
-    except Exception as e:
-            logger.exception(e)
-            pass
+        if bot.whitelist.player_is_on_whitelist(target_player):
+            if bot.whitelist.remove(target_player):
+                response_messages.add_message("player {} has been removed from the whitlist".format(target_player.name), True)
+            else:
+                response_messages.add_message("could not remove player {} from the whitelist :(".format(target_player.name), False)
+
+        if bot.players.remove(target_player):
+            response_messages.add_message("player {} has been removed!".format(target_player.name), True)
+        else:
+            response_messages.add_message("could not remove player {}".format(target_player.name), False)
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({

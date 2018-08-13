@@ -17,10 +17,7 @@ class Players(object):
     prefix = str
     extension = str
 
-    filename = str
-
     players_dict = dict
-    all_players_dict = dict
 
     poll_listplayerfriends_interval = float
 
@@ -171,16 +168,21 @@ class Players(object):
                 player_dict = byteify(json.load(file_to_read))
                 player_object = Player(**player_dict)
                 return player_object
-        except Exception:
-            raise KeyError
+        except Exception as e:
+            logger.exception(e.message)
+
+        return False
 
     def upsert(self, player_object, save=False):
         try:
             self.players_dict[player_object.steamid] = player_object
             if save:
                 self.save(player_object)
+                return True
         except Exception as e:
-            logger.exception(e)
+            logger.exception(e.message)
+
+        return False
 
     def remove(self, player_object):
         filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object.steamid, self.extension)
@@ -188,11 +190,11 @@ class Players(object):
             try:
                 os.remove(filename)
                 del self.players_dict[player_object.steamid]
+                return True
             except Exception as e:
-                logger.exception(e)
-                pass
-        else:
-            return False
+                logger.exception(e.message)
+
+        return False
 
     def save(self, player_object):
         try:

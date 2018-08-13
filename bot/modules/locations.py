@@ -110,11 +110,11 @@ class Locations(object):
                 try:
                     os.remove(filename)
                     del self.locations_dict[location_owner][location_identifier]
+                    return True
                 except OSError, e:
                     logger.exception(e)
-            else:
-                return False
-            pass
+
+            return False
         except KeyError:
             raise
 
