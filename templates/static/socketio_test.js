@@ -18,6 +18,10 @@ $(document).ready(function(){
         refresh_whitelist_widget(msg)
     });
 
+    socket.on('refresh_player_whitelist', function(msg) {
+        refresh_player_whitelist_widget(msg)
+    });
+
     socket.on('remove_player_table_row', function(msg) {
         remove_player_table_row(msg)
     });

@@ -3,6 +3,20 @@ import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_player_whitelist_widget(target_player_steamid):
+    webinterface = __main__.bot.webinterface
+    player_object = webinterface.bot.players.get_by_steamid(target_player_steamid)
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_whitelist_widget.html', bot=webinterface.bot, player_object=player_object))
+
+
+common.actions_list.append({
+    "title": "fetches player whitelist widget",
+    "route": "/protected/players/widgets/player_whitelist_widget/<string:target_player_steamid>",
+    "action": get_player_whitelist_widget,
+    "authenticated": True
+})
+
+
 def get_player_permissions_widget(target_player_steamid):
     webinterface = __main__.bot.webinterface
     player_object = webinterface.bot.players.get_by_steamid(target_player_steamid)
@@ -59,12 +73,14 @@ def get_all_players_table_row(steamid):
     player_object = webinterface.bot.players.get_by_steamid(steamid)
 
     player_permissions_widget = get_player_permissions_widget(player_object.steamid)
+    player_whitelist_widget = get_player_whitelist_widget(player_object.steamid)
     player_locations_widget = get_player_locations_widget(player_object.steamid)
     obliterate_player_widget = get_obliterate_player_widget(player_object.steamid)
 
     output = webinterface.flask.Markup(webinterface.flask.render_template(
         'all_players_entry.html',
         player_object=player_object,
+        player_whitelist_widget=player_whitelist_widget,
         player_locations_widget=player_locations_widget,
         player_permissions_widget=player_permissions_widget,
         obliterate_player_widget=obliterate_player_widget

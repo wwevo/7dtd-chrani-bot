@@ -30,7 +30,8 @@ def add_player_to_whitelist(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_whitelist), color=bot.chat_colors['warning'])
             return False
 
-        bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
+        bot.webinterface.socketio.emit('refresh_player_whitelist', {"steamid": player_dict_to_whitelist["steamid"], "entityid": None}, namespace='/test')
+
         bot.tn.send_message_to_player(target_player, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=bot.chat_colors['success'])
     else:
         raise ValueError("action does not fully match the trigger-string")
@@ -70,11 +71,12 @@ def remove_player_from_whitelist(bot, source_player, target_player, command):
             player_object_to_dewhitelist = player_dict
 
         if bot.whitelist.remove(player_object_to_dewhitelist):
-            bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
+            bot.webinterface.socketio.emit('refresh_player_whitelist', {"steamid": player_object_to_dewhitelist.steamid, "entityid": player_object_to_dewhitelist.entityid}, namespace='/test')
             bot.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(target_player.name), color=bot.chat_colors['alert'])
         else:
             bot.tn.send_message_to_player(target_player, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=bot.chat_colors['warning'])
             return False
+        bot.webinterface.socketio.emit('refresh_whitelist', '', namespace='/test')
         bot.tn.send_message_to_player(target_player, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=bot.chat_colors['success'])
 
     else:

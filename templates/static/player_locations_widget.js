@@ -3,7 +3,7 @@ function refresh_player_locations_widget(msg) {
             url: "/protected/players/widgets/player_locations_widget/" + msg.steamid,
             type: "GET",
             success: function(data) {
-                $('#plw_' + msg.entityid).html(data);
+                $('#plw_' + msg.steamid).html(data);
             }
         })
 }

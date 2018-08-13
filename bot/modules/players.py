@@ -84,7 +84,6 @@ class Players(object):
                     # player has a file on disc, update database!
                     player_object.update(**player_dict)
                     self.upsert(player_object)
-                    bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
                 except KeyError:  # player is totally new, create file!
                     player_object = Player(**player_dict)
                     self.upsert(player_object, save=True)
