@@ -78,15 +78,18 @@ class Players(object):
                     If it HAS changed it is by all means current and can be used to update the object.
                     """
                     self.upsert(player_object)
+                    bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
             except KeyError:  # player has just come online
                 try:
                     player_object = self.load(player_steamid)
                     # player has a file on disc, update database!
                     player_object.update(**player_dict)
                     self.upsert(player_object)
+                    bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
                 except KeyError:  # player is totally new, create file!
                     player_object = Player(**player_dict)
                     self.upsert(player_object, save=True)
+                    bot.webinterface.socketio.emit('add_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
             # there should be a valid object state here now ^^
 
         """ handle player-threads """
@@ -107,6 +110,7 @@ class Players(object):
                 active_player_thread = bot.active_player_threads_dict[player_steamid]
                 stop_flag = active_player_thread["thread"]
                 stop_flag.stopped.set()
+                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
                 del bot.active_player_threads_dict[player_steamid]
 
         return listplayers_dict
