@@ -30,8 +30,20 @@ table {
     border-spacing: 0;
 }
 
+tr:nth-child(even) {
+    background-color: #fcfcfc;
+}
+
 tr:nth-child(odd) {
     background-color: #cccccc;
+}
+
+tr.highlight {
+    background-color: #ccffcc;
+}
+
+tr:nth-child(odd) .highlight {
+    background-color: #ccfccc;
 }
 
 tr th, tr td {

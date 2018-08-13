@@ -58,7 +58,9 @@ def get_all_players_table():
     webinterface = __main__.bot.webinterface
 
     output = ""
-    for player_object in webinterface.bot.players.get_all_players():
+    player_objects_list = webinterface.bot.players.get_all_players()
+    player_objects_list = sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True)
+    for player_object in player_objects_list:
         player_permissions_widget = get_player_permissions_widget(player_object.steamid)
         player_locations_widget = get_player_locations_widget(player_object.steamid)
         obliterate_player_widget = get_obliterate_player_widget(player_object.steamid)

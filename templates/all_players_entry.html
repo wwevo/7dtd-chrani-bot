@@ -1,5 +1,5 @@
 
-<tr valign="top" id="opw_{{ player_object.entityid }}">
+<tr valign="top" id="opw_{{ player_object.entityid }}" {% if player_object.is_online == True %}class="highlight"{% endif%}>
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
     <td>{{ player_object.authenticated }}</td>
