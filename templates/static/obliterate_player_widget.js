@@ -15,7 +15,3 @@ function obliterate_player(link_clicked, steamid) {
         $('#messages').html(JSON.stringify(responseText["actionResponse"]));
     });
 }
-
-function remove_player_table_row(msg) {
-    $('#opw_' + msg.entityid).fadeOut(600, function() { $(this).remove(); });
-}

@@ -22,4 +22,12 @@ $(document).ready(function(){
         remove_player_table_row(msg)
     });
 
+    socket.on('add_player_table_row', function(msg) {
+        add_player_table_row(msg)
+    });
+
+    socket.on('update_player_table_row', function(msg) {
+        update_player_table_row(msg)
+    });
+
 });

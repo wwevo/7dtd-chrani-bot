@@ -7,5 +7,10 @@
     <td>{{ player_object.is_online }}</td>
     <td>{{ player_locations_widget }}</td>
     <td class="player_permissions_widget">{{ player_permissions_widget }}</td>
-    <td class="obliterate_player_widget">{{ obliterate_player_widget }}</td>
+    <td class="obliterate_player_widget">{% if player_object.is_online %}
+        <a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="player_action(this, '{{ player_object.steamid }}'); return false;">send home</a>
+        <a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this, '{{ player_object.steamid }}'); return false;">lobby</a>
+        <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface" onclick="player_action(this, '{{ player_object.steamid }}'); return false;">kick</a>{% endif %}
+        {{ obliterate_player_widget }}
+    </td>
 </tr>

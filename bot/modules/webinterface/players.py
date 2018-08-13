@@ -54,6 +54,33 @@ def get_online_players_table():
     return webinterface.flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
 
 
+def get_all_players_table_row(steamid):
+    webinterface = __main__.bot.webinterface
+    player_object = webinterface.bot.players.get_by_steamid(steamid)
+
+    player_permissions_widget = get_player_permissions_widget(player_object.steamid)
+    player_locations_widget = get_player_locations_widget(player_object.steamid)
+    obliterate_player_widget = get_obliterate_player_widget(player_object.steamid)
+
+    output = webinterface.flask.Markup(webinterface.flask.render_template(
+        'all_players_entry.html',
+        player_object=player_object,
+        player_locations_widget=player_locations_widget,
+        player_permissions_widget=player_permissions_widget,
+        obliterate_player_widget=obliterate_player_widget
+    ))
+
+    return output
+
+
+common.actions_list.append({
+    "title": "fetches players table_row",
+    "route": "/protected/players/get_table_row/<string:steamid>",
+    "action": get_all_players_table_row,
+    "authenticated": True
+})
+
+
 def get_all_players_table():
     webinterface = __main__.bot.webinterface
 
@@ -61,17 +88,8 @@ def get_all_players_table():
     player_objects_list = webinterface.bot.players.get_all_players()
     player_objects_list = sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True)
     for player_object in player_objects_list:
-        player_permissions_widget = get_player_permissions_widget(player_object.steamid)
-        player_locations_widget = get_player_locations_widget(player_object.steamid)
-        obliterate_player_widget = get_obliterate_player_widget(player_object.steamid)
+        output += get_all_players_table_row(player_object.steamid)
 
-        output += webinterface.flask.Markup(webinterface.flask.render_template(
-            'all_players_entry.html',
-            player_object=player_object,
-            player_locations_widget=player_locations_widget,
-            player_permissions_widget=player_permissions_widget,
-            obliterate_player_widget=obliterate_player_widget
-        ))
     return webinterface.flask.render_template('all_players.html', player_entries=output)
 
 
@@ -93,9 +111,12 @@ def send_player_home(target_player_steamid):
 
     player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
-    location_object = webinterface.bot.locations.get(target_player_steamid, 'home')
-    pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-    coord_tuple = (pos_x, pos_y, pos_z)
+    try:
+        location_object = webinterface.bot.locations.get(target_player_steamid, 'home')
+        pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+        coord_tuple = (pos_x, pos_y, pos_z)
+    except KeyError:
+        return False
 
     return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 

@@ -9,13 +9,6 @@ header {
     background: #ffffff linear-gradient(#acacac, #acacac 25%, #bdbdbd 25%, #bdbdbd 50%, #cecece 50%, #ffffff 75%); /* Standard syntax (must be last) */
 }
 
-footer {
-    text-align: right;
-    height: 1.33em; line-height: 1.33em;
-    background: #acacac;
-    margin-top: 1.33em;
-}
-
 header #info {}
 
 header #status {
@@ -85,4 +78,16 @@ table li.flat {
 table li.flat:last-child {
     float: left;
     margin-right: 0;
+}
+
+#messages {
+    margin-top: 1.33em;
+    border: 1px solid black;
+    background-color: #ffcccc;
+}
+
+footer {
+    text-align: right;
+    height: 1.33em; line-height: 1.33em;
+    background: #acacac;
 }

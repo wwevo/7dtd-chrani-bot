@@ -11,10 +11,16 @@ def build_response(f):
         webinterface = __main__.bot.webinterface
 
         action_response = f(*args, **kwargs)
-        response = {
-            "actionResponse": action_response.get_message_dict(),
-            "actionResult": True
-        }
+        if action_response:
+            response = {
+                "actionResponse": action_response.get_message_dict(),
+                "actionResult": True
+            }
+        else:
+            response = {
+                "actionResponse": {},
+                "actionResult": False
+            }
 
         if webinterface.flask.request.accept_mimetypes.best == 'application/json':
             return webinterface.app.response_class(

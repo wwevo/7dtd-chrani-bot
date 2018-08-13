@@ -24,6 +24,7 @@ def on_player_join(bot, source_player, target_player, command):
 
         logger.debug("spawn for player {} created".format(target_player.name))
 
+    bot.webinterface.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/test')
     return True
 
 
@@ -62,6 +63,7 @@ def on_player_death(bot, source_player, target_player, command):
     except KeyError:
         return
 
+    bot.webinterface.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/test')
     return True
 
 

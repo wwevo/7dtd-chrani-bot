@@ -169,9 +169,9 @@ class Players(object):
                 player_object = Player(**player_dict)
                 return player_object
         except Exception as e:
-            logger.exception(e.message)
+            logger.debug(e.message)
 
-        return False
+        raise KeyError
 
     def upsert(self, player_object, save=False):
         try:
