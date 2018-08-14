@@ -80,3 +80,23 @@ common.actions_list.append({
 })
 
 
+@common.build_response
+def reinitialize():
+    webinterface = __main__.bot.webinterface
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
+    return bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "reinitialize")
+
+
+common.actions_list.append({
+    "title": "reinitialize",
+    "route": "/protected/system/reinitialize",
+    "action": reinitialize,
+    "authenticated": True
+})
+
+

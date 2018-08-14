@@ -1,5 +1,9 @@
 {% if current_user.is_authenticated %}
 <div id="pww_{{ player_object.steamid }}">
-{% if bot.whitelist.player_is_on_whitelist(player_object) == True %}<a href="/protected/whitelist/remove/player/{{ player_object.steamid }}" onclick="player_action(this, '{{ player_object.steamid }}'); return false;">remove</a>{% else %}<a href="/protected/whitelist/add/player/{{ player_object.steamid }}" onclick="player_action(this, '{{ player_object.steamid }}'); return false;">add</a>{% endif %}
+    {% if bot.whitelist.player_is_on_whitelist(player_object) == True %}
+    <a href="/protected/whitelist/remove/player/{{ player_object.steamid }}" onclick="player_action(this); return false;">remove</a>
+    {% else %}
+    <a href="/protected/whitelist/add/player/{{ player_object.steamid }}" onclick="player_action(this); return false;">add</a>
+    {% endif %}
 </div>
 {% endif %}

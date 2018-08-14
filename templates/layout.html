@@ -5,29 +5,39 @@
         <title>{% block title %}{% endblock %}</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
+        <script src="{{ url_for('static', filename='system.js') }}"></script>
         <script src="{{ url_for('static', filename='system_status_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_permissions_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_locations_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='obliterate_player_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_table_row_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='whitelist_widget.js') }}"></script>
-        <script src="{{ url_for('static', filename='socketio_test.js') }}"></script>
-    {% endblock %}</head>
+        <script src="{{ url_for('static', filename='socketio.js') }}"></script>
+    {% endblock %}
+    </head>
     <body>
         <header>
             <div id="info"><a href="/">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %}</a> - webinterface</div>
             <div id="status">{{ system_status_widget }} {{ whitelist_widget }}</div>
-            <div id="user">{% if current_user.is_authenticated %}{{ current_user.name }} - <a href="/logout">logout</a>{% else %}guest - <a href="/login">log in with steam!</a>{% endif %}</div>
+            <div id="user">
+                {% if current_user.is_authenticated %}
+                {{ current_user.name }} - <a href="/logout" onclick="player_action(this); return false;">logout</a>
+                {% else %}
+                guest - <a href="/login">log in with steam!</a>
+                {% endif %}
+            </div>
         </header>
         <div id="content">
-            {% block content %}
-        {% endblock %}</div>
+            {% block content %}{% endblock %}
+        </div>
         <div id="messages">
-            {% block messages %}
-        {% endblock %}</div>
-        <footer>{% block footer %}
+            {% block messages %}{% endblock %}
+        </div>
+        <footer>
+            {% block footer %}
             &copy; Copyright 2018 by <a href="http://chrani.net/">wwevo</a>
-        {% endblock %}</footer>
+            {% endblock %}
+        </footer>
     </body>
 </html>
 

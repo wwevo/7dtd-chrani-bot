@@ -6,6 +6,10 @@ $(document).ready(function(){
         refresh_system_status_widget(msg)
     });
 
+    socket.on('reinitialize', function(msg) {
+        reload_page(msg)
+    });
+
     socket.on('refresh_permissions', function(msg) {
         refresh_player_permissions_widget(msg)
     });
