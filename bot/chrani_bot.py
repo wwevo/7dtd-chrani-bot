@@ -246,13 +246,20 @@ class ChraniBot:
         listlandprotection_timeout_start = 0
         listlandprotection_interval = self.listlandprotection_interval
 
+        update_status_timeout_start = 0
+        update_status_interval = 60
+
         self.telnet_lines_list = deque()
 
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active:
             time_running_seconds = int(time.time() - self.time_launched)
-            self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
-            self.uptime = "{}d, {}h{}m{}s".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute, self.time_running.second)
+
+            if timeout_occurred(update_status_interval, update_status_timeout_start):
+                self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
+                self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
+                self.webinterface.socketio.emit('refresh_status', '', namespace='/test')
+                update_status_timeout_start = time.time()
 
             if self.is_paused is True:
                 time.sleep(1)
