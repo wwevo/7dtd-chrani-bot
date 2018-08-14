@@ -80,6 +80,10 @@ table li.flat:last-child {
     margin-right: 0;
 }
 
+td.obliterate_player_widget {
+    text-align: right;
+}
+
 #messages {
     margin-top: 1.33em;
     border: 1px solid black;
