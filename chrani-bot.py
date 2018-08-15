@@ -6,6 +6,23 @@ import sys
 import time
 from bot.modules.logger import logger
 from bot.chrani_bot import ChraniBot
+from threading import *
+from bot.modules.webinterface.webinterface import Webinterface
+
+webinterface = object
+
+
+def load_webinterface():
+    global webinterface
+    webinterface_thread_stop_flag = Event()
+    webinterface_thread = Webinterface(webinterface_thread_stop_flag)  # I'm passing the bot (self) into it to have easy access to it's variables
+    webinterface_thread.name = "webinterface"  # nice to have for the logs
+    webinterface_thread.isDaemon()
+    webinterface_thread.start()
+    webinterface = webinterface_thread
+    return webinterface_thread.app
+
+
 """
 let there be bot:
 """
@@ -15,6 +32,9 @@ if __name__ == '__main__':
             bot = ChraniBot()
             bot.app_root = root_dir
             bot.bot_version = "0.5b"
+            load_webinterface()
+            bot.webinterface = webinterface
+            bot.webinterface.bot = bot
             bot.run()
         except (IOError, NameError) as error:
             """ clean up bot to have a clean restart when a new connection can be established """

@@ -23,12 +23,7 @@ class Webinterface(Thread):
 
     login_manager = object
 
-    def __init__(self, event, bot):
-        self.bot = bot
-        self.stopped = event
-        Thread.__init__(self)
-
-    def run(self):
+    def __init__(self, event):
         template_dir = os.path.join(os.getcwd(), 'templates')
         static_dir = os.path.join(template_dir, 'static')
 
@@ -48,6 +43,10 @@ class Webinterface(Thread):
         self.login_manager = self.flask_login.LoginManager()
         self.login_manager.init_app(self.app)
 
+        self.stopped = event
+        Thread.__init__(self)
+
+    def run(self):
         @self.login_manager.user_loader
         def user_loader(steamid):
             try:
