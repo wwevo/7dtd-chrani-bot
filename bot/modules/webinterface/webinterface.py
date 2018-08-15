@@ -23,10 +23,11 @@ class Webinterface(Thread):
 
     login_manager = object
 
-    def __init__(self, event):
+    def __init__(self, event, bot):
         template_dir = os.path.join(os.getcwd(), 'templates')
         static_dir = os.path.join(template_dir, 'static')
 
+        self.bot = bot
         self.flask = flask
         self.flask_login = flask_login
         self.flask_socketio = flask_socketio

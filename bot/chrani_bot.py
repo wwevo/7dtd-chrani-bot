@@ -1,4 +1,5 @@
 from flask import request
+from threading import *
 import re
 import time
 import datetime
@@ -13,6 +14,7 @@ import bot.observers
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
+from bot.modules.webinterface.webinterface import Webinterface
 from bot.modules.permissions import Permissions
 from bot.objects.player import Player
 from bot.modules.players import Players
@@ -150,6 +152,13 @@ class ChraniBot:
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+
+        webinterface_thread_stop_flag = Event()
+        webinterface_thread = Webinterface(webinterface_thread_stop_flag, self)  # I'm passing the bot (self) into it to have easy access to it's variables
+        webinterface_thread.name = self.name + " webinterface"  # nice to have for the logs
+        webinterface_thread.isDaemon()
+        webinterface_thread.start()
+        self.webinterface = webinterface_thread
 
     def load_from_db(self):
         self.settings.load_all()
