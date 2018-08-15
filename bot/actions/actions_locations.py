@@ -36,7 +36,7 @@ def set_up_location(bot, source_player, target_player, command):
 
             bot.locations.upsert(location_object, save=True)
 
-            bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/test')
+            bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
             bot.tn.send_message_to_player(target_player, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
             bot.tn.send_message_to_player(target_player, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=bot.chat_colors['success'])
@@ -109,7 +109,7 @@ def set_up_location_name(bot, source_player, target_player, command):
                 location_object.set_messages(messages_dict)
                 bot.locations.upsert(location_object, save=True)
 
-                bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/test')
+                bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
                 bot.tn.send_message_to_player(target_player, "You called your location {}".format(name), color=bot.chat_colors['background'])
             except KeyError:
@@ -153,7 +153,7 @@ def change_location_visibility(bot, source_player, target_player, command):
                 if location_object.set_visibility(status_to_set):
                     bot.tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, str(status_to_set)), color=bot.chat_colors['background'])
 
-                    bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/test')
+                    bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
                     bot.locations.upsert(location_object, save=True)
                 else:
@@ -343,7 +343,7 @@ def remove_location(bot, source_player, target_player, command):
             try:
                 bot.locations.remove(target_player.steamid, identifier)
 
-                bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/test')
+                bot.webinterface.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
                 bot.tn.say("{} deleted location {}".format(target_player.name, identifier), color=bot.chat_colors['background'])
             except KeyError:

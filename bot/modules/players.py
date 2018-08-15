@@ -87,7 +87,7 @@ class Players(object):
                 except KeyError:  # player is totally new, create file!
                     player_object = Player(**player_dict)
                     self.upsert(player_object, save=True)
-                    bot.webinterface.socketio.emit('add_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
+                    bot.webinterface.socketio.emit('add_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
             # there should be a valid object state here now ^^
 
         """ handle player-threads """
@@ -101,7 +101,7 @@ class Players(object):
                 actions.common.trigger_action(bot, player_object, player_object, "entered the stream")
                 player_observer_thread.start()
                 bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
-                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
+                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
 
         for player_steamid, player_object in self.players_dict.iteritems():
             if player_steamid in bot.active_player_threads_dict and not player_object.is_online:
@@ -109,7 +109,7 @@ class Players(object):
                 active_player_thread = bot.active_player_threads_dict[player_steamid]
                 stop_flag = active_player_thread["thread"]
                 stop_flag.stopped.set()
-                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/test')
+                bot.webinterface.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                 del bot.active_player_threads_dict[player_steamid]
 
         return listplayers_dict

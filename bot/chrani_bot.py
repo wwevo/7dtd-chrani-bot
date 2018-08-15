@@ -258,7 +258,7 @@ class ChraniBot:
             if timeout_occurred(update_status_interval, update_status_timeout_start):
                 self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
                 self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
-                self.webinterface.socketio.emit('refresh_status', '', namespace='/test')
+                self.webinterface.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
                 update_status_timeout_start = time.time()
 
             if self.is_paused is True:

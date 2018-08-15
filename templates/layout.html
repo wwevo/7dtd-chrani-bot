@@ -21,7 +21,7 @@
             <div id="status">{{ system_status_widget }} {{ whitelist_widget }}</div>
             <div id="user">
                 {% if current_user.is_authenticated %}
-                {{ current_user.name }} - <a href="/logout" onclick="player_action(this); return false;">logout</a>
+                {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a>
                 {% else %}
                 guest - <a href="/login">log in with steam!</a>
                 {% endif %}

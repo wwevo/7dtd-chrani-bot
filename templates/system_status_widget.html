@@ -4,9 +4,9 @@
     {% if current_user.is_authenticated %}
         the bot is currently
         {% if bot.is_paused == True %}
-        (<a href="/protected/system/resume" onclick="player_action(this); return false;">paused</a>)
+        <a href="/protected/system/resume" onclick="player_action(this); return false;">paused</a>
         {% else %}
-        (<a href="/protected/system/pause" onclick="player_action(this); return false;">running</a>)
+        <a href="/protected/system/pause" onclick="player_action(this); return false;">running</a>
         {% endif %}
         (<a href="/protected/system/shutdown" onclick="player_action(this); return false;">shutdown bot</a>)
         (<a href="/protected/system/reinitialize" onclick="player_action(this); return false;">reinitialize</a>)
