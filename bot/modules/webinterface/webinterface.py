@@ -146,8 +146,6 @@ class Webinterface(Thread):
         @self.app.route('/protected')
         @self.flask_login.login_required
         def protected():
-            # output = get_players_table(online_only=True)
-
             output = get_players_table()
 
             markup = self.flask.Markup(output)
