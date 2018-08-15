@@ -4,6 +4,7 @@
 # IntelliJ project files
 .idea/
 venv/
+venv_pypy/
 # Unused data-files (** = any directory)
 data/**/*.json
 # logfiles
