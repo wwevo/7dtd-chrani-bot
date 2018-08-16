@@ -63,6 +63,7 @@ def set_up_home(bot, source_player, target_player, command):
 
         bot.locations.upsert(location_object, save=True)
 
+        bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         bot.tn.say("{} has decided to settle down!".format(target_player.name), color=bot.chat_colors['background'])
         bot.tn.send_message_to_player(target_player, "Home is where your hat is!", color=bot.chat_colors['success'])
     except Exception as e:
@@ -91,6 +92,7 @@ def remove_home(bot, source_player, target_player, command):
         bot.tn.send_message_to_player(target_player, "I could not find your home. Did you set one up?", color=bot.chat_colors['warning'])
         raise KeyError
 
+    bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
     bot.tn.send_message_to_player(target_player, "Your home has been removed.", color=bot.chat_colors['warning'])
 
     return True
@@ -213,6 +215,7 @@ def set_up_home_name(bot, source_player, target_player, command):
     }
     location_object.set_messages(messages_dict)
     bot.locations.upsert(location_object, save=True)
+    bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
     bot.tn.send_message_to_player(target_player, "Your home is called {} now \o/".format(location_object.description), color=bot.chat_colors['background'])
 
     return True
@@ -222,7 +225,7 @@ common.actions_list.append({
     "match_mode": "startswith",
     "command": {
         "trigger": "edit home name",
-        "usage": "/edit home name"
+        "usage": "/edit home name <name>"
     },
     "action": set_up_home_name,
     "env": "(self, command)",
