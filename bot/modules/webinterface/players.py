@@ -17,6 +17,24 @@ common.actions_list.append({
 })
 
 
+def get_player_lcb_widget(target_player_steamid):
+    webinterface = __main__.bot.webinterface
+    player_object = webinterface.bot.players.get_by_steamid(target_player_steamid)
+    try:
+        lcb_list = webinterface.bot.landclaims_dict[target_player_steamid]
+    except:
+        lcb_list = []
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_lcb_widget.html', bot=webinterface.bot, player_object=player_object, lcb_list=lcb_list))
+
+
+common.actions_list.append({
+    "title": "fetches player lcb widget",
+    "route": "/protected/players/widgets/player_lcb_widget/<string:target_player_steamid>",
+    "action": get_player_lcb_widget,
+    "authenticated": True
+})
+
+
 def get_player_permissions_widget(target_player_steamid):
     webinterface = __main__.bot.webinterface
     player_object = webinterface.bot.players.get_by_steamid(target_player_steamid)
@@ -76,12 +94,14 @@ def get_all_players_table_row(steamid):
     player_whitelist_widget = get_player_whitelist_widget(player_object.steamid)
     player_locations_widget = get_player_locations_widget(player_object.steamid)
     obliterate_player_widget = get_obliterate_player_widget(player_object.steamid)
+    player_lcb_widget = get_player_lcb_widget(player_object.steamid)
 
     output = webinterface.flask.Markup(webinterface.flask.render_template(
         'all_players_entry.html',
         player_object=player_object,
         player_whitelist_widget=player_whitelist_widget,
         player_locations_widget=player_locations_widget,
+        player_lcb_widget=player_lcb_widget,
         player_permissions_widget=player_permissions_widget,
         obliterate_player_widget=obliterate_player_widget
     ))

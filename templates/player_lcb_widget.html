@@ -1,0 +1,7 @@
+{% if lcb_list %}
+<ul id="plcbw_{{ player_object.steamid }}">
+    {% for location in lcb_list %}
+    <li>(x:{{ location[0] }}, y:{{ location[1] }}, z:{{ location[1] }})</li>
+    {% endfor %}
+</ul>
+{% endif %}

@@ -190,10 +190,10 @@ class TelnetConnection:
             return False
 
     def muteplayerchat(self, player_object, flag=True):
-        command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
-        if player_object.is_muted == flag: # no sense in double (un)muting someone ^^
+        if player_object.is_muted == flag or not player_object.is_online: # no sense in double (un)muting someone ^^
             return False
 
+        command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
         try:
             connection = self.tn
             connection.write(command)
@@ -204,6 +204,9 @@ class TelnetConnection:
         return True
 
     def kick(self, player_object, reason='just because'):
+        if not player_object.is_online:
+            return False
+
         command = "kick " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"
         try:
             connection = self.tn
@@ -241,6 +244,9 @@ class TelnetConnection:
             return False
 
     def send_message_to_player(self, player_object, message, color=None):
+        if not player_object.is_online:
+            return False
+
         try:
             connection = self.tn
             if color is None:
@@ -251,6 +257,9 @@ class TelnetConnection:
             return False
 
     def teleportplayer(self, player_object, location_object=None, coord_tuple=None):
+        if not player_object.is_online:
+            return False
+
         if location_object is not None:
             try:
                 coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
@@ -281,6 +290,9 @@ class TelnetConnection:
         return False
 
     def debuffplayer(self, player_object, buff):
+        if not player_object.is_online:
+            return False
+
         buff_list = [
             "bleeding",
             "foodPoisoning",
@@ -298,6 +310,9 @@ class TelnetConnection:
             return False
 
     def buffplayer(self, player_object, buff):
+        if not player_object.is_online:
+            return False
+
         buff_list = [
             "firstAidLarge"
         ]
