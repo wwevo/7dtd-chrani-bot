@@ -65,12 +65,16 @@ common.actions_list.append({
 
 
 def teleport_player_to_coords(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
     p = re.search(r"send\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sto\s\((?P<coords>.*)\)", command)
     if p:
         steamid_to_teleport = p.group("steamid")
         entityid_to_teleport = p.group("entityid")
         coords_to_teleport_to = p.group("coords")
-        coord_tuple = tuple(item for item in coords_to_teleport_to.split(',') if item.strip())
+        if coords_to_teleport_to is None:
+            coords_are_valid = False
+        else:
+            coords_are_valid = True
 
         if steamid_to_teleport is None:
             steamid_to_teleport = bot.players.entityid_to_steamid(entityid_to_teleport)
@@ -83,7 +87,13 @@ def teleport_player_to_coords(bot, source_player, target_player, command):
         bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(common.find_action_help("players", "send player")), color=bot.chat_colors['warning'])
         return False
 
-    return bot.tn.teleportplayer(player_object_to_teleport, coord_tuple=coord_tuple)
+    coord_tuple = tuple(item for item in coords_to_teleport_to.split(',') if item.strip())
+    if coords_are_valid and bot.tn.teleportplayer(player_object_to_teleport, coord_tuple=coord_tuple):
+        response_messages.add_message("player {} got teleported to {}".format(player_object_to_teleport.name, coord_tuple), True)
+    else:
+        response_messages.add_message("teleporting player {} failed".format(player_object_to_teleport.name), False)
+
+    return response_messages
 
 
 common.actions_list.append({

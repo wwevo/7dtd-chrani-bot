@@ -152,7 +152,7 @@ def send_player_home(target_player_steamid):
         pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
         coord_tuple = (pos_x, pos_y, pos_z)
     except KeyError:
-        return False
+        coord_tuple = (None, None, None)
 
     return bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
