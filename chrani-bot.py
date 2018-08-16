@@ -1,40 +1,168 @@
 import os
 root_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(root_dir)
+import re
+import requests
+from urllib import urlencode
+from threading import *
 
-import sys
-import time
-from bot.modules.logger import logger
+import flask
+import flask_login
+import flask_socketio
+
+template_dir = os.path.join(os.getcwd(), 'templates')
+static_dir = os.path.join(template_dir, 'static')
+
 from bot.chrani_bot import ChraniBot
-"""
-let there be bot:
-"""
-if __name__ == '__main__':
-    while True:
-        try:
-            bot = ChraniBot()
-            bot.app_root = root_dir
-            bot.bot_version = "0.5c"
-            bot.run()
-        except (IOError, NameError) as error:
-            """ clean up bot to have a clean restart when a new connection can be established """
+import bot.actions
+from bot.modules.webinterface.players import get_players_table
+from bot.modules.webinterface.system import get_system_status
+from bot.modules.webinterface.whitelist import get_whitelist_widget
+
+app = flask.Flask(
+    __name__,
+    template_folder=template_dir,
+    static_folder=static_dir
+)
+app.config["SECRET_KEY"] = "totallyasecret"
+
+socketio = flask_socketio.SocketIO(app, async_mode='threading')
+
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+chrani_bot_thread_stop_flag = Event()
+chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)  # I'm passing the bot (self) into it to have easy access to it's variables
+chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
+chrani_bot_thread.isDaemon()
+chrani_bot_thread.start()
+chrani_bot_thread.app_root = root_dir
+chrani_bot_thread.bot_version = "0.5c"
+chrani_bot = chrani_bot_thread
+
+
+@login_manager.user_loader
+def user_loader(steamid):
+    try:
+        player_object = chrani_bot.players.get_by_steamid(steamid)
+        if any(x in ["admin", "mod", "donator", "authenticated"] for x in player_object.permission_levels):
+            return player_object
+    except:
+        return None
+
+
+@app.route('/login')
+def login():
+    steam_openid_url = 'https://steamcommunity.com/openid/login'
+    u = {
+        'openid.ns': "http://specs.openid.net/auth/2.0",
+        'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
+        'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
+        'openid.mode': 'checkid_setup',
+        'openid.return_to': "http://{}:{}/authenticate".format(chrani_bot.settings.get_setting_by_name('bot_ip'), chrani_bot.settings.get_setting_by_name('bot_port')),
+        'openid.realm': "http://{}:{}".format(chrani_bot.settings.get_setting_by_name('bot_ip'), chrani_bot.settings.get_setting_by_name('bot_port'))
+    }
+    query_string = urlencode(u)
+    auth_url = steam_openid_url + "?" + query_string
+    return flask.redirect(auth_url)
+
+
+@app.route('/logout')
+@flask_login.login_required
+def logout():
+    flask_login.logout_user()
+    return flask.redirect("/")
+
+
+@app.route('/authenticate', methods=['GET'])
+def setup():
+    def validate(signed_params):
+        steam_login_url_base = "https://steamcommunity.com/openid/login"
+        params = {
+            "openid.assoc_handle": signed_params["openid.assoc_handle"],
+            "openid.sig": signed_params["openid.sig"],
+            "openid.ns": signed_params["openid.ns"],
+            "openid.mode": "check_authentication"
+        }
+
+        params_dict = signed_params.to_dict()
+        params_dict.update(params)
+
+        params_dict["openid.mode"] = "check_authentication"
+        params_dict["openid.signed"] = params_dict["openid.signed"]
+
+        r = requests.post(steam_login_url_base, data=params_dict)
+
+        if "is_valid:true" in r.text:
+            return True
+
+        # this fucntion should always return false if the payload is not valid
+        return False
+
+    valid = validate(flask.request.args)
+    if valid is True:
+        p = re.search(r"/(?P<steamid>([0-9]{17}))", str(flask.request.args["openid.claimed_id"]))
+        if p:
+            steamid = p.group("steamid")
             try:
-                bot.shutdown()  # bot was probably running, restart
-                wait_until_reconnect = 20
-                log_message = "connection lost, server-restart?"
-            except NameError:  # probably started the bot before the server was up
-                wait_until_reconnect = 45
-                log_message = "can't connect to telnet, is the server running?"
+                player_object = chrani_bot.players.get_by_steamid(steamid)
+                flask_login.login_user(player_object, remember=True)
+                return flask.redirect("/protected")
+            except:
                 pass
 
-            log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
-            logger.info(log_message)
-            # logger.exception(log_message)
-            time.sleep(wait_until_reconnect)
-            pass
+    return flask.redirect("/")
 
-        try:
-            if bot.is_active is False:
-                sys.exit()
-        except NameError:
-            pass
+
+@app.route('/unauthorized')
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
+    output += '<a href="/">home</a><br /><br />'
+    markup = flask.Markup(output)
+    return flask.render_template('index.html', bot=chrani_bot, content=markup)
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    output = 'Page not found :(<br />'
+    output += '<a href="/">home</a><br /><br />'
+    markup = flask.Markup(output)
+    return flask.render_template('index.html', bot=chrani_bot, content=markup), 404
+
+
+@app.route('/')
+def index():
+    if flask_login.current_user.is_authenticated is True:
+        return flask.redirect("/protected")
+
+    output = "Welcome to the <strong>{}</strong><br />".format(chrani_bot.name)
+
+    markup = flask.Markup(output)
+    system_status_widget = get_system_status()
+    return flask.render_template('index.html', bot=chrani_bot, content=markup, system_status_widget=system_status_widget)
+
+
+@app.route('/protected')
+@flask_login.login_required
+def protected():
+    output = get_players_table()
+
+    markup = flask.Markup(output)
+    system_status_widget = get_system_status()
+    whitelist_widget = get_whitelist_widget()
+    return flask.render_template('index.html', bot=chrani_bot, content=markup, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget)
+
+
+if __name__ == '__main__':
+    """ collecting all defined actions and creating routes for them """
+    for actions_list_entry in bot.modules.webinterface.actions_list:
+        if actions_list_entry['authenticated'] is True:
+            action = actions_list_entry['action']
+            wrapped_action = flask_login.login_required(action)
+            app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action)
+        else:
+            action = actions_list_entry['action']
+            app.add_url_rule(actions_list_entry['route'], view_func=action)
+
+    socketio.run(app, host='0.0.0.0', port=5000)

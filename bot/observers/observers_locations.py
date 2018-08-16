@@ -42,14 +42,14 @@ def player_crossed_boundary(self):
                             if self.tn.teleportplayer(player_object, coord_tuple=location_object.get_ejection_coords_tuple(player_object)):
                                 self.tn.send_message_to_player(player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object.owner), color=self.bot.chat_colors['warning'])
                 if player_status == "has left":
-                    self.bot.webinterface.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                    self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                     if location_object.messages_dict["left_location"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
                 if player_status == "has left core":
                     if location_object.messages_dict["left_locations_core"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
                 if player_status == "has entered":
-                    self.bot.webinterface.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                    self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                     if location_object.messages_dict["entered_location"] is not None:
                         self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                 if player_status == "has entered core":

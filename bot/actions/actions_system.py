@@ -21,7 +21,7 @@ def reload_from_db(bot, source_player, target_player, command):
         message = "loaded all data from storage."
         bot.tn.send_message_to_player(target_player, message , color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
-        bot.webinterface.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
     except Exception as e:
         message = "loading data from storage failed."
         bot.tn.send_message_to_player(target_player, message , color=bot.chat_colors['warning'])
@@ -100,7 +100,7 @@ def pause_bot(bot, source_player, target_player, command):
     response_messages = ResponseMessage()
     try:
         bot.is_paused = True
-        bot.webinterface.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+        bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
         message = "The bot operations have been suspended"
         response_messages.add_message(message, True)
         bot.tn.say(message, color=bot.chat_colors['success'])
@@ -143,7 +143,7 @@ def resume_bot(bot, source_player, target_player, command):
     response_messages = ResponseMessage()
     try:
         bot.is_paused = False
-        bot.webinterface.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+        bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
         message = "The bots operations have been resumed"
         response_messages.add_message(message, True)
         bot.tn.say(message, color=bot.chat_colors['success'])

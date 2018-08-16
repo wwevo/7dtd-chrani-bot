@@ -329,7 +329,7 @@ def obliterate_player(bot, source_player, target_player, command):
         else:
             response_messages.add_message("could not remove player {}".format(target_player.name), False)
 
-        bot.webinterface.socketio.emit('remove_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        bot.socketio.emit('remove_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         return response_messages
     else:
         raise ValueError("action does not fully match the trigger-string")

@@ -4,8 +4,8 @@ import __main__  # my ide throws a warning here, but it works oO
 
 
 def get_whitelist_widget():
-    webinterface = __main__.bot.webinterface
-    return webinterface.flask.Markup(webinterface.flask.render_template('whitelist_widget.html', bot=webinterface.bot))
+    webinterface = __main__.chrani_bot
+    return webinterface.flask.Markup(webinterface.flask.render_template('whitelist_widget.html', bot=webinterface))
 
 
 common.actions_list.append({
@@ -22,14 +22,14 @@ def get_whitelist_status():
 
 @common.build_response
 def activate_whitelist():
-    webinterface = __main__.bot.webinterface
+    webinterface = __main__.chrani_bot
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
         return webinterface.flask.redirect("/")
 
-    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "activate whitelist")
+    player_object = webinterface.players.get_by_steamid(source_player_steamid)
+    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "activate whitelist")
 
 
 common.actions_list.append({
@@ -42,14 +42,14 @@ common.actions_list.append({
 
 @common.build_response
 def deactivate_whitelist():
-    webinterface = __main__.bot.webinterface
+    webinterface = __main__.chrani_bot
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
         return webinterface.flask.redirect("/")
 
-    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface.bot, player_object, player_object, "deactivate whitelist")
+    player_object = webinterface.players.get_by_steamid(source_player_steamid)
+    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "deactivate whitelist")
 
 
 common.actions_list.append({
@@ -62,15 +62,15 @@ common.actions_list.append({
 
 @common.build_response
 def remove_player_from_whitelist(target_player_steamid):
-    webinterface = __main__.bot.webinterface
+    webinterface = __main__.chrani_bot
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
         return webinterface.flask.redirect("/")
 
-    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
-    return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "remove player {} from whitelist".format(target_player_steamid))
+    player_object = webinterface.players.get_by_steamid(source_player_steamid)
+    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "remove player {} from whitelist".format(target_player_steamid))
 
 
 common.actions_list.append({
@@ -83,15 +83,15 @@ common.actions_list.append({
 
 @common.build_response
 def add_player_to_whitelist(target_player_steamid):
-    webinterface = __main__.bot.webinterface
+    webinterface = __main__.chrani_bot
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
     except AttributeError:
         return webinterface.flask.redirect("/")
 
-    player_object = webinterface.bot.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.bot.players.get_by_steamid(target_player_steamid)
-    return bot.actions.common.trigger_action(webinterface.bot, player_object, target_player, "add player {} to whitelist".format(target_player_steamid))
+    player_object = webinterface.players.get_by_steamid(source_player_steamid)
+    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "add player {} to whitelist".format(target_player_steamid))
 
 
 common.actions_list.append({

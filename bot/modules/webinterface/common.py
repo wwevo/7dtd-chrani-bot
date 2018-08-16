@@ -8,7 +8,7 @@ from urllib import urlencode
 def build_response(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
-        webinterface = __main__.bot.webinterface
+        webinterface = __main__.chrani_bot
 
         action_response = f(*args, **kwargs)
         if action_response:

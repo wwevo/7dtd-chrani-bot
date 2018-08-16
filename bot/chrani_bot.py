@@ -14,7 +14,6 @@ import bot.observers
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
-from bot.modules.webinterface.webinterface import Webinterface
 from bot.modules.permissions import Permissions
 from bot.objects.player import Player
 from bot.modules.players import Players
@@ -22,10 +21,15 @@ from bot.modules.telnet_connection import TelnetConnection
 from bot.modules.whitelist import Whitelist
 
 
-class ChraniBot:
+class ChraniBot(Thread):
     app_root = str
     name = str
     bot_version = str
+
+    app = object
+    flask = object
+    flask_login = object
+    socketio = object
 
     time_launched = float
     time_running = float
@@ -64,7 +68,11 @@ class ChraniBot:
     observers_list = list
     actions_list = list
 
-    def __init__(self):
+    def __init__(self, event, app, flask, flask_login, socketio):
+        self.app = app
+        self.flask = flask
+        self.flask_login = flask_login
+        self.socketio = socketio
         self.paused = False
         self.settings = Settings()
         self.time_launched = time.time()
@@ -152,13 +160,8 @@ class ChraniBot:
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
-
-        webinterface_thread_stop_flag = Event()
-        webinterface_thread = Webinterface(webinterface_thread_stop_flag, self)  # I'm passing the bot (self) into it to have easy access to it's variables
-        webinterface_thread.name = self.name + " webinterface"  # nice to have for the logs
-        webinterface_thread.isDaemon()
-        webinterface_thread.start()
-        self.webinterface = webinterface_thread
+        self.stopped = event
+        Thread.__init__(self)
 
     def load_from_db(self):
         self.settings.load_all()
@@ -258,7 +261,7 @@ class ChraniBot:
             if timeout_occurred(update_status_interval, update_status_timeout_start):
                 self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
                 self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
-                self.webinterface.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+                self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
                 update_status_timeout_start = time.time()
 
             if self.is_paused is True:
@@ -380,6 +383,6 @@ class ChraniBot:
         except RuntimeError:
             pass
 
-        self.webinterface.stopped.set()
+        self.stopped.set()
 
 
