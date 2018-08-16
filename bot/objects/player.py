@@ -36,6 +36,7 @@ class Player(flask_login.UserMixin):
     authenticated = bool
     is_muted = bool
     is_online = bool
+    is_to_be_obliterated = bool
     last_teleport = int
     last_responsive = float
     initialized = bool
@@ -61,6 +62,7 @@ class Player(flask_login.UserMixin):
         self.region = None
         self.country_code = None
         self.blacklisted = False
+        self.is_to_be_obliterated = False
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0

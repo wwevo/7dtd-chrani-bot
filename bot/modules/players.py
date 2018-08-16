@@ -28,7 +28,6 @@ class Players(object):
 
         self.players_dict = {}
         self.poll_listplayerfriends_interval = 30
-        self.load_all()
 
     def manage_online_players(self, bot, listplayers_dict):
         def poll_players():
@@ -103,6 +102,7 @@ class Players(object):
                 bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
 
+        players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():
             if player_steamid in bot.active_player_threads_dict and not player_object.is_online:
                 """ prune all active_player_threads from players no longer online """
@@ -110,7 +110,12 @@ class Players(object):
                 stop_flag = active_player_thread["thread"]
                 stop_flag.stopped.set()
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                if player_object.is_to_be_obliterated is True:
+                    players_to_obliterate.append(player_object)
                 del bot.active_player_threads_dict[player_steamid]
+
+        for player_object in players_to_obliterate:
+            self.remove(player_object)
 
         return listplayers_dict
 

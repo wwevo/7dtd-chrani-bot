@@ -300,7 +300,7 @@ def obliterate_player(bot, source_player, target_player, command):
             if steamid_to_obliterate is False:
                 raise KeyError
 
-        if target_player.is_responsive() and bot.tn.kick(target_player, "Time to be born again!!"):
+        if bot.tn.kick(target_player, "Time to be born again!!"):
             response_messages.add_message("player {} has been kicked, soon to be obliterated".format(target_player.name), True)
         else:
             response_messages.add_message("player {} has not been kicked :(".format(target_player.name), False)
@@ -324,10 +324,9 @@ def obliterate_player(bot, source_player, target_player, command):
             else:
                 response_messages.add_message("could not remove player {} from the whitelist :(".format(target_player.name), False)
 
-        if bot.players.remove(target_player):
-            response_messages.add_message("player {} has been removed!".format(target_player.name), True)
-        else:
-            response_messages.add_message("could not remove player {}".format(target_player.name), False)
+        target_player.is_to_be_obliterated = True
+        target_player.is_online = False
+        response_messages.add_message("player {} is marked for removal ^^".format(target_player.name), True)
 
         bot.socketio.emit('remove_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         return response_messages

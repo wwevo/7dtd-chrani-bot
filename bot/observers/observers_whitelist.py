@@ -17,7 +17,7 @@ def check_if_player_is_on_whitelist(self, player_object=None):
             except KeyError as e:
                 return
 
-        if self.bot.whitelist.is_active() is True:
+        if player_object.is_online and self.bot.whitelist.is_active() is True:
             if not self.bot.whitelist.player_is_allowed(player_object):
                 logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
                 self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name), color=self.bot.chat_colors['alert'])
@@ -47,13 +47,16 @@ common.observers_list.append({
 def check_if_player_has_url_name(self, player_object=None):
     try:
         if player_object is None:
-            player_object = self.bot.players.get_by_steamid(self.player_steamid)
+            try:
+                player_object = self.bot.players.get_by_steamid(self.player_steamid)
+            except KeyError:
+                return False
         else:
             logger.debug("checking player {} for having a 'bad' username".format(player_object.name))
             called_by_trigger = True
             self.bot = self
 
-        if not self.bot.whitelist.player_is_allowed(player_object):
+        if player_object.is_online and not self.bot.whitelist.player_is_allowed(player_object):
             p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
             if p:
                 logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
@@ -86,7 +89,10 @@ def check_ip_country(self, player_object=None):
         if self.bot.settings.get_setting_by_name('ipinfo.io_password') is None:
             return
         if player_object is None:
-            player_object = self.bot.players.get_by_steamid(self.player_steamid)
+            try:
+                player_object = self.bot.players.get_by_steamid(self.player_steamid)
+            except KeyError:
+                return False
         else:
             # the scope changes when called by the bots main-loop
             logger.debug("checking player {} for being from blacklisted countries".format(player_object.name))
@@ -111,7 +117,7 @@ def check_ip_country(self, player_object=None):
         except Exception as e:
             logger.exception(e)
 
-        if users_country in self.bot.banned_countries_list and player_object.is_blacklisted() is False:
+        if player_object.is_online and (users_country in self.bot.banned_countries_list and player_object.is_blacklisted() is False):
             if self.tn.kick(player_object, "Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"):
                 player_object.blacklisted = True
                 logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
