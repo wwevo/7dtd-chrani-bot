@@ -31,7 +31,7 @@ class Settings(object):
     def get_setting_by_name(self, setting_name):
         try:
             setting_value = self.settings_dict[setting_name]
-        except KeyError:
+        except (TypeError, KeyError):
             return None
 
         return setting_value
