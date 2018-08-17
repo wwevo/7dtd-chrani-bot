@@ -6,6 +6,9 @@ import requests
 from urllib import urlencode
 from threading import *
 
+import eventlet
+eventlet.monkey_patch()
+
 import flask
 import flask_login
 import flask_socketio
@@ -26,7 +29,7 @@ app = flask.Flask(
 )
 app.config["SECRET_KEY"] = "totallyasecret"
 
-socketio = flask_socketio.SocketIO(app, async_mode='threading')
+socketio = flask_socketio.SocketIO(app, async_mode='eventlet')
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)

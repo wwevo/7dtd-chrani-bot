@@ -15,6 +15,7 @@ def on_player_join(bot, source_player, target_player, command):
             radius=None,
             region=None
         )
+        location_object.description = "{}'s {}".format(target_player.name, location_dict.name),
         location_object = Location(**location_dict)
         location_object.set_coordinates(target_player)
         try:
