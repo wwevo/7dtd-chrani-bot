@@ -2,26 +2,48 @@ import re
 
 from bot.objects.location import Location
 from bot.modules.logger import logger
+from bot.assorted_functions import ResponseMessage
 import common
 
 
 def set_up_location(bot, source_player, target_player, command):
-    try:
-        p = re.search(r"add\slocation\s(?P<location_name>[\W\w\s]{1,19})$", command)
-        if p:
-            name = p.group("location_name")
-            if name in ["teleport", "lobby", "spawn", "home", "death"]:
-                bot.tn.send_message_to_player(target_player, "{} is a reserved name. Aborted!.".format(name), color=bot.chat_colors['warning'])
-                raise KeyError
+    p = re.search(r"add\slocation\s(?P<location_name>[\W\w\s].*)$", command)
+    if p:
+        response_messages = ResponseMessage()
+        name = p.group("location_name")
+        location_name_is_not_reserved = False
+        if name in ["teleport", "lobby", "spawn", "home", "death"]:
+            message = "{} is a reserved name!".format(name)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
+        else:
+            location_name_is_not_reserved = True
 
-            location_object = Location()
+        location_name_is_valid = False
+        if len(name) >= 19:
+            message = "{} is too long. Keep it shorter than 19 letters ^^".format(name)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
+        else:
+            location_name_is_valid = True
+
+        location_name_not_in_use = False
+        location_object = Location()
+        location_object.set_name(name)
+        identifier = location_object.set_identifier(name)  # generate the identifier from the name
+        try:
+            location_object = location_object = bot.locations.get(target_player.steamid, identifier)
+            message = "a location with the identifier {} already exists".format(identifier)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
+        except KeyError:
+            location_name_not_in_use = True
+
+        if location_name_is_valid and location_name_is_not_reserved and location_name_not_in_use:
             location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
             location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_radius")) * float(bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
 
             location_object.set_coordinates(target_player)
-            location_object.set_name(name)
-            location_object.set_description(name)
-            identifier = location_object.set_identifier(name)  # generate the identifier from the name
             location_object.set_owner(target_player.steamid)
             location_object.set_shape("sphere")
             location_object.protected_core_whitelist = []
@@ -33,16 +55,20 @@ def set_up_location(bot, source_player, target_player, command):
             messages_dict["left_location"] = "you have left the location {}".format(name)
 
             location_object.set_messages(messages_dict)
-
             bot.locations.upsert(location_object, save=True)
+
+            response_messages.add_message("A location with the identifier {} has been created".format(identifier), True)
 
             bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
             bot.tn.send_message_to_player(target_player, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
             bot.tn.send_message_to_player(target_player, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        else:
+            response_messages.add_message("Location {} could not be created :(".format(identifier), False)
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
@@ -332,25 +358,41 @@ common.actions_list.append({
 
 
 def remove_location(bot, source_player, target_player, command):
-    try:
-        p = re.search(r"remove\slocation\s([\w\s]{1,19})$", command)
-        if p:
-            identifier = p.group(1)
-            if identifier in ["teleport", "lobby", "spawn", "home", "death"]:
-                bot.tn.send_message_to_player(target_player, "{} is a reserved name. Aborted!.".format(identifier), color=bot.chat_colors['warning'])
-                raise KeyError
+    p = re.search(r"remove\slocation\s([\w\s]{1,19})$", command)
+    if p:
+        response_messages = ResponseMessage()
+        identifier = p.group(1)
+        location_name_is_not_reserved = False
+        if identifier in ["teleport", "lobby", "spawn", "home", "death"]:
+            message = "{} is a reserved name. Aborted!.".format(identifier)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+        else:
+            location_name_is_not_reserved = True
 
-            try:
-                bot.locations.remove(target_player.steamid, identifier)
+        location_name_in_use = False
+        try:
+            location_object = bot.locations.get(target_player.steamid, identifier)
+            location_name_in_use = True
+        except KeyError:
+            message = "I have never heard of a location called {}".format(identifier)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-                bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        if location_name_is_not_reserved and location_name_in_use:
+            bot.locations.remove(target_player.steamid, identifier)
+            bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            message = "{} deleted location {}".format(target_player.name, identifier)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+        else:
+            message = "Location {} could not be removed :(".format(identifier)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
 
-                bot.tn.say("{} deleted location {}".format(target_player.name, identifier), color=bot.chat_colors['background'])
-            except KeyError:
-                bot.tn.send_message_to_player(target_player, "I have never heard of a location called {}".format(identifier), color=bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
