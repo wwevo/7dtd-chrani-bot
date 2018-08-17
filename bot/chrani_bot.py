@@ -379,8 +379,5 @@ class ChraniBot(Thread):
         self.telnet_lines_list = None
         self.tn.say("...bot has shut down!", color=self.chat_colors['success'])
         self.tn.tn.close()
-        self.socketio.stop()
         self.stopped.set()
-
-
-
+        self.socketio.stop()

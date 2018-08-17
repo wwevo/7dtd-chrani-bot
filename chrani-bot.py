@@ -37,6 +37,7 @@ login_manager.init_app(app)
 chrani_bot_thread_stop_flag = Event()
 chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)  # I'm passing the bot (self) into it to have easy access to it's variables
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
+chrani_bot_thread.isDaemon()
 chrani_bot_thread.start()
 chrani_bot_thread.app_root = root_dir
 chrani_bot_thread.bot_version = "0.5c"
