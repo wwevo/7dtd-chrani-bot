@@ -1,3 +1,4 @@
+import sys
 from bot.modules.logger import logger
 import common
 from bot.assorted_functions import ResponseMessage
@@ -63,10 +64,10 @@ def shutdown_bot(bot, source_player, target_player, command):
     """
     response_messages = ResponseMessage()
     try:
-        bot.initiate_shutdown = True
         message = "The bot is about to shut down..."
         response_messages.add_message(message, True)
         bot.tn.say(message, color=bot.chat_colors['background'])
+        bot.shutdown()
     except Exception as e:
         logger.exception(e)
         pass

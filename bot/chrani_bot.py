@@ -3,6 +3,7 @@ import re
 import time
 import datetime
 import math
+import sys
 from collections import deque
 
 from bot.modules.logger import logger
@@ -380,4 +381,4 @@ class ChraniBot(Thread):
         self.tn.say("...bot has shut down!", color=self.chat_colors['success'])
         self.tn.tn.close()
         self.stopped.set()
-        self.socketio.stop()
+        sys.exit()
