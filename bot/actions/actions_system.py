@@ -63,7 +63,10 @@ def shutdown_bot(bot, source_player, target_player, command):
     """
     response_messages = ResponseMessage()
     try:
-        bot.shutdown()
+        bot.initiate_shutdown = True
+        message = "The bot is about to shut down..."
+        response_messages.add_message(message, True)
+        bot.tn.say(message, color=bot.chat_colors['background'])
     except Exception as e:
         logger.exception(e)
         pass

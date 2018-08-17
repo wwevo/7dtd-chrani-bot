@@ -1,4 +1,3 @@
-from flask import request
 from threading import *
 import re
 import time
@@ -36,6 +35,7 @@ class ChraniBot(Thread):
     uptime = str
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
+    initiate_shutdown = bool
 
     match_types = dict
     match_types_system = dict
@@ -78,6 +78,7 @@ class ChraniBot(Thread):
         self.time_launched = time.time()
         self.time_running = 0
         self.uptime = "not available"
+        self.initiate_shutdown = False
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -264,6 +265,9 @@ class ChraniBot(Thread):
                 self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
                 update_status_timeout_start = time.time()
 
+            if self.initiate_shutdown is True:
+                self.shutdown()
+
             if self.is_paused is True:
                 time.sleep(1)
                 continue
@@ -365,7 +369,6 @@ class ChraniBot(Thread):
             time.sleep(0.1)  # to limit the speed a bit ^^
 
     def shutdown(self):
-        self.tn.say("bot is shutting down...", color=self.chat_colors['warning'])
         self.is_active = False
         for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
@@ -376,13 +379,8 @@ class ChraniBot(Thread):
         self.telnet_lines_list = None
         self.tn.say("...bot has shut down!", color=self.chat_colors['success'])
         self.tn.tn.close()
-
-        try:
-            func = request.environ.get('werkzeug.server.shutdown')
-            func()
-        except RuntimeError:
-            pass
-
+        self.socketio.stop()
         self.stopped.set()
+
 
 
