@@ -35,6 +35,7 @@ app = flask.Flask(
     template_folder=template_dir,
     static_folder=static_dir
 )
+
 app.config["SECRET_KEY"] = "totallyasecret"
 
 login_manager = flask_login.LoginManager()
@@ -174,9 +175,9 @@ if __name__ == '__main__':
         if actions_list_entry['authenticated'] is True:
             action = actions_list_entry['action']
             wrapped_action = flask_login.login_required(action)
-            app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action)
+            app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action, methods=['GET', 'POST'])
         else:
             action = actions_list_entry['action']
-            app.add_url_rule(actions_list_entry['route'], view_func=action)
+            app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
 
     socketio.run(app, host='0.0.0.0', port=5000)

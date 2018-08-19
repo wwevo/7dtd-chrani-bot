@@ -1,3 +1,4 @@
+from flask import request
 import common
 import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
@@ -227,6 +228,9 @@ def ban_player(target_player_steamid, reason):
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    form_reason = request.form.get('reason')
+    if form_reason:
+        reason = form_reason
 
     return bot.actions.common.trigger_action(webinterface, player_object, target_player, "ban player {} for {}".format(target_player_steamid, reason))
 
@@ -235,6 +239,33 @@ common.actions_list.append({
     "title": "ban player",
     "route": "/protected/players/ban/<string:target_player_steamid>/<reason>",
     "action": ban_player,
+    "authenticated": True
+})
+
+
+@common.build_response
+def kick_player(target_player_steamid, reason):
+    webinterface = __main__.chrani_bot
+    target_player_steamid = str(target_player_steamid)
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.players.get_by_steamid(source_player_steamid)
+    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+
+    form_reason = request.form.get('reason')
+    if form_reason:
+        reason = form_reason
+
+    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
+
+
+common.actions_list.append({
+    "title": "kick player",
+    "route": "/protected/players/kick/<string:target_player_steamid>/<reason>",
+    "action": kick_player,
     "authenticated": True
 })
 

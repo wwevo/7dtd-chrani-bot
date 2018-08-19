@@ -81,6 +81,7 @@ table li.flat:last-child {
 }
 
 table li.seperator {
+    margin-top: 0.5em;
     clear: left;
 }
 
