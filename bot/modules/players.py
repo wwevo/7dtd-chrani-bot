@@ -104,7 +104,7 @@ class Players(object):
 
         players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():
-            if player_steamid in bot.active_player_threads_dict:
+            if player_steamid in bot.active_player_threads_dict and not player_object.is_online:
                 """ prune all active_player_threads from players no longer online """
                 active_player_thread = bot.active_player_threads_dict[player_steamid]
                 stop_flag = active_player_thread["thread"]
@@ -215,7 +215,7 @@ class Players(object):
                 "region": player_object.region,
                 "country_code": player_object.country_code,
                 "authenticated": player_object.authenticated,
-                "is_muted": player_object.is_muted,
+                "is_banned": player_object.is_muted,
                 "last_teleport": player_object.last_teleport,
                 "last_responsive": player_object.last_responsive,
                 "playerfriends_list": player_object.playerfriends_list,

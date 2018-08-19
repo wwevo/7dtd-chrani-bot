@@ -6,13 +6,10 @@
     <td>{{ player_whitelist_widget }}</td>
     <td>{{ player_locations_widget }}</td>
     <td>{{ player_lcb_widget }}</td>
-    <td class="player_permissions_widget">{{ player_permissions_widget }}</td>
-    <td class="obliterate_player_widget">
-        {% if player_object.is_online %}
-        <a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="player_action(this); return false;">send home</a>
-        <a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this); return false;">lobby</a>
-        <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface" onclick="player_action(this); return false;">kick</a>
-        {% endif %}
-        {{ obliterate_player_widget }}
+    <td class="player_permissions_widget">
+        {{ player_permissions_widget }}
+    </td>
+    <td class="player_actions_widget">
+        {{ player_actions_widget }}
     </td>
 </tr>

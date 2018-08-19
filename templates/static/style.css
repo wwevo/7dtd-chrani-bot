@@ -80,6 +80,10 @@ table li.flat:last-child {
     margin-right: 0;
 }
 
+table li.seperator {
+    clear: left;
+}
+
 td.obliterate_player_widget {
     text-align: right;
 }

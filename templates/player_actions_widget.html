@@ -1,0 +1,13 @@
+<ul>
+    {% if player_object.is_online %}
+    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="player_action(this); return false;">send home</a></li>
+    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this); return false;">lobby</a></li>
+    <li class="flat seperator"><a href="/protected/players/kick/{{ player_object.steamid }}/webinterface" onclick="player_action(this); return false;">kick</a></li>
+    {% endif %}
+    {% if player_object.is_banned %}
+    <li class="flat"><a href="/protected/players/unban/{{ player_object.steamid }}" onclick="player_action(this); return false;">unban</a></li>
+    {% else %}
+    <li class="flat"><a href="/protected/players/ban/{{ player_object.steamid }}/webinterface" onclick="player_action(this); return false;">ban</a></li>
+    {% endif %}
+    <li class="flat"><a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="player_action(this); return false;">obliterate</a></li>
+</ul>

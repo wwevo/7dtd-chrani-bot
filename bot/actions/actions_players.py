@@ -428,9 +428,12 @@ def ban_player(bot, source_player, target_player, command):
                 player_object_to_ban = Player(**player_dict)
 
             if bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
-                bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(target_player.name), color=bot.chat_colors['alert'])
+                player_object_to_ban.is_banned = True
+                bot.socketio.emit('update_player_table_row', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
+                bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['alert'])
                 bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
-                bot.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, target_player.name, reason_for_ban), color=bot.chat_colors['success'])
+                bot.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban), color=bot.chat_colors['success'])
+                bot.players.upsert(player_object_to_ban, save=True)
             else:
                 bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_ban), color=bot.chat_colors['warning'])
     except Exception as e:
@@ -465,7 +468,7 @@ def unban_player(bot, source_player, target_player, command):
     /unban player 76561198040658370
     """
     try:
-        p = re.search(r"unban\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
+        p = re.search(r"unban\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
         if p:
             steamid_to_unban = p.group("steamid")
             entityid_to_unban = p.group("entityid")
@@ -475,8 +478,11 @@ def unban_player(bot, source_player, target_player, command):
             player_object_to_unban = bot.players.load(steamid_to_unban)
 
             if bot.tn.unban(player_object_to_unban):
-                bot.tn.send_message_to_player(target_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
-                bot.tn.say("{} has been unbanned by {}.".format(player_object_to_unban.name, target_player.name), color=bot.chat_colors['success'])
+                player_object_to_unban.is_banned = False
+                bot.socketio.emit('update_player_table_row', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
+                bot.tn.send_message_to_player(source_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
+                bot.tn.say("{} has been unbanned by {}.".format(player_object_to_unban.name, source_player.name), color=bot.chat_colors['success'])
+                bot.players.upsert(player_object_to_unban, save=True)
                 return True
 
             bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_unban), color=bot.chat_colors['warning'])

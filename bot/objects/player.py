@@ -36,6 +36,7 @@ class Player(flask_login.UserMixin):
     authenticated = bool
     is_muted = bool
     is_online = bool
+    is_banned = bool
     is_to_be_obliterated = bool
     last_teleport = int
     last_responsive = float
@@ -51,6 +52,7 @@ class Player(flask_login.UserMixin):
         self.last_teleport = 0
         self.is_muted = False
         self.is_online = False
+        self.is_banned = False
         self.permission_levels = []
         self.last_responsive = time()
         self.entityid = None

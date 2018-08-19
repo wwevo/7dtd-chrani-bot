@@ -50,16 +50,16 @@ common.actions_list.append({
 })
 
 
-def get_obliterate_player_widget(target_player_steamid):
+def get_player_actions_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)
-    return webinterface.flask.Markup(webinterface.flask.render_template('obliterate_player_widget.html', player_object=player_object))
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_actions_widget.html', player_object=player_object))
 
 
 common.actions_list.append({
     "title": "fetches obliterate player widget",
-    "route": "/protected/players/widgets/obliterate_player_widget/<string:target_player_steamid>",
-    "action": get_obliterate_player_widget,
+    "route": "/protected/players/widgets/player_actions_widget/<string:target_player_steamid>",
+    "action": get_player_actions_widget,
     "authenticated": True
 })
 
@@ -93,7 +93,7 @@ def get_all_players_table_row(steamid):
     player_permissions_widget = get_player_permissions_widget(player_object.steamid)
     player_whitelist_widget = get_player_whitelist_widget(player_object.steamid)
     player_locations_widget = get_player_locations_widget(player_object.steamid)
-    obliterate_player_widget = get_obliterate_player_widget(player_object.steamid)
+    player_actions_widget = get_player_actions_widget(player_object.steamid)
     player_lcb_widget = get_player_lcb_widget(player_object.steamid)
 
     output = webinterface.flask.Markup(webinterface.flask.render_template(
@@ -103,7 +103,7 @@ def get_all_players_table_row(steamid):
         player_locations_widget=player_locations_widget,
         player_lcb_widget=player_lcb_widget,
         player_permissions_widget=player_permissions_widget,
-        obliterate_player_widget=obliterate_player_widget
+        player_actions_widget=player_actions_widget
     ))
 
     return output
@@ -124,7 +124,8 @@ def get_all_players_table():
     player_objects_list = chrani_bot.players.get_all_players()
     player_objects_list = sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True)
     for player_object in player_objects_list:
-        output += get_all_players_table_row(player_object.steamid)
+        if not player_object.is_to_be_obliterated:
+            output += get_all_players_table_row(player_object.steamid)
 
     return chrani_bot.flask.render_template('all_players.html', player_entries=output)
 
@@ -185,7 +186,7 @@ def send_player_to_lobby(target_player_steamid):
 
 
 common.actions_list.append({
-    "title": "send player home",
+    "title": "send player to lobby",
     "route": "/protected/players/send/<string:target_player_steamid>/to/lobby",
     "action": send_player_to_lobby,
     "authenticated": True
@@ -216,7 +217,7 @@ common.actions_list.append({
 
 
 @common.build_response
-def kick_player(target_player_steamid, reason):
+def ban_player(target_player_steamid, reason):
     webinterface = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
@@ -227,13 +228,36 @@ def kick_player(target_player_steamid, reason):
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
+    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "ban player {} for {}".format(target_player_steamid, reason))
 
 
 common.actions_list.append({
-    "title": "kick player",
-    "route": "/protected/players/kick/<string:target_player_steamid>/<reason>",
-    "action": kick_player,
+    "title": "ban player",
+    "route": "/protected/players/ban/<string:target_player_steamid>/<reason>",
+    "action": ban_player,
+    "authenticated": True
+})
+
+
+@common.build_response
+def unban_player(target_player_steamid):
+    webinterface = __main__.chrani_bot
+    target_player_steamid = str(target_player_steamid)
+    try:
+        source_player_steamid = webinterface.flask_login.current_user.steamid
+    except AttributeError:
+        return webinterface.flask.redirect("/")
+
+    player_object = webinterface.players.get_by_steamid(source_player_steamid)
+    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+
+    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "unban player {}".format(target_player_steamid))
+
+
+common.actions_list.append({
+    "title": "unban player",
+    "route": "/protected/players/unban/<string:target_player_steamid>",
+    "action": unban_player,
     "authenticated": True
 })
 
