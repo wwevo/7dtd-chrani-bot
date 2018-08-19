@@ -1,7 +1,7 @@
 <ul xmlns="http://www.w3.org/1999/html">
     {% if player_object.is_online %}
     <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="player_action(this); return false;">send home</a></li>
-    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this); return false;">lobby</a></li>
+    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this); return false;">send to lobby</a></li>
     <li class="flat seperator">
         <form action="/protected/players/kick/{{ player_object.steamid }}/webinterface" method="POST" onsubmit="send_form(this); return false;">
             <input list="kick_reasons" name="reason">
@@ -13,7 +13,6 @@
             </datalist>
             <button type="submit">kick</button>
         </form>
-        <!-- <a href="/protected/players/kick/{{ player_object.steamid }}/webinterface" onclick="player_action(this); return false;">kick</a> //-->
     </li>
     {% endif %}
     {% if player_object.is_banned %}
@@ -30,7 +29,6 @@
             </datalist>
             <button type="submit">ban</button>
         </form>
-        <!-- <a href="/protected/players/ban/{{ player_object.steamid }}/webinterface" onclick="player_action(this); return false;">ban</a> //-->
     </li>
     {% endif %}
     <li class="flat"><a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="player_action(this); return false;">obliterate</a></li>

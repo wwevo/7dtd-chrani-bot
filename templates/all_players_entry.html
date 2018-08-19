@@ -1,11 +1,14 @@
 
 <tr valign="top" id="opw_{{ player_object.steamid }}" {% if player_object.is_online == True %}class="highlight"{% endif%}>
     <td>{{ player_object.name.decode('utf-8') }}</td>
-    <td>({{ player_object.entityid }} / {{ player_object.steamid }})</td>
-    <td>{{ player_object.authenticated }}</td>
+    <td>{{ player_object.entityid }} / {{ player_object.steamid }}</td>
     <td>{{ player_whitelist_widget }}</td>
-    <td>{{ player_locations_widget }}</td>
-    <td>{{ player_lcb_widget }}</td>
+    <td class="player_locations_widget">
+        {{ player_locations_widget }}
+    </td>
+    <td class="player_lcb_widget">
+        {{ player_lcb_widget }}
+    </td>
     <td class="player_permissions_widget">
         {{ player_permissions_widget }}
     </td>
