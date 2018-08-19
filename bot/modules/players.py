@@ -104,15 +104,15 @@ class Players(object):
 
         players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():
-            if player_steamid in bot.active_player_threads_dict and not player_object.is_online:
+            if player_steamid in bot.active_player_threads_dict:
                 """ prune all active_player_threads from players no longer online """
                 active_player_thread = bot.active_player_threads_dict[player_steamid]
                 stop_flag = active_player_thread["thread"]
                 stop_flag.stopped.set()
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                if player_object.is_to_be_obliterated is True:
-                    players_to_obliterate.append(player_object)
                 del bot.active_player_threads_dict[player_steamid]
+            if not player_object.is_online and player_object.is_to_be_obliterated is True:
+                players_to_obliterate.append(player_object)
 
         for player_object in players_to_obliterate:
             self.remove(player_object)

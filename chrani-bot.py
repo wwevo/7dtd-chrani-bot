@@ -7,7 +7,7 @@ from urllib import urlencode
 from threading import *
 
 import eventlet
-eventlet.monkey_patch()
+eventlet.monkey_patch(os=False, socket=True)
 
 import flask
 import flask_login
@@ -32,12 +32,13 @@ app.config["SECRET_KEY"] = "totallyasecret"
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-socketio = flask_socketio.SocketIO(app, async_mode='eventlet')
+socketio = flask_socketio.SocketIO(app, async_mode='threading')
+# socketio = flask_socketio.SocketIO(app, async_mode='eventlet')
 
 chrani_bot_thread_stop_flag = Event()
 chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)  # I'm passing the bot (self) into it to have easy access to it's variables
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
-chrani_bot_thread.isDaemon()
+# chrani_bot_thread.isDaemon()
 chrani_bot_thread.app_root = root_dir
 chrani_bot_thread.bot_version = "0.5c"
 chrani_bot = chrani_bot_thread
