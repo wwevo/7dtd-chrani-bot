@@ -53,6 +53,14 @@ tr th {
     color: #cccccc;
 }
 
+tr th a, tr td a {
+    text-decoration: none;
+}
+
+tr th a:hover, tr td a:hover {
+    text-decoration: underline;
+}
+
 td.player_permissions_widget a.active {
     font-weight: bold;
 }
