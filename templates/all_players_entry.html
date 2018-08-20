@@ -3,10 +3,10 @@
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>{{ player_object.entityid }} / {{ player_object.steamid }}</td>
     <td>{{ player_whitelist_widget }}</td>
-    <td class="player_locations_widget">
+    <td class="player_locations_widget nlb">
         {{ player_locations_widget }}
     </td>
-    <td class="player_lcb_widget">
+    <td class="player_lcb_widget nlb">
         {{ player_lcb_widget }}
     </td>
     <td class="player_permissions_widget">
@@ -14,5 +14,9 @@
     </td>
     <td class="player_actions_widget">
         {{ player_actions_widget }}
+    </td>
+    <td class="nlb">
+        {{ player_object.get_last_seen() }}<br />
+        {{ player_object.region }}<br />
     </td>
 </tr>

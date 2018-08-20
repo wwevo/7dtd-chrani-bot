@@ -43,6 +43,10 @@ tr th, tr td {
     padding: 3px 5px;
 }
 
+tr th.nlb, tr td.nlb {
+    white-space: nowrap;
+}
+
 tr th {
     text-align: left;
     background: #666666;

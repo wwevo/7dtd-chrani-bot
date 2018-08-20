@@ -1,4 +1,5 @@
 from time import time
+import datetime
 import flask_login
 
 
@@ -40,6 +41,7 @@ class Player(flask_login.UserMixin):
     is_to_be_obliterated = bool
     last_teleport = int
     last_responsive = float
+    last_seen = float
     initialized = bool
 
     playerfriends_list = list
@@ -50,6 +52,7 @@ class Player(flask_login.UserMixin):
 
     def __init__(self, **kwargs):
         self.last_teleport = 0
+        self.last_seen = 0
         self.is_muted = False
         self.is_online = False
         self.is_banned = False
@@ -156,3 +159,11 @@ class Player(flask_login.UserMixin):
 
     def set_muted(self, flag):
         self.is_muted = flag
+
+    def get_last_seen(self):
+        if self.last_seen == 0:
+            readable_last_seen = "not available"
+        else:
+            readable_last_seen = datetime.datetime.utcfromtimestamp(self.last_seen).strftime("%Y-%m-%d %H:%M:%S")
+
+        return readable_last_seen

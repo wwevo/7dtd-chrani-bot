@@ -218,6 +218,7 @@ class Players(object):
                 "is_banned": player_object.is_muted,
                 "last_teleport": player_object.last_teleport,
                 "last_responsive": player_object.last_responsive,
+                "last_seen": player_object.last_seen,
                 "playerfriends_list": player_object.playerfriends_list,
                 "pos_x": player_object.pos_x if isinstance(player_object.pos_x, float) else 0,
                 "pos_y": player_object.pos_y if isinstance(player_object.pos_y, float) else 0,
