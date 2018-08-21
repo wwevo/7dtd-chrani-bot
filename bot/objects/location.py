@@ -256,6 +256,10 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
+        if player_object.pos_x is 0.0 and player_object.pos_y is 0.0 and player_object.pos_z is 0.0:
+            logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
+            return False
+
         player_is_inside_boundary = False
         if self.shape == "sphere":
             """ we determine the location by the locations radius and the distance of the player from it's center,
@@ -285,7 +289,7 @@ class Location(object):
         return player_is_inside_boundary
 
     def player_is_inside_core(self, player_object):
-        if player_object.pos_x is 0.0 and player_object.pos_x is 0.0 and player_object.pos_x is 0.0:
+        if player_object.pos_x is 0.0 and player_object.pos_y is 0.0 and player_object.pos_z is 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return False
 
