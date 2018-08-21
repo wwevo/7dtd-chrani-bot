@@ -51,7 +51,7 @@ chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_log
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
 chrani_bot_thread.isDaemon()
 chrani_bot_thread.app_root = root_dir
-chrani_bot_thread.bot_version = "0.5e"
+chrani_bot_thread.bot_version = "0.5f"
 chrani_bot = chrani_bot_thread
 chrani_bot.start()
 
