@@ -112,3 +112,11 @@ footer {
     height: 1.33em; line-height: 1.33em;
     background: #acacac;
 }
+
+ul[id^=plw_] ul {
+    list-style-type: circle;
+}
+
+ul[id^=plw_] li {
+    margin-left: 1em;
+}

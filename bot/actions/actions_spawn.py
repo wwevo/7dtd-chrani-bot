@@ -7,15 +7,16 @@ def on_player_join(bot, source_player, target_player, command):
     try:
         location_object = bot.locations.get(target_player.steamid, 'spawn')
     except KeyError:
+        location_name = 'Place of Birth'
         location_dict = dict(
             identifier='spawn',
-            name='Place of Birth',
+            name=location_name,
+            description="{}'s {}".format(target_player.name, location_name),
             owner=target_player.steamid,
-            shape='point',
-            radius=None,
+            shape='sphere',
+            radius=7,
             region=None
         )
-        location_object.description = "{}'s {}".format(target_player.name, location_dict.name),
         location_object = Location(**location_dict)
         location_object.set_coordinates(target_player)
         try:
@@ -23,6 +24,7 @@ def on_player_join(bot, source_player, target_player, command):
         except:
             return False
 
+        bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         logger.debug("spawn for player {} created".format(target_player.name))
 
     return True

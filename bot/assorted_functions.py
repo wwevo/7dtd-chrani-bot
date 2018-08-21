@@ -64,7 +64,7 @@ class ResponseMessage(object):
     def __init__(self):
         self.messages = {}
 
-    def add_message(self, message, result):
+    def add_message(self, message, result=True):
         self.messages.update({message: result})
 
     def get_message_dict(self):

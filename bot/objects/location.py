@@ -1,6 +1,7 @@
 import math
 import random
 from bot.assorted_functions import get_region_string
+from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 
 
@@ -69,7 +70,6 @@ class Location(object):
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
-        self.update_region_list()
 
     def set_owner(self, owner):
         self.owner = owner
@@ -310,6 +310,7 @@ class Location(object):
         return player_is_inside_core
 
     def get_player_status(self, player_object):
+        response_message = ResponseMessage()
         player_status = None
 
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
@@ -318,21 +319,25 @@ class Location(object):
             if player_object.steamid in self.list_of_players_inside:
                 # and already was inside the location
                 player_status = 'is inside'
+                response_message.add_message(player_status)
             else:
                 # newly entered the location
                 self.list_of_players_inside.append(player_object.steamid)
                 player_status = 'has entered'
+                response_message.add_message(player_status)
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside:
                 # and was inside before, so he left the location
                 self.list_of_players_inside.remove(player_object.steamid)
                 player_status = 'has left'
-                return player_status
+                response_message.add_message(player_status)
+#                return player_status
             else:
                 # and already was outside before
                 player_status = 'is outside'
-                return player_status
+                response_message.add_message(player_status)
+#                return player_status
 
         player_is_inside_core = self.player_is_inside_core(player_object)
         if player_is_inside_core is True:
@@ -340,18 +345,21 @@ class Location(object):
             if player_object.steamid in self.list_of_players_inside_core:
                 # and already was inside the locations core
                 player_status = 'is inside core'
-                return player_status
+                response_message.add_message(player_status)
+#                return player_status
             else:
                 # newly entered the locations core
                 self.list_of_players_inside_core.append(player_object.steamid)
                 player_status = 'has entered core'
-                return player_status
+                response_message.add_message(player_status)
+#                return player_status
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside_core:
                 # and was inside before, so he left the core
                 self.list_of_players_inside_core.remove(player_object.steamid)
                 player_status = 'has left core'
-                return player_status
+                response_message.add_message(player_status)
+#                return player_status
 
-        return player_status
+        return response_message.get_message_dict()
