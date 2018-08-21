@@ -1,7 +1,7 @@
 {% if player_locations_dict %}
 <ul id="plw_{{ player_object.steamid }}">
     {% for player_location_identifier, player_location in player_locations_dict.iteritems() %}
-    <li><strong>{{ player_location_identifier }}</strong> ({{ player_location.description }}) <ul>{% for player_status, status in player_location.get_player_status(player_object).iteritems() %}<li>{{ player_status }}</li>{% endfor %}</ul></li>
+    <li><strong>{{ player_location_identifier }}</strong> ({{ player_location.name }}) <ul>{% for player_status, status in player_location.get_player_status(player_object).iteritems() %}<li>{{ player_status }}</li>{% endfor %}</ul></li>
     {% endfor %}
 </ul>
 {% endif %}

@@ -54,8 +54,8 @@ class Location(object):
             "left_location": "leaving boundary"
         }
         self.radius = 20
-        self.is_public = False
         self.description = None
+        self.is_public = False
         self.warning_boundary = 16
         self.width = self.radius * 2
         self.length = self.radius * 2
