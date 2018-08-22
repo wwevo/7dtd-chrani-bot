@@ -142,6 +142,8 @@ class Locations(object):
             "tele_z": location_object.tele_z,
             "shape": location_object.shape,
             "region_list": location_object.region_list,
+            "teleport_target": location_object.teleport_target,
+            "teleport_active": location_object.teleport_active,
         }
 
         try:

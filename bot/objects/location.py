@@ -33,6 +33,9 @@ class Location(object):
     radius = float
     warning_boundary = float
 
+    teleport_target = str
+    teleport_active = bool
+
     protected_core = bool
     protected_core_whitelist = list
 
@@ -66,6 +69,8 @@ class Location(object):
         self.list_of_players_inside_core = []
         self.protected_core = False
         self.protected_core_whitelist = []
+        self.teleport_target = None
+        self.teleport_active = False
 
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
@@ -122,15 +127,15 @@ class Location(object):
             return self.pos_x, self.pos_y, self.pos_z
 
     def set_shape(self, shape):
-        allowed_shapes = ['cube', 'sphere', 'room']
+        allowed_shapes = ['cube', 'sphere', 'room', 'point', 'teleport']
         if shape not in allowed_shapes or shape == self.shape:
             return False
 
         self.shape = shape
         if shape in ['sphere', 'cube']:
             self.radius = max(
-                self.width / 2,
-                self.length / 2
+                float(self.width) / 2,
+                float(self.length) / 2
             )
         self.update_region_list()
         return True
@@ -241,6 +246,20 @@ class Location(object):
             x = self.pos_x + (self.radius + 2) * math.cos(angle)
             z = self.pos_z + (self.radius + 2) * math.sin(angle)
             coords = (x, -1, z)
+        elif self.shape == "cube" or self.shape == "room":
+            # untested
+            return False
+        else:
+            return False
+
+        return coords
+
+    def get_teleport_coords_tuple(self, player_object):
+        if self.shape == "sphere":
+            angle = random.randint(0, 359)
+            x = self.pos_x + (self.radius) * math.cos(angle)
+            z = self.pos_z + (self.radius) * math.sin(angle)
+            coords = (x, self.pos_y, z)
         elif self.shape == "cube" or self.shape == "room":
             # untested
             return False

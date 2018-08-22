@@ -56,7 +56,7 @@ def player_crossed_boundary(self):
                         self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                         if location_object.messages_dict["entered_locations_core"] is not None:
                             self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
-
+                            
                 self.bot.locations.upsert(location_object)
     except Exception as e:
         logger.exception(e)
