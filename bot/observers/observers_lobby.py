@@ -19,7 +19,7 @@ def player_is_outside_boundary(self):
             self.bot.players.upsert(player_object)
             logger.info("{} has been ported to the lobby!".format(player_object.name))
             self.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>", color=self.bot.chat_colors['alert'])
-            self.tn.send_message_to_player(player_object, "see https://chrani.net/chrani-bot for more information!", color=self.bot.chat_colors['warning'])
+            self.tn.send_message_to_player(player_object, "see https://chrani.net for more information!", color=self.bot.chat_colors['warning'])
 
 
 common.observers_list.append({
