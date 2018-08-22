@@ -84,6 +84,7 @@ def password(bot, source_player, target_player, command):
             message = "Entered a wrong / unknown password"
             response_messages.add_message(message, False)
             target_player.remove_permission_level("authenticated")
+            target_player.update()
             message = "You have lost your authentication!"
             response_messages.add_message(message, False)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
@@ -103,16 +104,19 @@ def password(bot, source_player, target_player, command):
             # TODO: well, this action should only care about general authentication. things like admin and mod should be handled somewhere else really
             if pwd == bot.passwords['admin']:
                 target_player.add_permission_level("admin")
+                target_player.update()
                 message = "you are an Admin"
                 response_messages.add_message(message, True)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             elif pwd == bot.passwords['mod']:
                 target_player.add_permission_level("mod")
+                target_player.update()
                 message = "you are a Moderator"
                 response_messages.add_message(message, True)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             elif pwd == bot.passwords['donator']:
                 target_player.add_permission_level("donator")
+                target_player.update()
                 message = "you are a Donator. Thank you <3"
                 response_messages.add_message(message, True)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
