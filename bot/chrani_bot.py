@@ -84,9 +84,6 @@ class ChraniBot(Thread):
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
 
-        self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
-        self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
-
         self.actions_list = bot.actions.actions_list
         self.observers_list = bot.observers.observers_list
 
@@ -240,10 +237,6 @@ class ChraniBot(Thread):
         return clean_bases_near_list, clean_landclaims_near_list
 
     def run(self):
-        self.server_settings_dict = self.get_game_preferences()
-
-        self.tn.togglechatcommandhide("/")
-
         listplayers_dict = {}
         listplayers_timeout_start = 0
         listplayers_interval = self.listplayers_interval
@@ -258,116 +251,137 @@ class ChraniBot(Thread):
 
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active:
-            time_running_seconds = int(time.time() - self.time_launched)
-
-            if timeout_occurred(update_status_interval, update_status_timeout_start):
-                self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
-                self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
-                self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
-                update_status_timeout_start = time.time()
-
-            if self.initiate_shutdown is True:
-                self.shutdown()
-
-            if self.is_paused is True:
-                time.sleep(1)
-                continue
-
-            if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
-                self.landclaims_dict = self.poll_lcb()
-                listlandprotection_timeout_start = time.time()
-
-            if timeout_occurred(listplayers_interval, listplayers_timeout_start):
-                if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
-                    listplayers_interval = self.listplayers_interval_idle
-                else:
-                    listplayers_interval = self.listplayers_interval
-
-                listplayers_dict = self.players.manage_online_players(self, listplayers_dict)
-                listplayers_timeout_start = time.time()
-
-            """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
-            I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
             try:
-                telnet_lines = self.tn.read_line()
-            except Exception as e:
-                logger.exception(e)
-                raise IOError
+                time_running_seconds = int(time.time() - self.time_launched)
+                """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
+                I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
+                try:
+                    telnet_lines = self.tn.read_line()
+                except AttributeError:
+                    raise IOError
 
-            if telnet_lines is not None:
-                for line in telnet_lines:
-                    self.telnet_lines_list.append(line)  # get the current global telnet-response
+                if timeout_occurred(update_status_interval, update_status_timeout_start):
+                    self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
+                    self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
+                    self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+                    update_status_timeout_start = time.time()
 
-            try:
-                telnet_line = self.telnet_lines_list.popleft()
-            except IndexError:
-                telnet_line = None
+                if self.initiate_shutdown is True:
+                    self.shutdown()
 
-            if telnet_line is not None:
-                m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                if not m or m and m.group('telnet_command') != 'lp' and m.group('telnet_command') != 'llp2':
-                    if telnet_line != '':
-                        logger.debug(telnet_line)
+                if self.is_paused is True:
+                    time.sleep(1)
+                    continue
 
-                """ send telnet_line to player-thread
-                check 'chat' telnet-line(s) for any known playername currently online
-                """
-                for player_steamid, player_object in self.players.players_dict.iteritems():
-                    possible_action_for_player = re.search(player_object.name, telnet_line)
-                    if possible_action_for_player:
-                        if player_steamid in self.active_player_threads_dict:
-                            active_player_thread = self.active_player_threads_dict[player_steamid]
-                            active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+                if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
+                    self.landclaims_dict = self.poll_lcb()
+                    listlandprotection_timeout_start = time.time()
 
-                # handle playerspawns
-                m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
-                if m:
-                    try:
-                        player_id = m.group("player_id")
-                        command = m.group("command")
-                        player_object = self.players.load(player_id)
-                        active_player_thread = self.active_player_threads_dict[player_id]
-                        active_player_thread["thread"].trigger_action(player_object, command)
-                    except KeyError:
-                        pass
+                if timeout_occurred(listplayers_interval, listplayers_timeout_start):
+                    if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
+                        listplayers_interval = self.listplayers_interval_idle
+                    else:
+                        listplayers_interval = self.listplayers_interval
 
-                # telnet_player_connected is the earliest usable player-data line available, perfect spot to fire off triggers for whitelist and blacklist and such
-                m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
-                if m:
-                    try:
-                        player_id = m.group("player_id")
-                        player_object = self.players.load(player_id)
-                    except KeyError:
-                        # no available player on record. we need to create a minimized dataset to be able to make use
-                        # of the the existing observer approach. Since the observers are built to run within the scope
-                        # of the player_ovserver script, we need to add the created player_object
-                        player_dict = {
-                            'entityid': int(m.group("entity_id")),
-                            'steamid': m.group("player_id"),
-                            'name': m.group("player_name"),
-                            'ip': m.group("player_ip"),
-                        }
-                        player_object = Player(**player_dict)
+                    listplayers_dict = self.players.manage_online_players(self, listplayers_dict)
+                    listplayers_timeout_start = time.time()
 
-                    logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
-                    command_queue = []
-                    for observer in self.observers_list:
-                        if observer["type"] == 'trigger':  # we only want the triggers here
-                            observer_function_name = observer["action"]
-                            observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
-                            command_queue.append({
-                                "action": observer_function_name,
-                                "command_parameters": observer_parameters
-                            })
+                if telnet_lines is not None:
+                    for line in telnet_lines:
+                        self.telnet_lines_list.append(line)  # get the current global telnet-response
 
-                    for command in command_queue:
-                        if isinstance(command["command_parameters"], tuple):
-                            if len(command["command_parameters"]) > 1:
-                                command["action"](*command["command_parameters"])
-                            else:
-                                command["action"](command["command_parameters"])
+                try:
+                    telnet_line = self.telnet_lines_list.popleft()
+                except IndexError:
+                    telnet_line = None
 
-            time.sleep(0.1)  # to limit the speed a bit ^^
+                if telnet_line is not None:
+                    m = re.search(self.match_types_system["telnet_commands"], telnet_line)
+                    if not m or m and m.group('telnet_command') != 'lp' and m.group('telnet_command') != 'llp2':
+                        if telnet_line != '':
+                            logger.debug(telnet_line)
+
+                    """ send telnet_line to player-thread
+                    check 'chat' telnet-line(s) for any known playername currently online
+                    """
+                    for player_steamid, player_object in self.players.players_dict.iteritems():
+                        possible_action_for_player = re.search(player_object.name, telnet_line)
+                        if possible_action_for_player:
+                            if player_steamid in self.active_player_threads_dict:
+                                active_player_thread = self.active_player_threads_dict[player_steamid]
+                                active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+
+                    # handle playerspawns
+                    m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
+                    if m:
+                        try:
+                            player_id = m.group("player_id")
+                            command = m.group("command")
+                            player_object = self.players.load(player_id)
+                            active_player_thread = self.active_player_threads_dict[player_id]
+                            active_player_thread["thread"].trigger_action(player_object, command)
+                        except KeyError:
+                            pass
+
+                    # telnet_player_connected is the earliest usable player-data line available, perfect spot to fire off triggers for whitelist and blacklist and such
+                    m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
+                    if m:
+                        try:
+                            player_id = m.group("player_id")
+                            player_object = self.players.load(player_id)
+                        except KeyError:
+                            # no available player on record. we need to create a minimized dataset to be able to make use
+                            # of the the existing observer approach. Since the observers are built to run within the scope
+                            # of the player_ovserver script, we need to add the created player_object
+                            player_dict = {
+                                'entityid': int(m.group("entity_id")),
+                                'steamid': m.group("player_id"),
+                                'name': m.group("player_name"),
+                                'ip': m.group("player_ip"),
+                            }
+                            player_object = Player(**player_dict)
+
+                        logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
+                        command_queue = []
+                        for observer in self.observers_list:
+                            if observer["type"] == 'trigger':  # we only want the triggers here
+                                observer_function_name = observer["action"]
+                                observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
+                                command_queue.append({
+                                    "action": observer_function_name,
+                                    "command_parameters": observer_parameters
+                                })
+
+                        for command in command_queue:
+                            if isinstance(command["command_parameters"], tuple):
+                                if len(command["command_parameters"]) > 1:
+                                    command["action"](*command["command_parameters"])
+                                else:
+                                    command["action"](command["command_parameters"])
+
+                time.sleep(0.1)  # to limit the speed a bit ^^
+
+            except (IOError, NameError, AttributeError) as error:
+                """ clean up bot to have a clean restart when a new connection can be established """
+                try:
+                    wait_until_reconnect = 20
+                    log_message = "connection lost, server-restart?"
+                except NameError:  # probably started the bot before the server was up
+                    wait_until_reconnect = 45
+                    log_message = "can't connect to telnet, is the server running?"
+                    pass
+
+                try:
+                    self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
+                    self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
+                    self.server_settings_dict = self.get_game_preferences()
+                    self.tn.togglechatcommandhide("/")
+                except Exception:
+                    log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
+                    logger.info(log_message)
+                    # logger.exception(log_message)
+                    time.sleep(wait_until_reconnect)
+                    pass
 
     def shutdown(self):
         self.is_active = False
@@ -378,7 +392,5 @@ class ChraniBot(Thread):
 
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = None
-        self.tn.say("...bot has shut down!", color=self.chat_colors['success'])
-        self.tn.tn.close()
         self.stopped.set()
         sys.exit()

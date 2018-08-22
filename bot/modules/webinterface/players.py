@@ -153,7 +153,7 @@ def send_player_home(target_player_steamid):
         location_object = webinterface.locations.get(target_player_steamid, 'home')
         pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
         coord_tuple = (pos_x, pos_y, pos_z)
-    except KeyError:
+    except (KeyError, AttributeError):
         coord_tuple = (None, None, None)
 
     return bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
@@ -179,9 +179,12 @@ def send_player_to_lobby(target_player_steamid):
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
 
-    location_object = webinterface.locations.get('system', 'lobby')
-    pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-    coord_tuple = (pos_x, pos_y, pos_z)
+    try:
+        location_object = webinterface.locations.get('system', 'lobby')
+        pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+        coord_tuple = (pos_x, pos_y, pos_z)
+    except (KeyError, AttributeError):
+        coord_tuple = (None, None, None)
 
     return bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
