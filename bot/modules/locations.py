@@ -65,13 +65,13 @@ class Locations(object):
                 locations_dict = self.locations_dict[location_owner]
                 return locations_dict
             except KeyError:
-                pass
+                raise
         else:
             try:
                 location_object = self.locations_dict[location_owner][location_identifier]
                 return location_object
             except KeyError:
-                return False
+                raise
 
         return {}
 

@@ -63,7 +63,9 @@ class PlayerObserver(Thread):
                 for command in command_queue:
                     if player_object.is_responsive():
                         try:
-                            command["action"](command["command_parameters"])
+                            result = command["action"](command["command_parameters"])
+                            if not result:
+                                continue
                         except TypeError:
                             command["action"](*command["command_parameters"])
                     else:
