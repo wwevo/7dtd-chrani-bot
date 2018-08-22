@@ -215,7 +215,7 @@ class Players(object):
                 "region": player_object.region,
                 "country_code": player_object.country_code,
                 "authenticated": player_object.authenticated,
-                "is_banned": player_object.is_muted,
+                "is_banned": player_object.is_banned,
                 "last_teleport": player_object.last_teleport,
                 "last_responsive": player_object.last_responsive,
                 "last_seen": player_object.last_seen,

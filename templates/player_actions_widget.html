@@ -15,7 +15,7 @@
         </form>
     </li>
     {% endif %}
-    {% if player_object.is_banned %}
+    {% if player_object.is_banned == True %}
     <li class="flat"><a href="/protected/players/unban/{{ player_object.steamid }}" onclick="player_action(this); return false;">unban</a></li>
     {% else %}
     <li class="flat">
