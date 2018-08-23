@@ -52,18 +52,13 @@ common.observers_list.append({
 
 
 def poll_playerfriends(self):
-    try:
-        player_object = self.bot.players.get_by_steamid(self.player_steamid)
+    player_object = self.bot.players.get_by_steamid(self.player_steamid)
 
-        if timeout_occurred(self.bot.players.poll_listplayerfriends_interval, player_object.poll_listplayerfriends_lastpoll):
-            player_object.playerfriends_list = self.tn.listplayerfriends(player_object)
-            player_object.poll_listplayerfriends_lastpoll = time()
-            player_object.update()
-            self.bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-
-    except Exception as e:
-        logger.exception(e)
-        pass
+    if timeout_occurred(self.bot.players.poll_listplayerfriends_interval, player_object.poll_listplayerfriends_lastpoll):
+        player_object.playerfriends_list = self.tn.listplayerfriends(player_object)
+        player_object.poll_listplayerfriends_lastpoll = time()
+        player_object.update()
+        self.bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
 
 
 common.observers_list.append({

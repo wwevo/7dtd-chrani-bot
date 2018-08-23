@@ -9,6 +9,8 @@
   "scan_for_lcb": true,
   "whitelist_active": false,
 
+  "silent_mode": false,
+
   "telnet_ip": "",
   "telnet_port": 0,
   "telnet_password": "",

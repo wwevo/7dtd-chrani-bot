@@ -74,7 +74,7 @@ class ChraniBot(Thread):
         self.flask = flask
         self.flask_login = flask_login
         self.socketio = socketio
-        self.paused = False
+        self.is_paused = False
         self.settings = Settings()
         self.time_launched = time.time()
         self.time_running = 0
@@ -236,6 +236,24 @@ class ChraniBot(Thread):
 
         return clean_bases_near_list, clean_landclaims_near_list
 
+    def fire_observer_triggers(self, player_object):
+        command_queue = []
+        for observer in self.observers_list:
+            if observer["type"] == 'trigger':  # we only want the triggers here
+                observer_function_name = observer["action"]
+                observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
+                command_queue.append({
+                    "action": observer_function_name,
+                    "command_parameters": observer_parameters
+                })
+
+        for command in command_queue:
+            if isinstance(command["command_parameters"], tuple):
+                if len(command["command_parameters"]) > 1:
+                    command["action"](*command["command_parameters"])
+                else:
+                    command["action"](command["command_parameters"])
+
     def run(self):
         listplayers_dict = {}
         listplayers_timeout_start = 0
@@ -323,60 +341,21 @@ class ChraniBot(Thread):
                         except KeyError:
                             pass
 
-                    # telnet_player_connected is the earliest usable player-data line available, perfect spot to fire off triggers for whitelist and blacklist and such
-                    m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
-                    if m:
-                        try:
-                            player_id = m.group("player_id")
-                            player_object = self.players.load(player_id)
-                        except KeyError:
-                            # no available player on record. we need to create a minimized dataset to be able to make use
-                            # of the the existing observer approach. Since the observers are built to run within the scope
-                            # of the player_ovserver script, we need to add the created player_object
-                            player_dict = {
-                                'entityid': int(m.group("entity_id")),
-                                'steamid': m.group("player_id"),
-                                'name': m.group("player_name"),
-                                'ip': m.group("player_ip"),
-                            }
-                            player_object = Player(**player_dict)
-
-                        logger.info("found player '{}' in the stream, accessing matrix...".format(player_object.name))
-                        command_queue = []
-                        for observer in self.observers_list:
-                            if observer["type"] == 'trigger':  # we only want the triggers here
-                                observer_function_name = observer["action"]
-                                observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
-                                command_queue.append({
-                                    "action": observer_function_name,
-                                    "command_parameters": observer_parameters
-                                })
-
-                        for command in command_queue:
-                            if isinstance(command["command_parameters"], tuple):
-                                if len(command["command_parameters"]) > 1:
-                                    command["action"](*command["command_parameters"])
-                                else:
-                                    command["action"](command["command_parameters"])
-
                 time.sleep(0.1)  # to limit the speed a bit ^^
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
-                try:
-                    wait_until_reconnect = 20
-                    log_message = "connection lost, server-restart?"
-                except NameError:  # probably started the bot before the server was up
-                    wait_until_reconnect = 45
-                    log_message = "can't connect to telnet, is the server running?"
-                    pass
+                wait_until_reconnect = 20
+                log_message = "connection lost, server-restart?"
 
                 try:
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
                     self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
                     self.server_settings_dict = self.get_game_preferences()
                     self.tn.togglechatcommandhide("/")
+                    self.is_paused = False
                 except Exception:
+                    self.is_paused = True
                     log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
                     logger.info(log_message)
                     # logger.exception(log_message)

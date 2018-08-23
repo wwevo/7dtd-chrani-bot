@@ -88,9 +88,11 @@ def password(bot, source_player, target_player, command):
             message = "You have lost your authentication!"
             response_messages.add_message(message, False)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            bot.tn.muteplayerchat(target_player, True)
             bot.players.upsert(target_player, save=True)
             bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         elif pwd in bot.passwords.values():
+            bot.tn.muteplayerchat(target_player, False)
             if not target_player.authenticated:
                 message = "{} joined the ranks of literate people. Welcome!".format(target_player.name)
                 response_messages.add_message(message, True)

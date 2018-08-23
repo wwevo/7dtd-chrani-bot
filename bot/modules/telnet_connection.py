@@ -190,9 +190,6 @@ class TelnetConnection:
             return False
 
     def muteplayerchat(self, player_object, flag=True):
-        if player_object.is_muted == flag or not player_object.is_online: # no sense in double (un)muting someone ^^
-            return False
-
         command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
         try:
             connection = self.tn
@@ -234,6 +231,9 @@ class TelnetConnection:
             return False
 
     def say(self, message, color=None):
+        silent_mode = self.bot.settings.get_setting_by_name('silent_mode')
+        if silent_mode:
+            return True
         try:
             connection = self.tn
             if color is None:
@@ -244,6 +244,9 @@ class TelnetConnection:
             return False
 
     def send_message_to_player(self, player_object, message, color=None):
+        silent_mode = self.bot.settings.get_setting_by_name('silent_mode')
+        if silent_mode:
+            return True
         if not player_object.is_online:
             return False
 
