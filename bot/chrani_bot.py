@@ -102,14 +102,9 @@ class ChraniBot(Thread):
 
         self.locations = Locations()
 
-        self.passwords = {
-            "authenticated": self.settings.get_setting_by_name('authentication_pass'),
-            "donator": self.settings.get_setting_by_name('donator_pass'),
-            "mod": self.settings.get_setting_by_name('mod_pass'),
-            "admin": self.settings.get_setting_by_name('admin_pass')
-        }
+        self.passwords = self.settings.get_setting_by_name('authentication_groups')
 
-        self.permission_levels_list = ['admin', 'mod', 'donator', 'authenticated']
+        self.permission_levels_list = self.passwords.keys()  # ['admin', 'mod', 'donator', 'authenticated']
         self.permissions = Permissions(self.actions_list, self.permission_levels_list)
 
         self.load_from_db()

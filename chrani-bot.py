@@ -2,13 +2,20 @@ import os
 root_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(root_dir)
 
+try:
+    from is_local import is_debug
+    debug = True
+except ImportError:
+    debug = False
+
 import re
 import requests
 from urllib import urlencode
 from threading import *
 
-import eventlet
-eventlet.monkey_patch()
+if not debug:
+    import eventlet
+    eventlet.monkey_patch()
 
 import flask
 import flask_login
@@ -34,7 +41,10 @@ app.config["SECRET_KEY"] = "totallyasecret"
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-socketio = flask_socketio.SocketIO(app)
+if not debug:
+    socketio = flask_socketio.SocketIO(app, async_mode='eventlet')
+else:
+    socketio = flask_socketio.SocketIO(app, async_mode='threading')
 
 chrani_bot_thread_stop_flag = Event()
 chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
@@ -160,7 +170,7 @@ def protected():
     return flask.render_template('index.html', bot=chrani_bot, content=markup, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget)
 
 
-""" collecting all defined actions and creating routes for them """
+""" collecting all defined webinterface-actions and creating routes for them """
 for actions_list_entry in bot.modules.webinterface.actions_list:
     if actions_list_entry['authenticated'] is True:
         action = actions_list_entry['action']

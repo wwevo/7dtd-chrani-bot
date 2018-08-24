@@ -1,22 +1,26 @@
 {
-  "admin_pass": "admin123",
-  "donator_pass": "donator123",
-  "mod_pass": "mod123",
-  "authentication_pass": "authenticate123",
-
   "bot_name": "example-bot",
+
+  "bot_ip": "127.0.0.1",
+  "bot_port": 5000,
+  "ipinfo.io_password": "",
+
+  "telnet_ip": "",
+  "telnet_port": ,
+  "telnet_password": "",
+
+  "silent_mode": false,
+
+  "authentication_groups": {
+    "admin": "admin_pass",
+    "mod": "mod_pass",
+    "authenticated": "authenticated_pass"
+  },
+
   "mute_unauthenticated": true,
   "scan_for_lcb": true,
   "whitelist_active": false,
 
-  "silent_mode": false,
-
-  "telnet_ip": "",
-  "telnet_port": 0,
-  "telnet_password": "",
-
-  "ipinfo.io_password": "",
-
-  "location_default_radius": 0,
-  "location_default_warning_boundary_ratio": 0.00
+  "location_default_radius": 15,
+  "location_default_warning_boundary_ratio": 0.64
 }
