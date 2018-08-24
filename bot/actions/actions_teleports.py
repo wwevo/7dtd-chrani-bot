@@ -46,6 +46,7 @@ def set_up_teleport_point(bot, source_player, target_player, command):
 
             location_object.set_owner('system')
             location_object.protected_core_whitelist = []
+            location_object.show_messages = False
 
             messages_dict = location_object.get_messages_dict()
             messages_dict["entered_locations_core"] = None
