@@ -15,7 +15,8 @@ def on_player_join(bot, source_player, target_player, command):
             owner=target_player.steamid,
             shape='sphere',
             radius=7,
-            region=None
+            region=None,
+            show_messages=False
         )
         location_object = Location(**location_dict)
         location_object.set_coordinates(target_player)

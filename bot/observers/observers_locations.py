@@ -12,10 +12,9 @@ def player_crossed_boundary(self):
             so we have to loop through every player_location_dict to get to the actual locations
             """
             for location_name, location_object in locations_dict[location_owner_steamid].iteritems():
-                # if player_object.region not in location_object.region_list:
-                #
-                # we only need to check a location if a player is near it
-                #     continue
+                if player_object.region not in location_object.region_list:
+                    # we only need to check a location if a player is near it
+                    continue
 
                 """ different status-conditions for a player
                 'has entered'
@@ -42,19 +41,19 @@ def player_crossed_boundary(self):
                                     self.tn.send_message_to_player(player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object.owner), color=self.bot.chat_colors['warning'])
                     if player_status == "has left":
                         self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                        if location_object.messages_dict["left_location"] is not None:
+                        if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True:
                             self.tn.send_message_to_player(player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
                     if player_status == "has left core":
                         self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                        if location_object.messages_dict["left_locations_core"] is not None:
+                        if location_object.messages_dict["left_locations_core"] is not None and location_object.show_messages is True:
                             self.tn.send_message_to_player(player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
                     if player_status == "has entered":
                         self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                        if location_object.messages_dict["entered_location"] is not None:
+                        if location_object.messages_dict["entered_location"] is not None and location_object.show_messages is True:
                             self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                     if player_status == "has entered core":
                         self.bot.socketio.emit('refresh_locations', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                        if location_object.messages_dict["entered_locations_core"] is not None:
+                        if location_object.messages_dict["entered_locations_core"] is not None and location_object.show_messages is True:
                             self.tn.send_message_to_player(player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
                             
                 self.bot.locations.upsert(location_object)

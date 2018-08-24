@@ -16,6 +16,7 @@ class Location(object):
     description = str
 
     messages_dict = dict
+    show_messages = bool
 
     # the center of the shape
     pos_x = float
@@ -56,6 +57,7 @@ class Location(object):
             "left_locations_core": "leaving core",
             "left_location": "leaving boundary"
         }
+        self.show_messages = True
         self.radius = 20
         self.description = None
         self.is_public = False

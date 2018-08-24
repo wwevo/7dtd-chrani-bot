@@ -119,6 +119,7 @@ class Locations(object):
     def save(self, location_object):
         dict_to_save = {
             "messages_dict": location_object.messages_dict,
+            "show_messages": location_object.show_messages,
             "radius": location_object.radius,
             "is_public": location_object.is_public,
             "warning_boundary": location_object.warning_boundary,
