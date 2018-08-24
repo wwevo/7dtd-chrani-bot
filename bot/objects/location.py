@@ -258,10 +258,7 @@ class Location(object):
 
     def get_teleport_coords_tuple(self, player_object):
         if self.shape == "sphere":
-            angle = random.randint(0, 359)
-            x = self.pos_x + self.radius * math.cos(angle)
-            z = self.pos_z + self.radius * math.sin(angle)
-            coords = (x, self.pos_y, z)
+            coords = (self.tele_x, self.tele_y, self.tele_z)
         elif self.shape == "cube" or self.shape == "room":
             # untested
             return False
