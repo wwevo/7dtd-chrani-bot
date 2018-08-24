@@ -1,4 +1,3 @@
-from bot.modules.logger import logger
 from bot.objects.location import Location
 import common
 

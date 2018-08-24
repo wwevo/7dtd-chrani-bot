@@ -1,5 +1,4 @@
 import os
-from bot.modules.logger import logger
 import __main__  # my ide throws a warning here, but it works oO
 from functools import wraps
 from urllib import urlencode

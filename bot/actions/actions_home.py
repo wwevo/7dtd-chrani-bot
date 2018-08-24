@@ -45,7 +45,7 @@ def set_up_home(bot, source_player, target_player, command):
 
         location_object.set_name(name)
         location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
-        location_object.warning_boundary =float(bot.settings.get_setting_by_name("location_default_radius")) * float(bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
+        location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_radius")) * float(bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
 
         location_object.set_coordinates(target_player)
         identifier = location_object.set_identifier('home')
@@ -152,7 +152,6 @@ def protect_inner_core(bot, source_player, target_player, command):
         bot.tn.send_message_to_player(target_player, "your home is now protected!", color=bot.chat_colors['success'])
     else:
         bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
-
 
 
 common.actions_list.append({

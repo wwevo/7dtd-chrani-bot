@@ -1,7 +1,5 @@
 import re
-
 from bot.objects.location import Location
-from bot.modules.logger import logger
 from bot.assorted_functions import ResponseMessage
 import common
 

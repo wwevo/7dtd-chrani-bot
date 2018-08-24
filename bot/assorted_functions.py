@@ -12,16 +12,15 @@ def timeout_occurred(timeout_in_seconds, timeout_start):
     return None
 
 
-def byteify(input):
-    if isinstance(input, dict):
-        return {byteify(key): byteify(value)
-                for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [byteify(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
+def byteify(input_to_byteify):
+    if isinstance(input_to_byteify, dict):
+        return {byteify(key): byteify(value) for key, value in input_to_byteify.iteritems()}
+    elif isinstance(input_to_byteify, list):
+        return [byteify(element) for element in input_to_byteify]
+    elif isinstance(input_to_byteify, unicode):
+        return input_to_byteify.encode('utf-8')
     else:
-        return input
+        return input_to_byteify
 
 
 def is_alpha(word):

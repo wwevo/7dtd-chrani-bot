@@ -56,7 +56,7 @@ class Permissions(object):
 
         available_actions_dict = {}
         for player_action in self.player_actions_list:
-            if player_action["essential"] is False: # quick hack to get some system-functions in ^^
+            if player_action["essential"] is False:  # quick hack to get some system-functions in ^^
                 # if it were 'True', it would be a system action not requiring permission, they are available to all
                 try:
                     # see if this exact action already has permission groups attached
