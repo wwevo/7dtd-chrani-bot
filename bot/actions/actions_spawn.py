@@ -14,12 +14,13 @@ def on_player_join(bot, source_player, target_player, command):
             description="{}'s {}".format(target_player.name, location_name),
             owner=target_player.steamid,
             shape='sphere',
-            radius=7,
             region=None,
             show_messages=False
         )
         location_object = Location(**location_dict)
         location_object.set_coordinates(target_player)
+        location_object.set_radius(5)
+        location_object.set_warning_boundary(float(location_object.radius * bot.settings.get_setting_by_name("location_default_warning_boundary_ratio")))
         try:
             bot.locations.upsert(location_object, save=True)
         except:
