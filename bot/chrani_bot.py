@@ -341,7 +341,7 @@ class ChraniBot(Thread):
                         except KeyError:
                             pass
 
-                time.sleep(0.1)  # to limit the speed a bit ^^
+                time.sleep(0.25)  # to limit the speed a bit ^^
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
