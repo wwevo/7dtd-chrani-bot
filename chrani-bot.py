@@ -2,20 +2,13 @@ import os
 root_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(root_dir)
 
-try:
-    from is_local import is_debug
-    debug = True
-except ImportError:
-    debug = False
-
 import re
 import requests
 from urllib import urlencode
 from threading import *
 
-if not debug:
-    import eventlet
-    eventlet.monkey_patch()
+import eventlet
+eventlet.monkey_patch()
 
 import flask
 import flask_login
@@ -41,18 +34,16 @@ app.config["SECRET_KEY"] = "totallyasecret"
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-if not debug:
-    socketio = flask_socketio.SocketIO(app, async_mode='eventlet')
-else:
-    socketio = flask_socketio.SocketIO(app, async_mode='threading')
+socketio = flask_socketio.SocketIO(app)
 
 chrani_bot_thread_stop_flag = Event()
-chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)  # I'm passing the bot (self) into it to have easy access to it's variables
+chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
 chrani_bot_thread.isDaemon()
 chrani_bot_thread.app_root = root_dir
 chrani_bot_thread.bot_version = "0.5i"
 chrani_bot = chrani_bot_thread
+
 chrani_bot.start()
 
 
@@ -78,7 +69,7 @@ def login():
         'openid.realm': "http://{}:{}".format(chrani_bot.settings.get_setting_by_name('bot_ip'), chrani_bot.settings.get_setting_by_name('bot_port'))
     }
     query_string = urlencode(u)
-    auth_url = steam_openid_url + "?" + query_string
+    auth_url = "{}?{}".format(steam_openid_url, query_string)
     return flask.redirect(auth_url)
 
 
@@ -111,7 +102,7 @@ def setup():
         if "is_valid:true" in r.text:
             return True
 
-        # this fucntion should always return false if the payload is not valid
+        # this fucntion should always return False if the payload is not valid
         return False
 
     valid = validate(flask.request.args)
@@ -169,15 +160,15 @@ def protected():
     return flask.render_template('index.html', bot=chrani_bot, content=markup, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget)
 
 
-if __name__ == '__main__':
-    """ collecting all defined actions and creating routes for them """
-    for actions_list_entry in bot.modules.webinterface.actions_list:
-        if actions_list_entry['authenticated'] is True:
-            action = actions_list_entry['action']
-            wrapped_action = flask_login.login_required(action)
-            app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action, methods=['GET', 'POST'])
-        else:
-            action = actions_list_entry['action']
-            app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
+""" collecting all defined actions and creating routes for them """
+for actions_list_entry in bot.modules.webinterface.actions_list:
+    if actions_list_entry['authenticated'] is True:
+        action = actions_list_entry['action']
+        wrapped_action = flask_login.login_required(action)
+        app.add_url_rule(actions_list_entry['route'], view_func=wrapped_action, methods=['GET', 'POST'])
+    else:
+        action = actions_list_entry['action']
+        app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
 
+if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)

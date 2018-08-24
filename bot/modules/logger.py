@@ -8,8 +8,8 @@ class ExclusiveLevel(object):
     def __init__(self, level):
         self.__level = level
 
-    def filter(self, logRecord):
-        return logRecord.levelno == self.__level
+    def filter(self, log_record):
+        return log_record.levelno == self.__level
 
 
 class Logger:
@@ -22,7 +22,7 @@ class Logger:
         self.prefix = args_dict['Database-file']
         self.extension = "log"
 
-    def add_logging_level(static, level_name, level_num, method_name=None):
+    def add_logging_level(self, level_name, level_num, method_name=None):
         """
         add_logging_level('TRACE', logging.DEBUG - 5)
         logging.getLogger(__name__).setLevel("TRACE")

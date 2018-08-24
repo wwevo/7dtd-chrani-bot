@@ -15,7 +15,6 @@ import bot.observers
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
-from bot.objects.player import Player
 from bot.modules.players import Players
 from bot.modules.telnet_connection import TelnetConnection
 from bot.modules.whitelist import Whitelist
