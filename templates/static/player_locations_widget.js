@@ -7,3 +7,10 @@ function refresh_player_locations_widget(msg) {
         }
     })
 }
+
+$(document).ready(function() {
+    $('ul[id^=plw_]').click(function() {
+        $(this).find('ul').slideToggle()
+    });
+    $('ul[id^=plw_]').find('ul').hide()
+});

@@ -8,7 +8,9 @@
         {% else %}
         <a href="/protected/system/pause" onclick="player_action(this); return false;">running</a>
         {% endif %}
+        {% if "admin" in current_user.permission_levels %}
         (<a href="/protected/system/shutdown" onclick="player_action(this); return false;">shutdown bot</a>)
         (<a href="/protected/system/reinitialize" onclick="player_action(this); return false;">reinitialize</a>)
+        {% endif %}
     {% endif %}
 </div>
