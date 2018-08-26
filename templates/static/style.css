@@ -31,11 +31,11 @@ tr:nth-child(odd) {
     background-color: #cccccc;
 }
 
-tr.highlight {
+tr.online {
     background-color: #ccffcc;
 }
 
-tr:nth-child(odd) .highlight {
+tr:nth-child(odd) .online {
     background-color: #ccfccc;
 }
 

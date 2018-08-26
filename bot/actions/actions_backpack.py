@@ -22,6 +22,8 @@ def on_player_death(bot, source_player, target_player, command):
     except:
         return False
 
+    target_player.initialized = False
+    bot.players.upsert(target_player, save=True)
     bot.tn.send_message_to_player(target_player, "your place of death has been recorded ^^", color=bot.chat_colors['background'])
 
     return True

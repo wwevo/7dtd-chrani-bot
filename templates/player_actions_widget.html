@@ -1,4 +1,4 @@
-<ul xmlns="http://www.w3.org/1999/html">
+<ul id="paw_{{ player_object.steamid }}">
     {% if player_object.is_online %}
     <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="player_action(this); return false;">send home</a></li>
     <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this); return false;">send to lobby</a></li>

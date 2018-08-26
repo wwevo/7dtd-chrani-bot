@@ -1,5 +1,5 @@
 
-<tr valign="top" id="opw_{{ player_object.steamid }}" {% if player_object.is_online == True %}class="highlight"{% endif%}>
+<tr valign="top" id="opw_{{ player_object.steamid }}" {% if player_object.is_online == True %}class="online"{% endif%}>
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>{{ player_object.entityid }} / {{ player_object.steamid }}</td>
     <td>{{ player_whitelist_widget }}</td>
@@ -15,8 +15,7 @@
     <td class="player_actions_widget">
         {{ player_actions_widget }}
     </td>
-    <td class="nlb">
-        {{ player_object.get_last_seen() }}<br />
-        {{ player_object.region }}<br />
+    <td class="player_status_widget nlb">
+        {{ player_status_widget }}
     </td>
 </tr>

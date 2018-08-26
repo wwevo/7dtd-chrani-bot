@@ -58,7 +58,6 @@ class Players(object):
             return online_players_dict
 
         # get all currently online players and store them in a dictionary
-        last_listplayers_dict = listplayers_dict
         listplayers_dict = poll_players()
 
         # prune players not online anymore
@@ -71,22 +70,10 @@ class Players(object):
                 player_object = self.get_by_steamid(player_steamid)
                 # player is already online and needs updating
                 player_object.update(**player_dict)
-                if last_listplayers_dict != listplayers_dict:  # but only if they have changed at all!
-                    """ we only update this if things have changed since this poll is slow and might
-                    be out of date. Any teleport issued by the bot or a player would generate more accurate data
-                    If it HAS changed it is by all means current and can be used to update the object.
-                    """
-                    self.upsert(player_object)
-            except KeyError:  # player has just come online
-                try:
-                    player_object = self.load(player_steamid)
-                    # player has a file on disc, update database!
-                    player_object.update(**player_dict)
-                    self.upsert(player_object)
-                except KeyError:  # player is totally new, create file!
-                    player_object = Player(**player_dict)
-                    self.upsert(player_object, save=True)
-                    bot.socketio.emit('add_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                self.upsert(player_object)
+            except KeyError:  # player is completely new
+                player_object = Player(**player_dict)
+                self.upsert(player_object, save=True)
             # there should be a valid object state here now ^^
 
         """ handle player-threads """
@@ -94,13 +81,13 @@ class Players(object):
             """ start player_observer_thread for each player not already being observed """
             if player_steamid not in bot.active_player_threads_dict and player_object.is_online:
                 player_observer_thread_stop_flag = Event()
-                player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, bot, str(player_steamid))  # I'm passing the bot (self) into it to have easy access to it's variables
+                player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, bot, player_steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
                 player_observer_thread.name = player_steamid  # nice to have for the logs
                 player_observer_thread.isDaemon()
-                actions.common.trigger_action(bot, player_object, player_object, "entered the stream")
+                #  actions.common.trigger_action(bot, player_object, player_object, "entered the game")
                 player_observer_thread.start()
-                bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
         players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():
@@ -111,11 +98,21 @@ class Players(object):
                 stop_flag.stopped.set()
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                 del bot.active_player_threads_dict[player_steamid]
-            if not player_object.is_online and player_object.is_to_be_obliterated is True:
+            if player_object.is_to_be_obliterated is True:
                 players_to_obliterate.append(player_object)
 
         for player_object in players_to_obliterate:
-            self.remove(player_object)
+            bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+            if bot.tn.kick(player_object, "Time to be born again!!"):
+                self.remove(player_object)
+
+        player_threads_to_remove = []
+        for player_steamid, player_thread in bot.active_player_threads_dict.iteritems():
+            if player_steamid not in self.players_dict:
+                player_threads_to_remove.append(player_steamid)
+
+        for player_steamid in player_threads_to_remove:
+            del bot.active_player_threads_dict[player_steamid]
 
         return listplayers_dict
 
@@ -145,14 +142,12 @@ class Players(object):
 
     def get_by_steamid(self, steamid):
         try:
-            player_object = self.players_dict[steamid]
-            return player_object
+            return self.players_dict[steamid]
         except KeyError:
             pass
 
         try:
-            player_object = self.load(steamid)
-            return player_object
+            return self.load(steamid)
         except KeyError:
             raise
 

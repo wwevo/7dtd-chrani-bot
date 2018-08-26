@@ -18,6 +18,14 @@ $(document).ready(function(){
         refresh_player_locations_widget(msg)
     });
 
+    socket.on('refresh_player_actions', function(msg) {
+        refresh_player_actions_widget(msg)
+    });
+
+    socket.on('refresh_player_status', function(msg) {
+        refresh_player_status_widget(msg)
+    });
+
     socket.on('refresh_whitelist', function(msg) {
         refresh_whitelist_widget(msg)
     });

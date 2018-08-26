@@ -18,8 +18,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         bot.tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
         bot.tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
 
-    if target_player.initialized is not True:
-        target_player.initialized = True
+        target_player.is_online = True
         bot.players.upsert(target_player)
         response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
 
@@ -90,7 +89,7 @@ def password(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             bot.tn.muteplayerchat(target_player, True)
             bot.players.upsert(target_player, save=True)
-            bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('refresh_permissions', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         elif pwd in bot.passwords.values():
             bot.tn.muteplayerchat(target_player, False)
             if not target_player.authenticated:
@@ -123,7 +122,7 @@ def password(bot, source_player, target_player, command):
                 response_messages.add_message(message, True)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
 
-            bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('refresh_permissions', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
             bot.players.upsert(target_player, save=True)
         return response_messages
     else:
@@ -193,7 +192,7 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
             message = "{} has been added to the group {}".format(player_object_to_modify.name, group)
             response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
-            bot.socketio.emit('update_player_table_row', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
             bot.players.upsert(player_object_to_modify, save=True)
 
         return response_messages
@@ -264,7 +263,7 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
             message = "{} has been removed from the group {}".format(player_object_to_modify.name, group)
             response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
-            bot.socketio.emit('update_player_table_row', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
             bot.players.upsert(player_object_to_modify, save=True)
 
         return response_messages

@@ -51,6 +51,7 @@ class Player(flask_login.UserMixin):
         return unicode(self.steamid)
 
     def __init__(self, **kwargs):
+        self.health = 0
         self.last_teleport = 0
         self.last_seen = 0
         self.is_muted = False
@@ -68,6 +69,9 @@ class Player(flask_login.UserMixin):
         self.country_code = None
         self.blacklisted = False
         self.is_to_be_obliterated = False
+        self.old_rot_x = 0.0
+        self.old_rot_y = 0.0
+        self.old_rot_z = 0.0
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0
@@ -139,10 +143,9 @@ class Player(flask_login.UserMixin):
         return True
 
     def is_responsive(self):
-        if self.health is not 0 and (isinstance(self.pos_x, float) and isinstance(self.pos_z, float)):
-            return True
+        if self.is_to_be_obliterated is False and self.is_dead() is False:
+            return self.initialized
         else:
-            self.initialized = False
             return False
 
     def is_blacklisted(self):

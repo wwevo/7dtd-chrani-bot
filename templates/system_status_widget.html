@@ -1,6 +1,6 @@
 
 <div id="bot_status">
-    uptime: {% if bot.uptime %}{{ bot.uptime }}{% else %}not available{% endif %}<br />
+    uptime: ({{ bot.uptime }}), execution time: ({{ "{:02.4f}".format(bot.oberservers_execution_time) }}/{{ "{:02.4f}".format(bot.listplayers_interval) }})<br />
     {% if current_user.is_authenticated %}
         the bot is currently
         {% if bot.is_paused == True %}

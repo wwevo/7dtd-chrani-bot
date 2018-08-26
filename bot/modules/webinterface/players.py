@@ -4,6 +4,26 @@ import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_player_status(target_player_steamid):
+    webinterface = __main__.chrani_bot
+    player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    player_status = {
+        "is_online": player_object.is_online
+    }
+    return webinterface.app.response_class(
+        response=webinterface.flask.json.dumps(player_status),
+        mimetype='application/json'
+    )
+
+
+common.actions_list.append({
+    "title": "fetches player status",
+    "route": "/protected/players/get_status/<string:target_player_steamid>",
+    "action": get_player_status,
+    "authenticated": True
+})
+
+
 def get_player_whitelist_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)
@@ -58,9 +78,26 @@ def get_player_actions_widget(target_player_steamid):
 
 
 common.actions_list.append({
-    "title": "fetches obliterate player widget",
+    "title": "fetches player actions widget",
     "route": "/protected/players/widgets/player_actions_widget/<string:target_player_steamid>",
     "action": get_player_actions_widget,
+    "authenticated": True
+})
+
+
+def get_player_status_widget(target_player_steamid):
+    webinterface = __main__.chrani_bot
+    try:
+        player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    except KeyError:
+        return
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_status_widget.html', player_object=player_object))
+
+
+common.actions_list.append({
+    "title": "fetches player status widget",
+    "route": "/protected/players/widgets/player_status_widget/<string:target_player_steamid>",
+    "action": get_player_status_widget,
     "authenticated": True
 })
 
@@ -68,7 +105,10 @@ common.actions_list.append({
 def get_player_locations_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)
-    player_locations_dict = webinterface.locations.get(target_player_steamid)
+    try:
+        player_locations_dict = webinterface.locations.get(target_player_steamid)
+    except KeyError:
+        return
     return webinterface.flask.Markup(webinterface.flask.render_template('player_locations_widget.html', player_object=player_object, player_locations_dict=player_locations_dict))
 
 
@@ -96,6 +136,7 @@ def get_all_players_table_row(steamid):
     player_locations_widget = get_player_locations_widget(player_object.steamid)
     player_actions_widget = get_player_actions_widget(player_object.steamid)
     player_lcb_widget = get_player_lcb_widget(player_object.steamid)
+    player_status_widget = get_player_status_widget(player_object.steamid)
 
     output = webinterface.flask.Markup(webinterface.flask.render_template(
         'all_players_entry.html',
@@ -104,7 +145,8 @@ def get_all_players_table_row(steamid):
         player_locations_widget=player_locations_widget,
         player_lcb_widget=player_lcb_widget,
         player_permissions_widget=player_permissions_widget,
-        player_actions_widget=player_actions_widget
+        player_actions_widget=player_actions_widget,
+        player_status_widget=player_status_widget
     ))
 
     return output

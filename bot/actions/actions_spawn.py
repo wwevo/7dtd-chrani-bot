@@ -26,7 +26,7 @@ def on_player_join(bot, source_player, target_player, command):
         except:
             return False
 
-        bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         logger.debug("spawn for player {} created".format(target_player.name))
 
     return True
@@ -35,7 +35,7 @@ def on_player_join(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "entered the stream",
+        "trigger": "entered the game",
         "usage": None
     },
     "action": on_player_join,

@@ -11,9 +11,10 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         target_player.is_online = True
         bot.players.upsert(target_player, save=True)
         message = "stored player-record for player {}".format(target_player.steamid)
+        bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         response_messages.add_message(message, True)
     except:
-        message = "failed to player-record for player {}".format(target_player.steamid)
+        message = "failed to store player-record for player {}".format(target_player.steamid)
         response_messages.add_message(message, False)
 
     return response_messages
@@ -22,7 +23,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "EnterMultiplayer",
+        "trigger": "entered the game",
         "usage": None
     },
     "action": on_enter_gameworld,
@@ -31,11 +32,10 @@ common.actions_list.append({
     "essential": True
 })
 
-
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "JoinMultiplayer",
+        "trigger": "Died",
         "usage": None
     },
     "action": on_enter_gameworld,
@@ -47,7 +47,9 @@ common.actions_list.append({
 
 def on_player_leave(bot, source_player, target_player, command):
     target_player.is_online = False
+    target_player.update()
     bot.players.upsert(target_player, save=True)
+    bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
     return True
 
 
@@ -58,6 +60,43 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_leave,
+    "env": "(self)",
+    "group": "players",
+    "essential": True
+})
+
+
+def on_player_death(bot, source_player, target_player, command):
+    target_player.initialized = False
+    bot.players.upsert(target_player, save=True)
+
+    return True
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "died",
+        "usage": None
+    },
+    "action": on_player_death,
+    "env": "(self)",
+    "group": "players",
+    "essential": True
+})
+
+
+def on_player_kill(bot, source_player, target_player, command):
+    return on_player_death(bot, source_player, target_player, command)
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "killed by",
+        "usage": None
+    },
+    "action": on_player_kill,
     "env": "(self)",
     "group": "players",
     "essential": True
@@ -310,12 +349,15 @@ def obliterate_player(bot, source_player, target_player, command):
             if steamid_to_obliterate is False:
                 raise KeyError
 
-        if bot.tn.kick(target_player, "Time to be born again!!"):
-            response_messages.add_message("player {} has been kicked, soon to be obliterated".format(target_player.name), True)
-        else:
-            response_messages.add_message("player {} has not been kicked :(".format(target_player.name), False)
+        target_player.is_to_be_obliterated = True
+        target_player.is_online = False
+        target_player.update()
 
-        location_objects_dict = bot.locations.get(target_player.steamid)
+        try:
+            location_objects_dict = bot.locations.get(target_player.steamid)
+        except KeyError:
+            location_objects_dict = {}
+
         locations_to_remove = []
         for name, location_object in location_objects_dict.iteritems():
             locations_to_remove.append(location_object)
@@ -334,11 +376,8 @@ def obliterate_player(bot, source_player, target_player, command):
             else:
                 response_messages.add_message("could not remove player {} from the whitelist :(".format(target_player.name), False)
 
-        target_player.is_to_be_obliterated = True
-        target_player.is_online = False
         response_messages.add_message("player {} is marked for removal ^^".format(target_player.name), True)
 
-        bot.socketio.emit('remove_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         return response_messages
     else:
         raise ValueError("action does not fully match the trigger-string")
@@ -429,7 +468,7 @@ def ban_player(bot, source_player, target_player, command):
 
             if bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
                 player_object_to_ban.is_banned = True
-                bot.socketio.emit('update_player_table_row', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
+                bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
                 bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['alert'])
                 bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
                 bot.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban), color=bot.chat_colors['success'])
@@ -479,7 +518,7 @@ def unban_player(bot, source_player, target_player, command):
 
             if bot.tn.unban(player_object_to_unban):
                 player_object_to_unban.is_banned = False
-                bot.socketio.emit('update_player_table_row', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
+                bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
                 bot.tn.send_message_to_player(source_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
                 bot.tn.say("{} has been unbanned by {}.".format(player_object_to_unban.name, source_player.name), color=bot.chat_colors['success'])
                 bot.players.upsert(player_object_to_unban, save=True)
@@ -533,8 +572,8 @@ def kick_player(bot, source_player, target_player, command):
                 return
 
             if bot.tn.kick(player_object_to_kick, reason_for_kick):
-                bot.tn.send_message_to_player(target_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
-                bot.tn.say("{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, target_player.name, reason_for_kick), color=bot.chat_colors['success'])
+                bot.tn.send_message_to_player(source_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
+                bot.tn.say("{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, source_player.name, reason_for_kick), color=bot.chat_colors['success'])
     except Exception as e:
         logger.exception(e)
         pass

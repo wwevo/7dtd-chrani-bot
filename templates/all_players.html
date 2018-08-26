@@ -1,14 +1,18 @@
 
 <table width="100%" id="player_table">
-<tr>
-    <th>Name</th>
-    <th>EntityID / SteamID</th>
-    <th>Whitelist</th>
-    <th>Locations</th>
-    <th>Lcb</th>
-    <th>Groups</th>
-    <th>Actions</th>
-    <th>Last seen (UTC)</th>
-</tr>
-{{ player_entries }}
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>EntityID / SteamID</th>
+            <th>Whitelist</th>
+            <th>Locations</th>
+            <th>Lcb</th>
+            <th>Groups</th>
+            <th>Actions</th>
+            <th>Last seen (UTC)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ player_entries }}
+    </tbody>
 </table>

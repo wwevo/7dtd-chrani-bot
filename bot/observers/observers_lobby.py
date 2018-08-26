@@ -4,7 +4,11 @@ import common
 
 # the only lobby specific observer. since it is a location, generic observers can be found in actions_locations
 def player_is_outside_boundary(self):
-    player_object = self.bot.players.get_by_steamid(self.player_steamid)
+    try:
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
+    except KeyError:
+        return False
+
     if player_object.authenticated is True:
         return
 

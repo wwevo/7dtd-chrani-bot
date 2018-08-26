@@ -32,6 +32,7 @@ class ChraniBot(Thread):
 
     time_launched = float
     time_running = float
+    oberservers_execution_time = float
     uptime = str
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
@@ -79,6 +80,7 @@ class ChraniBot(Thread):
         self.time_running = 0
         self.uptime = "not available"
         self.initiate_shutdown = False
+        self.oberservers_execution_time = 0.0
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -134,7 +136,7 @@ class ChraniBot(Thread):
             # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
             'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
             # isolates the disconnected log entry to get the total session time of a player easily
-            'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
+            'telnet_player_playtime': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n",
             # to parse the telnets listlandprotection response
@@ -149,7 +151,8 @@ class ChraniBot(Thread):
             # 'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
             # player is 'valid' from here on
             # 'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
-            'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
+            'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
+            'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
         }
 
         self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
@@ -257,7 +260,7 @@ class ChraniBot(Thread):
         listlandprotection_interval = self.listlandprotection_interval
 
         update_status_timeout_start = 0
-        update_status_interval = 60
+        update_status_interval = self.listplayers_interval * 2
 
         self.telnet_lines_list = deque()
 
@@ -265,6 +268,23 @@ class ChraniBot(Thread):
         while self.is_active:
             try:
                 time_running_seconds = int(time.time() - self.time_launched)
+
+                if self.initiate_shutdown is True:
+                    self.shutdown()
+
+                if self.is_paused is True:
+                    time.sleep(1)
+                    continue
+
+                if timeout_occurred(listplayers_interval, listplayers_timeout_start):
+                    if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
+                        listplayers_interval = self.listplayers_interval_idle
+                    else:
+                        listplayers_interval = self.listplayers_interval
+
+                    listplayers_dict = self.players.manage_online_players(self, listplayers_dict)
+                    listplayers_timeout_start = time.time()
+
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
                 try:
@@ -277,30 +297,22 @@ class ChraniBot(Thread):
                     self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
                     self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
                     update_status_timeout_start = time.time()
-
-                if self.initiate_shutdown is True:
-                    self.shutdown()
-
-                if self.is_paused is True:
-                    time.sleep(1)
-                    continue
+                    execution_time = 0.0
+                    count = 0
+                    for player_steamid, player_thread in self.active_player_threads_dict.iteritems():
+                        count = count + 1
+                        execution_time += player_thread["thread"].last_execution_time
+                    if count > 0:
+                        self.oberservers_execution_time = execution_time / count
 
                 if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
                     self.landclaims_dict = self.poll_lcb()
                     listlandprotection_timeout_start = time.time()
 
-                if timeout_occurred(listplayers_interval, listplayers_timeout_start):
-                    if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
-                        listplayers_interval = self.listplayers_interval_idle
-                    else:
-                        listplayers_interval = self.listplayers_interval
-
-                    listplayers_dict = self.players.manage_online_players(self, listplayers_dict)
-                    listplayers_timeout_start = time.time()
-
                 if telnet_lines is not None:
                     for line in telnet_lines:
                         self.telnet_lines_list.append(line)  # get the current global telnet-response
+                    line = None
 
                 try:
                     telnet_line = self.telnet_lines_list.popleft()
@@ -329,13 +341,14 @@ class ChraniBot(Thread):
                         try:
                             player_id = m.group("player_id")
                             command = m.group("command")
-                            player_object = self.players.load(player_id)
-                            active_player_thread = self.active_player_threads_dict[player_id]
-                            active_player_thread["thread"].trigger_action(player_object, command)
+                            if command != "Teleport":
+                                player_object = self.players.load(player_id)
+                                active_player_thread = self.active_player_threads_dict[player_id]
+                                active_player_thread["thread"].trigger_action(player_object, "entered the game")
                         except KeyError:
                             pass
 
-                time.sleep(0.25)  # to limit the speed a bit ^^
+                time.sleep(0.125)  # to limit the speed a bit ^^
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
