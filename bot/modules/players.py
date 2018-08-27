@@ -84,7 +84,7 @@ class Players(object):
                 player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, bot, player_steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
                 player_observer_thread.name = player_steamid  # nice to have for the logs
                 player_observer_thread.isDaemon()
-                #  actions.common.trigger_action(bot, player_object, player_object, "entered the game")
+                actions.common.trigger_action(bot, player_object, player_object, "entered the game")
                 player_observer_thread.start()
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                 bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})

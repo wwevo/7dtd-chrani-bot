@@ -3,6 +3,10 @@ html {
     margin: 0; padding: 0;
 }
 
+.nlb {
+    white-space: nowrap;
+}
+
 header {
     display: flex;
     height: 5.32em; line-height: 1.33em;
@@ -19,15 +23,20 @@ header #status {
 header #user {}
 
 table {
+    width: 100%;
     border: 0;
     border-spacing: 0;
 }
 
-tr:nth-child(even) {
+#player_table {
+    width: 75%;
+}
+
+#player_table > tr:nth-child(even) {
     background-color: #fcfcfc;
 }
 
-tr:nth-child(odd) {
+#player_table > tr:nth-child(odd) {
     background-color: #cccccc;
 }
 
@@ -41,10 +50,6 @@ tr:nth-child(odd) .online {
 
 tr th, tr td {
     padding: 3px 5px;
-}
-
-tr th.nlb, tr td.nlb {
-    white-space: nowrap;
 }
 
 tr th {
@@ -113,10 +118,15 @@ footer {
     background: #acacac;
 }
 
-ul[id^=plw_] ul {
-    list-style-type: circle;
+select[id^=plw_] option.is_outside {
+    background-color: #eeeeee;
 }
 
-ul[id^=plw_] li {
-    margin-left: 1em;
+
+select[id^=plw_] option.is_inside {
+    background-color: #ddffdd;
+}
+
+select[id^=plw_] option.is_inside_core {
+    background-color: #aaffaa;
 }

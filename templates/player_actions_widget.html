@@ -1,8 +1,7 @@
 <ul id="paw_{{ player_object.steamid }}">
     {% if player_object.is_online %}
-    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/home" onclick="player_action(this); return false;">send home</a></li>
-    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/to/lobby" onclick="player_action(this); return false;">send to lobby</a></li>
-    <li class="flat seperator">
+    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/lobby" onclick="player_action(this); return false;">send to lobby</a></li>
+    <li class="flat seperator nlb">
         <form action="/protected/players/kick/{{ player_object.steamid }}/webinterface" method="POST" onsubmit="send_form(this); return false;">
             <input list="kick_reasons" name="reason">
             <datalist id="kick_reasons">
@@ -18,7 +17,7 @@
     {% if player_object.is_banned == True %}
     <li class="flat"><a href="/protected/players/unban/{{ player_object.steamid }}" onclick="player_action(this); return false;">unban</a></li>
     {% else %}
-    <li class="flat">
+    <li class="flat nlb">
         <form action="/protected/players/ban/{{ player_object.steamid }}/webinterface" method="POST" onsubmit="send_form(this); return false;">
             <input list="ban_reasons" name="reason">
             <datalist id="ban_reasons">

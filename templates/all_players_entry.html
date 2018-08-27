@@ -2,18 +2,20 @@
 <tr valign="top" id="opw_{{ player_object.steamid }}" {% if player_object.is_online == True %}class="online"{% endif%}>
     <td>{{ player_object.name.decode('utf-8') }}</td>
     <td>{{ player_object.entityid }} / {{ player_object.steamid }}</td>
-    <td>{{ player_whitelist_widget }}</td>
     <td class="player_locations_widget nlb">
         {{ player_locations_widget }}
+    </td>
+    <td class="player_actions_widget">
+        {{ player_actions_widget }}
+    </td>
+    <td class="player_whitelist_widget">
+        {{ player_whitelist_widget }}
     </td>
     <td class="player_lcb_widget nlb">
         {{ player_lcb_widget }}
     </td>
     <td class="player_permissions_widget">
         {{ player_permissions_widget }}
-    </td>
-    <td class="player_actions_widget">
-        {{ player_actions_widget }}
     </td>
     <td class="player_status_widget nlb">
         {{ player_status_widget }}

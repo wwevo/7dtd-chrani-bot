@@ -183,14 +183,6 @@ def get_players_table(online_only=False):
 @common.build_response
 def send_player_home(target_player_steamid):
     webinterface = __main__.chrani_bot
-    target_player_steamid = str(target_player_steamid)
-    try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
-    except AttributeError:
-        return webinterface.flask.redirect("/")
-
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
     try:
         location_object = webinterface.locations.get(target_player_steamid, 'home')
         pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
@@ -198,7 +190,7 @@ def send_player_home(target_player_steamid):
     except (KeyError, AttributeError):
         coord_tuple = (None, None, None)
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
+    return send_player_to_coords(target_player_steamid, coord_tuple)
 
 
 common.actions_list.append({
@@ -212,6 +204,27 @@ common.actions_list.append({
 @common.build_response
 def send_player_to_lobby(target_player_steamid):
     webinterface = __main__.chrani_bot
+    try:
+        location_object = webinterface.locations.get('system', 'lobby')
+        pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
+        coord_tuple = (pos_x, pos_y, pos_z)
+    except (KeyError, AttributeError):
+        coord_tuple = (None, None, None)
+
+    return send_player_to_coords(target_player_steamid, coord_tuple)
+
+
+common.actions_list.append({
+    "title": "send player to lobby",
+    "route": "/protected/players/send/<string:target_player_steamid>/lobby",
+    "action": send_player_to_lobby,
+    "authenticated": True
+})
+
+
+@common.build_response
+def send_player_to_coords(target_player_steamid, coords_tuple_string):
+    webinterface = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
         source_player_steamid = webinterface.flask_login.current_user.steamid
@@ -222,19 +235,23 @@ def send_player_to_lobby(target_player_steamid):
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
 
     try:
-        location_object = webinterface.locations.get('system', 'lobby')
-        pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
-        coord_tuple = (pos_x, pos_y, pos_z)
+        coord_tuple = eval(coords_tuple_string)
+        if type(coord_tuple) is not tuple:
+            raise AttributeError
     except (KeyError, AttributeError):
         coord_tuple = (None, None, None)
+
+    form_coord_tuple = request.form.get('coords')
+    if form_coord_tuple:
+        coord_tuple = form_coord_tuple
 
     return bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
 
 
 common.actions_list.append({
-    "title": "send player to lobby",
-    "route": "/protected/players/send/<string:target_player_steamid>/to/lobby",
-    "action": send_player_to_lobby,
+    "title": "send player to coords",
+    "route": "/protected/players/send/<string:target_player_steamid>/to/<string:coords_tuple_string>",
+    "action": send_player_to_coords,
     "authenticated": True
 })
 

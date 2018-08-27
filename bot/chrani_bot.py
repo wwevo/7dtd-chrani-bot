@@ -233,24 +233,6 @@ class ChraniBot(Thread):
 
         return clean_bases_near_list, clean_landclaims_near_list
 
-    def fire_observer_triggers(self, player_object):
-        command_queue = []
-        for observer in self.observers_list:
-            if observer["type"] == 'trigger':  # we only want the triggers here
-                observer_function_name = observer["action"]
-                observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
-                command_queue.append({
-                    "action": observer_function_name,
-                    "command_parameters": observer_parameters
-                })
-
-        for command in command_queue:
-            if isinstance(command["command_parameters"], tuple):
-                if len(command["command_parameters"]) > 1:
-                    command["action"](*command["command_parameters"])
-                else:
-                    command["action"](command["command_parameters"])
-
     def run(self):
         listplayers_dict = {}
         listplayers_timeout_start = 0
