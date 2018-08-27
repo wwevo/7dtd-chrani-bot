@@ -1,6 +1,5 @@
 <ul id="paw_{{ player_object.steamid }}">
     {% if player_object.is_online %}
-    <li class="flat"><a href="/protected/players/send/{{ player_object.steamid }}/lobby" onclick="player_action(this); return false;">send to lobby</a></li>
     <li class="flat seperator nlb">
         <form action="/protected/players/kick/{{ player_object.steamid }}/webinterface" method="POST" onsubmit="send_form(this); return false;">
             <input list="kick_reasons" name="reason">
