@@ -13,7 +13,7 @@ function update_player_status(msg) {
             } else {
                 $('#opw_' + msg.steamid).removeClass("online")
                 if (('.online')[0]) {
-                    $('#opw_' + msg.steamid).insertAfter('.online').last();
+                    $('#opw_' + msg.steamid).insertAfter('#player_table > tbody:last-child');
                 }
             }
             refresh_player_actions_widget(msg);

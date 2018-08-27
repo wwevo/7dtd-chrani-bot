@@ -32,11 +32,11 @@ table {
     width: 75%;
 }
 
-#player_table > tr:nth-child(even) {
+tr:nth-child(even) {
     background-color: #fcfcfc;
 }
 
-#player_table > tr:nth-child(odd) {
+tr:nth-child(odd) {
     background-color: #cccccc;
 }
 
