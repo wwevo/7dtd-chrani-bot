@@ -7,3 +7,12 @@ function refresh_player_locations_widget(msg) {
         }
     })
 }
+
+/*
+$(document).ready(function() {
+    $('[id^=plw_] select').change(function() {
+        var option = this.options[this.selectedIndex];
+        $(this).closest("select").attr("class", $(option).attr("class"));
+    });
+});
+*/

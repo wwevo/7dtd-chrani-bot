@@ -118,15 +118,15 @@ footer {
     background: #acacac;
 }
 
-select[id^=plw_] option.is_outside {
+[id^=plw_] .is_outside {
     background-color: #eeeeee;
 }
 
 
-select[id^=plw_] option.is_inside {
+[id^=plw_] .is_inside {
     background-color: #ddffdd;
 }
 
-select[id^=plw_] option.is_inside_core {
+[id^=plw_] .is_inside_core {
     background-color: #aaffaa;
 }

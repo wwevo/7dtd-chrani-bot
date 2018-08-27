@@ -109,7 +109,13 @@ def get_player_locations_widget(target_player_steamid):
         player_locations_dict = webinterface.locations.get(target_player_steamid)
     except KeyError:
         return
-    return webinterface.flask.Markup(webinterface.flask.render_template('player_locations_widget.html', player_object=player_object, player_locations_dict=player_locations_dict))
+
+    try:
+        public_locations_dict = webinterface.locations.get('system')
+    except KeyError:
+        public_locations_dict = None
+
+    return webinterface.flask.Markup(webinterface.flask.render_template('player_locations_widget.html', player_object=player_object, player_locations_dict=player_locations_dict, public_locations_dict=public_locations_dict))
 
 
 common.actions_list.append({
