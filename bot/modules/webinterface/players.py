@@ -269,7 +269,8 @@ def send_player_to_coords(target_player_steamid, coords_tuple_string):
     if form_coord_tuple:
         coord_tuple = form_coord_tuple
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
+    val = bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
+    return val
 
 
 common.actions_list.append({

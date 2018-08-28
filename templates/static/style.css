@@ -189,7 +189,7 @@ footer {
 /* Modal Content */
 .modal-content {
     position: fixed;
-    bottom: 0;
+    bottom: calc(1.33em + 10px);
     background-color: #fefefe;
     width: 100%;
     animation-name: slideIn;

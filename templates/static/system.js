@@ -21,11 +21,14 @@ function send_form(form_submitted) {
     $.when(
         $.ajax({
             url: form_submitted.action,
-            type: 'post',
+            type: 'POST',
             dataType: 'json',
             data: $(form_submitted).serialize(),
             success: function(data) {
                 return data["actionResponse"];
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                 alert(textStatus + " " + errorThrown);
             }
         }),
     ).then(function(responseText, html) {

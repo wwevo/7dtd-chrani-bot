@@ -21,7 +21,7 @@ def build_response(f):
                 "actionResult": False
             }
 
-        if webinterface.flask.request.accept_mimetypes.best == 'application/json':
+        if webinterface.flask.request.accept_mimetypes.best in ['application/json', 'text/javascript']:
             return webinterface.app.response_class(
                 response=webinterface.flask.json.dumps(response),
                 mimetype='application/json'
