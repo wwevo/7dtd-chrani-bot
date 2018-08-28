@@ -189,7 +189,7 @@ def get_all_players_table():
 
     output = ""
     player_objects_list = chrani_bot.players.get_all_players()
-    player_objects_list = sorted(player_objects_list, key=lambda x: (x.get_last_seen(), x.is_online, x.authenticated), reverse=True)
+    player_objects_list = sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True)
     for player_object in player_objects_list:
         if not player_object.is_to_be_obliterated:
             output += get_all_players_table_row(player_object.steamid)
