@@ -9,7 +9,7 @@ function update_player_status(msg) {
         success: function(data) {
             if (data["is_online"] == true) {
                 $('#opw_' + msg.steamid).addClass("online");
-                $('#opw_' + msg.steamid).prependTo('#player_table');
+                $('#opw_' + msg.steamid).prependTo('#player_table > table');
             } else {
                 $('#opw_' + msg.steamid).removeClass("online")
                 if (('.online')[0]) {
