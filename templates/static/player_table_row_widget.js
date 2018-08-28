@@ -13,7 +13,7 @@ function update_player_status(msg) {
             } else {
                 $('#opw_' + msg.steamid).removeClass("online")
                 if (('.online')[0]) {
-                    $('#opw_' + msg.steamid).insertAfter('#player_table > tbody:last-child');
+                    $('#opw_' + msg.steamid).insertAfter('#player_table > table > tbody:last-child');
                 }
             }
             refresh_player_actions_widget(msg);
@@ -39,7 +39,7 @@ function add_player_table_row(msg) {
         url: "/protected/players/get_table_row/" + msg.steamid,
         type: "GET",
         success: function(data) {
-            $('#player_table > tbody:last-child').after(data);
+            $('#player_table > table > tbody:last-child').after(data);
         }
     })
 }
