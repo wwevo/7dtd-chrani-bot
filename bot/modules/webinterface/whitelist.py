@@ -5,12 +5,12 @@ import __main__  # my ide throws a warning here, but it works oO
 
 def get_whitelist_widget():
     webinterface = __main__.chrani_bot
-    return webinterface.flask.Markup(webinterface.flask.render_template('whitelist_widget.html', bot=webinterface))
+    return webinterface.flask.Markup(webinterface.flask.render_template('system_whitelist_widget.html', bot=webinterface))
 
 
 common.actions_list.append({
     "title": "fetches whitelist widget",
-    "route": "/protected/players/widgets/whitelist_widget",
+    "route": "/protected/players/widgets/system_whitelist_widget",
     "action": get_whitelist_widget,
     "authenticated": True
 })

@@ -18,10 +18,10 @@
         <script src="{{ url_for('static', filename='socketio.js') }}"></script>
     {% endblock %}
     </head>
-    <body>
+    <body class="flex_layout">
         <header>
             <div id="info"><a href="/">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %}</a> - webinterface</div>
-            <div id="status">{{ system_status_widget }} {{ whitelist_widget }}</div>
+            <div id="status">{{ system_status_widget }}</div>
             <div id="user">
                 {% if current_user.is_authenticated %}
                 {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a>
@@ -31,16 +31,28 @@
             </div>
         </header>
         <div id="content">
-            {% block content %}{% endblock %}
-        </div>
-        <div id="messages">
-            {% block messages %}{% endblock %}
+            {% block content %}
+            <div id="player_table">
+                {{ player_table }}
+            </div>
+            <div id="widgets">
+                <div id="system_whitelist_widget">
+                    {{ whitelist_widget }}
+                </div>
+                <div id="system_banned_players_widget">
+                    {{ banned_players_widget }}
+                </div>
+            </div>
+            {% endblock %}
         </div>
         <footer>
             {% block footer %}
             &copy; Copyright 2018 by <a href="http://chrani.net/">wwevo</a>
             {% endblock %}
         </footer>
+        <div id="messages">
+            {% block messages %}{% endblock %}
+        </div>
     </body>
 </html>
 

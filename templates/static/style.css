@@ -1,51 +1,74 @@
-html {
+/* layout */
+body.flex_layout {
+    display: flex;
+    flex-direction: column;
+}
+
+body.flex_layout #content {
+    display: flex;
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+#player_table {
+    flex: 3;
+    overflow: auto;
+    overflow-y: auto;
+    height: 100%;
+}
+
+#widgets {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#system_whitelist_widget {
+    flex: 1;
+}
+
+#system_banned_players_widget {
+    flex: 2;
+}
+
+/* make the header neat and full-width */
+header {
+    display: flex;
+    align-items: stretch;
+    flex-flow: row wrap;
+    height: 2.66em; line-height: 1.33em;
+    background: #ffffff linear-gradient(#acacac, #acacac 50%, #bdbdbd 50%);
+}
+
+header #info {
+    flex: 1;
+}
+
+header #status {
+    flex: 2;
+    text-align: center;
+}
+
+header #user {
+    text-align: right;
+    flex: 1;
+}
+
+footer {
+    text-align: right;
+    height: 1.33em; line-height: 1.33em;
+    background: #acacac;
+}
+
+/* general styling, just a baseline*/
+html, body {
     width: 100%; height: 100%;
     margin: 0; padding: 0;
 }
 
-.nlb {
-    white-space: nowrap;
-}
-
-header {
-    display: flex;
-    height: 5.32em; line-height: 1.33em;
-    background: #ffffff linear-gradient(#acacac, #acacac 25%, #bdbdbd 25%, #bdbdbd 50%, #cecece 50%, #ffffff 75%); /* Standard syntax (must be last) */
-}
-
-header #info {}
-
-header #status {
-    text-align: center;
-    flex: 1;
-}
-
-header #user {}
-
 table {
     width: 100%;
-    border: 0;
-    border-spacing: 0;
-}
-
-#player_table {
-    width: 75%;
-}
-
-tr:nth-child(even) {
-    background-color: #fcfcfc;
-}
-
-tr:nth-child(odd) {
-    background-color: #cccccc;
-}
-
-tr.online {
-    background-color: #ccffcc;
-}
-
-tr:nth-child(odd) .online {
-    background-color: #ccfccc;
+    border: 0; border-spacing: 0;
 }
 
 tr th, tr td {
@@ -56,6 +79,7 @@ tr th {
     text-align: left;
     background: #666666;
     color: #cccccc;
+    height: 1.66em;
 }
 
 tr th a, tr td a {
@@ -66,62 +90,10 @@ tr th a:hover, tr td a:hover {
     text-decoration: underline;
 }
 
-td.player_permissions_widget a.active {
-    font-weight: bold;
-}
-
-td.player_permissions_widget a {
-    margin-right: 0.5em;
-}
-
-td.player_permissions_widget a:last-child {
-    margin-right: 0em;
-}
-
-table ul {
-    padding: 0; margin: 0;
-    list-style-type: None;
-}
-
-table li {
-    padding: 0; margin: 0;
-}
-
-table li.flat {
-    float: left;
-    margin-right: 0.66em;
-}
-
-table li.flat:last-child {
-    float: left;
-    margin-right: 0;
-}
-
-table li.seperator {
-    margin-top: 0.5em;
-    clear: left;
-}
-
-td.obliterate_player_widget {
-    text-align: right;
-}
-
-#messages {
-    margin-top: 1.33em;
-    border: 1px solid black;
-    background-color: #ffcccc;
-}
-
-footer {
-    text-align: right;
-    height: 1.33em; line-height: 1.33em;
-    background: #acacac;
-}
-
+/* player location widget */
 [id^=plw_] .is_outside {
     background-color: #eeeeee;
 }
-
 
 [id^=plw_] .is_inside {
     background-color: #ddffdd;

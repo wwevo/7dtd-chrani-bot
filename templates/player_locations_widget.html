@@ -9,7 +9,9 @@
             <option value="({{ player_location.tele_x }}, {{ player_location.tele_y }}, {{ player_location.tele_z }})" class="{% if player_object.steamid in player_location.list_of_players_inside %}is_inside{% else %}is_outside{% endif %}{% if player_object.steamid in player_location.list_of_players_inside_core %} is_inside_core{% endif %}">{{ player_location.name }}</option>
             {% endfor %}
         </select>
+        {% if current_user.is_online %}
         <button type="submit">goto</button>
+        {% endif %}
     </form>
     {% if player_object.is_online == True and public_locations_dict %}
     <form action="/protected/players/send/{{ player_object.steamid }}/to/(None, None, None)" method="POST" onsubmit="send_form(this); return false;">
