@@ -79,7 +79,6 @@ class TelnetConnection:
             log_message = 'trying to getgamepref on telnet connection failed: {}'.format(e)
             raise IOError(log_message)
 
-        telnet_line = ""
         telnet_response = ""
         poll_is_finished = False
         while poll_is_finished is not True:
@@ -94,7 +93,9 @@ class TelnetConnection:
             if m:
                 poll_is_finished = True
 
-        return telnet_response
+        game_preferences = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", telnet_response)
+
+        return game_preferences
 
     def read_line(self):
         try:

@@ -192,15 +192,15 @@ class ChraniBot(Thread):
         return lcb_dict
 
     def get_game_preferences(self):
-        game_preferences_dict = {}
         game_preferences = self.tn.get_game_preferences()
         logger.debug(game_preferences)
 
-        for m in re.finditer(self.match_types_system["getgameprefs_result_regexp"], self.tn.get_game_preferences()):
+        game_preferences_dict = {}
+        for key, value in game_preferences:
             game_preferences_dict.update({
-                "Server-Port": m.group("server_port").rstrip(),
-                "Server-IP": m.group("server_ip").rstrip()
+                key: value
             })
+
         return game_preferences_dict
 
     def landclaims_find_by_distance(self, start_coords, distance_in_blocks):
