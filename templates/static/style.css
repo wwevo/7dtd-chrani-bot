@@ -36,8 +36,6 @@ header {
     display: flex;
     align-items: stretch;
     flex-flow: row wrap;
-    height: 2.66em; line-height: 1.33em;
-    background: #ffffff linear-gradient(#acacac, #acacac 50%, #bdbdbd 50%);
 }
 
 header #info {
@@ -55,9 +53,7 @@ header #user {
 }
 
 footer {
-    text-align: right;
-    height: 1.33em; line-height: 1.33em;
-    background: #acacac;
+    flex: 1;
 }
 
 /* general styling, just a baseline*/
@@ -71,15 +67,8 @@ table {
     border: 0; border-spacing: 0;
 }
 
-tr th, tr td {
-    padding: 3px 5px;
-}
-
-tr th {
-    text-align: left;
-    background: #666666;
-    color: #cccccc;
-    height: 1.66em;
+tr td {
+    vertical-align: top;
 }
 
 tr th a, tr td a {
@@ -89,6 +78,67 @@ tr th a, tr td a {
 tr th a:hover, tr td a:hover {
     text-decoration: underline;
 }
+
+table ul {
+    padding: 0; margin: 0;
+    list-style-type: None;
+}
+
+table li {
+    padding: 0; margin: 0;
+}
+
+table li.flat {
+    float: left;
+    margin-right: 0.66em;
+}
+
+table li.flat:last-child {
+    float: left;
+    margin-right: 0;
+}
+
+table li.seperator {
+    margin-top: 0.5em;
+    clear: left;
+}
+
+/* specific styles */
+tr th {
+    text-align: left;
+    background: #666666;
+    color: #cccccc;
+    height: 1.66em;
+}
+
+header {
+    height: 2.66em; line-height: 1.33em;
+    background: #ffffff linear-gradient(#acacac, #acacac 50%, #bdbdbd 50%);
+}
+
+footer {
+    text-align: right;
+    height: 1.33em; line-height: 1.33em; max-height: 1.33em;
+    background: #acacac;
+}
+
+/* player table */
+#player_table tr:nth-child(even) {
+    background-color: #fcfcfc;
+}
+
+#player_table tr:nth-child(odd) {
+    background-color: #cccccc;
+}
+
+#player_table tr.online {
+    background-color: #ccffcc;
+}
+
+#player_table tr:nth-child(odd) .online {
+    background-color: #ccfccc;
+}
+
 
 /* player location widget */
 [id^=plw_] .is_outside {

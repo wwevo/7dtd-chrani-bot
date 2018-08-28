@@ -2,12 +2,12 @@
 <div id="plw_{{ player_object.steamid }}">
     <form action="/protected/players/send/{{ current_user.steamid }}/to/(None, None, None)" method="POST" onsubmit="send_form(this); return false;">
         <select name="coords">
-            {% if current_user.steamid != player_object.steamid %}
-            <option value="({{ player_object.pos_x }}, {{ player_object.pos_y }}, {{ player_object.pos_z }})">current location</option>
-            {% endif %}
             {% for player_location_identifier, player_location in player_locations_dict.iteritems() %}
             <option value="({{ player_location.tele_x }}, {{ player_location.tele_y }}, {{ player_location.tele_z }})" class="{% if player_object.steamid in player_location.list_of_players_inside %}is_inside{% else %}is_outside{% endif %}{% if player_object.steamid in player_location.list_of_players_inside_core %} is_inside_core{% endif %}">{{ player_location.name }}</option>
             {% endfor %}
+            {% if current_user.steamid != player_object.steamid %}
+            <option value="({{ player_object.pos_x }}, {{ player_object.pos_y }}, {{ player_object.pos_z }})">last known location</option>
+            {% endif %}
         </select>
         {% if current_user.is_online %}
         <button type="submit">goto</button>
