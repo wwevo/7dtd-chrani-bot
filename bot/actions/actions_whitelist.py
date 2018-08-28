@@ -61,6 +61,7 @@ common.actions_list.append({
 def remove_player_from_whitelist(bot, source_player, target_player, command):
     p = re.search(r"remove\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7})))\s(?P<command>.+)", command)
     if p and p.group("command") == "from whitelist":
+        response_messages = ResponseMessage()
         steamid_to_dewhitelist = p.group("steamid")
         entityid_to_dewhitelist = p.group("entityid")
         if steamid_to_dewhitelist is None:
@@ -73,20 +74,30 @@ def remove_player_from_whitelist(bot, source_player, target_player, command):
             player_object_to_dewhitelist = bot.players.get_by_steamid(steamid_to_dewhitelist)
             player_dict.steamid = player_object_to_dewhitelist.steamid
             player_dict.name = player_object_to_dewhitelist.name
+            response_messages.add_message("removing known player {}".format(player_dict.name), True)
         except KeyError:
             player_dict.steamid = steamid_to_dewhitelist
             player_dict.name = 'unknown offline player'
             player_object_to_dewhitelist = player_dict
+            response_messages.add_message("removing unknown player", True)
 
         if bot.whitelist.remove(player_object_to_dewhitelist):
-            bot.socketio.emit('refresh_player_whitelist', {"steamid": player_object_to_dewhitelist.steamid, "entityid": player_object_to_dewhitelist.entityid}, namespace='/chrani-bot/public')
-            bot.tn.send_message_to_player(player_object_to_dewhitelist, "you have been de-whitelisted by {}".format(target_player.name), color=bot.chat_colors['alert'])
-        else:
-            bot.tn.send_message_to_player(target_player, "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist), color=bot.chat_colors['warning'])
-            return False
-        bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
-        bot.tn.send_message_to_player(target_player, "you have de-whitelisted {}".format(player_object_to_dewhitelist.name), color=bot.chat_colors['success'])
+            message = "you have been de-whitelisted by {}".format(target_player.name)
+            bot.tn.send_message_to_player(player_object_to_dewhitelist, message, color=bot.chat_colors['alert'])
+            response_messages.add_message(message, True)
 
+            message = "you have de-whitelisted {}".format(player_object_to_dewhitelist.name)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+
+            bot.socketio.emit('refresh_player_whitelist', {"steamid": player_object_to_dewhitelist.steamid, "entityid": player_object_to_dewhitelist.entityid}, namespace='/chrani-bot/public')
+        else:
+            message = "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
+
+        bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
+
+        return response_messages
     else:
         raise ValueError("action does not fully match the trigger-string")
 
@@ -106,9 +117,13 @@ common.actions_list.append({
 
 def activate_whitelist(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         bot.whitelist.activate()
         bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
-        bot.tn.say("Whitelist is in effect! Feeling safer already :)", color=bot.chat_colors['alert'])
+        message = "Whitelist is in effect! Feeling safer already :)"
+        bot.tn.say(message, color=bot.chat_colors['alert'])
+        response_messages.add_message(message, True)
+        return response_messages
     except Exception as e:
         logger.exception(e)
         pass
@@ -129,9 +144,13 @@ common.actions_list.append({
 
 def deactivate_whitelist(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         bot.whitelist.deactivate()
         bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
-        bot.tn.say("Whitelist has been disabled. We are feeling adventureous :)", color=bot.chat_colors['alert'])
+        message = "Whitelist has been disabled. We are feeling adventureous :)"
+        bot.tn.say(message, color=bot.chat_colors['alert'])
+        response_messages.add_message(message, True)
+        return response_messages
     except Exception as e:
         logger.exception(e)
         pass
