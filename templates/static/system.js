@@ -12,7 +12,8 @@ function player_action(link_clicked) {
             }
         }),
     ).then(function(responseText, html) {
-        $('#messages').html(JSON.stringify(responseText["actionResponse"]));
+        $('#messages_modal .modal-body').html(JSON.stringify(responseText["actionResponse"]));
+        $('#messages_modal').show();
     });
 }
 
@@ -28,7 +29,8 @@ function send_form(form_submitted) {
             }
         }),
     ).then(function(responseText, html) {
-        $('#messages').html(JSON.stringify(responseText["actionResponse"]));
+        $('#messages_modal .modal-body').html(JSON.stringify(responseText["actionResponse"]));
+        $('#messages_modal').show();
     });
 }
 
@@ -37,3 +39,18 @@ function reload_page() {
         location.reload(true)
     }, 1000);
 }
+
+$(document).ready(
+    function() {
+        $('#messages_modal').hide();
+        $('span.close').click(
+            function() {
+                $('#messages_modal').hide();
+            }
+        );
+
+        $("body").click(function () {
+            $("#messages_modal").fadeOut("fast");
+        });
+    }
+);
