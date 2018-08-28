@@ -370,7 +370,7 @@ def obliterate_player(bot, source_player, target_player, command):
             else:
                 response_messages.add_message("failed to remove location {}".format(location_object.name), False)
 
-        if bot.whitelist.player_is_on_whitelist(target_player):
+        if bot.whitelist.player_is_on_whitelist(target_player.steamid):
             if bot.whitelist.remove(target_player):
                 response_messages.add_message("player {} has been removed from the whitlist".format(target_player.name), True)
             else:

@@ -2,11 +2,13 @@ import re
 from bot.assorted_functions import ObjectView
 from bot.modules.logger import logger
 import common
+from bot.assorted_functions import ResponseMessage
 
 
 def add_player_to_whitelist(bot, source_player, target_player, command):
     p = re.search(r"add\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>([0-9]{0,7})))\s(?P<command>.+)", command)
     if p and p.group("command") == "to whitelist":
+        response_messages = ResponseMessage()
         steamid_to_whitelist = p.group("steamid")
         entityid_to_whitelist = p.group("entityid")
         if steamid_to_whitelist is None:
@@ -20,19 +22,25 @@ def add_player_to_whitelist(bot, source_player, target_player, command):
                 "steamid": target_player.steamid,
                 "name": target_player.name
             }
+            response_messages.add_message("adding known player {}".format(target_player.name), True)
         except KeyError:
             player_dict_to_whitelist = {
                 "steamid": steamid_to_whitelist,
                 "name": 'unknown offline player'
             }
+            response_messages.add_message("adding unknown player", True)
 
-        if not bot.whitelist.add(target_player, player_dict_to_whitelist, save=True):
-            bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_whitelist), color=bot.chat_colors['warning'])
-            return False
+        if bot.whitelist.add(source_player, player_dict_to_whitelist, save=True):
+            bot.socketio.emit('refresh_player_whitelist', {"steamid": player_dict_to_whitelist["steamid"], "entityid": None}, namespace='/chrani-bot/public')
+            message = "you have whitelisted {}".format(player_dict_to_whitelist["name"])
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            response_messages.add_message(message, True)
+        else:
+            message = "could not find a player with steamid {}".format(steamid_to_whitelist)
+            bot.tn.send_message_to_player(source_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
 
-        bot.socketio.emit('refresh_player_whitelist', {"steamid": player_dict_to_whitelist["steamid"], "entityid": None}, namespace='/chrani-bot/public')
-
-        bot.tn.send_message_to_player(target_player, "you have whitelisted {}".format(player_dict_to_whitelist["name"]), color=bot.chat_colors['success'])
+        return response_messages
     else:
         raise ValueError("action does not fully match the trigger-string")
 

@@ -1,3 +1,4 @@
+from flask import request
 import common
 import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
@@ -5,7 +6,8 @@ import __main__  # my ide throws a warning here, but it works oO
 
 def get_whitelist_widget():
     webinterface = __main__.chrani_bot
-    return webinterface.flask.Markup(webinterface.flask.render_template('system_whitelist_widget.html', bot=webinterface))
+    players_not_on_whitelist_list = [x for x in webinterface.players.players_dict.keys() if not webinterface.whitelist.player_is_on_whitelist(x)]
+    return webinterface.flask.Markup(webinterface.flask.render_template('system_whitelist_widget.html', bot=webinterface, players_not_on_whitelist_list=players_not_on_whitelist_list))
 
 
 common.actions_list.append({
@@ -90,7 +92,15 @@ def add_player_to_whitelist(target_player_steamid):
         return webinterface.flask.redirect("/")
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    try:
+        target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    except KeyError:
+        target_player = None
+
+    form_player_to_add = request.form.get('player_to_add')
+    if form_player_to_add:
+        target_player_steamid = form_player_to_add
+
     return bot.actions.common.trigger_action(webinterface, player_object, target_player, "add player {} to whitelist".format(target_player_steamid))
 
 

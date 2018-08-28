@@ -2,19 +2,25 @@
 body.flex_layout {
     display: flex;
     flex-direction: column;
+    padding: 5px;
+    height: calc(100% - 10px);
+    width: calc(100% - 10px);
 }
 
 body.flex_layout #content {
     display: flex;
     flex: 1 1 auto;
     overflow-y: auto;
+    background-color: #cecece;
 }
 
 #player_table {
+    margin: 6px 6px 6px 0;
     flex: 3;
     overflow: auto;
     overflow-y: auto;
-    height: 100%;
+    height: calc(100% - 12px);
+    background-color: #ffffff;
 }
 
 #widgets {
@@ -24,11 +30,15 @@ body.flex_layout #content {
 }
 
 #system_whitelist_widget {
-    flex: 1;
+    flex: 2;
+    margin: 6px 6px 6px 0;
+    background-color: #ffffff;
 }
 
 #system_banned_players_widget {
-    flex: 2;
+    flex: 1;
+    margin: 6px 6px 6px 0;
+    background-color: #ffffff;
 }
 
 /* make the header neat and full-width */
@@ -77,6 +87,14 @@ tr th a, tr td a {
 
 tr th a:hover, tr td a:hover {
     text-decoration: underline;
+}
+
+a.active {
+    font-weight: bold;
+}
+
+.nlb {
+    white-space: nowrap;
 }
 
 table ul {

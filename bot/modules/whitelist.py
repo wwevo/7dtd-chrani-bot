@@ -95,7 +95,7 @@ class Whitelist(object):
             except Exception:
                 return False
 
-    def player_is_on_whitelist(self, player_object):
+    def player_is_on_whitelist(self, player_steamid):
         """Checks if a player may play while whitelist is active
 
         checks if the player has been manually whitelisted
@@ -108,7 +108,7 @@ class Whitelist(object):
         player_object -- player to check
         """
         try:
-            is_in_dict = self.whitelisted_players_dict[player_object.steamid]
+            is_in_dict = self.whitelisted_players_dict[player_steamid]
             return True
         except KeyError:
             return False

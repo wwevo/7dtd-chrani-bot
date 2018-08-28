@@ -6,11 +6,12 @@ import __main__  # my ide throws a warning here, but it works oO
 
 def get_banned_players_widget():
     webinterface = __main__.chrani_bot
+
     return webinterface.flask.Markup(webinterface.flask.render_template('system_banned_players_widget.html', bot=webinterface))
 
 
 common.actions_list.append({
-    "title": "fetches whitelist widget",
+    "title": "fetches banned players widget",
     "route": "/protected/players/widgets/system_banned_players_widget",
     "action": get_banned_players_widget,
     "authenticated": True
@@ -39,7 +40,11 @@ common.actions_list.append({
 
 def get_player_whitelist_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    try:
+        player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    except KeyError:
+        return
+
     return webinterface.flask.Markup(webinterface.flask.render_template('player_whitelist_widget.html', bot=webinterface, player_object=player_object))
 
 
@@ -184,7 +189,7 @@ def get_all_players_table():
 
     output = ""
     player_objects_list = chrani_bot.players.get_all_players()
-    player_objects_list = sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True)
+    player_objects_list = sorted(player_objects_list, key=lambda x: (x.get_last_seen(), x.is_online, x.authenticated), reverse=True)
     for player_object in player_objects_list:
         if not player_object.is_to_be_obliterated:
             output += get_all_players_table_row(player_object.steamid)
