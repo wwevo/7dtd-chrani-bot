@@ -103,8 +103,8 @@ class Players(object):
 
         for player_object in players_to_obliterate:
             bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-            if bot.tn.kick(player_object, "Time to be born again!!"):
-                self.remove(player_object)
+            bot.tn.kick(player_object, "Time to be born again!!")
+            self.remove(player_object)
 
         player_threads_to_remove = []
         for player_steamid, player_thread in bot.active_player_threads_dict.iteritems():
