@@ -47,4 +47,8 @@ $(document).ready(function(){
         update_player_table_row(msg)
     });
 
+    socket.on('refresh_player_table', function(msg) {
+        refresh_player_table(msg)
+    });
+
 });

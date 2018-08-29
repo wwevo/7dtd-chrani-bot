@@ -120,6 +120,7 @@ def activate_whitelist(bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         bot.whitelist.activate()
         bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
+        bot.socketio.emit('refresh_player_table', '', namespace='/chrani-bot/public')
         message = "Whitelist is in effect! Feeling safer already :)"
         bot.tn.say(message, color=bot.chat_colors['alert'])
         response_messages.add_message(message, True)
@@ -147,6 +148,7 @@ def deactivate_whitelist(bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         bot.whitelist.deactivate()
         bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
+        bot.socketio.emit('refresh_player_table', '', namespace='/chrani-bot/public')
         message = "Whitelist has been disabled. We are feeling adventureous :)"
         bot.tn.say(message, color=bot.chat_colors['alert'])
         response_messages.add_message(message, True)

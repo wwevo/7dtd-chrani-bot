@@ -144,13 +144,6 @@ common.actions_list.append({
 })
 
 
-def get_online_players_table():
-    webinterface = __main__.chrani_bot
-    player_objects_to_list = webinterface.players.get_all_players(get_online_only=True)
-
-    return webinterface.flask.render_template('online_players.html', player_objects_to_list=player_objects_to_list)
-
-
 def get_all_players_table_row(steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(steamid)
@@ -189,19 +182,20 @@ def get_all_players_table():
 
     output = ""
     player_objects_list = chrani_bot.players.get_all_players()
-    player_objects_list = sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True)
+    player_objects_list = [player_object for player_object in sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated), reverse=True) if chrani_bot.whitelist.player_is_on_whitelist(player_object.steamid) or not chrani_bot.whitelist.is_active()]
     for player_object in player_objects_list:
         if not player_object.is_to_be_obliterated:
             output += get_all_players_table_row(player_object.steamid)
 
-    return chrani_bot.flask.render_template('all_players.html', player_entries=output)
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('all_players.html', player_entries=output))
 
 
-def get_players_table(online_only=False):
-    if online_only:
-        return get_online_players_table()
-    else:
-        return get_all_players_table()
+common.actions_list.append({
+    "title": "get all players table",
+    "route": "/protected/players/widgets/get_all_players_table",
+    "action": get_all_players_table,
+    "authenticated": True
+})
 
 
 @common.build_response

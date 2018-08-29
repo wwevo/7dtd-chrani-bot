@@ -26,7 +26,7 @@ static_dir = os.path.join(template_dir, 'static')
 
 from bot.chrani_bot import ChraniBot
 import bot.actions
-from bot.modules.webinterface.players import get_players_table
+from bot.modules.webinterface.players import get_all_players_table
 from bot.modules.webinterface.system import get_system_status
 from bot.modules.webinterface.whitelist import get_whitelist_widget
 from bot.modules.webinterface.players import get_banned_players_widget
@@ -163,7 +163,7 @@ def index():
 @app.route('/protected')
 @flask_login.login_required
 def protected():
-    output = get_players_table()
+    output = get_all_players_table()
     player_table = flask.Markup(output)
     system_status_widget = get_system_status()
     banned_players_widget = get_banned_players_widget()

@@ -1,3 +1,13 @@
+function refresh_player_table(msg) {
+    $.ajax({
+        url: "/protected/players/widgets/get_all_players_table",
+        type: "GET",
+        success: function(data) {
+            $('#player_table').html(data);
+        }
+    })
+}
+
 function update_player_status(msg) {
     $.ajax({
         url: "/protected/players/get_status/" + msg.steamid,
