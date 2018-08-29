@@ -106,6 +106,10 @@ a.active {
     font-weight: bold;
 }
 
+.center {
+    text-align: center;
+}
+
 .nlb {
     white-space: nowrap;
 }
@@ -187,6 +191,7 @@ footer {
 /* player permision widget */
 [id^=ppw_] {
     padding: 0.5em 1em;
+    cursor: pointer;
 }
 
 [id^=ppw_] > li {
@@ -205,6 +210,12 @@ footer {
 [id^=ppw_] a.active {
     opacity: 1;
 }
+
+[id^=ppw_] a:hover,
+[id^=ppw_] a.active:hover {
+    opacity: 0.66;
+}
+
 
 [id^=ppw_] .admin a {
     background-image: url(/static/icons/admin.png);
