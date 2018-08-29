@@ -6,7 +6,7 @@ import __main__  # my ide throws a warning here, but it works oO
 
 def get_whitelist_widget():
     webinterface = __main__.chrani_bot
-    players_not_on_whitelist_list = [x for x in webinterface.players.players_dict.keys() if not webinterface.whitelist.player_is_on_whitelist(x)]
+    players_not_on_whitelist_list = [x for x in webinterface.players.players_dict.values() if not webinterface.whitelist.player_is_on_whitelist(x.steamid)]
     return webinterface.flask.Markup(webinterface.flask.render_template('system_whitelist_widget.html', bot=webinterface, players_not_on_whitelist_list=players_not_on_whitelist_list))
 
 

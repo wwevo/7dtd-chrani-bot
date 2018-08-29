@@ -22,8 +22,8 @@
             <form action="/protected/whitelist/add/player/player_to_add" method="POST" onsubmit="send_form(this); return false;">
                 <input list="players_not_on_whitelist" name="player_to_add" autocomplete="off">
                 <datalist id="players_not_on_whitelist">
-                {% for player_steamid in players_not_on_whitelist_list %}
-                    <option value="{{ player_steamid}}">
+                {% for player_object in players_not_on_whitelist_list %}
+                    <option label="{{ player_object.steamid }} - {{ player_object.name.decode('utf-8') }}" value="{{ player_object.steamid }}">
                 {% endfor %}
                 </datalist>
                 <button type="submit">add</button>

@@ -29,6 +29,19 @@ body.flex_layout #content {
     flex-direction: column;
 }
 
+#widgets form {
+    display: flex;
+    width: 100%;
+}
+
+#widgets form input {
+    flex: 4;
+}
+
+#widgets form button {
+    flex: 1;
+}
+
 #system_whitelist_widget {
     flex: 2;
     margin: 6px 6px 6px 0;
