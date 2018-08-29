@@ -27,10 +27,11 @@
             <div id="status">{{ system_status_widget }}</div>
             <div id="user">
                 {% if current_user.is_authenticated %}
-                {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a>
+                {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a><br />
                 {% else %}
-                guest - <a href="/login">log in with steam!</a>
+                guest - <a href="/login">log in with steam!</a><br />
                 {% endif %}
+                <button class="switch_fullscreen">toggle</button>
             </div>
         </header>
         <div id="content">

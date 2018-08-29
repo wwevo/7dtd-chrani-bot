@@ -55,5 +55,9 @@ $(document).ready(
         $("body").click(function () {
             $("#messages_modal").fadeOut("fast");
         });
+
+        $(".switch_fullscreen").click(function () {
+            $("#widgets").animate({visibility: 'toggle'});
+        });
     }
 );
