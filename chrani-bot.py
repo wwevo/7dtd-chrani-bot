@@ -183,4 +183,4 @@ for actions_list_entry in bot.modules.webinterface.actions_list:
         app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=debug)

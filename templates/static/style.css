@@ -37,7 +37,7 @@ body.flex_layout #content {
 
 #system_banned_players_widget {
     flex: 1;
-    margin: 6px 6px 6px 0;
+    margin: 0px 6px 6px 0;
     background-color: #ffffff;
 }
 
@@ -191,7 +191,8 @@ footer {
     position: fixed;
     bottom: calc(1.33em + 10px);
     background-color: #fefefe;
-    width: 100%;
+    width: calc(100% - 10px);
+    left: 5px;
     animation-name: slideIn;
     animation-duration: 0.4s
 }
