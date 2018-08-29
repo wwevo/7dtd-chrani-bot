@@ -45,6 +45,7 @@ function reload_page() {
 
 $(document).ready(
     function() {
+        $('#widgets').hide();
         $('#messages_modal').hide();
         $('span.close').click(
             function() {
