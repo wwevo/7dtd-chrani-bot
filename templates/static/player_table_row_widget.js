@@ -35,7 +35,7 @@ function update_player_table_row(msg) {
     if ($('#opw_' + msg.steamid).length) {
         refresh_player_whitelist_widget(msg);
         refresh_player_locations_widget(msg);
-        refresh_player_lcb_widget(msg);
+        // refresh_player_lcb_widget(msg);
         refresh_player_permissions_widget(msg);
         refresh_player_status_widget(msg);
         update_player_status(msg);

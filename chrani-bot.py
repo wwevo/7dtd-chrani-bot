@@ -52,7 +52,7 @@ chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_log
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
 chrani_bot_thread.isDaemon()
 chrani_bot_thread.app_root = root_dir
-chrani_bot_thread.bot_version = "0.5m"
+chrani_bot_thread.bot_version = "0.5n"
 chrani_bot = chrani_bot_thread
 
 chrani_bot.start()
@@ -183,4 +183,4 @@ for actions_list_entry in bot.modules.webinterface.actions_list:
         app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=debug)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False)

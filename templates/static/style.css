@@ -184,6 +184,44 @@ footer {
     background-color: #aaffaa;
 }
 
+/* player permision widget */
+[id^=ppw_] {
+    padding: 0.5em 1em;
+}
+
+[id^=ppw_] > li {
+    display: inline-block;
+}
+
+[id^=ppw_] a {
+    background-size: 16px;
+    text-indent: -9999px;
+    display: block;
+    width: 16px;
+    height: 16px;
+    opacity: 0.33;
+}
+
+[id^=ppw_] a.active {
+    opacity: 1;
+}
+
+[id^=ppw_] .admin a {
+    background-image: url(/static/icons/admin.png);
+}
+
+[id^=ppw_] .mod a {
+    background-image: url(/static/icons/mod.png);
+}
+
+[id^=ppw_] .donator a {
+    background-image: url(/static/icons/donator.png);
+}
+
+[id^=ppw_] .authenticated a {
+    background-image: url(/static/icons/authenticated.png);
+}
+
 /* message modal */
 /* The Modal (background) */
 .modal {
