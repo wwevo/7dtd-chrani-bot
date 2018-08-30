@@ -465,3 +465,45 @@ common.actions_list.append({
     "group": "locations",
     "essential": False
 })
+
+
+def change_perimeter_warning(bot, source_player, target_player, command):
+    p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(warn\son\souter|warn\son\sboth|never\swarn))$", command)
+    if p:
+        response_messages = ResponseMessage()
+        identifier = p.group("location_identifier")
+        status_to_set = p.group("status")
+        try:
+            location_object = bot.locations.get(source_player.steamid, identifier)
+            if status_to_set == "warn on outer":
+                location_object.show_messages = True
+                location_object.show_warning_messages = False
+            elif status_to_set == "warn on both":
+                location_object.show_messages = True
+                location_object.show_warning_messages = True
+            elif status_to_set == "never warn":
+                location_object.show_messages = False
+                location_object.show_warning_messages = False
+
+            bot.tn.send_message_to_player(target_player, "Your location {} will {}".format(location_object.name, status_to_set), color=bot.chat_colors['background'])
+            bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            bot.locations.upsert(location_object, save=True)
+        except KeyError:
+            bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "make location",
+        "usage": "/make location <location_identifier> <'warn on outer' or 'warn on both' or 'never warn'>"
+    },
+    "action": change_perimeter_warning,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential": False
+})
