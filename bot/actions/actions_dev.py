@@ -1,3 +1,4 @@
+from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 import common
 
@@ -17,13 +18,14 @@ def fix_players_legs(bot, source_player, target_player, command):
     notes:
     does not check if the player is injured at all
     """
-    try:
-        bot.tn.debuffplayer(target_player, "brokenLeg")
-        bot.tn.debuffplayer(target_player, "sprainedLeg")
-        bot.tn.send_message_to_player(target_player, "your legs have been taken care of ^^", color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+    response_messages = ResponseMessage()
+    bot.tn.debuffplayer(target_player, "brokenLeg")
+    bot.tn.debuffplayer(target_player, "sprainedLeg")
+    message = "your legs have been taken care of ^^"
+    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+    response_messages.add_message(message, True)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -54,12 +56,13 @@ def stop_the_bleeding(bot, source_player, target_player, command):
     notes:
     does not check if the player is injured at all
     """
-    try:
-        bot.tn.debuffplayer(target_player, "bleeding")
-        bot.tn.send_message_to_player(target_player, "your wounds have been bandaided ^^", color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+    response_messages = ResponseMessage()
+    bot.tn.debuffplayer(target_player, "bleeding")
+    message = "your wounds have been bandaided ^^"
+    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+    response_messages.add_message(message, True)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -90,12 +93,13 @@ def apply_first_aid(bot, source_player, target_player, command):
     notes:
     does not check if the player is injured at all
     """
-    try:
-        bot.tn.buffplayer(target_player, "firstAidLarge")
-        bot.tn.send_message_to_player(target_player, "feel the power flowing through you!! ^^", color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+    response_messages = ResponseMessage()
+    bot.tn.buffplayer(target_player, "firstAidLarge")
+    message = "feel the power flowing through you!! ^^"
+    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+    response_messages.add_message(message, True)
+
+    return response_messages
 
 
 common.actions_list.append({
