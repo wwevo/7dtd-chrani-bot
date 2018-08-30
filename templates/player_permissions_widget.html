@@ -3,9 +3,9 @@
     {% for player_permission_identifier, player_permission_granted in player_permissions_dict.iteritems() %}
     <li class="{{ player_permission_identifier }}">
         {% if player_permission_granted == True %}
-        <a href="/protected/authentication/remove/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" class="active" onclick="player_action(this); return false;" title="{{ player_permission_identifier }}">{{ player_permission_identifier }}</a>
+        <a href="/protected/authentication/remove/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" class="active" onclick="player_action(this); return false;" title="{{ player_permission_identifier }}"><span>{{ player_permission_identifier }}</span></a>
         {% else %}
-        <a href="/protected/authentication/add/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" onclick="player_action(this); return false;" title="{{ player_permission_identifier }}">{{ player_permission_identifier }}</a>
+        <a href="/protected/authentication/add/group/{{ player_object.steamid }}/{{ player_permission_identifier }}" onclick="player_action(this); return false;" title="{{ player_permission_identifier }}"><span>{{ player_permission_identifier }}</span></a>
         {% endif %}
     </li>
     {% endfor %}

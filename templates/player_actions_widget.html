@@ -1,6 +1,6 @@
 <ul id="paw_{{ player_object.steamid }}">
     {% if player_object.is_online %}
-    <li class="flat seperator nlb">
+    <li class="seperator nlb">
         <form action="/protected/players/kick/{{ player_object.steamid }}/webinterface" method="POST" onsubmit="send_form(this); return false;">
             <input list="kick_reasons" name="reason">
             <datalist id="kick_reasons">
@@ -14,9 +14,9 @@
     </li>
     {% endif %}
     {% if player_object.is_banned == True %}
-    <li class="flat"><a href="/protected/players/unban/{{ player_object.steamid }}" onclick="player_action(this); return false;">unban</a></li>
+    <li class="seperator"><a href="/protected/players/unban/{{ player_object.steamid }}" onclick="player_action(this); return false;">unban</a></li>
     {% else %}
-    <li class="flat nlb">
+    <li class="seperator nlb">
         <form action="/protected/players/ban/{{ player_object.steamid }}/webinterface" method="POST" onsubmit="send_form(this); return false;">
             <input list="ban_reasons" name="reason">
             <datalist id="ban_reasons">
@@ -30,6 +30,6 @@
     </li>
     {% endif %}
     {% if "admin" in current_user.permission_levels %}
-    <li class="flat"><a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="player_action(this); return false;">obliterate</a></li>
+    <li class="seperator right"><a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="player_action(this); return false;">obliterate</a></li>
     {% endif %}
 </ul>

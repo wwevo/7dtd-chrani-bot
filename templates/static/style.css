@@ -8,17 +8,31 @@ body {
     background-color: #ffffff;
 }
 
-#widgets form {
+form {
     display: flex;
+    flex-direction: row;
+    align-items: stretch;
     width: 100%;
 }
 
-#widgets form input {
-    flex: 4;
+form ul {
+    width: 100%;
 }
 
-#widgets form button {
-    flex: 1;
+form li {
+    width: 100%;
+}
+
+form input {
+    flex: 5 0 auto;
+}
+
+form select {
+    flex: 5 0 auto;
+}
+
+form button {
+    flex: 1 0 auto;
 }
 
 #system_whitelist_widget {
@@ -71,6 +85,10 @@ a.active {
     text-align: center;
 }
 
+.right {
+    text-align: right;
+}
+
 .nlb {
     white-space: nowrap;
 }
@@ -90,13 +108,16 @@ table li.flat {
 }
 
 table li.flat:last-child {
-    float: left;
     margin-right: 0;
 }
 
 table li.seperator {
-    margin-top: 0.5em;
+    margin-top: 0.25em;
     clear: left;
+}
+
+table li.seperator:first-child {
+    margin-top: 0em;
 }
 
 /* specific styles */
@@ -151,21 +172,25 @@ footer {
 
 /* player permision widget */
 [id^=ppw_] {
-    padding: 0.5em 1em;
     cursor: pointer;
+    width: calc(8px + 32px);
 }
 
 [id^=ppw_] > li {
+    padding: 4px 2px;
+    float: left;
     display: inline-block;
 }
 
 [id^=ppw_] a {
     background-size: 16px;
-    text-indent: -9999px;
     display: block;
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     opacity: 0.33;
+}
+
+[id^=ppw_] span {
+    display: none;
 }
 
 [id^=ppw_] a.active {
@@ -176,7 +201,6 @@ footer {
 [id^=ppw_] a.active:hover {
     opacity: 0.66;
 }
-
 
 [id^=ppw_] .admin a {
     background-image: url(/static/icons/admin.png);
