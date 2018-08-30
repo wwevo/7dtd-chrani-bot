@@ -1,6 +1,6 @@
 /* layout */
 body {
-    background-color: #cecece;
+    background-color: #acacac;
 }
 
 #player_table {
@@ -25,10 +25,12 @@ form li {
 
 form input {
     flex: 5 0 auto;
+    line-height: 1.33em;
 }
 
 form select {
     flex: 5 0 auto;
+    font: inherit;
 }
 
 form button {
@@ -53,12 +55,13 @@ form button {
 /* make the header neat and full-width */
 header #info i {
     font-size: 12px;
-    line-height: 14px;
+    line-height: 16px;
     margin-left: 1em;
 }
 
 header #status {
     text-align: center;
+    background-color: #bdbdbd;
 }
 
 header #user {
@@ -136,7 +139,7 @@ tr th {
 }
 
 header {
-    height: 2.66em; line-height: 1.33em;
+    height: calc(2.66em + 1px); line-height: 1.33em;  max-height: calc(2.66em + 1px);
     background: #ffffff linear-gradient(#acacac, #acacac 50%, #bdbdbd 50%);
 }
 
