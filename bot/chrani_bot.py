@@ -326,7 +326,7 @@ class ChraniBot(Thread):
                             if command != "Teleport":
                                 player_object = self.players.load(player_id)
                                 active_player_thread = self.active_player_threads_dict[player_id]
-                                active_player_thread["thread"].trigger_action(player_object, "entered the game")
+                                active_player_thread["thread"].trigger_action(player_object, "entered the world")
                         except KeyError:
                             pass
 

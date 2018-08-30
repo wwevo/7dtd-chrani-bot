@@ -49,6 +49,18 @@ common.actions_list.append({
 })
 
 
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "entered the world",
+        "usage": None
+    },
+    "action": on_enter_gameworld,
+    "group": "authentication",
+    "essential": True
+})
+
+
 def password(bot, source_player, target_player, command):
     """Adds player to permission-group(s) according to the password entered
     will remove authenticated status if the player enters a woing password

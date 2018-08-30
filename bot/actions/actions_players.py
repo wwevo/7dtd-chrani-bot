@@ -23,7 +23,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "entered the game",
+        "trigger": "entered the world",
         "usage": None
     },
     "action": on_enter_gameworld,
@@ -46,11 +46,16 @@ common.actions_list.append({
 
 
 def on_player_leave(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
+
     target_player.is_online = False
     target_player.update()
     bot.players.upsert(target_player, save=True)
     bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
-    return True
+    message = "Player {} left the game".format(target_player.name)
+    response_messages.add_message(message, False)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -67,10 +72,13 @@ common.actions_list.append({
 
 
 def on_player_death(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
     target_player.initialized = False
     bot.players.upsert(target_player, save=True)
+    message="player {} died".format(target_player.name)
+    response_messages.add_message(message, False)
 
-    return True
+    return response_messages
 
 
 common.actions_list.append({
@@ -87,7 +95,13 @@ common.actions_list.append({
 
 
 def on_player_kill(bot, source_player, target_player, command):
-    return on_player_death(bot, source_player, target_player, command)
+    response_messages = ResponseMessage()
+    target_player.initialized = False
+    bot.players.upsert(target_player, save=True)
+    message="player {} got killed :/".format(target_player.name)
+    response_messages.add_message(message, False)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -149,6 +163,7 @@ common.actions_list.append({
 
 
 def teleport_self_to_player(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
     try:
         p = re.search(r"goto\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
         if p:
@@ -174,10 +189,15 @@ def teleport_self_to_player(bot, source_player, target_player, command):
 
     coord_tuple = (player_object_to_teleport_to.pos_x, player_object_to_teleport_to.pos_y, player_object_to_teleport_to.pos_z)
     if bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple):
-        bot.tn.send_message_to_player(target_player, "You have been ported to {}'s last known location".format(player_object_to_teleport_to.name), color=bot.chat_colors['success'])
+        message = "You have been ported to {}'s last known location".format(player_object_to_teleport_to.name)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        response_messages.add_message(message, True)
     else:
-        bot.tn.send_message_to_player(target_player, "Teleporting to player {} failed :(".format(player_object_to_teleport_to.name), color=bot.chat_colors['error'])
-    return True
+        message = "Teleporting to player {} failed :(".format(player_object_to_teleport_to.name)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
+        response_messages.add_message(message, False)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -194,6 +214,7 @@ common.actions_list.append({
 
 
 def teleport_player_to_self(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
     try:
         p = re.search(r"summon\splayer\s(?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+)", command)
         if p:
@@ -219,10 +240,15 @@ def teleport_player_to_self(bot, source_player, target_player, command):
 
     coord_tuple = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
     if bot.tn.teleportplayer(player_object_to_teleport_to, coord_tuple=coord_tuple):
-        bot.tn.send_message_to_player(player_object_to_teleport_to, "You have been summoned to {}'s location".format(target_player.name), color=bot.chat_colors['success'])
+        message = "You have been summoned to {}'s location".format(target_player.name)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        response_messages.add_message(message, True)
     else:
-        bot.tn.send_message_to_player(target_player, "Summoning player {} failed :(".format(player_object_to_teleport_to.name), color=bot.chat_colors['error'])
-    return True
+        message = "Summoning player {} failed :(".format(player_object_to_teleport_to.name)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
+        response_messages.add_message(message, False)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -253,15 +279,21 @@ def list_online_players(bot, source_player, target_player, command):
     notes:
     Will list players and show their entityId
     """
+    response_messages = ResponseMessage()
     try:
         players_to_list = bot.players.get_all_players(get_online_only=True)
 
         for player_object_to_list in players_to_list:
             bot.tn.send_message_to_player(target_player, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=bot.chat_colors['success'])
 
+        message = "Listed {} online players.".format(len(players_to_list))
+        response_messages.add_message(message, True)
+
     except Exception as e:
         logger.exception(e)
         pass
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -292,6 +324,7 @@ def list_available_player_actions(bot, source_player, target_player, command):
     notes:
     It will only show the commands the player has access to.
     """
+    response_messages = ResponseMessage()
     available_player_actions = []
     if bot.actions_list is not None:
         for player_action in bot.actions_list:
@@ -308,7 +341,10 @@ def list_available_player_actions(bot, source_player, target_player, command):
         for player_action in available_player_actions:
             bot.tn.send_message_to_player(target_player, "{}".format(player_action), color=bot.chat_colors['success'])
 
-    return False
+        message = "Listed {} available actions.".format(len(available_player_actions))
+        response_messages.add_message(message, True)
+
+    return response_messages
 
 
 common.actions_list.append({
@@ -412,11 +448,7 @@ def obliterate_me(bot, source_player, target_player, command):
     it will delete all locations and all playerdata plus the whitelist entry. Currently it does NOT remove references,
     like if the player is inside a location while obliterated, the location file will not be purged. YET.
     """
-    try:
-        obliterate_player(bot, source_player, target_player, "obliterate player {}".format(target_player.steamid))
-    except Exception as e:
-        logger.exception(e)
-        pass
+    return obliterate_player(bot, source_player, target_player, "obliterate player {}".format(target_player.steamid))
 
 
 common.actions_list.append({
@@ -449,35 +481,38 @@ def ban_player(bot, source_player, target_player, command):
     both the ban-er and the ban-ee will be mentioned in the ban-message
     there is no timeframe, bans are permanent for now
     """
-    try:
-        p = re.search(r"ban\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfor\s(?P<ban_reason>.+)", command)
-        if p:
-            steamid_to_ban = p.group("steamid")
-            entityid_to_ban = p.group("entityid")
-            if steamid_to_ban is None:
-                steamid_to_ban = bot.players.entityid_to_steamid(entityid_to_ban)
-                if steamid_to_ban is False:
-                    raise KeyError
+    response_messages = ResponseMessage()
+    p = re.search(r"ban\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfor\s(?P<ban_reason>.+)", command)
+    if p:
+        steamid_to_ban = p.group("steamid")
+        entityid_to_ban = p.group("entityid")
+        if steamid_to_ban is None:
+            steamid_to_ban = bot.players.entityid_to_steamid(entityid_to_ban)
+            if steamid_to_ban is False:
+                raise KeyError
 
-            reason_for_ban = p.group("ban_reason")
-            try:
-                player_object_to_ban = bot.players.get_by_steamid(steamid_to_ban)
-            except KeyError:
-                player_dict = {'steamid': steamid_to_ban, "name": 'unknown offline player'}
-                player_object_to_ban = Player(**player_dict)
+        reason_for_ban = p.group("ban_reason")
+        try:
+            player_object_to_ban = bot.players.get_by_steamid(steamid_to_ban)
+        except KeyError:
+            player_dict = {'steamid': steamid_to_ban, "name": 'unknown offline player'}
+            player_object_to_ban = Player(**player_dict)
 
-            if bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
-                player_object_to_ban.is_banned = True
-                bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['alert'])
-                bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
-                bot.tn.say("{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban), color=bot.chat_colors['success'])
-                bot.players.upsert(player_object_to_ban, save=True)
-            else:
-                bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_ban), color=bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        if bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
+            player_object_to_ban.is_banned = True
+            bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
+            bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['alert'])
+            bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
+            message = "{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban)
+            bot.tn.say(message, color=bot.chat_colors['success'])
+            response_messages.add_message(message, True)
+            bot.players.upsert(player_object_to_ban, save=True)
+        else:
+            bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_ban), color=bot.chat_colors['warning'])
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
@@ -506,28 +541,30 @@ def unban_player(bot, source_player, target_player, command):
     example:
     /unban player 76561198040658370
     """
-    try:
-        p = re.search(r"unban\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
-        if p:
-            steamid_to_unban = p.group("steamid")
-            entityid_to_unban = p.group("entityid")
-            if steamid_to_unban is None:
-                steamid_to_unban = bot.players.entityid_to_steamid(entityid_to_unban)
+    response_messages = ResponseMessage()
+    p = re.search(r"unban\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))", command)
+    if p:
+        steamid_to_unban = p.group("steamid")
+        entityid_to_unban = p.group("entityid")
+        if steamid_to_unban is None:
+            steamid_to_unban = bot.players.entityid_to_steamid(entityid_to_unban)
 
-            player_object_to_unban = bot.players.load(steamid_to_unban)
+        player_object_to_unban = bot.players.load(steamid_to_unban)
 
-            if bot.tn.unban(player_object_to_unban):
-                player_object_to_unban.is_banned = False
-                bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(source_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
-                bot.tn.say("{} has been unbanned by {}.".format(player_object_to_unban.name, source_player.name), color=bot.chat_colors['success'])
-                bot.players.upsert(player_object_to_unban, save=True)
-                return True
-
+        if bot.tn.unban(player_object_to_unban):
+            player_object_to_unban.is_banned = False
+            bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
+            bot.tn.send_message_to_player(source_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
+            message = "{} has been unbanned by {}.".format(player_object_to_unban.name, source_player.name)
+            bot.tn.say(message, color=bot.chat_colors['success'])
+            response_messages.add_message(message, True)
+            bot.players.upsert(player_object_to_unban, save=True)
+        else:
             bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_unban), color=bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
@@ -556,27 +593,30 @@ def kick_player(bot, source_player, target_player, command):
     example:
     /kick player 76561198040658370 for Stinking up the room!
     """
-    try:
-        p = re.search(r"kick\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfor\s(?P<kick_reason>.+)", command)
-        if p:
-            steamid_to_kick = p.group("steamid")
-            entityid_to_kick = p.group("entityid")
-            if steamid_to_kick is None:
-                steamid_to_kick = bot.players.entityid_to_steamid(entityid_to_kick)
+    response_messages = ResponseMessage()
+    p = re.search(r"kick\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\sfor\s(?P<kick_reason>.+)", command)
+    if p:
+        steamid_to_kick = p.group("steamid")
+        entityid_to_kick = p.group("entityid")
+        if steamid_to_kick is None:
+            steamid_to_kick = bot.players.entityid_to_steamid(entityid_to_kick)
 
-            reason_for_kick = p.group("kick_reason")
-            try:
-                player_object_to_kick = bot.players.get_by_steamid(steamid_to_kick)
-            except KeyError:
-                bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_kick), color=bot.chat_colors['warning'])
-                return
+        reason_for_kick = p.group("kick_reason")
+        try:
+            player_object_to_kick = bot.players.get_by_steamid(steamid_to_kick)
+        except KeyError:
+            bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_kick), color=bot.chat_colors['warning'])
+            return
 
-            if bot.tn.kick(player_object_to_kick, reason_for_kick):
-                bot.tn.send_message_to_player(source_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
-                bot.tn.say("{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, source_player.name, reason_for_kick), color=bot.chat_colors['success'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        if bot.tn.kick(player_object_to_kick, reason_for_kick):
+            bot.tn.send_message_to_player(source_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
+            message = "{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, source_player.name, reason_for_kick)
+            bot.tn.say(message, color=bot.chat_colors['success'])
+            response_messages.add_message(message, True)
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
