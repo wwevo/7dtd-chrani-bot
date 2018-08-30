@@ -51,6 +51,12 @@ form button {
 }
 
 /* make the header neat and full-width */
+header #info i {
+    font-size: 12px;
+    line-height: 14px;
+    margin-left: 1em;
+}
+
 header #status {
     text-align: center;
 }
@@ -65,15 +71,16 @@ table {
     border: 0; border-spacing: 0;
 }
 
-tr td {
+tr td, tr th {
     vertical-align: top;
 }
 
-tr th a, tr td a {
+a {
     text-decoration: none;
+    color: #0000dd;
 }
 
-tr th a:hover, tr td a:hover {
+a:hover, a:hover {
     text-decoration: underline;
 }
 
@@ -140,22 +147,25 @@ footer {
 }
 
 /* player table */
-#player_table tr:nth-child(even) {
+#player_table > table > tbody > tr > td {
+    padding: 0.25em;
+}
+
+#player_table > table > tbody > tr:nth-child(even) {
     background-color: #fcfcfc;
 }
 
-#player_table tr:nth-child(odd) {
+#player_table > table > tbody > tr:nth-child(odd) {
     background-color: #cccccc;
 }
 
-#player_table tr.online {
+#player_table > table > tbody > tr.online {
     background-color: #ccffcc;
 }
 
-#player_table tr:nth-child(odd) .online {
+#player_table > table > tbody > tr:nth-child(odd) .online {
     background-color: #ccfccc;
 }
-
 
 /* player location widget */
 [id^=plw_] .is_outside {
