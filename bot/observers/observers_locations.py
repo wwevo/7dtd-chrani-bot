@@ -27,16 +27,18 @@ def player_crossed_boundary(self):
                 if player_status == "is inside core":
                     if location_object.protected_core is True:
                         if any(x in ["admin", "mod"] for x in self.player_object.permission_levels):
-                            continue
-                        elif self.player_object.steamid == location_object.owner:
+                            pass  # continue
+                        if self.player_object.steamid == location_object.owner:
                             continue
                         elif location_object.owner in self.player_object.playerfriends_list:
                             continue
                         elif self.player_object.steamid in location_object.protected_core_whitelist:
                             continue
                         else:
-                            if self.tn.teleportplayer(self.player_object, coord_tuple=location_object.get_ejection_coords_tuple(self.player_object)):
-                                self.tn.send_message_to_player(self.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object.owner), color=self.bot.chat_colors['warning'])
+                            if self.tn.teleportplayer(self.player_object, coord_tuple=location_object.get_ejection_coords_tuple()):
+                                location_object_owner = self.bot.players.get_by_steamid(location_object.owner)
+                                self.tn.send_message_to_player(self.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object_owner.name), color=self.bot.chat_colors['warning'])
+                                self.bot.socketio.emit('command_log', {"steamid": self.player_object.steamid, "command": "{} have been ejected from {}'s protected core owned by {}!".format(self.player_object.name, location_object.name, location_object_owner.name)}, namespace='/chrani-bot/public')
 
                 update_table = False
                 if player_status == "has left":
@@ -45,7 +47,7 @@ def player_crossed_boundary(self):
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
                 if player_status == "has left core":
                     update_table = True
-                    if location_object.messages_dict["left_locations_core"] is not None and location_object.show_messages is True:
+                    if location_object.messages_dict["left_locations_core"] is not None and location_object.show_warning_messages is True:
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
                 if player_status == "has entered":
                     update_table = True
@@ -53,7 +55,7 @@ def player_crossed_boundary(self):
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                 if player_status == "has entered core":
                     update_table = True
-                    if location_object.messages_dict["entered_locations_core"] is not None and location_object.show_messages is True:
+                    if location_object.messages_dict["entered_locations_core"] is not None and location_object.show_warning_messages is True:
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
 
                 if update_table:

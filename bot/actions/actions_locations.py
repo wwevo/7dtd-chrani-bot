@@ -159,43 +159,32 @@ common.actions_list.append({
 
 
 def change_location_visibility(bot, source_player, target_player, command):
-    try:
-        p = re.search(r"make\splayers\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
-        if p:
-            identifier = p.group("location_identifier")
-            status_to_set = p.group("status") == 'public'
-            location_owner_steamid = p.group("steamid")
-            location_owner_entityid = p.group("entityid")
+    p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
+    if p:
+        response_messages = ResponseMessage()
+        identifier = p.group("location_identifier")
+        status_to_set = p.group("status") == 'public'
+        try:
+            location_object = bot.locations.get(source_player.steamid, identifier)
+            if location_object.set_visibility(status_to_set):
+                bot.tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, 'public' if status_to_set else 'private'), color=bot.chat_colors['background'])
+                bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+                bot.locations.upsert(location_object, save=True)
+            else:
+                bot.tn.send_message_to_player(target_player, "A public location with the identifier {} already exists".format(location_object.identifier), color=bot.chat_colors['background'])
+        except KeyError:
+            bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
 
-            if location_owner_steamid is None:
-                location_owner_steamid = bot.players.entityid_to_steamid(location_owner_entityid)
-                if location_owner_steamid is False:
-                    bot.tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
-                    return False
-
-            location_owner = bot.players.get_by_steamid(location_owner_steamid)
-            try:
-                location_object = bot.locations.get(location_owner.steamid, identifier)
-                if location_object.set_visibility(status_to_set):
-                    bot.tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, str(status_to_set)), color=bot.chat_colors['background'])
-
-                    bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
-
-                    bot.locations.upsert(location_object, save=True)
-                else:
-                    bot.tn.send_message_to_player(target_player, "A public location with the identifier {} already exists".format(location_object.identifier), color=bot.chat_colors['background'])
-            except KeyError:
-                bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
-    except Exception as e:
-        logger.exception(e)
-        pass
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
     "match_mode": "startswith",
     "command": {
-        "trigger": "make players",
-        "usage": "/make players <steamid/entityid> location <location_identifier> <'public' or 'private'>"
+        "trigger": "make location",
+        "usage": "/make location <location_identifier> <'public' or 'private'>"
     },
     "action": change_location_visibility,
     "env": "(self, command)",

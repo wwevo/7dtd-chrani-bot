@@ -17,6 +17,7 @@ class Location(object):
 
     messages_dict = dict
     show_messages = bool
+    show_warning_messages = bool
 
     # the center of the shape
     pos_x = float
@@ -58,6 +59,7 @@ class Location(object):
             "left_location": "leaving boundary"
         }
         self.show_messages = True
+        self.show_warning_messages = False
         self.radius = 20
         self.description = None
         self.is_public = False
@@ -185,8 +187,6 @@ class Location(object):
     def set_height(self, height):
         allowed_range = range(3, 2048)
         self.height = height
-        # no region update here, since regions are only projected on a two dimensional grid
-        # self.update_region_list()
         return True, allowed_range
 
     def set_messages(self, messages_dict):
@@ -197,6 +197,8 @@ class Location(object):
 
     def set_protected_core(self, protected):
         self.protected_core = protected
+        self.show_warning_messages = protected
+
         return True
 
     def set_visibility(self, is_public):
@@ -215,21 +217,21 @@ class Location(object):
             # determine the top left corner of the square the circle occupies
             top = self.pos_z - self.radius
             left = self.pos_x - self.radius
-            # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get_by_steamid the total possible width and height
+            # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get the total possible width and length
             width_in_regions = math.ceil(float(self.radius) / 512) * 2
-            height_in_regions = math.ceil(float(self.radius) / 512) * 2
+            length_in_regions = math.ceil(float(self.radius) / 512) * 2
         elif self.shape == "cube" or self.shape == "room":
             # untested
             top = self.pos_z
             left = self.pos_x
             width_in_regions = math.ceil(float(self.width / 2) / 512) * 2
-            height_in_regions = math.ceil(float(self.height / 2) / 512) * 2
+            length_in_regions = math.ceil(float(self.height / 2) / 512) * 2
         else:
             return False
 
         # translate occupied coordinates into the region-grid provided by allocs webmap
         for column in range(int(width_in_regions + 1)):
-            for row in range(int(height_in_regions + 1)):
+            for row in range(int(length_in_regions + 1)):
                 if row == 0 or column == 0:
                     continue
                 self.region_list.append(get_region_string(left + ((column - 1) * 512), top + ((row - 1) * 512)))
@@ -242,7 +244,7 @@ class Location(object):
     def set_list_of_players_inside_core(self, list_of_players_inside_core):
         self.list_of_players_inside_core = list_of_players_inside_core
 
-    def get_ejection_coords_tuple(self, player_object):
+    def get_ejection_coords_tuple(self):
         if self.shape == "sphere":
             angle = random.randint(0, 359)
             x = self.pos_x + (self.radius + 2) * math.cos(angle)
@@ -256,16 +258,8 @@ class Location(object):
 
         return coords
 
-    def get_teleport_coords_tuple(self, player_object):
-        if self.shape == "sphere":
-            coords = (self.tele_x, self.tele_y, self.tele_z)
-        elif self.shape == "cube" or self.shape == "room":
-            # untested
-            return False
-        else:
-            return False
-
-        return coords
+    def get_teleport_coords_tuple(self):
+        return self.tele_x, self.tele_y, self.tele_z
 
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
@@ -276,7 +270,7 @@ class Location(object):
         """
         if player_object.pos_x is 0.0 and player_object.pos_y is 0.0 and player_object.pos_z is 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
-            return False
+            return None
 
         player_is_inside_boundary = False
         if self.shape == "sphere":
@@ -309,7 +303,7 @@ class Location(object):
     def player_is_inside_core(self, player_object):
         if player_object.pos_x is 0.0 and player_object.pos_y is 0.0 and player_object.pos_z is 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
-            return False
+            return None
 
         player_is_inside_core = False
         if self.shape == "sphere":
@@ -321,6 +315,7 @@ class Location(object):
                 player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
             except:
                 pass
+
         if self.shape == "cube":
             if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
@@ -333,7 +328,6 @@ class Location(object):
 
     def get_player_status(self, player_object):
         response_message = ResponseMessage()
-        player_status = None
 
         player_is_inside_boundary = self.player_is_inside_boundary(player_object)
         if player_is_inside_boundary is True:
@@ -354,12 +348,10 @@ class Location(object):
                 self.list_of_players_inside.remove(player_object.steamid)
                 player_status = 'has left'
                 response_message.add_message(player_status)
-#                return player_status
             else:
                 # and already was outside before
                 player_status = 'is outside'
                 response_message.add_message(player_status)
-#                return player_status
 
         player_is_inside_core = self.player_is_inside_core(player_object)
         if player_is_inside_core is True:
@@ -368,13 +360,11 @@ class Location(object):
                 # and already was inside the locations core
                 player_status = 'is inside core'
                 response_message.add_message(player_status)
-#                return player_status
             else:
                 # newly entered the locations core
                 self.list_of_players_inside_core.append(player_object.steamid)
                 player_status = 'has entered core'
                 response_message.add_message(player_status)
-#                return player_status
         else:
             # player is outside
             if player_object.steamid in self.list_of_players_inside_core:
@@ -382,6 +372,5 @@ class Location(object):
                 self.list_of_players_inside_core.remove(player_object.steamid)
                 player_status = 'has left core'
                 response_message.add_message(player_status)
-#                return player_status
 
         return response_message.get_message_dict()
