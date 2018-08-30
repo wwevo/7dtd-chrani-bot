@@ -43,9 +43,13 @@ function reload_page() {
     }, 1000);
 }
 
+function update_command_log(msg) {
+    $('#command_log_widget #command_log').prepend(msg['steamid'] + "/" + msg['command'] + "<br/>");
+}
+
 $(document).ready(
     function() {
-        $('#widgets').hide();
+        // $('#widgets').hide();
         $('#messages_modal').hide();
         $('span.close').click(
             function() {
@@ -59,6 +63,7 @@ $(document).ready(
 
         $(".switch_fullscreen").click(function () {
             $("#widgets").animate({visibility: 'toggle'});
+            $("#command_log_widget").animate({visibility: 'toggle'});
         });
     }
 );

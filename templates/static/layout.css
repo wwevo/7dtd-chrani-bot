@@ -1,0 +1,66 @@
+/* layout */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 auto; padding: 0;
+    height: 100vh;
+    width: 100vw;
+    max-width: 1444px;
+}
+
+#content {
+    flex: 1;
+    overflow: auto;
+}
+
+/* make the header neat and full-width */
+header {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row wrap;
+}
+header #info { flex: 1; }
+header #status { flex: 2; }
+header #user { flex: 1; }
+
+/* getting the main div in order: */
+#content {
+    display: flex;  /* this is for the flex inside */
+    flex-direction: column;
+}
+
+#content #main {
+    flex: 5;
+    overflow: auto;
+}
+
+#content #command_log_widget {
+    flex: 2;
+    overflow: auto;
+}
+
+/* getting the widgets on the right */
+#content #main {
+    display: flex; /* this is for the flex inside */
+    flex-direction: row;
+}
+
+#content #main #player_table {
+    flex: 3;
+    overflow: auto;
+}
+
+#content #widgets {
+    flex: 1;
+}
+
+/* getting the widgets ordered */
+#content #widgets {
+    display: flex;  /* this is for the flex inside */
+    flex-direction: column;
+}
+
+#content #widgets .widget {
+    flex: 1;
+}

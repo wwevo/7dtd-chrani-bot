@@ -2,6 +2,7 @@ import re
 from bot.objects.location import Location
 from bot.modules.logger import logger
 import common
+from bot.assorted_functions import ResponseMessage
 
 
 def check_building_site(bot, source_player, target_player, command):
@@ -33,6 +34,7 @@ common.actions_list.append({
 
 def set_up_home(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         bases_near_list, landclaims_near_list = bot.check_for_homes(target_player)
 
         if bases_near_list or landclaims_near_list:
@@ -66,6 +68,8 @@ def set_up_home(bot, source_player, target_player, command):
         bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         bot.tn.say("{} has decided to settle down!".format(target_player.name), color=bot.chat_colors['background'])
         bot.tn.send_message_to_player(target_player, "Home is where your hat is!", color=bot.chat_colors['success'])
+
+        return response_messages
     except Exception as e:
         logger.exception(e)
         pass
@@ -235,12 +239,15 @@ common.actions_list.append({
 
 def take_me_home(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         location_object = bot.locations.get(target_player.steamid, "home")
         if location_object.player_is_inside_boundary(target_player):
             bot.tn.send_message_to_player(target_player, "eh, you already ARE home oO".format(target_player.name), color=bot.chat_colors['warning'])
         else:
             bot.tn.teleportplayer(target_player, location_object=location_object)
             bot.tn.send_message_to_player(target_player, "you have ported home!".format(target_player.name), color=bot.chat_colors['success'])
+
+        return response_messages
     except KeyError:
         bot.tn.send_message_to_player(target_player, "You seem to be homeless".format(target_player.name), color=bot.chat_colors['warning'])
 

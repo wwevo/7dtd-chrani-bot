@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
     <head>{% block head %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>{% block title %}{% endblock %}</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -31,21 +32,26 @@
                 {% else %}
                 guest - <a href="/login">log in with steam!</a><br />
                 {% endif %}
-                <button class="switch_fullscreen">toggle</button>
+                <button class="switch_fullscreen">toggle ui</button>
             </div>
         </header>
         <div id="content">
             {% block content %}
-            <div id="player_table">
-                {{ player_table }}
+            <div id="main">
+                <div id="player_table">
+                    {{ player_table }}
+                </div>
+                <div id="widgets">
+                    <div id="system_whitelist_widget" class="widget">
+                        {{ whitelist_widget }}
+                    </div>
+                    <div id="system_banned_players_widget" class="widget">
+                        {{ banned_players_widget }}
+                    </div>
+                </div>
             </div>
-            <div id="widgets">
-                <div id="system_whitelist_widget">
-                    {{ whitelist_widget }}
-                </div>
-                <div id="system_banned_players_widget">
-                    {{ banned_players_widget }}
-                </div>
+            <div id="command_log_widget" class="widget">
+                {{ command_log_widget }}
             </div>
             {% endblock %}
         </div>

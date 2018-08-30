@@ -51,4 +51,8 @@ $(document).ready(function(){
         refresh_player_table(msg)
     });
 
+    socket.on('command_log', function(msg) {
+        update_command_log(msg)
+    });
+
 });

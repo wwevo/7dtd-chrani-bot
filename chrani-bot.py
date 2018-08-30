@@ -168,8 +168,9 @@ def protected():
     system_status_widget = get_system_status()
     banned_players_widget = get_banned_players_widget()
     whitelist_widget = get_whitelist_widget()
+    command_log_widget = flask.Markup(flask.render_template('command_log_widget.html'))
 
-    return flask.render_template('index.html', bot=chrani_bot, player_table=player_table, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget, banned_players_widget=banned_players_widget)
+    return flask.render_template('index.html', bot=chrani_bot, player_table=player_table, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget, banned_players_widget=banned_players_widget, command_log_widget=command_log_widget)
 
 
 """ collecting all defined webinterface-actions and creating routes for them """
