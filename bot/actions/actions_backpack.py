@@ -1,4 +1,5 @@
 from bot.objects.location import Location
+from bot.assorted_functions import ResponseMessage
 import common
 
 
@@ -22,11 +23,14 @@ def on_player_death(bot, source_player, target_player, command):
     except:
         return False
 
+    response_messages = ResponseMessage()
     target_player.initialized = False
     bot.players.upsert(target_player, save=True)
-    bot.tn.send_message_to_player(target_player, "your place of death has been recorded ^^", color=bot.chat_colors['background'])
+    message = "{}s place of death has been recorded ^^".format(target_player.name)
+    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+    response_messages.add_message(message, True)
 
-    return True
+    return response_messages
 
 
 common.actions_list.append({
@@ -76,6 +80,7 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
     will not port if already near the pack
     the place of death will be removed after a successful teleport
     """
+    response_messages = ResponseMessage()
     try:
         location_object = bot.locations.get(target_player.steamid, "death")
         if location_object.player_is_inside_boundary(target_player):
@@ -87,8 +92,13 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
 
         bot.locations.remove(target_player.steamid, 'death')
 
+        message = "{}s place of death has been removed ^^".format(target_player.name)
+        response_messages.add_message(message, True)
+
     except KeyError:
         bot.tn.send_message_to_player(target_player, "I don't have your last death on record, sorry :(".format(target_player.name), color=bot.chat_colors['warning'])
+
+    return response_messages
 
 
 common.actions_list.append({
