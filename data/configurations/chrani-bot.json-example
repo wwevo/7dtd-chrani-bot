@@ -22,5 +22,5 @@
   "whitelist_active": false,
 
   "location_default_radius": 15,
-  "location_default_warning_boundary_ratio": 0.64
+  "location_default_warning_boundary_ratio": 10
 }

@@ -39,7 +39,7 @@ def set_up_location(bot, source_player, target_player, command):
 
         if location_name_is_valid and location_name_is_not_reserved and location_name_not_in_use:
             location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
-            location_object.warning_boundary = float(location_object.radius * bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
+            location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
 
             location_object.set_coordinates(target_player)
             location_object.set_owner(target_player.steamid)

@@ -22,7 +22,7 @@ def on_player_join(bot, source_player, target_player, command):
         location_object = Location(**location_dict)
         location_object.set_coordinates(target_player)
         location_object.set_radius(5)
-        location_object.set_warning_boundary(float(location_object.radius * bot.settings.get_setting_by_name("location_default_warning_boundary_ratio")))
+        location_object.set_warning_boundary(3)
         try:
             bot.locations.upsert(location_object, save=True)
         except:
