@@ -34,7 +34,7 @@ function get_locations() {
 function init_radar(data) {
     window.map = L.map('location_radar', {
         crs: L.CRS.Simple,
-        minZoom: -5
+        minZoom: -4
     });
 
 	var bounds = [xy(-10000, -10000), xy(10000, 10000)];
