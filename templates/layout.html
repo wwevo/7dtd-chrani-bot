@@ -42,6 +42,9 @@
                     {{ player_table }}
                 </div>
                 <div id="widgets">
+                    <div id="player_location_radar_widget" class="widget">
+                        {{ player_location_radar_widget }}
+                    </div>
                     <div id="system_whitelist_widget" class="widget">
                         {{ whitelist_widget }}
                     </div>
@@ -66,7 +69,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="close">&times;</span>
-                    <h2>Modal Header</h2>
+                    <h2>Action result</h2>
                 </div>
                 <div class="modal-body">
                     {% block messages %}{% endblock %}

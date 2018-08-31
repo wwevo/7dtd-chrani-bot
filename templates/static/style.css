@@ -37,19 +37,25 @@ form button {
     flex: 1 0 auto;
 }
 
-#system_whitelist_widget {
-    margin: 6px 6px 6px 0;
-    background-color: #ffffff;
-}
-
-#system_banned_players_widget {
-    margin: 0px 6px 6px 0;
-    background-color: #ffffff;
-}
-
-#command_log_widget {
+.widget {
     margin: 0px 6px 6px 6px;
     background-color: #ffffff;
+}
+
+#widgets .widget {
+    margin: 0 6px 6px 0;
+}
+
+#widgets .widget:first-child {
+    margin: 6px 6px 6px 0;
+}
+
+#widgets tr th {
+    text-align: center;
+}
+
+#location_radar {
+    width: 100%; height 100%;
 }
 
 /* make the header neat and full-width */

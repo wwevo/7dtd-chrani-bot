@@ -30,6 +30,7 @@ from bot.modules.webinterface.players import get_all_players_table
 from bot.modules.webinterface.system import get_system_status
 from bot.modules.webinterface.whitelist import get_whitelist_widget
 from bot.modules.webinterface.players import get_banned_players_widget
+from bot.modules.webinterface.locations import get_player_location_radar_widget
 
 app = flask.Flask(
     __name__,
@@ -163,14 +164,23 @@ def index():
 @app.route('/protected')
 @flask_login.login_required
 def protected():
-    output = get_all_players_table()
-    player_table = flask.Markup(output)
+    player_table = flask.Markup(get_all_players_table())
     system_status_widget = get_system_status()
+    player_location_radar_widget = get_player_location_radar_widget()
     banned_players_widget = get_banned_players_widget()
     whitelist_widget = get_whitelist_widget()
     command_log_widget = flask.Markup(flask.render_template('command_log_widget.html'))
 
-    return flask.render_template('index.html', bot=chrani_bot, player_table=player_table, system_status_widget=system_status_widget, whitelist_widget=whitelist_widget, banned_players_widget=banned_players_widget, command_log_widget=command_log_widget)
+    return flask.render_template(
+        'index.html',
+        bot=chrani_bot,
+        player_table=player_table,
+        system_status_widget=system_status_widget,
+        whitelist_widget=whitelist_widget,
+        banned_players_widget=banned_players_widget,
+        command_log_widget=command_log_widget,
+        player_location_radar_widget=player_location_radar_widget
+    )
 
 
 """ collecting all defined webinterface-actions and creating routes for them """
