@@ -22,32 +22,37 @@ function get_locations() {
     });
 }
 
+    var yx = L.latLng;
+    var xy = function(x, y) {
+        if (L.Util.isArray(x)) {    // When doing xy([x, y]);
+            return yx(x[1], x[0]);
+        }
+        return yx(y, x);  // When doing xy(x, y);
+    };
+
 
 function init_radar(data) {
-    var canvas = document.getElementById('location_radar')
-    var ctx = canvas.getContext('2d');
-    var control = new CanvasManipulation(
-        canvas
-        , function() { draw(ctx, data) }
-        , {leftTop: {x: -10000, y: -10000}, rightBottom: {x: 10000, y: 10000}}
-    )
-    control.init();
-    control.layout();
-    draw(ctx, data);
-}
+    window.map = L.map('location_radar', {
+        crs: L.CRS.Simple,
+        minZoom: -5
+    });
 
+	var bounds = [xy(-10000, -10000), xy(10000, 10000)];
+    var image = L.imageOverlay('uqm_map_full.png', bounds).addTo(window.map);
 
-function draw(ctx, data) {
-    ctx.clearCanvas();
     var i = 0;
     if (data) while (data[i]) {
-        ctx.beginPath();
-        ctx.arc(data[i]["pos_x"], data[i]["pos_z"], data[i]["radius"], 0, 2 * Math.PI);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "#0000ff";
-        ctx.stroke();
-        ctx.font = "12px Arial";
-        ctx.fillText(data[i]["identifier"], data[i]["pos_x"], data[i]["pos_z"]);
+        marker = L.circle(xy(data[i]["pos_x"], data[i]["pos_z"]));
+        marker.bindTooltip(data[i]["identifier"], { permanent: true });
+        marker.addTo(window.map);
         i++;
     }
+
+    $("#location_radar").height($("#player_location_radar_widget").height()).width($("#player_location_radar_widget").width());
+    window.map.invalidateSize();
+	window.map.setView(xy(0, 0), 1);
+}
+
+function center_canvas_on(pos_x, pos_z) {
+    window.map.panTo(xy(pos_x, pos_z));
 }

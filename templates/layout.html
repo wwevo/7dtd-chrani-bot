@@ -3,11 +3,11 @@
     <head>{% block head %}
         <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
         <title>{% block title %}{% endblock %}</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
-        <script src="{{ url_for('static', filename='canvas-manipulation.js') }}"></script>
-        <script src="{{ url_for('static', filename='canvas-manipulation-mouse-listeners.js') }}"></script>
+        <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
         <script src="{{ url_for('static', filename='system.js') }}"></script>
         <script src="{{ url_for('static', filename='system_status_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_permissions_widget.js') }}"></script>
