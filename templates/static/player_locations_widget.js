@@ -42,7 +42,7 @@ function init_radar(data) {
 
     var i = 0;
     if (data) while (data[i]) {
-        marker = L.circle(xy(data[i]["pos_x"], data[i]["pos_z"]));
+        marker = L.circle(xy(data[i]["pos_x"], data[i]["pos_z"]), {radius: data[i]["radius"]});
         marker.bindTooltip(data[i]["identifier"], { permanent: true });
         marker.addTo(window.map);
         i++;
