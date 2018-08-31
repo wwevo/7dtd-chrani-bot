@@ -22,9 +22,6 @@ function update_player_status(msg) {
                 $('#opw_' + msg.steamid).prependTo('#player_table > table');
             } else {
                 $('#opw_' + msg.steamid).removeClass("online")
-                if (('.online')[0]) {
-                    $('#opw_' + msg.steamid).insertAfter('#player_table > table > tbody:last-child');
-                }
             }
             refresh_player_actions_widget(msg);
         }

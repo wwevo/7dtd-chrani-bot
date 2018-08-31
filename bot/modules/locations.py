@@ -59,13 +59,13 @@ class Locations(object):
         if save:
             self.save(location_object)
 
-    def get(self, location_owner, location_identifier=None):
+    def get(self, location_owner=None, location_identifier=None):
         if location_identifier is None:
             try:
                 locations_dict = self.locations_dict[location_owner]
                 return locations_dict
             except KeyError:
-                raise
+                return self.locations_dict
         else:
             try:
                 location_object = self.locations_dict[location_owner][location_identifier]

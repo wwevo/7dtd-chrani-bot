@@ -65,5 +65,7 @@ $(document).ready(
             $("#widgets").animate({visibility: 'toggle'});
             $("#command_log_widget").animate({visibility: 'toggle'});
         });
+
+        get_locations();
     }
 );

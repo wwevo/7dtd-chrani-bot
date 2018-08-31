@@ -156,6 +156,10 @@ footer {
 }
 
 /* player table */
+#player_table {
+    height 100%;
+}
+
 #player_table > table > tbody > tr > td {
     padding: 0.25em;
 }
