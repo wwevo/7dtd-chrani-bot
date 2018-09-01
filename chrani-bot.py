@@ -26,7 +26,7 @@ static_dir = os.path.join(template_dir, 'static')
 
 from bot.chrani_bot import ChraniBot
 import bot.actions
-from bot.modules.webinterface.players import get_all_players_table
+from bot.modules.webinterface.players import get_player_table_widget
 from bot.modules.webinterface.system import get_system_status
 from bot.modules.webinterface.whitelist import get_whitelist_widget
 from bot.modules.webinterface.players import get_banned_players_widget
@@ -53,7 +53,7 @@ chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_log
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
 chrani_bot_thread.isDaemon()
 chrani_bot_thread.app_root = root_dir
-chrani_bot_thread.bot_version = "0.6b"
+chrani_bot_thread.bot_version = "0.6c"
 chrani_bot = chrani_bot_thread
 
 chrani_bot.start()
@@ -164,22 +164,19 @@ def index():
 @app.route('/protected')
 @flask_login.login_required
 def protected():
-    player_table = flask.Markup(get_all_players_table())
-    system_status_widget = get_system_status()
-    player_location_radar_widget = get_player_location_radar_widget()
-    banned_players_widget = get_banned_players_widget()
-    whitelist_widget = get_whitelist_widget()
-    command_log_widget = flask.Markup(flask.render_template('command_log_widget.html'))
+    widgets = {
+        "bot": chrani_bot,
+        "player_table_widget": flask.Markup(get_player_table_widget()),
+        "system_status_widget": get_system_status(),
+        "whitelist_widget": get_whitelist_widget(),
+        "banned_players_widget": get_banned_players_widget(),
+        "command_log_widget": flask.Markup(flask.render_template('command_log_widget.html')),
+        "player_location_radar_widget": get_player_location_radar_widget()
+    }
 
     return flask.render_template(
         'index.html',
-        bot=chrani_bot,
-        player_table=player_table,
-        system_status_widget=system_status_widget,
-        whitelist_widget=whitelist_widget,
-        banned_players_widget=banned_players_widget,
-        command_log_widget=command_log_widget,
-        player_location_radar_widget=player_location_radar_widget
+        **widgets
     )
 
 

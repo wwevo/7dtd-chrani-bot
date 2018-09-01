@@ -3,8 +3,7 @@ body {
     background-color: #acacac;
 }
 
-#player_table {
-    margin: 6px 6px 6px 6px;
+#player_table_widget {
     background-color: #ffffff;
 }
 
@@ -38,24 +37,18 @@ form button {
 }
 
 .widget {
-    margin: 0px 6px 6px 6px;
     background-color: #ffffff;
 }
 
-#widgets .widget {
-    margin: 0 6px 6px 0;
+.widget:first-child {
 }
 
-#widgets .widget:first-child {
-    margin: 6px 6px 6px 0;
-}
-
-#widgets tr th {
+.widgets tr th {
     text-align: center;
+    height: 1.66em;
 }
 
 #location_radar {
-    width: 100%; height 100%;
 }
 
 /* make the header neat and full-width */
@@ -76,12 +69,12 @@ header #user {
 
 /* general styling, just a baseline*/
 table {
-    width: 100%;
     border: 0; border-spacing: 0;
 }
 
 tr td, tr th {
     vertical-align: top;
+    margin: 0; padding: 0;
 }
 
 a {
@@ -156,27 +149,23 @@ footer {
 }
 
 /* player table */
-#player_table {
-    height 100%;
-}
-
-#player_table > table > tbody > tr > td {
+#player_table_widget > table > tbody > tr > td {
     padding: 0.25em;
 }
 
-#player_table > table > tbody > tr:nth-child(even) {
+#player_table_widget > table > tbody > tr:nth-child(even) {
     background-color: #fcfcfc;
 }
 
-#player_table > table > tbody > tr:nth-child(odd) {
+#player_table_widget > table > tbody > tr:nth-child(odd) {
     background-color: #cccccc;
 }
 
-#player_table > table > tbody > tr.online {
+#player_table_widget > table > tbody > tr.online {
     background-color: #ccffcc;
 }
 
-#player_table > table > tbody > tr:nth-child(odd) .online {
+#player_table_widget > table > tbody > tr:nth-child(odd) .online {
     background-color: #ccfccc;
 }
 

@@ -1,9 +1,9 @@
 function refresh_player_table(msg) {
     $.ajax({
-        url: "/protected/players/widgets/get_all_players_table",
+        url: "/protected/players/widgets/get_player_table_widget",
         type: "GET",
         success: function(data) {
-            $('#player_table').html(data);
+            $('#player_table_widget').html(data);
         }
     })
 }
@@ -19,7 +19,7 @@ function update_player_status(msg) {
         success: function(data) {
             if (data["is_online"] == true) {
                 $('#opw_' + msg.steamid).addClass("online");
-                $('#opw_' + msg.steamid).prependTo('#player_table > table');
+                $('#opw_' + msg.steamid).prependTo('#player_table_widget > table');
             } else {
                 $('#opw_' + msg.steamid).removeClass("online")
             }
@@ -43,10 +43,10 @@ function update_player_table_row(msg) {
 
 function add_player_table_row(msg) {
     $.ajax({
-        url: "/protected/players/get_table_row/" + msg.steamid,
+        url: "/protected/players/get_player_table_row/" + msg.steamid,
         type: "GET",
         success: function(data) {
-            $('#player_table > table > tbody:last-child').after(data);
+            $('#player_table_widget > table > tbody:last-child').after(data);
         }
     })
 }

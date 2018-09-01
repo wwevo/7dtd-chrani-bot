@@ -156,7 +156,7 @@ def get_all_players_table_row(steamid):
     player_status_widget = get_player_status_widget(player_object.steamid)
 
     output = webinterface.flask.Markup(webinterface.flask.render_template(
-        'all_players_entry.html',
+        'player_table_row.html',
         player_object=player_object,
         player_whitelist_widget=player_whitelist_widget,
         player_locations_widget=player_locations_widget,
@@ -170,14 +170,14 @@ def get_all_players_table_row(steamid):
 
 
 common.actions_list.append({
-    "title": "fetches players table_row",
-    "route": "/protected/players/get_table_row/<string:steamid>",
+    "title": "fetches player table row",
+    "route": "/protected/players/get_player_table_row/<string:steamid>",
     "action": get_all_players_table_row,
     "authenticated": True
 })
 
 
-def get_all_players_table():
+def get_player_table_widget():
     chrani_bot = __main__.chrani_bot
 
     output = ""
@@ -187,13 +187,13 @@ def get_all_players_table():
         if not player_object.is_to_be_obliterated:
             output += get_all_players_table_row(player_object.steamid)
 
-    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('all_players.html', player_entries=output))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('player_table_widget.html', player_entries=output))
 
 
 common.actions_list.append({
-    "title": "get all players table",
-    "route": "/protected/players/widgets/get_all_players_table",
-    "action": get_all_players_table,
+    "title": "get player table widget",
+    "route": "/protected/players/widgets/get_player_table_widget",
+    "action": get_player_table_widget,
     "authenticated": True
 })
 

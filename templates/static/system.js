@@ -62,15 +62,21 @@ $(document).ready(
         });
 
         $(".switch_fullscreen").click(function () {
-            $("#widgets").animate({visibility: 'toggle'});
-            $("#command_log_widget").animate({visibility: 'toggle'});
+            $("main #command_log_widget").animate({visibility: 'toggle'});
         });
 
         $(".switch_map_fullscreen").click(function () {
-            $("#main #widgets").animate({visibility: 'toggle'});
-            $("#main #player_table").animate({visibility: 'toggle'});
-            $("#command_log_widget").animate({visibility: 'toggle'});
-            window.map.invalidateSize();
+            $("main #player_table_widget").toggleClass("dominant").toggleClass("prominent");
+            $("main #player_location_radar_widget").toggleClass("dominant").toggleClass("prominent");
+            $("main #system_whitelist_widget").toggleClass("shamed");
+            $("main #system_banned_players_widget").toggleClass("shamed");
+            $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").toggle();
+            $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").toggle();
+            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").toggle();
+            $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").toggle();
+            $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").toggle();
+            $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").toggle();
+            resetSize(window.map);
         });
 
         get_locations();

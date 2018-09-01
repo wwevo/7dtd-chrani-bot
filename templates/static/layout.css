@@ -4,63 +4,72 @@ body {
     flex-direction: column;
     align-items: stretch;
     margin: 0 auto; padding: 0;
-    height: 100vh;
-    width: 100vw;
+    width: 100vw; height: 100vh;
     max-width: 1444px;
 }
 
-#content {
+main {
     flex: 1;
     overflow: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 20em;
+    grid-template-rows: repeat(auto-fill, minmax(10em, auto)) 10em;
 }
 
 /* make the header neat and full-width */
-header {
-    display: flex;
-    justify-content: space-between;
-    flex-flow: row wrap;
-}
-header #info { flex: 1; }
-header #status { flex: 2; }
-header #user { flex: 1; }
+    header {
+        display: flex;
+        justify-content: space-between;
+        flex-flow: row wrap;
+    }
+    header #info { flex: 1; }
+    header #status { flex: 2; }
+    header #user { flex: 1; }
 
 /* getting the main div in order: */
-#content {
-    display: flex;  /* this is for the flex inside */
-    flex-direction: column;
-}
 
-#content #main {
-    flex: 4;
+main .widget {
+    order: 49;
     overflow: auto;
 }
 
-#content #command_log_widget {
-    flex: 1;
-    overflow: auto;
+main .dominant {
+    order: 0;
+    grid-column: 1 / -2;
+    grid-row: 1 / -2;
 }
 
-/* getting the widgets on the right */
-#content #main {
-    display: flex; /* this is for the flex inside */
-    flex-direction: row;
+main .prominent {
+    order: 1;
+    grid-row: 1 / 2;
 }
 
-#content #main #player_table {
-    flex: 3;
-    overflow: auto;
+main #player_table_widget.prominent {
+    grid-row: 1 / -2;
 }
 
-#content #widgets {
-    flex: 1;
+main .wide {
+    order: 99;
+    grid-column: 1 / -1;
 }
 
-/* getting the widgets ordered */
-#content #widgets {
-    display: flex;  /* this is for the flex inside */
-    flex-direction: column;
+main .shamed {
+    display: none;
+    visibility: hidden;
 }
 
-#content #widgets .widget {
-    flex: 1;
+main #location_radar {
+    border: 0;
 }
+
+main .widget > table {
+    width: 100%; height: 100%;
+}
+
+/* make the header neat and full-width */
+    footer {
+        flex: 1;
+    }
+/* getting the main div in order: */
+

@@ -13,11 +13,12 @@
         <script src="{{ url_for('static', filename='player_permissions_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_locations_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='obliterate_player_widget.js') }}"></script>
-        <script src="{{ url_for('static', filename='whitelist_widget.js') }}"></script>
+        <script src="{{ url_for('static', filename='system_whitelist_widget.js') }}"></script>
+        <script src="{{ url_for('static', filename='system_location_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_lcb_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_status_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='player_actions_widget.js') }}"></script>
-        <script src="{{ url_for('static', filename='player_table_row_widget.js') }}"></script>
+        <script src="{{ url_for('static', filename='player_table_widget.js') }}"></script>
         <script src="{{ url_for('static', filename='socketio.js') }}"></script>
     {% endblock %}
     </head>
@@ -34,32 +35,28 @@
                 {% else %}
                 guest - <a href="/login">log in with steam!</a><br />
                 {% endif %}
-                <button class="switch_fullscreen">toggle ui</button><button class="switch_map_fullscreen">toggle map</button>
+                <button class="switch_map_fullscreen">toggle map</button>
             </div>
         </header>
-        <div id="content">
+        <main>
             {% block content %}
-            <div id="main">
-                <div id="player_table" class="widget">
-                    {{ player_table }}
-                </div>
-                <div id="widgets">
-                    <div id="player_location_radar_widget" class="widget">
-                        {{ player_location_radar_widget }}
-                    </div>
-                    <div id="system_whitelist_widget" class="widget">
-                        {{ whitelist_widget }}
-                    </div>
-                    <div id="system_banned_players_widget" class="widget">
-                        {{ banned_players_widget }}
-                    </div>
-                </div>
+            <div id="player_table_widget" class="widget dominant">
+                {{ player_table_widget }}
             </div>
-            <div id="command_log_widget" class="widget">
+            <div id="system_whitelist_widget" class="widget">
+                {{ whitelist_widget }}
+            </div>
+            <div id="system_banned_players_widget" class="widget">
+                {{ banned_players_widget }}
+            </div>
+            <div id="command_log_widget" class="widget wide">
                 {{ command_log_widget }}
             </div>
+            <div id="player_location_radar_widget" class="widget prominent">
+                {{ player_location_radar_widget }}
+            </div>
             {% endblock %}
-        </div>
+        </main>
         <footer>
             {% block footer %}
             icons by <a href="https://icons8.com/">icon8</a>, &copy; this page was created in 2018 by <a href="http://chrani.net/">wwevo</a>
