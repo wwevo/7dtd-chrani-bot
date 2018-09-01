@@ -14,7 +14,7 @@ main {
 
     display: grid;
     grid-template-columns: 1fr 20em;
-    grid-template-rows: repeat(auto-fill, minmax(10em, auto)) 10em;
+    grid-template-rows: repeat(2, 1fr) 10em;
 }
 
 /* make the header neat and full-width */

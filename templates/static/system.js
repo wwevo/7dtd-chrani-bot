@@ -67,7 +67,7 @@ $(document).ready(
 
         $(".switch_map_fullscreen").click(function () {
             $("main #player_table_widget").toggleClass("dominant").toggleClass("prominent");
-            $("main #player_location_radar_widget").toggleClass("dominant").toggleClass("prominent");
+            $("main #player_location_radar_widget").toggleClass("dominant").toggleClass("prominent").toggleClass("shamed");
             $("main #system_whitelist_widget").toggleClass("shamed");
             $("main #system_banned_players_widget").toggleClass("shamed");
             $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").toggle();

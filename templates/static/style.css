@@ -131,6 +131,8 @@ table li.seperator:first-child {
 
 /* specific styles */
 tr th {
+    padding-left: 0.25em;
+    padding-top: 0.25em;
     text-align: left;
     background: #666666;
     color: #cccccc;
