@@ -66,6 +66,13 @@ $(document).ready(
             $("#command_log_widget").animate({visibility: 'toggle'});
         });
 
+        $(".switch_map_fullscreen").click(function () {
+            $("#main #widgets").animate({visibility: 'toggle'});
+            $("#main #player_table").animate({visibility: 'toggle'});
+            $("#command_log_widget").animate({visibility: 'toggle'});
+            window.map.invalidateSize();
+        });
+
         get_locations();
     }
 );

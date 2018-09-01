@@ -34,13 +34,13 @@
                 {% else %}
                 guest - <a href="/login">log in with steam!</a><br />
                 {% endif %}
-                <button class="switch_fullscreen">toggle ui</button>
+                <button class="switch_fullscreen">toggle ui</button><button class="switch_map_fullscreen">toggle map</button>
             </div>
         </header>
         <div id="content">
             {% block content %}
             <div id="main">
-                <div id="player_table">
+                <div id="player_table" class="widget">
                     {{ player_table }}
                 </div>
                 <div id="widgets">
