@@ -38,6 +38,14 @@ function update_player_table_row(msg) {
         update_player_status(msg);
     } else {
         add_player_table_row(msg);
+        if ($("main #player_table_widget").hasClass("prominent")) {
+            $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").toggle();
+            $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").toggle();
+            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").toggle();
+            $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").toggle();
+            $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").toggle();
+            $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").toggle();
+        }
     }
 }
 

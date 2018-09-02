@@ -86,6 +86,7 @@ class Players(object):
                 actions.common.trigger_action(bot, player_object, player_object, "entered the game")
                 player_observer_thread.start()
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                bot.socketio.emit('update_leaflet_markers', bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
                 bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
         players_to_obliterate = []
@@ -96,12 +97,15 @@ class Players(object):
                 stop_flag = active_player_thread["thread"]
                 stop_flag.stopped.set()
                 bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                bot.socketio.emit('update_leaflet_markers', bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
+
                 del bot.active_player_threads_dict[player_steamid]
             if player_object.is_to_be_obliterated is True:
                 players_to_obliterate.append(player_object)
 
         for player_object in players_to_obliterate:
             bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('remove_leaflet_markers', bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
             bot.tn.kick(player_object, "Time to be born again!!")
             self.remove(player_object)
 
@@ -197,6 +201,7 @@ class Players(object):
                 "pos_x": player.pos_x,
                 "pos_y": player.pos_y,
                 "pos_z": player.pos_z,
+                "online": player.is_online,
                 "type": "marker"
             })
 

@@ -1,6 +1,6 @@
 
 <tr valign="top" id="opw_{{ player_object.steamid }}" {% if player_object.is_online == True %}class="online"{% endif%}>
-    <td onclick="center_canvas_on({{ player_object.pos_x }}, {{ player_object.pos_z }}); return false;">{{ player_object.name.decode('utf-8') }}</td>
+    <td onclick="center_canvas_on('{{ player_object.steamid }}'); return false;">{{ player_object.name.decode('utf-8') }}</td>
     <td>{{ player_object.entityid }} / {{ player_object.steamid }}</td>
     <td class="player_locations_widget nlb">
         {{ player_locations_widget }}

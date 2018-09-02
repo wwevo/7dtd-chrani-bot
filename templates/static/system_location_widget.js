@@ -33,7 +33,11 @@ function setMarkers(data) {
                 markers[obj.id + "_inner"].addTo(window.map);
             } else {
                 markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z));
-                markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: false });
+                if (obj.online) {
+                    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: true });
+                } else {
+                    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: false });
+                }
             }
             markers[obj.id].addTo(window.map);
         } else {
@@ -45,6 +49,12 @@ function setMarkers(data) {
                     markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
                 } else {
                     markers[obj.id + "_inner"].setStyle({wight: 0, color: 'blue'});
+                }
+            } else {
+                if (obj.online) {
+                    markers[obj.id].openTooltip();
+                } else {
+                    markers[obj.id].closeTooltip();
                 }
             }
         }
@@ -88,6 +98,6 @@ function init_radar() {
 	window.map.setView(xy(0, 0), map.getZoom());
 }
 
-function center_canvas_on(pos_x, pos_z) {
-    window.map.panTo(xy(pos_x, pos_z));
+function center_canvas_on(id) {
+    window.map.panTo(markers[id].getLatLng());
 }
