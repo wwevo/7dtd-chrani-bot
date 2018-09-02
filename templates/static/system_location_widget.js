@@ -14,6 +14,17 @@ var resetSize = function(map) {
     return true;
 }
 
+// https://gis.stackexchange.com/a/206498
+PlayerOnlineIcon = L.icon({
+    iconUrl: 'static/icons/leaflet/player_online.png',
+    iconSize: [10, 19]
+});
+
+PlayerOfflineIcon = L.icon({
+    iconUrl: 'static/icons/leaflet/player_offline.png',
+    iconSize: [10, 19]
+});
+
 // https://stackoverflow.com/a/32737982/8967590
 var markers = {};
 
@@ -32,11 +43,13 @@ function setMarkers(data) {
                 }
                 markers[obj.id + "_inner"].addTo(window.map);
             } else {
-                markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z));
+                markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z), {icon: PlayerOfflineIcon});
                 if (obj.online) {
                     markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: true });
+                    markers[obj.id].setIcon(PlayerOnlineIcon)
                 } else {
                     markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: false });
+                    markers[obj.id].setIcon(PlayerOfflineIcon)
                 }
             }
             markers[obj.id].addTo(window.map);
@@ -55,8 +68,10 @@ function setMarkers(data) {
             } else {
                 if (obj.online) {
                     markers[obj.id].openTooltip();
+                    markers[obj.id].setIcon(PlayerOnlineIcon)
                 } else {
                     markers[obj.id].closeTooltip();
+                    markers[obj.id].setIcon(PlayerOfflineIcon)
                 }
             }
         }
