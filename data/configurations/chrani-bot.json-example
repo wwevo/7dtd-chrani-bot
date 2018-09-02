@@ -9,6 +9,8 @@
   "telnet_port": ,
   "telnet_password": "",
 
+  "webinterface_admins": []
+
   "silent_mode": false,
 
   "authentication_groups": {
