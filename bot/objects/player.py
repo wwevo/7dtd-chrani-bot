@@ -12,6 +12,10 @@ class Player(flask_login.UserMixin):
     pos_y = float
     pos_z = float
 
+    old_pos_x = float
+    old_pos_y = float
+    old_pos_z = float
+
     rot_x = float
     rot_y = float
     rot_z = float
@@ -72,6 +76,9 @@ class Player(flask_login.UserMixin):
         self.old_rot_x = 0.0
         self.old_rot_y = 0.0
         self.old_rot_z = 0.0
+        self.old_pos_x = 0.0
+        self.old_pos_y = 0.0
+        self.old_pos_z = 0.0
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0

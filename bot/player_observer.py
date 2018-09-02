@@ -30,6 +30,40 @@ class PlayerObserver(Thread):
         self.stopped = event
         Thread.__init__(self)
 
+    def player_moved_mouse(self):
+        player_moved_mouse = False
+        if self.player_object.old_rot_x != self.player_object.rot_x:
+            player_moved_mouse = True
+        if self.player_object.old_rot_z != self.player_object.rot_z:
+            player_moved_mouse = True
+
+        if self.player_object.old_rot_x != self.player_object.rot_x:
+            self.player_object.old_rot_x = self.player_object.rot_x
+        if self.player_object.old_rot_y != self.player_object.rot_y:
+            self.player_object.old_rot_y = self.player_object.rot_y
+        if self.player_object.old_rot_z != self.player_object.rot_z:
+            self.player_object.old_rot_z = self.player_object.rot_z
+            
+        return player_moved_mouse
+
+    def player_moved(self):
+        player_moved = False
+        if self.player_object.old_pos_x != self.player_object.pos_x:
+            player_moved = True
+        if self.player_object.old_pos_y != self.player_object.pos_y:
+            player_moved = True
+        if self.player_object.old_pos_z != self.player_object.pos_z:
+            player_moved = True
+
+        if self.player_object.old_pos_x != self.player_object.pos_x:
+            self.player_object.old_pos_x = self.player_object.pos_x
+        if self.player_object.old_pos_y != self.player_object.pos_y:
+            self.player_object.old_pos_y = self.player_object.pos_y
+        if self.player_object.old_pos_z != self.player_object.pos_z:
+            self.player_object.old_pos_z = self.player_object.pos_z
+            
+        return player_moved
+
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
@@ -39,23 +73,13 @@ class PlayerObserver(Thread):
                 continue
 
             profile_start = time()
-            if self.player_object.is_responsive() is False:
-                player_moved_mouse = False
-                if self.player_object.old_rot_x != self.player_object.rot_x:
-                    player_moved_mouse = True
-                if self.player_object.old_rot_z != self.player_object.rot_z:
-                    player_moved_mouse = True
+            if not self.player_object.is_responsive() and self.player_moved_mouse():
+                self.player_object.initialized = True
+                logger.debug("{} has been caught moving their head :)".format(self.player_object.name))
 
-                if player_moved_mouse is True:
-                    self.player_object.initialized = True
-                    logger.debug("{} has been caught moving their head :)".format(self.player_object.name))
-
-                if self.player_object.old_rot_x != self.player_object.rot_x:
-                    self.player_object.old_rot_x = self.player_object.rot_x
-                if self.player_object.old_rot_y != self.player_object.rot_y:
-                    self.player_object.old_rot_y = self.player_object.rot_y
-                if self.player_object.old_rot_z != self.player_object.rot_z:
-                    self.player_object.old_rot_z = self.player_object.rot_z
+            if self.player_object.is_responsive() and self.player_moved():
+                json = self.bot.players.get_leaflet_marker_json([self.player_object])
+                self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
             if self.bot.observers_list:
                 """ execute real-time observers

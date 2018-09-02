@@ -182,8 +182,11 @@ def protected():
 
 @socketio.on('initiate_leaflet', namespace='/chrani-bot/public')
 def init_leaflet(message):
-    chrani_bot.locations.push_locations_to_socket()
-    chrani_bot.players.push_players_to_socket()
+    location_objects = chrani_bot.locations.find_by_distance((0,0,0), 10000)
+    location_list = chrani_bot.locations.get_leaflet_marker_json(location_objects)
+    player_objects = chrani_bot.players.get_all_players()
+    player_list = chrani_bot.players.get_leaflet_marker_json(player_objects)
+    socketio.emit('update_leaflet_markers', player_list + location_list, namespace='/chrani-bot/public')
 
 
 """ collecting all defined webinterface-actions and creating routes for them """

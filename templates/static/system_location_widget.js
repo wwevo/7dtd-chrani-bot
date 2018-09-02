@@ -23,24 +23,48 @@ function setMarkers(data) {
         // Check if there is already a marker with that id in the markers object
         if (!markers.hasOwnProperty(obj.id)) {
             if (obj.type == "circle") {
-                markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {radius: obj.radius});
+                markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'orange', radius: obj.radius});
                 markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: true });
+                if (obj.protected) {
+                    markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'red', radius: obj.inner_radius});
+                } else {
+                    markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'blue', radius: obj.inner_radius});
+                }
+                markers[obj.id + "_inner"].addTo(window.map);
             } else {
                 markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z));
                 markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: false });
             }
             markers[obj.id].addTo(window.map);
-            markers[obj.id].previousLatLngs = [];
         } else {
-            // Store the previous latlng
-            markers[obj.id].previousLatLngs.push(markers[obj.id].getLatLng());
-            markers[obj.id].previousLatLngs = markers[obj.id].previousLatLngs.slice(0, 10);
             // Set new latlng on marker
             markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
+            if (obj.type == "circle") {
+                markers[obj.id + "_inner"].setLatLng(xy(obj.pos_x, obj.pos_z));
+                if (obj.protected) {
+                    markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
+                } else {
+                    markers[obj.id + "_inner"].setStyle({wight: 0, color: 'blue'});
+                }
+            }
         }
     });
-    resetSize(window.map);
-	window.map.setView(xy(0, 0), map.getZoom());
+}
+
+function removeMarkers(data) {
+    data.forEach(function (obj) {
+        // Check if there is already a marker with that id in the markers object
+        if (markers.hasOwnProperty(obj.id)) {
+            if (obj.type == "circle") {
+                window.map.removeLayer(markers[obj.id]);
+                window.map.removeLayer(markers[obj.id + "_inner"]);
+                delete markers[obj.id + "_inner"];
+            } else {
+                window.map.removeLayer(markers[obj.id]);
+            }
+            delete markers[obj.id];
+        }
+    });
 }
 
 function init_radar() {

@@ -223,7 +223,7 @@ class ChraniBot(Thread):
 
         clean_bases_near_list = []
         for base in bases_near_list:
-            if base.keys()[0] != player_object.steamid:
+            if base.owner != player_object.steamid:
                 clean_bases_near_list.append(base)
 
         clean_landclaims_near_list = []

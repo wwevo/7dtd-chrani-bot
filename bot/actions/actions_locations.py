@@ -39,7 +39,7 @@ def set_up_location(bot, source_player, target_player, command):
 
         if location_name_is_valid and location_name_is_not_reserved and location_name_not_in_use:
             location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
-            location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_warning_boundary_ratio"))
+            location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_warning_boundary"))
 
             location_object.set_coordinates(target_player)
             location_object.set_owner(target_player.steamid)
@@ -61,6 +61,7 @@ def set_up_location(bot, source_player, target_player, command):
 
             bot.tn.send_message_to_player(target_player, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
             bot.tn.send_message_to_player(target_player, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=bot.chat_colors['success'])
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             response_messages.add_message("Location {} could not be created :(".format(identifier), False)
 
@@ -135,8 +136,10 @@ def set_up_location_name(bot, source_player, target_player, command):
             bot.locations.upsert(location_object, save=True)
 
             bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
 
             bot.tn.send_message_to_player(target_player, "You called your location {}".format(name), color=bot.chat_colors['background'])
+
         except KeyError:
             bot.tn.send_message_to_player(target_player, "You can not name that which you do not have!!", color=bot.chat_colors['warning'])
 
@@ -220,6 +223,7 @@ def set_up_location_outer_perimeter(bot, source_player, target_player, command):
             else:
                 return False
 
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         bot.locations.upsert(location_object, save=True)
 
         return response_messages
@@ -260,6 +264,7 @@ def set_up_location_inner_perimeter(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "your given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(warning_boundary), int(allowed_range[0]), int(allowed_range[-1])), color=bot.chat_colors['warning'])
             return False
 
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         bot.locations.upsert(location_object, save=True)
 
         return response_messages
@@ -373,6 +378,7 @@ def remove_location(bot, source_player, target_player, command):
             bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
             message = "{} deleted location {}".format(target_player.name, identifier)
             response_messages.add_message(message, False)
+            bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
         else:
             message = "Location {} could not be removed :(".format(identifier)
@@ -411,6 +417,7 @@ def protect_inner_core(bot, source_player, target_player, command):
         if location_object.set_protected_core(True):
             bot.locations.upsert(location_object, save=True)
             bot.tn.send_message_to_player(target_player, "The location {} is now protected!".format(location_object.identifier), color=bot.chat_colors['success'])
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             bot.tn.send_message_to_player(target_player, "could not enable protection for location {} :(".format(location_object.identifier), color=bot.chat_colors['warning'])
 
@@ -446,6 +453,7 @@ def unprotect_inner_core(bot, source_player, target_player, command):
         if location_object.set_protected_core(False):
             bot.locations.upsert(location_object, save=True)
             bot.tn.send_message_to_player(target_player, "The location {} is now unprotected!".format(location_object.identifier), color=bot.chat_colors['success'])
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             bot.tn.send_message_to_player(target_player, "could not disable protection for location {} :(".format(location_object.identifier), color=bot.chat_colors['warning'])
 

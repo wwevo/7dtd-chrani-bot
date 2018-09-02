@@ -55,8 +55,12 @@ $(document).ready(function(){
         update_command_log(msg)
     });
 
-    window.socket.on('leaflet_markers', function(msg) {
+    window.socket.on('update_leaflet_markers', function(msg) {
         setMarkers(msg);
+    });
+
+    window.socket.on('remove_leaflet_markers', function(msg) {
+        removeMarkers(msg);
     });
 
 });

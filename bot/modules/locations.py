@@ -5,7 +5,6 @@ import os
 import math
 from bot.modules.logger import logger
 from bot.objects.location import Location
-import __main__  # my ide throws a warning here, but it works oO
 
 
 class Locations(object):
@@ -84,28 +83,27 @@ class Locations(object):
 
                 distance = math.sqrt((float(location.pos_x) - float(start_coords[0]))**2 + (float(location.pos_y) - float(start_coords[1]))**2 + (float(location.pos_z) - float(start_coords[2]))**2)
                 if distance < distance_in_blocks:
-                    location_in_reach_list.append({player_steamid: location})
+                    location_in_reach_list.append(location)
 
         return location_in_reach_list
 
-    def push_locations_to_socket(self):
-        bot = __main__.chrani_bot
-        locations_objects = self.find_by_distance((0,0,0), 10000)
+    def get_leaflet_marker_json(self, location_objects):
         location_list = []
-        for location in locations_objects:
+        for location in location_objects:
             location_list.append({
-                "id": "{}_{}".format(location.values()[0].owner, location.values()[0].identifier),
-                "owner": location.values()[0].owner,
-                "identifier": location.values()[0].identifier,
-                "radius": location.values()[0].radius,
-                "pos_x": location.values()[0].pos_x,
-                "pos_y": location.values()[0].pos_y,
-                "pos_z": location.values()[0].pos_z,
+                "id": "{}_{}".format(location.owner, location.identifier),
+                "owner": location.owner,
+                "identifier": location.identifier,
+                "radius": location.radius,
+                "inner_radius": location.warning_boundary,
+                "protected": location.protected_core,
+                "pos_x": location.pos_x,
+                "pos_y": location.pos_y,
+                "pos_z": location.pos_z,
                 "type": "circle"
-
             })
 
-        bot.socketio.emit('leaflet_markers', location_list, namespace='/chrani-bot/public')
+        return location_list
 
     def get_available_locations(self, player_object):
         available_locations_dict = {}
