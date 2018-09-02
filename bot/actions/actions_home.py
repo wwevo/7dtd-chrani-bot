@@ -66,6 +66,7 @@ def set_up_home(bot, source_player, target_player, command):
         bot.locations.upsert(location_object, save=True)
 
         bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         bot.tn.say("{} has decided to settle down!".format(target_player.name), color=bot.chat_colors['background'])
         bot.tn.send_message_to_player(target_player, "Home is where your hat is!", color=bot.chat_colors['success'])
 
@@ -90,13 +91,15 @@ common.actions_list.append({
 
 def remove_home(bot, source_player, target_player, command):
     try:
-        bot.locations.remove(target_player.steamid, 'home')
+        location_object = bot.locations.get(target_player.steamid, "home")
 
     except KeyError:
         bot.tn.send_message_to_player(target_player, "I could not find your home. Did you set one up?", color=bot.chat_colors['warning'])
         raise KeyError
 
+    bot.locations.remove(target_player.steamid, 'home')
     bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+    bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     bot.tn.send_message_to_player(target_player, "Your home has been removed.", color=bot.chat_colors['warning'])
 
     return True
@@ -154,6 +157,7 @@ def protect_inner_core(bot, source_player, target_player, command):
     if location_object.set_protected_core(True):
         bot.locations.upsert(location_object, save=True)
         bot.tn.send_message_to_player(target_player, "your home is now protected!", color=bot.chat_colors['success'])
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     else:
         bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
 
@@ -182,6 +186,7 @@ def unprotect_inner_core(bot, source_player, target_player, command):
     if location_object.set_protected_core(False):
         bot.locations.upsert(location_object, save=True)
         bot.tn.send_message_to_player(target_player, "your home is now unprotected!", color=bot.chat_colors['success'])
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     else:
         bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
 
@@ -219,6 +224,7 @@ def set_up_home_name(bot, source_player, target_player, command):
     location_object.set_messages(messages_dict)
     bot.locations.upsert(location_object, save=True)
     bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+    bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     bot.tn.send_message_to_player(target_player, "Your home is called {} now \o/".format(location_object.description), color=bot.chat_colors['background'])
 
     return True
@@ -311,6 +317,7 @@ def set_up_home_outer_perimeter(bot, source_player, target_player, command):
     if set_radius is True:
         bot.locations.upsert(location_object)
         bot.tn.send_message_to_player(target_player, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=bot.chat_colors['success'])
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     else:
         bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=bot.chat_colors['warning'])
         return False
@@ -350,6 +357,7 @@ def set_up_home_inner_perimeter(bot, source_player, target_player, command):
     set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
     if set_radius is True:
         bot.tn.send_message_to_player(target_player, "your private area ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['success'])
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     else:
         bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid. Are you inside your home area?".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['warning'])
         return False

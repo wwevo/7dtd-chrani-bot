@@ -1,7 +1,6 @@
 from bot.assorted_functions import ResponseMessage
 import re
 from bot.objects.location import Location
-from bot.modules.logger import logger
 import common
 
 
@@ -87,6 +86,7 @@ def set_up_lobby(bot, source_player, target_player, command):
     message = "You have set up a lobby"
     bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
     response_messages.add_message(message, True)
+    bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
     bot.tn.send_message_to_player(target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(common.find_action_help("lobby", "edit lobby outer perimeter")), color=bot.chat_colors['warning'])
 
     return response_messages
@@ -117,6 +117,7 @@ def set_up_lobby_outer_perimeter(bot, source_player, target_player, command):
     distance_to_location = location_object.get_distance(coords)
     set_radius, allowed_range = location_object.set_radius(distance_to_location)
     if set_radius is True:
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         message = "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2))
         bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
@@ -163,6 +164,7 @@ def set_up_lobby_inner_perimeter(bot, source_player, target_player, command):
     distance_to_location = location_object.get_distance(coords)
     set_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location)
     if set_boundary is True:
+        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         message = "The lobby warning perimeter ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2))
         bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)

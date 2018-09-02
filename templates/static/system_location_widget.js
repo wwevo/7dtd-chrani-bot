@@ -44,7 +44,9 @@ function setMarkers(data) {
             // Set new latlng on marker
             markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
             if (obj.type == "circle") {
+                markers[obj.id].setRadius(obj.radius);
                 markers[obj.id + "_inner"].setLatLng(xy(obj.pos_x, obj.pos_z));
+                markers[obj.id + "_inner"].setRadius(obj.inner_radius);
                 if (obj.protected) {
                     markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
                 } else {
