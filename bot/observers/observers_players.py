@@ -1,4 +1,3 @@
-from bot.modules.logger import logger
 from time import time
 from bot.assorted_functions import get_region_string
 from bot.assorted_functions import timeout_occurred
@@ -57,20 +56,20 @@ common.observers_list.append({
 })
 
 
-def mute_unauthenticated_player(self, player_object=None):
-    if player_object.authenticated is not True:
-        if self.tn.muteplayerchat(player_object, True):
-            self.tn.send_message_to_player(player_object, "Your chat has been disabled!", color=self.chat_colors['warning'])
-    else:
-        if self.tn.muteplayerchat(player_object, False):
-            self.tn.send_message_to_player(player_object, "Your chat has been enabled", color=self.chat_colors['success'])
+def mute_unauthenticated_player(self):
+    if not self.player_object.authenticated and not self.player_object.is_muted:
+        if self.tn.muteplayerchat(self.player_object, True):
+            self.tn.send_message_to_player(self.player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
+    elif self.player_object.authenticated and self.player_object.is_muted:
+        if self.tn.muteplayerchat(self.player_object, False):
+            self.tn.send_message_to_player(self.player_object, "Your chat has been enabled", color=self.bot.chat_colors['success'])
 
 
 common.observers_list.append({
-    "type": "trigger",
+    "type": "monitor",
     "title": "mute unauthenticated players",
     "action": mute_unauthenticated_player,
-    "env": "(self, player_object)",
+    "env": "(self)",
     "essential": True
 })
 
