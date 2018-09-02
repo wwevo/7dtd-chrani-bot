@@ -4,6 +4,7 @@ from bot.modules.logger import logger
 from threading import Event
 from bot.player_observer import PlayerObserver
 import bot.actions as actions
+import __main__  # my ide throws a warning here, but it works oO
 
 import json
 import os
@@ -186,6 +187,24 @@ class Players(object):
             logger.exception(e.message)
 
         return False
+
+    def push_players_to_socket(self):
+        bot = __main__.chrani_bot
+        player_objects = self.get_all_players()
+        player_list = []
+        for player in player_objects:
+            player_list.append({
+                "id": "{}".format(player.steamid),
+                "owner": player.steamid,
+                "identifier": player.name,
+                "radius": 3,
+                "pos_x": player.pos_x,
+                "pos_y": player.pos_y,
+                "pos_z": player.pos_z,
+                "type": "marker"
+            })
+
+        bot.socketio.emit('leaflet_markers', player_list, namespace='/chrani-bot/public')
 
     def remove(self, player_object):
         filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object.steamid, self.extension)

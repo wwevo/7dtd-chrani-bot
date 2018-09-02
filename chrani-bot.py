@@ -53,7 +53,7 @@ chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_log
 chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
 chrani_bot_thread.isDaemon()
 chrani_bot_thread.app_root = root_dir
-chrani_bot_thread.bot_version = "0.6c"
+chrani_bot_thread.bot_version = "0.6d"
 chrani_bot = chrani_bot_thread
 
 chrani_bot.start()
@@ -178,6 +178,12 @@ def protected():
         'index.html',
         **widgets
     )
+
+
+@socketio.on('initiate_leaflet', namespace='/chrani-bot/public')
+def init_leaflet(message):
+    chrani_bot.locations.push_locations_to_socket()
+    chrani_bot.players.push_players_to_socket()
 
 
 """ collecting all defined webinterface-actions and creating routes for them """

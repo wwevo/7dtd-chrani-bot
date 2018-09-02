@@ -13,33 +13,3 @@ common.actions_list.append({
     "action": get_player_location_radar_widget,
     "authenticated": True
 })
-
-
-def get_player_locations():
-    bot = __main__.chrani_bot
-    locations_objects = bot.locations.find_by_distance((0,0,0), 10000)
-    location_list = []
-    for location in locations_objects:
-        location_list.append({
-            "owner": location.values()[0].owner,
-            "identifier": location.values()[0].identifier,
-            "radius": location.values()[0].radius,
-            "pos_x": location.values()[0].pos_x,
-            "pos_y": location.values()[0].pos_y,
-            "pos_z": location.values()[0].pos_z
-        })
-
-    return bot.app.response_class(
-        response=bot.flask.json.dumps(location_list),
-        mimetype='application/json'
-    )
-
-
-common.actions_list.append({
-    "title": "fetches player locations",
-    "route": "/protected/players/player_locations",
-    "action": get_player_locations,
-    "authenticated": True
-})
-
-

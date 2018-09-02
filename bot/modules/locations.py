@@ -5,6 +5,7 @@ import os
 import math
 from bot.modules.logger import logger
 from bot.objects.location import Location
+import __main__  # my ide throws a warning here, but it works oO
 
 
 class Locations(object):
@@ -78,7 +79,7 @@ class Locations(object):
         locations_dict = self.locations_dict
         for player_steamid, locations in locations_dict.iteritems():
             for identifier, location in locations.iteritems():
-                if location_identifier is not None and identifier != location_identifier:
+                if location_identifier is not None and identifier != location_identifier or identifier in ["spawn"]:
                     continue
 
                 distance = math.sqrt((float(location.pos_x) - float(start_coords[0]))**2 + (float(location.pos_y) - float(start_coords[1]))**2 + (float(location.pos_z) - float(start_coords[2]))**2)
@@ -86,6 +87,25 @@ class Locations(object):
                     location_in_reach_list.append({player_steamid: location})
 
         return location_in_reach_list
+
+    def push_locations_to_socket(self):
+        bot = __main__.chrani_bot
+        locations_objects = self.find_by_distance((0,0,0), 10000)
+        location_list = []
+        for location in locations_objects:
+            location_list.append({
+                "id": "{}_{}".format(location.values()[0].owner, location.values()[0].identifier),
+                "owner": location.values()[0].owner,
+                "identifier": location.values()[0].identifier,
+                "radius": location.values()[0].radius,
+                "pos_x": location.values()[0].pos_x,
+                "pos_y": location.values()[0].pos_y,
+                "pos_z": location.values()[0].pos_z,
+                "type": "circle"
+
+            })
+
+        bot.socketio.emit('leaflet_markers', location_list, namespace='/chrani-bot/public')
 
     def get_available_locations(self, player_object):
         available_locations_dict = {}

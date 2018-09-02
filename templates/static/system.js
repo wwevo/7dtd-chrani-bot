@@ -61,6 +61,8 @@ $(document).ready(
             $("#messages_modal").fadeOut("fast");
         });
 
+        init_radar();
+
         $(".switch_fullscreen").click(function () {
             $("main #command_log_widget").animate({visibility: 'toggle'});
         });
@@ -76,9 +78,10 @@ $(document).ready(
             $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").toggle();
             $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").toggle();
             $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").toggle();
+            if (!$("main #player_location_radar_widget").hasClass("shamed")) {
+                window.socket.emit('initiate_leaflet', {data: true});
+            }
             resetSize(window.map);
         });
-
-        get_locations();
     }
 );
