@@ -28,6 +28,7 @@ PlayerOfflineIcon = L.icon({
 // https://stackoverflow.com/a/32737982/8967590
 var markers = {};
 var layers = {};
+var active_controls = [];
 
 // Function for setting/updating markers
 function setMarkers(data) {
@@ -82,8 +83,11 @@ function setMarkers(data) {
     });
     for (var layerGroup in layers) {
         if (layers.hasOwnProperty(layerGroup) && !window.map.hasLayer(layers[layerGroup])) {
-            layers[layerGroup].addTo(window.map);
-            window.control.addOverlay(layers[layerGroup], layerGroup);
+            if(typeof active_controls[layerGroup] === 'undefined') {
+                window.control.addOverlay(layers[layerGroup], layerGroup);
+                active_controls[layerGroup] = true;
+                layers[layerGroup].addTo(window.map);
+            }
         }
     }
 }
