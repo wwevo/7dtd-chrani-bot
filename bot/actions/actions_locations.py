@@ -10,7 +10,7 @@ def set_up_location(bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         name = p.group("location_name")
         location_name_is_not_reserved = False
-        if name in ["teleport", "lobby", "spawn", "home", "death"]:
+        if name in bot.settings.get_setting_by_name("restricted_names"):
             message = "{} is a reserved name!".format(name)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, False)
@@ -28,13 +28,14 @@ def set_up_location(bot, source_player, target_player, command):
         location_name_not_in_use = False
         location_object = Location()
         location_object.set_name(name)
-        identifier = location_object.set_identifier(name)  # generate the identifier from the name
+        identifier = location_object.create_identifier(name)  # generate the identifier from the name
         try:
-            location_object = location_object = bot.locations.get(target_player.steamid, identifier)
+            location_object = bot.locations.get(target_player.steamid, identifier)
             message = "a location with the identifier {} already exists".format(identifier)
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, False)
         except KeyError:
+            location_object.set_identifier(identifier)
             location_name_not_in_use = True
 
         if location_name_is_valid and location_name_is_not_reserved and location_name_not_in_use:

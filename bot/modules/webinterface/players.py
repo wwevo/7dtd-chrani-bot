@@ -121,19 +121,19 @@ common.actions_list.append({
 
 
 def get_player_locations_widget(target_player_steamid):
-    webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    chrani_bot = __main__.chrani_bot
+    player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     try:
-        player_locations_dict = webinterface.locations.get(target_player_steamid)
+        player_locations_dict = chrani_bot.locations.get(target_player_steamid)
     except KeyError:
         return
 
     try:
-        public_locations_dict = webinterface.locations.get('system')
+        public_locations_dict = chrani_bot.locations.get('system')
     except KeyError:
         public_locations_dict = None
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('player_locations_widget.html', player_object=player_object, player_locations_dict=player_locations_dict, public_locations_dict=public_locations_dict))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('player_locations_widget.html', player_object=player_object, player_locations_dict=player_locations_dict, public_locations_dict=public_locations_dict))
 
 
 common.actions_list.append({

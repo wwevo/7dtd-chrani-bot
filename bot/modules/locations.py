@@ -65,7 +65,7 @@ class Locations(object):
                 locations_dict = self.locations_dict[location_owner]
                 return locations_dict
             except KeyError:
-                return self.locations_dict
+                return {}
         else:
             try:
                 location_object = self.locations_dict[location_owner][location_identifier]

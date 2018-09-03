@@ -50,7 +50,7 @@ def set_up_home(bot, source_player, target_player, command):
         location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_warning_boundary"))
 
         location_object.set_coordinates(target_player)
-        identifier = location_object.set_identifier('home')
+        location_object.set_identifier('home')
 
         location_object.set_description("{}\'s home".format(target_player.name))
         location_object.set_shape("sphere")

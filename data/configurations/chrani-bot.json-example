@@ -9,7 +9,9 @@
   "telnet_port": ,
   "telnet_password": "",
 
-  "webinterface_admins": []
+  "webinterface_admins": [
+    "steamid"
+  ]
 
   "silent_mode": false,
 

@@ -88,10 +88,13 @@ class Location(object):
         self.name = name
         return True
 
+    def create_identifier(self, name):
+        sanitized_name = "".join(i for i in name if i not in r' \/:*?"<>|!.,;')
+        return sanitized_name
+
     def set_identifier(self, identifier):
-        sanitized_identifier = "".join(i for i in identifier if i not in r' \/:*?"<>|!.,;')
-        self.identifier = sanitized_identifier
-        return sanitized_identifier
+        self.identifier = identifier
+        return True
 
     def set_description(self, description):
         self.description = description
