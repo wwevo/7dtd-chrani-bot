@@ -27,12 +27,16 @@ PlayerOfflineIcon = L.icon({
 
 // https://stackoverflow.com/a/32737982/8967590
 var markers = {};
+var layers = {};
 
 // Function for setting/updating markers
 function setMarkers(data) {
     data.forEach(function (obj) {
         // Check if there is already a marker with that id in the markers object
         if (!markers.hasOwnProperty(obj.id)) {
+            if (!layers.hasOwnProperty(obj.layerGroup)) {
+                layers[obj.layerGroup] = L.layerGroup();
+            }
             if (obj.type == "circle") {
                 markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'orange', radius: obj.radius});
                 markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: true });
@@ -41,7 +45,7 @@ function setMarkers(data) {
                 } else {
                     markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'blue', radius: obj.inner_radius});
                 }
-                markers[obj.id + "_inner"].addTo(window.map);
+                layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
             } else {
                 markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z), {icon: PlayerOfflineIcon});
                 if (obj.online) {
@@ -52,7 +56,7 @@ function setMarkers(data) {
                     markers[obj.id].setIcon(PlayerOfflineIcon)
                 }
             }
-            markers[obj.id].addTo(window.map);
+            layers[obj.layerGroup].addLayer(markers[obj.id]);
         } else {
             // Set new latlng on marker
             markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
@@ -63,19 +67,25 @@ function setMarkers(data) {
                 if (obj.protected) {
                     markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
                 } else {
-                    markers[obj.id + "_inner"].setStyle({wight: 0, color: 'blue'});
+                    markers[obj.id + "_inner"].setStyle({weight: 0, color: 'blue'});
                 }
             } else {
                 if (obj.online) {
                     markers[obj.id].openTooltip();
-                    markers[obj.id].setIcon(PlayerOnlineIcon)
+                    markers[obj.id].setIcon(PlayerOnlineIcon);
                 } else {
                     markers[obj.id].closeTooltip();
-                    markers[obj.id].setIcon(PlayerOfflineIcon)
+                    markers[obj.id].setIcon(PlayerOfflineIcon);
                 }
             }
         }
     });
+    for (var layerGroup in layers) {
+        if (layers.hasOwnProperty(layerGroup) && !window.map.hasLayer(layers[layerGroup])) {
+            layers[layerGroup].addTo(window.map);
+            window.control.addOverlay(layers[layerGroup], layerGroup);
+        }
+    }
 }
 
 function removeMarkers(data) {
@@ -102,17 +112,13 @@ function init_radar() {
         zoom: -3,
     });
 
-    window.map.on("move", function() {});
-    window.map.on("moveend", function() {});
-    window.map.on('zoomend', function() {
-        var currentZoom = map.getZoom();
-        if (currentZoom >= 0) {}
-    });
-
 	var bounds = [xy(-10000, -10000), xy(10000, 10000)];
     var image = L.imageOverlay('uqm_map_full.png', bounds).addTo(window.map);
     resetSize(window.map);
 	window.map.setView(xy(0, 0), map.getZoom());
+    window.control = L.control.layers(null, null, {collapsed: false}).addTo(window.map);
+
+    window.socket.emit('initiate_leaflet', {data: true});
 }
 
 function center_canvas_on(id) {

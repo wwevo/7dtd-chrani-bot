@@ -202,7 +202,8 @@ class Players(object):
                 "pos_y": player.pos_y,
                 "pos_z": player.pos_z,
                 "online": player.is_online,
-                "type": "marker"
+                "type": "marker",
+                "layerGroup": "players"
             })
 
         return player_list

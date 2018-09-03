@@ -5,6 +5,7 @@ import os
 import math
 from bot.modules.logger import logger
 from bot.objects.location import Location
+import __main__  # my ide throws a warning here, but it works oO
 
 
 class Locations(object):
@@ -78,7 +79,7 @@ class Locations(object):
         locations_dict = self.locations_dict
         for player_steamid, locations in locations_dict.iteritems():
             for identifier, location in locations.iteritems():
-                if location_identifier is not None and identifier != location_identifier or identifier in ["spawn"]:
+                if location_identifier is not None and identifier != location_identifier:
                     continue
 
                 distance = math.sqrt((float(location.pos_x) - float(start_coords[0]))**2 + (float(location.pos_y) - float(start_coords[1]))**2 + (float(location.pos_z) - float(start_coords[2]))**2)
@@ -88,6 +89,7 @@ class Locations(object):
         return location_in_reach_list
 
     def get_leaflet_marker_json(self, location_objects):
+        bot = __main__.chrani_bot
         location_list = []
         for location in location_objects:
             location_list.append({
@@ -100,7 +102,8 @@ class Locations(object):
                 "pos_x": location.pos_x,
                 "pos_y": location.pos_y,
                 "pos_z": location.pos_z,
-                "type": "circle"
+                "type": "circle",
+                "layerGroup": "locations" if (location.identifier not in bot.settings.get_setting_by_name("restricted_names")) else location.identifier
             })
 
         return location_list
