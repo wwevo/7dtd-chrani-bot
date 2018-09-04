@@ -213,12 +213,21 @@ common.actions_list.append({
 
 
 def remove_lobby(bot, source_player, target_player, command):
-    try:
-        bot.locations.remove('system', 'lobby')
-    except KeyError:
-        bot.tn.send_message_to_player(target_player, "no lobby found oO", color=bot.chat_colors['warning'])
-        return False
+    response_messages = ResponseMessage()
 
+    try:
+        location_object = bot.locations.get("system", "lobby")
+        bot.locations.remove(location_object)
+        message = "lobby has been removed oO"
+        response_messages.add_message(message, True)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+    except KeyError:
+        message = "no lobby found oO"
+        response_messages.add_message(message, False)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+
+    return response_messages
 
 common.actions_list.append({
     "match_mode": "isequal",

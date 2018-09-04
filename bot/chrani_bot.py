@@ -109,8 +109,6 @@ class ChraniBot(Thread):
         self.permission_levels_list = self.passwords.keys()  # ['admin', 'mod', 'donator', 'authenticated']
         self.permissions = Permissions(self.actions_list, self.permission_levels_list)
 
-        self.load_from_db()
-
         self.chat_colors = {
             "standard": "ffffff",
             "info": "4286f4",
@@ -234,6 +232,8 @@ class ChraniBot(Thread):
         return clean_bases_near_list, clean_landclaims_near_list
 
     def run(self):
+        self.load_from_db()
+
         listplayers_dict = {}
         listplayers_timeout_start = 0
         listplayers_interval = self.listplayers_interval

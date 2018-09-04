@@ -3,6 +3,8 @@ import json
 from bot.modules.logger import logger
 
 from bot.command_line_args import args_dict
+from bot.objects.player import Player
+import __main__  # my ide throws a warning here, but it works oO
 
 
 class Permissions(object):
@@ -27,6 +29,7 @@ class Permissions(object):
         self.available_actions_dict = {}
         self.action_permissions_dict = {}
 
+
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():
@@ -48,6 +51,20 @@ class Permissions(object):
                 self.action_permissions_dict = byteify(json.load(file_to_read))
         except IOError:  # no permissions file available
             pass
+
+        bot = __main__.chrani_bot
+        player_dict = {
+            "entityid":     "0",
+            "name":         "system",
+            "steamid":      "system",
+            "pos_x":        0.0,
+            "pos_y":        0.0,
+            "pos_z":        0.0,
+            "is_online":    False
+        }
+
+        player_object = Player(**player_dict)
+        bot.players.upsert(player_object)
 
         self.update_permissions_file()
 

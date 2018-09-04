@@ -39,21 +39,21 @@ function setMarkers(data) {
                 layers[obj.layerGroup] = L.layerGroup();
             }
             if (obj.type == "circle") {
-                markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'orange', radius: obj.radius});
-                markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: true });
+                markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'green', radius: obj.radius});
+                markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
                 if (obj.protected) {
                     markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'red', radius: obj.inner_radius});
                 } else {
-                    markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'blue', radius: obj.inner_radius});
+                    markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'darkgreen', radius: obj.inner_radius});
                 }
                 layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
             } else {
                 markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z), {icon: PlayerOfflineIcon});
                 if (obj.online) {
-                    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: true });
+                    markers[obj.id].bindTooltip(obj.name, { permanent: true });
                     markers[obj.id].setIcon(PlayerOnlineIcon)
                 } else {
-                    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner, { permanent: false });
+                    markers[obj.id].bindTooltip(obj.name, { permanent: false });
                     markers[obj.id].setIcon(PlayerOfflineIcon)
                 }
             }
@@ -82,11 +82,10 @@ function setMarkers(data) {
         }
     });
     for (var layerGroup in layers) {
-        if (layers.hasOwnProperty(layerGroup) && !window.map.hasLayer(layers[layerGroup])) {
+        if (layers.hasOwnProperty(layerGroup)) {
             if(typeof active_controls[layerGroup] === 'undefined') {
                 window.control.addOverlay(layers[layerGroup], layerGroup);
                 active_controls[layerGroup] = true;
-                layers[layerGroup].addTo(window.map);
             }
         }
     }

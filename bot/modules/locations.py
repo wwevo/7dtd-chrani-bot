@@ -96,6 +96,8 @@ class Locations(object):
                 "id": "{}_{}".format(location.owner, location.identifier),
                 "owner": location.owner,
                 "identifier": location.identifier,
+                "name": location.name,
+                "owner_name": bot.players.get_by_steamid(location.owner).name,
                 "radius": location.radius,
                 "inner_radius": location.warning_boundary,
                 "protected": location.protected_core,
@@ -103,7 +105,7 @@ class Locations(object):
                 "pos_y": location.pos_y,
                 "pos_z": location.pos_z,
                 "type": "circle",
-                "layerGroup": "locations" if (location.identifier not in bot.settings.get_setting_by_name("restricted_names")) else location.identifier
+                "layerGroup": location.owner if location.owner == "system" else "locations" if (location.identifier not in bot.settings.get_setting_by_name("restricted_names")) else location.identifier
             })
 
         return location_list

@@ -152,6 +152,7 @@ class Players(object):
         try:
             return self.load(steamid)
         except KeyError:
+            print steamid
             raise
 
     def get_all_players(self, get_online_only=False):
@@ -197,6 +198,7 @@ class Players(object):
                 "id": "{}".format(player.steamid),
                 "owner": player.steamid,
                 "identifier": player.name,
+                "name": player.name,
                 "radius": 3,
                 "pos_x": player.pos_x,
                 "pos_y": player.pos_y,
