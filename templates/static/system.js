@@ -50,7 +50,6 @@ function update_command_log(msg) {
 $(document).ready(
     function() {
         // $('#widgets').hide();
-        $('#messages_modal').hide();
         $('span.close').click(
             function() {
                 $('#messages_modal').hide();
@@ -60,22 +59,6 @@ $(document).ready(
         $("body").click(function () {
             $("#messages_modal").fadeOut("fast");
         });
-
-        init_radar();
-
-        if (Cookies.get("map_fullscreen")) {
-            $("main #player_table_widget").removeClass("dominant").addClass("prominent");
-            $("main #player_location_radar_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
-            $("main #system_whitelist_widget").addClass("shamed");
-            $("main #system_banned_players_widget").addClass("shamed");
-            $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").hide();
-            $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").hide();
-            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").hide();
-            $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").hide();
-            $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").hide();
-            $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").hide();
-            resetSize(window.map);
-        }
 
         $(".switch_map_fullscreen").click(function () {
             $("main #player_table_widget").toggleClass("dominant").toggleClass("prominent");
@@ -95,5 +78,28 @@ $(document).ready(
             }
             resetSize(window.map);
         });
+
+        init_radar();
+        /*
+         * This will directly affect output
+         */
+        $('#messages_modal').hide();
+        if (Cookies.get("map_fullscreen")) {
+            $("main #player_table_widget").removeClass("dominant").addClass("prominent");
+            $("main #player_location_radar_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
+            $("main #system_whitelist_widget").addClass("shamed");
+            $("main #system_banned_players_widget").addClass("shamed");
+            $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").hide();
+            $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").hide();
+            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").hide();
+            $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").hide();
+            $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").hide();
+            $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").hide();
+        }
+
+        // These should come last so we have no flicker while rearranging stuff ^^
+        $('.loading_screen').css("display", "none");
+        $('.flex_layout').css("display", "grid");
+        resetSize(window.map);
     }
 );

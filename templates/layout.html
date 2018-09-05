@@ -23,47 +23,52 @@
         <script src="{{ url_for('static', filename='player_table_widget.js') }}"></script>
     {% endblock %}
     </head>
-    <body class="flex_layout">
-        <header>
-            <div id="info">
-                <a href="/">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %}</a> - webinterface{% if bot.server_settings_dict %}<br />
-                <i>{{ bot.server_settings_dict["ServerName"] }}</i>{% endif %}
-            </div>
-            <div id="status">{{ system_status_widget }}</div>
-            <div id="user">
-                {% if current_user.is_authenticated %}
-                {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a><br />
-                {% else %}
-                guest - <a href="/login">log in with steam!</a><br />
-                {% endif %}
-                <button class="switch_map_fullscreen">toggle map</button>
-            </div>
-        </header>
-        <main>
-            {% block content %}
-            <div id="player_table_widget" class="widget dominant">
-                {{ player_table_widget }}
-            </div>
-            <div id="system_whitelist_widget" class="widget">
-                {{ whitelist_widget }}
-            </div>
-            <div id="system_banned_players_widget" class="widget">
-                {{ banned_players_widget }}
-            </div>
-            <div id="command_log_widget" class="widget wide">
-                {{ command_log_widget }}
-            </div>
-            <div id="player_location_radar_widget" class="widget prominent shamed">
-                {{ player_location_radar_widget }}
-            </div>
-            {% endblock %}
-        </main>
-        <footer>
-            {% block footer %}
-            icons by <a href="https://icons8.com/">icon8</a>, &copy; this page was created in 2018 by <a href="http://chrani.net/">wwevo</a>
-            {% endblock %}
-        </footer>
-        <!-- The Modal -->
+    <body>
+        <div class="flex_layout">
+            <header>
+                <div id="info">
+                    <a href="/">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %}</a> - webinterface{% if bot.server_settings_dict %}<br />
+                    <i>{{ bot.server_settings_dict["ServerName"] }}</i>{% endif %}
+                </div>
+                <div id="status">{{ system_status_widget }}</div>
+                <div id="user">
+                    {% if current_user.is_authenticated %}
+                    {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a><br />
+                    {% else %}
+                    guest - <a href="/login">log in with steam!</a><br />
+                    {% endif %}
+                    <button class="switch_map_fullscreen">toggle map</button>
+                </div>
+            </header>
+            <main>
+                {% block content %}
+                <div id="player_table_widget" class="widget dominant">
+                    {{ player_table_widget }}
+                </div>
+                <div id="system_whitelist_widget" class="widget">
+                    {{ whitelist_widget }}
+                </div>
+                <div id="system_banned_players_widget" class="widget">
+                    {{ banned_players_widget }}
+                </div>
+                <div id="command_log_widget" class="widget wide">
+                    {{ command_log_widget }}
+                </div>
+                <div id="player_location_radar_widget" class="widget prominent shamed">
+                    {{ player_location_radar_widget }}
+                </div>
+                {% endblock %}
+            </main>
+            <footer>
+                {% block footer %}
+                icons by <a href="https://icons8.com/">icon8</a>, &copy; this page was created in 2018 by <a href="http://chrani.net/">wwevo</a>
+                {% endblock %}
+            </footer>
+        </div>
+        <!-- The Modal(s) -->
+        <div class="loading_screen">
+            <p>Loading...</p>
+        </div>
         <div id="messages_modal" class="modal">
             <!-- Modal content -->
             <div class="modal-content">
