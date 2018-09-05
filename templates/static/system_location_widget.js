@@ -85,6 +85,9 @@ function setMarkers(data) {
         if (layers.hasOwnProperty(layerGroup)) {
             if(typeof active_controls[layerGroup] === 'undefined') {
                 window.control.addOverlay(layers[layerGroup], layerGroup);
+                if (Cookies.get(layerGroup)) {
+                    layers[layerGroup].addTo(window.map);
+                }
                 active_controls[layerGroup] = true;
             }
         }
@@ -117,6 +120,12 @@ function init_radar() {
 
 	var bounds = [xy(-10000, -10000), xy(10000, 10000)];
     var image = L.imageOverlay('uqm_map_full.png', bounds).addTo(window.map);
+    window.map.on('overlayadd', function(overlay) {
+        Cookies.set(overlay.name, true);
+    });
+    window.map.on('overlayremove', function(overlay) {
+        Cookies.remove(overlay.name);
+    });
     resetSize(window.map);
 	window.map.setView(xy(0, 0), map.getZoom());
     window.control = L.control.layers(null, null, {collapsed: false}).addTo(window.map);

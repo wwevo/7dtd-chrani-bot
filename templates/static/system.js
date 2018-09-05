@@ -63,9 +63,19 @@ $(document).ready(
 
         init_radar();
 
-        $(".switch_fullscreen").click(function () {
-            $("main #command_log_widget").animate({visibility: 'toggle'});
-        });
+        if (Cookies.get("map_fullscreen")) {
+            $("main #player_table_widget").removeClass("dominant").addClass("prominent");
+            $("main #player_location_radar_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
+            $("main #system_whitelist_widget").addClass("shamed");
+            $("main #system_banned_players_widget").addClass("shamed");
+            $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").hide();
+            $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").hide();
+            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").hide();
+            $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").hide();
+            $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").hide();
+            $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").hide();
+            resetSize(window.map);
+        }
 
         $(".switch_map_fullscreen").click(function () {
             $("main #player_table_widget").toggleClass("dominant").toggleClass("prominent");
@@ -78,6 +88,11 @@ $(document).ready(
             $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").toggle();
             $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").toggle();
             $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").toggle();
+            if ($("main #player_location_radar_widget").hasClass("dominant")) {
+                Cookies.set("map_fullscreen", true);
+            } else {
+                Cookies.remove("map_fullscreen");
+            }
             resetSize(window.map);
         });
     }
