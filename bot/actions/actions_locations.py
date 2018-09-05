@@ -516,3 +516,44 @@ common.actions_list.append({
     "group": "locations",
     "essential": False
 })
+
+
+def change_location_shape(bot, source_player, target_player, command):
+    p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<shape>(a\ssphere|a\scube|a\sround\sarea|a\ssquare\sarea))$", command)
+    if p:
+        response_messages = ResponseMessage()
+        identifier = p.group("location_identifier")
+        shape_to_set = p.group("shape")
+        try:
+            location_object = bot.locations.get(source_player.steamid, identifier)
+            if shape_to_set == "a sphere":
+                location_object.set_shape("sphere")
+            elif shape_to_set == "a cube":
+                location_object.set_shape("cube")
+            elif shape_to_set == "a round area":
+                location_object.set_shape("circle")
+            elif shape_to_set == "a square area":
+                location_object.set_shape("square")
+
+            bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, shape_to_set), color=bot.chat_colors['background'])
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+            bot.locations.upsert(location_object, save=True)
+        except KeyError:
+            bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
+
+        return response_messages
+    else:
+        raise ValueError("action does not fully match the trigger-string")
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "make location",
+        "usage": "/make location <location_identifier> <'a sphere' or 'a cube' or 'a round area' or 'a square area'>"
+    },
+    "action": change_location_shape,
+    "env": "(self, command)",
+    "group": "locations",
+    "essential": False
+})

@@ -134,12 +134,12 @@ class Location(object):
             return self.pos_x, self.pos_y, self.pos_z
 
     def set_shape(self, shape):
-        allowed_shapes = ['cube', 'sphere', 'room', 'point', 'teleport']
+        allowed_shapes = ['sphere', 'cube', 'circle', 'square']
         if shape not in allowed_shapes or shape == self.shape:
             return False
 
         self.shape = shape
-        if shape in ['sphere', 'cube']:
+        if shape in ['sphere', 'cube', 'circle', 'square']:
             self.radius = max(
                 float(self.width) / 2,
                 float(self.length) / 2
@@ -215,7 +215,7 @@ class Location(object):
     def update_region_list(self):
         # a'ight, I suck at maths. Still need this to be done so here it goes.
         self.region_list = []
-        if self.shape == "sphere":
+        if self.shape in ["sphere", "circle"]:
             # let's convert everything to rectangles first, the fancy stuff can come later
             # determine the top left corner of the square the circle occupies
             top = self.pos_z - self.radius
@@ -223,7 +223,7 @@ class Location(object):
             # radius * 2 divided by the region size rounded up, to get the total regions span. Add one to get the total possible width and length
             width_in_regions = math.ceil(float(self.radius) / 512) * 2
             length_in_regions = math.ceil(float(self.radius) / 512) * 2
-        elif self.shape == "cube" or self.shape == "room":
+        elif self.shape in ["cube", "square"]:
             # untested
             top = self.pos_z
             left = self.pos_x
@@ -248,14 +248,16 @@ class Location(object):
         self.list_of_players_inside_core = list_of_players_inside_core
 
     def get_ejection_coords_tuple(self):
-        if self.shape == "sphere":
+        if self.shape in ["circle", "sphere"]:
             angle = random.randint(0, 359)
             x = self.pos_x + (self.radius + 2) * math.cos(angle)
             z = self.pos_z + (self.radius + 2) * math.sin(angle)
             coords = (x, -1, z)
-        elif self.shape == "cube" or self.shape == "room":
-            # untested
-            return False
+        elif self.shape in ["square", "cube"]:  # yeah, using the circle shit here ^^
+            angle = random.randint(0, 359)
+            x = self.pos_x + (self.radius + 2) * math.cos(angle)
+            z = self.pos_z + (self.radius + 2) * math.sin(angle)
+            coords = (x, -1, z)
         else:
             return False
 
@@ -280,25 +282,26 @@ class Location(object):
             """ we determine the location by the locations radius and the distance of the player from it's center,
             spheres make this especially easy, so I picked them first ^^
             """
-            try:
-                distance_to_location_center = float(math.sqrt(
-                    (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                        float(self.pos_z) - float(player_object.pos_z)) ** 2))
-                player_is_inside_boundary = distance_to_location_center <= float(self.radius)
-            except:
-                logger.debug("Can't check boundaries: No locationdata found for Player {} ".format(player_object.name))
-                pass
-
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+            player_is_inside_boundary = distance_to_location_center <= float(self.radius)
         if self.shape == "cube":
             """ we determine the area of the location by the locations center and it's radius (half a sides-length)
             """
             if (float(self.pos_x) - float(self.radius)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.radius)) and (float(self.pos_y) - float(self.radius)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.radius)) and (float(self.pos_z) - float(self.radius)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.radius)):
                 player_is_inside_boundary = True
-        if self.shape == "room":
-            """ we determine the area of the location by the locations center, it's width, height and length. height will be calculated from ground level (-1) upwards 
+        if self.shape == "circle":
+            """ we determine the location by the locations radius and the distance of the player from it's center ^^
             """
-            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) / 2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 +
+                (float(self.pos_z) - float(player_object.pos_z)) ** 2
+            ))
+            player_is_inside_boundary = distance_to_location_center <= float(self.radius)
+        if self.shape == "square":
+            if (float(self.pos_x) - float(self.radius)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.radius)) and (float(self.pos_z) - float(self.radius)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.radius)):
                 player_is_inside_boundary = True
 
         return player_is_inside_boundary
@@ -310,21 +313,21 @@ class Location(object):
 
         player_is_inside_core = False
         if self.shape == "sphere":
-            try:
-                distance_to_location_center = float(math.sqrt(
-                    (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                        float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                        float(self.pos_z) - float(player_object.pos_z)) ** 2))
-                player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
-            except:
-                pass
-
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
+                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+            player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
         if self.shape == "cube":
             if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
-        if self.shape == "room":
-            # TODO: this has to be adjusted. it's just copied from the boundary function
-            if (float(self.pos_x) - float(self.width) / 2) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.width) / 2) and float(self.pos_y) <= float(player_object.pos_y) + 1 <= (float(self.pos_y) + float(self.height)) and (float(self.pos_z) - float(self.length) / 2) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.length) / 2):
+        if self.shape == "circle":
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
+                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+            player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
+        if self.shape == "square":
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
 
         return player_is_inside_core

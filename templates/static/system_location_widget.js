@@ -30,6 +30,61 @@ var markers = {};
 var layers = {};
 var active_controls = [];
 
+function createCircleMarker(obj) {
+    markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'green', radius: obj.radius});
+    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
+    if (obj.protected) {
+        markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'red', radius: obj.inner_radius});
+    } else {
+        markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'darkgreen', radius: obj.inner_radius});
+    }
+    layers[obj.layerGroup].addLayer(markers[obj.id]);
+    layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
+}
+
+function createRectangleMarker(obj) {
+    markers[obj.id] = new L.rectangle([
+        xy(obj.pos_x - obj.radius, obj.pos_z - obj.radius),
+        xy(obj.pos_x + obj.radius, obj.pos_z + obj.radius)
+    ], {weight: 1, color: 'green'});
+
+    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
+    if (obj.protected) {
+        markers[obj.id + "_inner"] = new L.rectangle([
+            xy(obj.pos_x - obj.inner_radius, obj.pos_z - obj.inner_radius),
+            xy(obj.pos_x + obj.inner_radius, obj.pos_z + obj.inner_radius)
+        ], {weight: 1, color: 'red'});
+    } else {
+        markers[obj.id + "_inner"] = new L.rectangle([
+            xy(obj.pos_x - obj.inner_radius, obj.pos_z - obj.inner_radius),
+            xy(obj.pos_x + obj.inner_radius, obj.pos_z + obj.inner_radius)
+        ], {weight: 1, color: 'darkgreen'});
+    }
+    layers[obj.layerGroup].addLayer(markers[obj.id]);
+    layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
+}
+
+function createStandardMarker(obj) {
+    markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z), {icon: PlayerOfflineIcon});
+    if (obj.online) {
+        markers[obj.id].bindTooltip(obj.name, { permanent: true });
+        markers[obj.id].setIcon(PlayerOnlineIcon)
+    } else {
+        markers[obj.id].bindTooltip(obj.name, { permanent: false });
+        markers[obj.id].setIcon(PlayerOfflineIcon)
+    }
+    layers[obj.layerGroup].addLayer(markers[obj.id]);
+}
+
+function removeGeometricMarker(obj) {
+    if (markers[obj.id] != undefined) {
+        map.removeLayer(markers[obj.id]);
+    }
+    if (markers[obj.id + "_inner"] != undefined) {
+        map.removeLayer(markers[obj.id + "_inner"]);
+    }
+}
+
 // Function for setting/updating markers
 function setMarkers(data) {
     data.forEach(function (obj) {
@@ -38,39 +93,46 @@ function setMarkers(data) {
             if (!layers.hasOwnProperty(obj.layerGroup)) {
                 layers[obj.layerGroup] = L.layerGroup();
             }
-            if (obj.type == "circle") {
-                markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'green', radius: obj.radius});
-                markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
-                if (obj.protected) {
-                    markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'red', radius: obj.inner_radius});
-                } else {
-                    markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'darkgreen', radius: obj.inner_radius});
-                }
-                layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
+            if (obj.type == "circle" || obj.type == "sphere") {
+                createCircleMarker(obj);
+            } else if (obj.type == "square" || obj.type == "cube") {
+                createRectangleMarker(obj);
             } else {
-                markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z), {icon: PlayerOfflineIcon});
-                if (obj.online) {
-                    markers[obj.id].bindTooltip(obj.name, { permanent: true });
-                    markers[obj.id].setIcon(PlayerOnlineIcon)
-                } else {
-                    markers[obj.id].bindTooltip(obj.name, { permanent: false });
-                    markers[obj.id].setIcon(PlayerOfflineIcon)
-                }
+                createStandardMarker(obj);
             }
-            layers[obj.layerGroup].addLayer(markers[obj.id]);
         } else {
             // Set new latlng on marker
-            markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
-            if (obj.type == "circle") {
-                markers[obj.id].setRadius(obj.radius);
-                markers[obj.id + "_inner"].setLatLng(xy(obj.pos_x, obj.pos_z));
-                markers[obj.id + "_inner"].setRadius(obj.inner_radius);
-                if (obj.protected) {
-                    markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
+            if (obj.type == "circle" || obj.type == "sphere") {
+                if (!markers[obj.id].hasOwnProperty('setRadius')) {
+                    removeGeometricMarker(obj);
+                    createCircleMarker(obj);
                 } else {
-                    markers[obj.id + "_inner"].setStyle({weight: 0, color: 'blue'});
+                    markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
+                    markers[obj.id].setRadius(obj.radius);
+                    markers[obj.id + "_inner"].setLatLng(xy(obj.pos_x, obj.pos_z));
+                    markers[obj.id + "_inner"].setRadius(obj.inner_radius);
+                    if (obj.protected) {
+                        markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
+                    } else {
+                        markers[obj.id + "_inner"].setStyle({weight: 0, color: 'blue'});
+                    }
+                }
+            } else if (obj.type == "square" || obj.type == "cube") {
+                if (!markers[obj.id].hasOwnProperty('setLatLng')) {
+                    removeGeometricMarker(obj);
+                    createRectangleMarker(obj);
+                } else {
+                    markers[obj.id].setBounds([
+                        xy(obj.pos_x - obj.radius / 2, obj.pos_z - obj.radius / 2),
+                        xy(obj.pos_x + obj.radius / 2, obj.pos_z + obj.radius / 2)
+                    ]);
+                    markers[obj.id + "_inner"].setBounds([
+                        xy(obj.pos_x - obj.inner_radius / 2, obj.pos_z - obj.inner_radius / 2),
+                        xy(obj.pos_x + obj.inner_radius / 2, obj.pos_z + obj.inner_radius / 2)
+                    ]);
                 }
             } else {
+                markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
                 if (obj.online) {
                     markers[obj.id].openTooltip();
                     markers[obj.id].setIcon(PlayerOnlineIcon);
