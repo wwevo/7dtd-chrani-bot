@@ -1,8 +1,6 @@
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.modules.logger import logger
-from threading import Event
-from bot.player_observer import PlayerObserver
 import bot.actions as actions
 import json
 import os
@@ -28,7 +26,7 @@ class Players(object):
         self.players_dict = {}
         self.poll_listplayerfriends_interval = 30
 
-    def manage_online_players(self, bot, listplayers_dict):
+    def manage_online_players(self, bot):
         def poll_players():
             online_players_dict = {}
             listplayers_result = bot.poll_tn.listplayers()
@@ -78,16 +76,9 @@ class Players(object):
         """ handle player-threads """
         for player_steamid, player_object in self.players_dict.iteritems():
             """ start player_observer_thread for each player not already being observed """
-            if player_steamid not in bot.active_player_threads_dict and player_object.is_online:
-                player_observer_thread_stop_flag = Event()
-                player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, bot, player_steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
-                player_observer_thread.name = player_steamid  # nice to have for the logs
-                player_observer_thread.isDaemon()
-                actions.common.trigger_action(bot, player_object, player_object, "entered the game")
-                player_observer_thread.start()
-                bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                bot.socketio.emit('update_leaflet_markers', bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-                bot.active_player_threads_dict.update({player_steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
+            if player_object.steamid not in bot.active_player_threads_dict and player_object.is_online:
+                bot.start_player_thread(player_object)
+                actions.common.trigger_action(bot, player_object, player_object, "found in the world")
 
         players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():
@@ -152,7 +143,6 @@ class Players(object):
         try:
             return self.load(steamid)
         except KeyError:
-            print steamid
             raise
 
     def get_all_players(self, get_online_only=False):

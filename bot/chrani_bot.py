@@ -5,7 +5,10 @@ import datetime
 import math
 import sys
 from collections import deque
+from threading import Event
 
+from bot.player_observer import PlayerObserver
+from bot.objects.player import Player
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
@@ -36,6 +39,7 @@ class ChraniBot(Thread):
     uptime = str
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
+    has_connection = bool  # used to pause all processing without shutting down the bot
     initiate_shutdown = bool
 
     match_types = dict
@@ -47,6 +51,7 @@ class ChraniBot(Thread):
 
     listlandprotection_interval = int
     listplayers_interval = int
+    restart_delay = int
 
     chat_colors = dict
     passwords = dict
@@ -75,12 +80,14 @@ class ChraniBot(Thread):
         self.flask_login = flask_login
         self.socketio = socketio
         self.is_paused = False
+        self.has_connection = False
         self.settings = Settings()
         self.time_launched = time.time()
         self.time_running = 0
         self.uptime = "not available"
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
+        self.restart_delay = 0
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -153,7 +160,7 @@ class ChraniBot(Thread):
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
         }
 
-        self.banned_countries_list = ['CN', 'CHN', 'KP', 'PRK', 'RU', 'RUS', 'NG', 'NGA']
+        self.banned_countries_list = self.settings.get_setting_by_name('banned_countries')
         self.stopped = event
         Thread.__init__(self)
 
@@ -163,6 +170,16 @@ class ChraniBot(Thread):
         self.locations.load_all()  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file
+
+    def start_player_thread(self, player_object):
+        player_observer_thread_stop_flag = Event()
+        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self, player_object.steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
+        player_observer_thread.name = player_object.steamid  # nice to have for the logs
+        player_observer_thread.isDaemon()
+        player_observer_thread.start()
+        self.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+        self.socketio.emit('update_leaflet_markers', self.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
+        self.active_player_threads_dict.update({player_object.steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
     def poll_lcb(self):
         lcb_dict = {}
@@ -254,18 +271,18 @@ class ChraniBot(Thread):
                 if self.initiate_shutdown is True:
                     self.shutdown()
 
-                if self.is_paused is True:
-                    time.sleep(1)
-                    continue
-
                 if timeout_occurred(listplayers_interval, listplayers_timeout_start):
                     if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
                         listplayers_interval = self.listplayers_interval_idle
                     else:
                         listplayers_interval = self.listplayers_interval
 
-                    listplayers_dict = self.players.manage_online_players(self, listplayers_dict)
+                    listplayers_dict = self.players.manage_online_players(self)
                     listplayers_timeout_start = time.time()
+
+                if self.is_paused and self.has_connection:
+                    time.sleep(self.listplayers_interval)
+                    continue
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
@@ -307,17 +324,47 @@ class ChraniBot(Thread):
                         if telnet_line != '':
                             logger.debug(telnet_line)
 
-                    """ send telnet_line to player-thread
-                    check 'chat' telnet-line(s) for any known playername currently online
-                    """
-                    for player_steamid, player_object in self.players.players_dict.iteritems():
-                        possible_action_for_player = re.search(player_object.name, telnet_line)
-                        if possible_action_for_player:
-                            if player_steamid in self.active_player_threads_dict:
-                                active_player_thread = self.active_player_threads_dict[player_steamid]
-                                active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
-
+                    #  r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
+                    #  "Player connected, entityid=3691, name=ecv, steamid=76561198040658370, steamOwner=76561198040658370, ip=127.0.0.1"
                     # handle playerspawns
+                    m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
+                    if m:
+                        command = m.group("command")
+                        player_id = m.group("player_id")
+                        player_name = m.group("player_name")
+                        entity_id = m.group("entity_id")
+                        player_ip = m.group("player_ip")
+                        if command == "connected":
+                            player_found = False
+                            try:
+                                player_object = self.players.get_by_steamid(player_id)
+                                player_found = True
+                            except KeyError:
+                                pass
+
+                            try:
+                                active_player_thread = self.active_player_threads_dict[player_id]
+                            except KeyError:
+                                if not player_found:
+                                    player_dict = {
+                                        "entityid": entity_id,
+                                        "name": player_name,
+                                        "steamid": player_id,
+                                        "ip": player_ip,
+                                        "is_online": True,
+                                        "pos_x": 0.0,
+                                        "pos_y": 0.0,
+                                        "pos_z": 0.0,
+                                    }
+
+                                    player_object = Player(**player_dict)
+                                    self.players.upsert(player_object)
+
+                                self.start_player_thread(player_object)
+                                active_player_thread = self.active_player_threads_dict[player_id]
+
+                            active_player_thread["thread"].trigger_action(player_object, "entered the stream")
+
                     m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
                     if m:
                         try:
@@ -330,26 +377,37 @@ class ChraniBot(Thread):
                         except KeyError:
                             pass
 
+                    """ send telnet_line to player-thread
+                    check 'chat' telnet-line(s) for any known playername currently online
+                    """
+                    for player_steamid, player_object in self.players.players_dict.iteritems():
+                        possible_action_for_player = re.search(player_object.name, telnet_line)
+                        if possible_action_for_player:
+                            if player_steamid in self.active_player_threads_dict:
+                                active_player_thread = self.active_player_threads_dict[player_steamid]
+                                active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+
                 time.sleep(0.125)  # to limit the speed a bit ^^
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
-                wait_until_reconnect = 20
-                log_message = "connection lost, server-restart?"
+                log_message = "no telnet-connection - trying to connect..."
 
                 try:
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
                     self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
+                    self.has_connection = True
+                    self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()
                     self.tn.togglechatcommandhide("/")
-                    self.is_paused = False
-                except Exception:
+                except IOError as e:
+                    self.has_connection = False
                     self.is_paused = True
-                    log_message = "{} - will try again in {} seconds".format(log_message, str(wait_until_reconnect))
+                    log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
                     # logger.exception(log_message)
-                    time.sleep(wait_until_reconnect)
-                    pass
+                    time.sleep(self.restart_delay)
+                    self.restart_delay = 20
 
     def shutdown(self):
         self.is_active = False

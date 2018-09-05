@@ -1,19 +1,19 @@
-DEBUG @ MainThread: Logon successful.
-DEBUG @ MainThread: Press 'help' to get a list of all commands. Press 'exit' to end session.
-DEBUG @ MainThread: telnet connection established: <telnetlib.Telnet instance at 0x054ABA58>
- INFO @ MainThread: chrani-bot started
-DEBUG @ MainThread: 2018-01-09T19:41:30 10075.465 INF [NET] PlayerConnected EntityID=-1, PlayerID='', OwnerID='', PlayerName=''
-DEBUG @ MainThread: 2018-01-09T19:41:30 10075.650 INF PlayerLogin: ecv/Alpha 16.4
-DEBUG @ MainThread: 2018-01-09T19:41:30 10075.651 INF Client IP: 127.0.0.1
-DEBUG @ MainThread: 2018-01-09T19:41:30 10075.651 INF [Steamworks.NET] Auth.AuthenticateUser()
-DEBUG @ MainThread: 2018-01-09T19:41:30 10075.651 INF [Steamworks.NET] Authenticating player: ecv SteamId: 76561198040658370 TicketLen: 1024 Result: k_EBeginAuthSessionResultOK
-DEBUG @ MainThread: 2018-01-09T19:41:30 10076.051 INF [Steamworks.NET] Authentication callback. ID: 76561198040658370, owner: 76561198040658370, result: k_EAuthSessionResponseOK
-DEBUG @ MainThread: 2018-01-09T19:41:30 10076.051 INF Steam authentication successful, allowing user: EntityID=-1, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
-DEBUG @ MainThread: 2018-01-09T19:41:30 10076.052 INF Allowing player with id 76561198040658370
-DEBUG @ MainThread: 2018-01-09T19:41:32 10077.400 INF RequestToEnterGame: 76561198040658370/ecv
-DEBUG @ MainThread: 2018-01-09T19:41:40 10085.361 INF RequestToSpawnPlayer: 3691, ecv, 12
-DEBUG @ MainThread: 2018-01-09T19:41:40 10085.365 INF Created player with id=3691
-DEBUG @ MainThread: 2018-01-09T19:41:40 10085.374 INF Player connected, entityid=3691, name=ecv, steamid=76561198040658370, steamOwner=76561198040658370, ip=127.0.0.1
-DEBUG @ MainThread: 2018-01-09T19:41:40 10085.374 INF Player set to online: 76561198040658370
-DEBUG @ MainThread: 2018-01-09T19:41:49 10094.421 INF GMSG: Player 'ecv' joined the game
-DEBUG @ MainThread: 2018-01-09T19:41:49 10094.422 INF PlayerSpawnedInWorld (reason: JoinMultiplayer, position: 605, 76, 1502): EntityID=3691, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
+Logon successful.
+Press 'help' to get a list of all commands. Press 'exit' to end session.
+telnet connection established: <telnetlib.Telnet instance at 0x054ABA58>
+chrani-bot started
+2018-01-09T19:41:30 1075.465 INF [NET] PlayerConnected EntityID=-1, PlayerID='', OwnerID='', PlayerName=''
+2018-01-09T19:41:30 1075.650 INF PlayerLogin: ecv/Alpha 16.4
+2018-01-09T19:41:30 1075.651 INF Client IP: 127.0.0.1
+2018-01-09T19:41:30 1075.651 INF [Steamworks.NET] Auth.AuthenticateUser()
+2018-01-09T19:41:30 1075.651 INF [Steamworks.NET] Authenticating player: ecv SteamId: 76561198040658370 TicketLen: 1024 Result: k_EBeginAuthSessionResultOK
+2018-01-09T19:41:30 1076.051 INF [Steamworks.NET] Authentication callback. ID: 76561198040658370, owner: 76561198040658370, result: k_EAuthSessionResponseOK
+2018-01-09T19:41:30 1076.051 INF Steam authentication successful, allowing user: EntityID=-1, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'
+2018-01-09T19:41:30 1076.052 INF Allowing player with id 76561198040658370
+2018-01-09T19:41:32 1077.400 INF RequestToEnterGame: 76561198040658370/ecv
+2018-01-09T19:41:40 1085.361 INF RequestToSpawnPlayer: 3691, ecv, 12
+2018-01-09T19:41:40 1085.365 INF Created player with id=3691
+2018-01-09T19:41:40 1085.374 INF Player connected, entityid=3691, name=ecv, steamid=76561198040658370, steamOwner=76561198040658370, ip=127.0.0.1
+2018-01-09T19:41:40 1085.374 INF Player set to online: 76561198040658370
+2018-01-09T19:41:49 1094.421 INF GMSG: Player 'ecv' joined the game
+2018-01-09T19:41:49 1094.422 INF PlayerSpawnedInWorld (reason: JoinMultiplayer, position: 605, 76, 1502): EntityID=3691, PlayerID='76561198040658370', OwnerID='76561198040658370', PlayerName='ecv'

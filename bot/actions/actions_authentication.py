@@ -3,6 +3,24 @@ import common
 from bot.assorted_functions import ResponseMessage
 
 
+def on_enter_telnet(bot, source_player, target_player, command):
+    response_messages = ResponseMessage()
+    response_messages.add_message("Player {} has been seen in the srtream".format(target_player.name), True)
+    return response_messages
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "entered the stream",
+        "usage": None
+    },
+    "action": on_enter_telnet,
+    "group": "authentication",
+    "essential": True
+})
+
+
 def on_enter_gameworld(bot, source_player, target_player, command):
     """Will greet an unauthenticated player
 

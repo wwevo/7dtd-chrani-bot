@@ -13,8 +13,8 @@ main {
     overflow: auto;
 
     display: grid;
-    grid-template-columns: 1fr 20em;
-    grid-template-rows: repeat(2, 1fr) 10em;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: repeat(4, auto);
 }
 
 /* make the header neat and full-width */
@@ -31,6 +31,7 @@ main {
 
 main .widget {
     order: 49;
+    min-width: 18em;
     overflow: auto;
 }
 
@@ -51,6 +52,7 @@ main #player_table_widget.prominent {
 
 main .wide {
     order: 99;
+    height: 10em;
     grid-column: 1 / -1;
 }
 

@@ -29,7 +29,6 @@ class Permissions(object):
         self.available_actions_dict = {}
         self.action_permissions_dict = {}
 
-
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():
@@ -54,13 +53,13 @@ class Permissions(object):
 
         bot = __main__.chrani_bot
         player_dict = {
-            "entityid":     "0",
-            "name":         "system",
-            "steamid":      "system",
-            "pos_x":        0.0,
-            "pos_y":        0.0,
-            "pos_z":        0.0,
-            "is_online":    False
+            "entityid": "0",
+            "name": "system",
+            "steamid": "system",
+            "pos_x": 0.0,
+            "pos_y": 0.0,
+            "pos_z": 0.0,
+            "is_online": False
         }
 
         player_object = Player(**player_dict)

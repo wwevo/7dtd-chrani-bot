@@ -39,7 +39,7 @@ def on_player_join(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "entered the game",
+        "trigger": "found in the world",
         "usage": None
     },
     "action": on_player_join,

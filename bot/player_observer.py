@@ -97,15 +97,12 @@ class PlayerObserver(Thread):
                         })
 
                 for command in command_queue:
-                    if self.player_object.is_responsive():
-                        try:
-                            result = command["action"](command["command_parameters"])
-                            if not result:
-                                continue
-                        except TypeError:
-                            command["action"](*command["command_parameters"])
-                    else:
-                        break
+                    try:
+                        result = command["action"](command["command_parameters"])
+                        if not result:
+                            continue
+                    except TypeError:
+                        command["action"](*command["command_parameters"])
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - self.last_execution_time
