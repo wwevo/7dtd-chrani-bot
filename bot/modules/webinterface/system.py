@@ -1,11 +1,10 @@
 import common
-import bot.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
 def get_system_status_widget():
-    webinterface = __main__.chrani_bot
-    return webinterface.flask.Markup(webinterface.flask.render_template('system_status_widget.html', bot=webinterface))
+    chrani_bot = __main__.chrani_bot
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('system_status_widget.html', bot=chrani_bot))
 
 
 common.actions_list.append({
@@ -22,14 +21,14 @@ def get_system_status():
 
 @common.build_response
 def pause_bot():
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "pause bot")
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "pause bot")
 
 
 common.actions_list.append({
@@ -42,14 +41,14 @@ common.actions_list.append({
 
 @common.build_response
 def resume_bot():
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "resume bot")
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "resume bot")
 
 
 common.actions_list.append({
@@ -62,14 +61,14 @@ common.actions_list.append({
 
 @common.build_response
 def shutdown():
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "shut down the matrix")
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "shut down the matrix")
 
 
 common.actions_list.append({
@@ -82,20 +81,40 @@ common.actions_list.append({
 
 @common.build_response
 def reinitialize():
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "reinitialize")
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "reinitialize")
 
 
 common.actions_list.append({
     "title": "reinitialize",
     "route": "/protected/system/reinitialize",
     "action": reinitialize,
+    "authenticated": True
+})
+
+
+@common.build_response
+def shutdown_server():
+    chrani_bot = __main__.chrani_bot
+    try:
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
+    except AttributeError:
+        return chrani_bot.flask.redirect("/")
+
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "shut down the world")
+
+
+common.actions_list.append({
+    "title": "shutdown server",
+    "route": "/protected/system/shutdown/server",
+    "action": shutdown_server,
     "authenticated": True
 })
 

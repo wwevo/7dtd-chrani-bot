@@ -63,4 +63,12 @@ $(document).ready(function(){
         removeMarkers(msg);
     });
 
+    window.socket.on('server_offline', function(msg) {
+        showLoadingScreen()
+    });
+
+    window.socket.on('server_online', function(msg) {
+        showWebinterface()
+    });
+
 });

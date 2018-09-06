@@ -202,10 +202,7 @@ class TelnetConnection:
         return True
 
     def kick(self, player_object, reason='just because'):
-        if not player_object.is_online:
-            return False
-
-        command = "kick " + str(player_object.steamid) + " \"" + reason + b"\"\r\n"
+        command = "kick {} \"{}\"\r\n".format(str(player_object.steamid), reason)
         try:
             connection = self.tn
             connection.write(command)
@@ -339,6 +336,24 @@ class TelnetConnection:
         try:
             connection = self.tn
             command = "admin add " + player_object.steamid + " " + str(level) + "\r\n"
+            logger.info(command)
+            connection.write(command)
+        except Exception:
+            return False
+
+    def shutdown(self):
+        connection = self.tn
+        command = "shutdown\r\n"
+        logger.info(command)
+        try:
+            connection.write(command)
+        except Exception:
+            return False
+
+    def saveworld(self):
+        try:
+            connection = self.tn
+            command = "saveworld\r\n"
             logger.info(command)
             connection.write(command)
         except Exception:

@@ -98,8 +98,16 @@ $(document).ready(
         }
 
         // These should come last so we have no flicker while rearranging stuff ^^
-        $('.loading_screen').css("display", "none");
-        $('.flex_layout').css("display", "grid");
         resetSize(window.map);
     }
 );
+
+function showWebinterface() {
+    $('#loading_screen').addClass("shamed");
+    $('#flex_layout').removeClass("shamed");
+}
+
+function showLoadingScreen() {
+    $('#loading_screen').removeClass("shamed");
+    $('#flex_layout').addClass("shamed");
+}

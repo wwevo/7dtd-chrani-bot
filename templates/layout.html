@@ -24,7 +24,7 @@
     {% endblock %}
     </head>
     <body>
-        <div class="flex_layout">
+        <div id="flex_layout" class="shamed">
             <header>
                 <div id="info">
                     <a href="/">{% if bot.name %}{{ bot.name }} ({{ bot.bot_version }}){% else %}chrani-bot{% endif %}</a> - webinterface{% if bot.server_settings_dict %}<br />
@@ -66,7 +66,7 @@
             </footer>
         </div>
         <!-- The Modal(s) -->
-        <div class="loading_screen">
+        <div id="loading_screen">
             <p>Loading...</p>
         </div>
         <div id="messages_modal" class="modal">

@@ -45,10 +45,12 @@ def trigger_action(bot, source_player, target_player, command_parameters):
         if len(command_queue) == 0:
             logger.debug("Player {} tried the command '/{}' for which I have no handler.".format(source_player.name, command_parameters))
 
-        if denied is True:
-            bot.tn.send_message_to_player(source_player, "Access to this command is denied!", color=bot.chat_colors['warning'])
-
         response_messages = ResponseMessage()
+        if denied is True:
+            message = "Access to this command is denied!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(source_player, message, color=bot.chat_colors['warning'])
+
         for command in command_queue:
             try:
                 response = command["action"](bot, source_player, target_player, command["command_parameters"])

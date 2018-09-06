@@ -4,6 +4,7 @@ import time
 import datetime
 import math
 import sys
+import os
 from collections import deque
 from threading import Event
 
@@ -12,8 +13,8 @@ from bot.objects.player import Player
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
-import bot.actions
-import bot.observers
+import bot.actions as actions
+import bot.observers as observers
 
 from bot.modules.settings import Settings
 from bot.modules.locations import Locations
@@ -64,6 +65,7 @@ class ChraniBot(Thread):
     active_player_threads_dict = dict  # contains link to the players observer-thread
     landclaims_dict = dict
 
+    actions = object
     players = object
     locations = object
     whitelist = object
@@ -92,8 +94,9 @@ class ChraniBot(Thread):
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
 
-        self.actions_list = bot.actions.actions_list
-        self.observers_list = bot.observers.observers_list
+        self.actions = actions
+        self.actions_list = actions.actions_list
+        self.observers_list = observers.observers_list
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
@@ -264,12 +267,13 @@ class ChraniBot(Thread):
         self.telnet_lines_list = deque()
 
         self.is_active = True  # this is set so the main loop can be started / stopped
-        while self.is_active:
+        while self.is_active or not self.stopped:
             try:
                 time_running_seconds = int(time.time() - self.time_launched)
 
                 if self.initiate_shutdown is True:
                     self.shutdown()
+                    continue
 
                 if timeout_occurred(listplayers_interval, listplayers_timeout_start):
                     if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
@@ -294,6 +298,7 @@ class ChraniBot(Thread):
                 if timeout_occurred(update_status_interval, update_status_timeout_start):
                     self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
                     self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
+                    self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
                     self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
                     update_status_timeout_start = time.time()
                     execution_time = 0.0
@@ -400,6 +405,7 @@ class ChraniBot(Thread):
                     self.server_settings_dict = self.get_game_preferences()
                     self.tn.togglechatcommandhide("/")
                 except IOError as e:
+                    self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.has_connection = False
                     self.is_paused = True
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
@@ -409,6 +415,8 @@ class ChraniBot(Thread):
                     self.restart_delay = 20
 
     def shutdown(self):
+        self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+        time.sleep(5)
         self.is_active = False
         for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
@@ -418,4 +426,7 @@ class ChraniBot(Thread):
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = None
         self.stopped.set()
-        sys.exit()
+        try:
+            os._exit(0)
+        except SystemExit:
+            logger.info("bot has shut down!")

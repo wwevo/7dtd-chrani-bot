@@ -1,3 +1,4 @@
+import re
 from bot.modules.logger import logger
 import common
 from bot.assorted_functions import ResponseMessage
@@ -61,17 +62,21 @@ def shutdown_bot(bot, source_player, target_player, command):
     Together with a cronjob starting the bot every minute, this can be
     used for restarting it from within the game
     """
-    response_messages = ResponseMessage()
-    try:
-        message = "The bot is about to shut down..."
-        response_messages.add_message(message, True)
-        bot.tn.say(message, color=bot.chat_colors['background'])
-        bot.shutdown()
-    except Exception as e:
-        logger.exception(e)
-        pass
+    p = re.search(r"shut\sdown\sthe\smatrix$", command)
+    if p:
+        response_messages = ResponseMessage()
+        try:
+            message = "The bot is about to shut down..."
+            response_messages.add_message(message, True)
+            bot.tn.say(message, color=bot.chat_colors['background'])
+            bot.initiate_shutdown = True
+        except Exception as e:
+            logger.exception(e)
+            pass
 
-    return ResponseMessage()
+        return ResponseMessage()
+    else:
+        raise ValueError("action does not fully match the trigger-string")
 
 
 common.actions_list.append({
@@ -171,4 +176,35 @@ common.actions_list.append({
     "group": "system",
     "essential": False
 })
+
+
+def shutdown_server(bot, source_player, target_player, command):
+    p = re.search(r"shut\sdown\sthe\sworld$", command)
+    if p:
+        response_messages = ResponseMessage()
+        try:
+            message = "The server is about to shut down..."
+            response_messages.add_message(message, True)
+            bot.tn.say(message, color=bot.chat_colors['background'])
+            bot.tn.shutdown()
+        except Exception as e:
+            logger.exception(e)
+
+        return ResponseMessage()
+    else:
+        raise ValueError("action does not fully match the trigger-string")
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "shut down the world",
+        "usage": "/shut down the world"
+    },
+    "action": shutdown_server,
+    "env": "(self)",
+    "group": "system",
+    "essential": False
+})
+
 
