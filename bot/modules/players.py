@@ -149,7 +149,9 @@ class Players(object):
         try:
             players_to_list = []
             for steamid, player_object_to_list in self.players_dict.iteritems():
-                if not get_online_only:
+                if str(steamid) == "system":
+                    continue
+                elif not get_online_only:
                     players_to_list.append(player_object_to_list)
                 elif player_object_to_list.is_online:
                     players_to_list.append(player_object_to_list)
