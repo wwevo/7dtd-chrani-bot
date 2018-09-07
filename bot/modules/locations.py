@@ -167,6 +167,8 @@ class Locations(object):
             "region_list": location_object.region_list,
             "teleport_target": location_object.teleport_target,
             "teleport_active": location_object.teleport_active,
+            "list_of_players_inside": location_object.list_of_players_inside,
+            "list_of_players_inside_core": location_object.list_of_players_inside_core
         }
 
         try:

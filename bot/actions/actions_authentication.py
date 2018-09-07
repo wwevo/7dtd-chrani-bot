@@ -35,10 +35,10 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         bot.tn.send_message_to_player(target_player, "read the rules on https://chrani.net/chrani-bot", color=bot.chat_colors['warning'])
         bot.tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
         bot.tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
-
-        target_player.is_online = True
         bot.players.upsert(target_player)
         response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
+    else:
+        bot.tn.send_message_to_player(target_player, "List your available chat-actions with {}".format(common.find_action_help("players", "list actions")), color=bot.chat_colors['warning'])
 
     return response_messages
 

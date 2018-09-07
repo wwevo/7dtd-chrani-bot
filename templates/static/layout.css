@@ -54,6 +54,7 @@ main .widget {
     overflow: auto;
 }
 
+
 main .dominant {
     order: 0;
     grid-column: 1 / -2;

@@ -8,7 +8,6 @@ import common
 def on_enter_gameworld(bot, source_player, target_player, command):
     response_messages = ResponseMessage()
     try:
-        target_player.is_online = True
         bot.players.upsert(target_player, save=True)
         message = "stored player-record for player {}".format(target_player.steamid)
         bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
