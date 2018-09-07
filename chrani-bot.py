@@ -164,19 +164,19 @@ if __name__ == '__main__':
     @app.route('/protected')
     @flask_login.login_required
     def protected():
-        widgets = {
-            "bot": chrani_bot,
+        widgets_dict = {
             "player_table_widget": flask.Markup(get_player_table_widget()),
-            "system_status_widget": get_system_status(),
             "whitelist_widget": get_whitelist_widget(),
             "banned_players_widget": get_banned_players_widget(),
             "command_log_widget": flask.Markup(flask.render_template('command_log_widget.html')),
-            "player_location_radar_widget": get_player_location_radar_widget()
+            "location_radar_widget": get_player_location_radar_widget(),
         }
 
         return flask.render_template(
             'index.html',
-            **widgets
+            system_status=get_system_status(),
+            bot=chrani_bot,
+            widgets=widgets_dict
         )
 
 

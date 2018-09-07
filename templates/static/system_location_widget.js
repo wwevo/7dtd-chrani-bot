@@ -7,8 +7,8 @@ var xy = function(x, y) {
 };
 
 var resetSize = function(map) {
-    var height = $("#player_location_radar_widget").height() - $("#player_location_radar_widget table thead").height();
-    var width = $("#player_location_radar_widget").width();
+    var height = $("#location_radar_widget").height() - $("#location_radar_widget table thead").height();
+    var width = $("#location_radar_widget").width();
     $("#location_radar").height(height).width(width);
     map.invalidateSize();
     return true;

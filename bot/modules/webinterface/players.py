@@ -182,7 +182,7 @@ def get_player_table_widget():
 
     output = ""
     player_objects_list = chrani_bot.players.get_all_players()
-    player_objects_list = [player_object for player_object in sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated, x.last_seen), reverse=True) if chrani_bot.whitelist.player_is_on_whitelist(player_object.steamid) or not chrani_bot.whitelist.is_active()]
+    player_objects_list = [player_object for player_object in sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated, x.last_seen), reverse=True)]
     for player_object in player_objects_list:
         if not player_object.is_to_be_obliterated:
             output += get_all_players_table_row(player_object.steamid)

@@ -3,7 +3,7 @@ function refresh_whitelist_widget(msg) {
         url: "/protected/players/widgets/system_whitelist_widget",
         type: "GET",
         success: function(data) {
-            $('#system_whitelist_widget').html(data);
+            $('#whitelist_widget').html(data);
         }
     })
 }

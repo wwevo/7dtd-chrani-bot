@@ -60,18 +60,22 @@ $(document).ready(
             $("#messages_modal").fadeOut("fast");
         });
 
+        $("main #player_table_widget").addClass("dominant");
+        $("main #command_log_widget").addClass("wide");
+        $("main #location_radar_widget").addClass("shamed").addClass("prominent");
+
         $(".switch_map_fullscreen").click(function () {
             $("main #player_table_widget").toggleClass("dominant").toggleClass("prominent");
-            $("main #player_location_radar_widget").toggleClass("dominant").toggleClass("prominent").toggleClass("shamed");
-            $("main #system_whitelist_widget").toggleClass("shamed");
-            $("main #system_banned_players_widget").toggleClass("shamed");
+            $("main #location_radar_widget").toggleClass("dominant").toggleClass("prominent").toggleClass("shamed");
+            $("main #whitelist_widget").toggleClass("shamed");
+            $("main #banned_players_widget").toggleClass("shamed");
             $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").toggle();
             $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").toggle();
             $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").toggle();
             $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").toggle();
             $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").toggle();
             $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").toggle();
-            if ($("main #player_location_radar_widget").hasClass("dominant")) {
+            if ($("main #location_radar_widget").hasClass("dominant")) {
                 Cookies.set("map_fullscreen", true);
             } else {
                 Cookies.remove("map_fullscreen");
@@ -86,9 +90,9 @@ $(document).ready(
         $('#messages_modal').hide();
         if (Cookies.get("map_fullscreen")) {
             $("main #player_table_widget").removeClass("dominant").addClass("prominent");
-            $("main #player_location_radar_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
-            $("main #system_whitelist_widget").addClass("shamed");
-            $("main #system_banned_players_widget").addClass("shamed");
+            $("main #location_radar_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
+            $("main #whitelist_widget").addClass("shamed");
+            $("main #banned_players_widget").addClass("shamed");
             $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").hide();
             $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").hide();
             $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").hide();
