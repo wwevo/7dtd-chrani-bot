@@ -9,7 +9,8 @@ of the bot
 see https://discord.gg/eTavgkf to join the bots discord channel for pseudo real-time talk
 
 # This is how it currently looks like
-![current state](https://github.com/wwevo/7dtd-chrani-bot/blob/development/data/images/current_state.png)
+![webinterface players](https://github.com/wwevo/7dtd-chrani-bot/blob/development/data/images/webinterface_players.png)
+![webinterface map](https://github.com/wwevo/7dtd-chrani-bot/blob/development/data/images/webinterface_map.png)
 
 # Legal notice
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
