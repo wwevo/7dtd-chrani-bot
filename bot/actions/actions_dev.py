@@ -143,5 +143,5 @@ common.actions_list.append({
     "action": remove_entity,
     "env": "(self)",
     "group": "testing",
-    "essential": True
+    "essential": False
 })
