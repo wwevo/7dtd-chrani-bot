@@ -30,6 +30,8 @@ class Permissions(object):
         self.action_permissions_dict = {}
 
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
+        if player_object.steamid == 'system':
+            return True
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():
                 pass

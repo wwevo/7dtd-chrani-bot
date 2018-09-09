@@ -1,3 +1,4 @@
+import re
 from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 import common
@@ -112,4 +113,35 @@ common.actions_list.append({
     "env": "(self)",
     "group": "testing",
     "essential": False
+})
+
+
+def remove_entity(bot, source_player, target_player, command):
+    p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
+    if p:
+        response_messages = ResponseMessage()
+        entity_id = p.group("entity_id")
+        if bot.tn.remove_entity(entity_id):
+            message = "entity with id {} removed".format(entity_id)
+            logger.info(message)
+        else:
+            message = "removing of entity with id {} failed :/".format(entity_id)
+        response_messages.add_message(message, True)
+
+        return response_messages
+
+    else:
+        raise ValueError("action does not fully match the trigger-string")
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "remove entity",
+        "usage": None
+    },
+    "action": remove_entity,
+    "env": "(self)",
+    "group": "testing",
+    "essential": True
 })

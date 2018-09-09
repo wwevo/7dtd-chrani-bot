@@ -28,7 +28,8 @@ class Location(object):
     tele_y = float
     tele_z = float
 
-    # sphere and cube so far
+    type = str
+    # sphere, cube, circle and square so far
     shape = str
 
     # spheres and cubes
@@ -75,6 +76,7 @@ class Location(object):
         self.protected_core_whitelist = []
         self.teleport_target = None
         self.teleport_active = False
+        self.type = "standard location"
 
         """ populate player-data """
         for (k, v) in kwargs.iteritems():
@@ -145,6 +147,14 @@ class Location(object):
                 float(self.length) / 2
             )
         self.update_region_list()
+        return True
+
+    def set_type(self, type):
+        allowed_types = ['standard', 'village', 'teleport']
+        if type not in allowed_types or type == self.type:
+            return False
+
+        self.type = type
         return True
 
     def get_distance(self, coords):
@@ -266,6 +276,36 @@ class Location(object):
     def get_teleport_coords_tuple(self):
         return self.tele_x, self.tele_y, self.tele_z
 
+    def position_is_inside_boundary(self, position_tuple):
+        position_is_inside_boundary = False
+        if self.shape == "sphere":
+            """ we determine the location by the locations radius and the distance of the player from it's center,
+            spheres make this especially easy, so I picked them first ^^
+            """
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(position_tuple[0])) ** 2 + (
+                    float(self.pos_y) - float(position_tuple[1])) ** 2 + (
+                    float(self.pos_z) - float(position_tuple[2])) ** 2))
+            position_is_inside_boundary = distance_to_location_center <= float(self.radius)
+        if self.shape == "cube":
+            """ we determine the area of the location by the locations center and it's radius (half a sides-length)
+            """
+            if (float(self.pos_x) - float(self.radius)) <= float(position_tuple[0]) <= (float(self.pos_x) + float(self.radius)) and (float(self.pos_y) - float(self.radius)) <= float(position_tuple[1]) <= (float(self.pos_y) + float(self.radius)) and (float(self.pos_z) - float(self.radius)) <= float(position_tuple[2]) <= (float(self.pos_z) + float(self.radius)):
+                position_is_inside_boundary = True
+        if self.shape == "circle":
+            """ we determine the location by the locations radius and the distance of the player from it's center ^^
+            """
+            distance_to_location_center = float(math.sqrt(
+                (float(self.pos_x) - float(position_tuple[0])) ** 2 +
+                (float(self.pos_z) - float(position_tuple[2])) ** 2
+            ))
+            position_is_inside_boundary = distance_to_location_center <= float(self.radius)
+        if self.shape == "square":
+            if (float(self.pos_x) - float(self.radius)) <= float(position_tuple[0]) <= (float(self.pos_x) + float(self.radius)) and (float(self.pos_z) - float(self.radius)) <= float(position_tuple[2]) <= (float(self.pos_z) + float(self.radius)):
+                position_is_inside_boundary = True
+
+        return position_is_inside_boundary
+
     def player_is_inside_boundary(self, player_object):
         """ calculate the position of a player against a location
 
@@ -277,34 +317,7 @@ class Location(object):
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
-        player_is_inside_boundary = False
-        if self.shape == "sphere":
-            """ we determine the location by the locations radius and the distance of the player from it's center,
-            spheres make this especially easy, so I picked them first ^^
-            """
-            distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
-            player_is_inside_boundary = distance_to_location_center <= float(self.radius)
-        if self.shape == "cube":
-            """ we determine the area of the location by the locations center and it's radius (half a sides-length)
-            """
-            if (float(self.pos_x) - float(self.radius)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.radius)) and (float(self.pos_y) - float(self.radius)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.radius)) and (float(self.pos_z) - float(self.radius)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.radius)):
-                player_is_inside_boundary = True
-        if self.shape == "circle":
-            """ we determine the location by the locations radius and the distance of the player from it's center ^^
-            """
-            distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 +
-                (float(self.pos_z) - float(player_object.pos_z)) ** 2
-            ))
-            player_is_inside_boundary = distance_to_location_center <= float(self.radius)
-        if self.shape == "square":
-            if (float(self.pos_x) - float(self.radius)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.radius)) and (float(self.pos_z) - float(self.radius)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.radius)):
-                player_is_inside_boundary = True
-
-        return player_is_inside_boundary
+        return self.position_is_inside_boundary((player_object.pos_x, player_object.pos_y, player_object.pos_z))
 
     def player_is_inside_core(self, player_object):
         if player_object.pos_x is 0.0 and player_object.pos_y is 0.0 and player_object.pos_z is 0.0:

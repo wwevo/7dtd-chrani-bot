@@ -88,6 +88,18 @@ class Locations(object):
 
         return location_in_reach_list
 
+    def find_by_type(self, location_type=None):
+        locations_found = []
+        locations_dict = self.locations_dict
+        for player_steamid, locations in locations_dict.iteritems():
+            for identifier, location in locations.iteritems():
+                if location_type is not None and location.type != location_type:
+                    continue
+
+                locations_found.append(location)
+
+        return locations_found
+
     def get_leaflet_marker_json(self, location_objects):
         bot = __main__.chrani_bot
         location_list = []
@@ -168,7 +180,8 @@ class Locations(object):
             "teleport_target": location_object.teleport_target,
             "teleport_active": location_object.teleport_active,
             "list_of_players_inside": location_object.list_of_players_inside,
-            "list_of_players_inside_core": location_object.list_of_players_inside_core
+            "list_of_players_inside_core": location_object.list_of_players_inside_core,
+            "type": location_object.type
         }
 
         try:

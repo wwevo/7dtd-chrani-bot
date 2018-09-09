@@ -131,7 +131,6 @@ class ChraniBot(Thread):
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            # 'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.+)",
             'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat| Chat): '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
@@ -160,7 +159,8 @@ class ChraniBot(Thread):
             # player is 'valid' from here on
             # 'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
             'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
-            'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
+            'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'",
+            'screamer_spawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)"
         }
 
         self.banned_countries_list = self.settings.get_setting_by_name('banned_countries')
@@ -328,8 +328,6 @@ class ChraniBot(Thread):
                         if telnet_line != '':
                             logger.debug(telnet_line)
 
-                    #  r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)"
-                    #  "Player connected, entityid=3691, name=ecv, steamid=76561198040658370, steamOwner=76561198040658370, ip=127.0.0.1"
                     # handle playerspawns
                     m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
                     if m:
@@ -378,6 +376,26 @@ class ChraniBot(Thread):
                                 player_object = self.players.load(player_id)
                                 active_player_thread = self.active_player_threads_dict[player_id]
                                 active_player_thread["thread"].trigger_action(player_object, "entered the world")
+                        except KeyError:
+                            pass
+
+                    # handle other spawns
+                    # r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Spawned \[type=(.*), name=zombieScreamer, id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)"
+                    m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
+                    if m:
+                        try:
+                            entity_id = m.group("entity_id")
+                            pos_x = m.group("pos_x")
+                            pos_y = m.group("pos_y")
+                            pos_z = m.group("pos_z")
+                            command = m.group("command")
+                            zombie_name = m.group("zombie_name")
+                            player_object = self.players.get_by_steamid('system')
+                            if command == "Spawned" and zombie_name == "zombieScreamer":
+                                villages = self.locations.find_by_type('village')
+                                for village in villages:
+                                    if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
+                                        self.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
                         except KeyError:
                             pass
 

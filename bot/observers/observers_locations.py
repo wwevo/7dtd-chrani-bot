@@ -1,4 +1,3 @@
-from bot.modules.logger import logger
 import common
 
 
@@ -71,3 +70,4 @@ common.observers_list.append({
     "env": "(self)",
     "essential": True
 })
+

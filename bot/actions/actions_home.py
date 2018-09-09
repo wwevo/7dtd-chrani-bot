@@ -53,7 +53,7 @@ def set_up_home(bot, source_player, target_player, command):
         location_object.set_identifier('home')
 
         location_object.set_description("{}\'s home".format(target_player.name))
-        location_object.set_shape("sphere")
+        location_object.set_shape("square")
 
         messages_dict = location_object.get_messages_dict()
         messages_dict["entered_locations_core"] = None

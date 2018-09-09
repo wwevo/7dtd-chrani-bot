@@ -71,7 +71,7 @@ def set_up_lobby(bot, source_player, target_player, command):
     location_object.set_coordinates(target_player)
     location_object.set_identifier('lobby')
     location_object.set_description('The \"there is no escape\" Lobby')
-    location_object.set_shape("sphere")
+    location_object.set_shape("cube")
 
     messages_dict = location_object.get_messages_dict()
     messages_dict["entered_locations_core"] = "authenticate with {} to leave the lobby".format(common.find_action_help("authentication", "password"))

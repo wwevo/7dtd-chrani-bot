@@ -358,3 +358,13 @@ class TelnetConnection:
             connection.write(command)
         except Exception:
             return False
+
+    def remove_entity(self, entity_id):
+        command = "removeentity " + str(entity_id) + b"\r\n"
+        try:
+            connection = self.tn
+            connection.write(command)
+            return True
+        except Exception:
+            return False
+
