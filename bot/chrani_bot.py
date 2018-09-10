@@ -403,7 +403,8 @@ class ChraniBot(Thread):
                     check 'chat' telnet-line(s) for any known playername currently online
                     """
                     for player_steamid, player_object in self.players.players_dict.iteritems():
-                        possible_action_for_player = re.search(player_object.name, telnet_line)
+                        print player_object.name + " " + player_object.steamid + " " + re.escape(player_object.name)
+                        possible_action_for_player = re.search(re.escape(player_object.name), telnet_line)
                         if possible_action_for_player:
                             if player_steamid in self.active_player_threads_dict:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]
