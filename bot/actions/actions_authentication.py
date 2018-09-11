@@ -3,24 +3,6 @@ import common
 from bot.assorted_functions import ResponseMessage
 
 
-def on_enter_telnet(bot, source_player, target_player, command):
-    response_messages = ResponseMessage()
-    response_messages.add_message("Player {} has been seen in the srtream".format(target_player.name), True)
-    return response_messages
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "entered the stream",
-        "usage": None
-    },
-    "action": on_enter_telnet,
-    "group": "authentication",
-    "essential": True
-})
-
-
 def on_enter_gameworld(bot, source_player, target_player, command):
     """Will greet an unauthenticated player
 
@@ -31,16 +13,34 @@ def on_enter_gameworld(bot, source_player, target_player, command):
     does nothing for authenticated players
     """
     response_messages = ResponseMessage()
+    response_messages.add_message("Player {} has been seen in the srtream".format(target_player.name), True)
+
+    target_player.is_online = True
+    bot.players.upsert(target_player, save=True)
+
     if not target_player.has_permission_level("authenticated"):
         bot.tn.send_message_to_player(target_player, "read the rules on https://chrani.net/chrani-bot", color=bot.chat_colors['warning'])
         bot.tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
         bot.tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
         bot.players.upsert(target_player)
         response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
-    else:
-        bot.tn.send_message_to_player(target_player, "List your available chat-actions with {}".format(common.find_action_help("players", "list actions")), color=bot.chat_colors['warning'])
+
+    if command == "entered the world":
+        bot.tn.send_message_to_player(target_player, "List your available chat-actions with [{}]{}[-]".format(bot.chat_colors['standard'], common.find_action_help("players", "list actions")), color=bot.chat_colors['warning'])
 
     return response_messages
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "entered the stream",
+        "usage": None
+    },
+    "action": on_enter_gameworld,
+    "group": "authentication",
+    "essential": True
+})
 
 
 common.actions_list.append({

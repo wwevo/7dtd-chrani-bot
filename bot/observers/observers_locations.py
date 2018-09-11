@@ -41,6 +41,7 @@ def player_crossed_boundary(self):
 
                 update_table = False
                 if player_status == "has left":
+                    self.bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True:
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
@@ -49,6 +50,7 @@ def player_crossed_boundary(self):
                     if location_object.messages_dict["left_locations_core"] is not None and location_object.show_warning_messages is True:
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
                 if player_status == "has entered":
+                    self.bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["entered_location"] is not None and location_object.show_messages is True:
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
@@ -58,9 +60,9 @@ def player_crossed_boundary(self):
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
 
                 if update_table:
+                    self.bot.locations.upsert(location_object)
                     self.bot.socketio.emit('refresh_locations', {"steamid": self.player_object.steamid, "entityid": self.player_object.entityid}, namespace='/chrani-bot/public')
 
-            self.bot.locations.upsert(location_object)
 
 
 common.observers_list.append({
