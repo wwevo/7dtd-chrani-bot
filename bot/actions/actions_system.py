@@ -16,22 +16,26 @@ def reload_from_db(bot, source_player, target_player, command):
     example:
     /reinitialize
     """
-    response_messages = ResponseMessage()
     try:
-        bot.load_from_db()
-        message = "loaded all data from storage."
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
-        response_messages.add_message(message, True)
-        bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        response_messages = ResponseMessage()
+        try:
+            bot.load_from_db()
+            message = "loaded all data from storage."
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            response_messages.add_message(message, True)
+            bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+        except Exception as e:
+            message = "loading data from storage failed."
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            response_messages.add_message(message, False)
+            logger.exception(e)
+            pass
+
+        return response_messages
+
     except Exception as e:
-        message = "loading data from storage failed."
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
-        response_messages.add_message(message, False)
         logger.exception(e)
         pass
-
-    return response_messages
-
 
 common.actions_list.append({
     "match_mode": "isequal",
@@ -62,21 +66,26 @@ def shutdown_bot(bot, source_player, target_player, command):
     Together with a cronjob starting the bot every minute, this can be
     used for restarting it from within the game
     """
-    p = re.search(r"shut\sdown\sthe\smatrix$", command)
-    if p:
-        response_messages = ResponseMessage()
-        try:
-            message = "The bot is about to shut down..."
-            response_messages.add_message(message, True)
-            bot.tn.say(message, color=bot.chat_colors['background'])
-            bot.initiate_shutdown = True
-        except Exception as e:
-            logger.exception(e)
-            pass
+    try:
+        p = re.search(r"shut\sdown\sthe\smatrix$", command)
+        if p:
+            response_messages = ResponseMessage()
+            try:
+                message = "The bot is about to shut down..."
+                response_messages.add_message(message, True)
+                bot.tn.say(message, color=bot.chat_colors['background'])
+                bot.initiate_shutdown = True
+            except Exception as e:
+                logger.exception(e)
+                pass
 
-        return ResponseMessage()
-    else:
-        raise ValueError("action does not fully match the trigger-string")
+            return ResponseMessage()
+        else:
+            raise ValueError("action does not fully match the trigger-string")
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -105,21 +114,26 @@ def pause_bot(bot, source_player, target_player, command):
     /pause bot
 
     """
-    response_messages = ResponseMessage()
     try:
-        bot.is_paused = True
-        bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
-        message = "The bot operations have been suspended"
-        response_messages.add_message(message, True)
-        bot.tn.say(message, color=bot.chat_colors['success'])
+        response_messages = ResponseMessage()
+        try:
+            bot.is_paused = True
+            bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+            message = "The bot operations have been suspended"
+            response_messages.add_message(message, True)
+            bot.tn.say(message, color=bot.chat_colors['success'])
+        except Exception as e:
+            message = "Pausing of the bot failed."
+            response_messages.add_message(message, False)
+            bot.tn.say(message, color=bot.chat_colors['warning'])
+            logger.exception(e)
+            pass
+
+        return response_messages
+
     except Exception as e:
-        message = "Pausing of the bot failed."
-        response_messages.add_message(message, False)
-        bot.tn.say(message, color=bot.chat_colors['warning'])
         logger.exception(e)
         pass
-
-    return response_messages
 
 
 common.actions_list.append({
@@ -148,21 +162,26 @@ def resume_bot(bot, source_player, target_player, command):
     /resume bot
 
     """
-    response_messages = ResponseMessage()
     try:
-        bot.is_paused = False
-        bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
-        message = "The bots operations have been resumed"
-        response_messages.add_message(message, True)
-        bot.tn.say(message, color=bot.chat_colors['success'])
+        response_messages = ResponseMessage()
+        try:
+            bot.is_paused = False
+            bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+            message = "The bots operations have been resumed"
+            response_messages.add_message(message, True)
+            bot.tn.say(message, color=bot.chat_colors['success'])
+        except Exception as e:
+            message = "Resuming of the bot failed."
+            response_messages.add_message(message, False)
+            bot.tn.say(message, color=bot.chat_colors['warning'])
+            logger.exception(e)
+            pass
+
+        return response_messages
+
     except Exception as e:
-        message = "Resuming of the bot failed."
-        response_messages.add_message(message, False)
-        bot.tn.say(message, color=bot.chat_colors['warning'])
         logger.exception(e)
         pass
-
-    return response_messages
 
 
 common.actions_list.append({
@@ -179,20 +198,25 @@ common.actions_list.append({
 
 
 def shutdown_server(bot, source_player, target_player, command):
-    p = re.search(r"shut\sdown\sthe\sworld$", command)
-    if p:
-        response_messages = ResponseMessage()
-        try:
-            message = "The server is about to shut down..."
-            response_messages.add_message(message, True)
-            bot.tn.say(message, color=bot.chat_colors['background'])
-            bot.tn.shutdown()
-        except Exception as e:
-            logger.exception(e)
+    try:
+        p = re.search(r"shut\sdown\sthe\sworld$", command)
+        if p:
+            response_messages = ResponseMessage()
+            try:
+                message = "The server is about to shut down..."
+                response_messages.add_message(message, True)
+                bot.tn.say(message, color=bot.chat_colors['background'])
+                bot.tn.shutdown()
+            except Exception as e:
+                logger.exception(e)
 
-        return ResponseMessage()
-    else:
-        raise ValueError("action does not fully match the trigger-string")
+            return ResponseMessage()
+        else:
+            raise ValueError("action does not fully match the trigger-string")
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -206,5 +230,3 @@ common.actions_list.append({
     "group": "system",
     "essential": False
 })
-
-

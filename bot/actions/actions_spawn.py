@@ -5,35 +5,40 @@ from bot.assorted_functions import ResponseMessage
 
 
 def on_player_join(bot, source_player, target_player, command):
-    response_messages = ResponseMessage()
     try:
-        location_object = bot.locations.get(target_player.steamid, 'spawn')
-    except KeyError:
-        location_name = 'Place of Birth'
-        location_dict = dict(
-            identifier='spawn',
-            name=location_name,
-            description="{}'s {}".format(target_player.name, location_name),
-            owner=target_player.steamid,
-            shape='sphere',
-            region=None,
-            show_messages=False
-        )
-        location_object = Location(**location_dict)
-        location_object.set_coordinates(target_player)
-        location_object.set_radius(5)
-        location_object.set_warning_boundary(3)
+        response_messages = ResponseMessage()
         try:
-            bot.locations.upsert(location_object, save=True)
-        except:
-            pass
+            location_object = bot.locations.get(target_player.steamid, 'spawn')
+        except KeyError:
+            location_name = 'Place of Birth'
+            location_dict = dict(
+                identifier='spawn',
+                name=location_name,
+                description="{}'s {}".format(target_player.name, location_name),
+                owner=target_player.steamid,
+                shape='sphere',
+                region=None,
+                show_messages=False
+            )
+            location_object = Location(**location_dict)
+            location_object.set_coordinates(target_player)
+            location_object.set_radius(5)
+            location_object.set_warning_boundary(3)
+            try:
+                bot.locations.upsert(location_object, save=True)
+            except:
+                pass
 
-        bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
-        message = "spawn for player {} created".format(target_player.name)
-        logger.debug(message)
-        response_messages.add_message(message, True)
+            bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            message = "spawn for player {} created".format(target_player.name)
+            logger.debug(message)
+            response_messages.add_message(message, True)
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -63,18 +68,23 @@ common.actions_list.append({
 
 
 def on_player_death(bot, source_player, target_player, command):
-    response_messages = ResponseMessage()
     try:
-        location = bot.locations.get(target_player.steamid, 'spawn')
-        if target_player.authenticated is False:
-            location.enabled = False
-            message = "spawn for player {} removed, a new one will be created.".format(target_player.name)
-            logger.debug(message)
-            response_messages.add_message(message, True)
-    except KeyError:
-        pass
+        response_messages = ResponseMessage()
+        try:
+            location = bot.locations.get(target_player.steamid, 'spawn')
+            if target_player.authenticated is False:
+                location.enabled = False
+                message = "spawn for player {} removed, a new one will be created.".format(target_player.name)
+                logger.debug(message)
+                response_messages.add_message(message, True)
+        except KeyError:
+            pass
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({

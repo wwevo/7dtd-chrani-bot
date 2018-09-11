@@ -1,36 +1,42 @@
 from bot.objects.location import Location
 from bot.assorted_functions import ResponseMessage
+from bot.modules.logger import logger
 import common
 
 
 def on_player_death(bot, source_player, target_player, command):
     try:
-        location_object = bot.locations.get(target_player.steamid, 'death')
-    except KeyError:
-        location_dict = dict(
-            identifier='death',
-            name='Place of Death',
-            owner=target_player.steamid,
-            shape='point',
-            radius=None,
-            region=None
-        )
-        location_object = Location(**location_dict)
+        try:
+            location_object = bot.locations.get(target_player.steamid, 'death')
+        except KeyError:
+            location_dict = dict(
+                identifier='death',
+                name='Place of Death',
+                owner=target_player.steamid,
+                shape='point',
+                radius=None,
+                region=None
+            )
+            location_object = Location(**location_dict)
 
-    location_object.set_coordinates(target_player)
-    try:
-        bot.locations.upsert(location_object, save=True)
-    except:
-        return False
+        location_object.set_coordinates(target_player)
+        try:
+            bot.locations.upsert(location_object, save=True)
+        except:
+            return False
 
-    response_messages = ResponseMessage()
-    target_player.initialized = False
-    bot.players.upsert(target_player, save=True)
-    message = "{}s place of death has been recorded ^^".format(target_player.name)
-    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
-    response_messages.add_message(message, True)
+        response_messages = ResponseMessage()
+        target_player.initialized = False
+        bot.players.upsert(target_player, save=True)
+        message = "{}s place of death has been recorded ^^".format(target_player.name)
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+        response_messages.add_message(message, True)
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -47,7 +53,12 @@ common.actions_list.append({
 
 
 def on_player_kill(bot, source_player, target_player, command):
-    return on_player_death(bot, source_player, target_player, command)
+    try:
+        return on_player_death(bot, source_player, target_player, command)
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -80,25 +91,30 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
     will not port if already near the pack
     the place of death will be removed after a successful teleport
     """
-    response_messages = ResponseMessage()
     try:
-        location_object = bot.locations.get(target_player.steamid, "death")
-        if location_object.player_is_inside_boundary(target_player):
-            bot.tn.send_message_to_player(target_player, "eh, you already ARE near your pack oO".format(target_player.name), color=bot.chat_colors['warning'])
-        else:
-            coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
-            bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple)
-            bot.tn.say("{} can't live without their stuff".format(target_player.name), color=bot.chat_colors['background'])
+        response_messages = ResponseMessage()
+        try:
+            location_object = bot.locations.get(target_player.steamid, "death")
+            if location_object.player_is_inside_boundary(target_player):
+                bot.tn.send_message_to_player(target_player, "eh, you already ARE near your pack oO".format(target_player.name), color=bot.chat_colors['warning'])
+            else:
+                coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
+                bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple)
+                bot.tn.say("{} can't live without their stuff".format(target_player.name), color=bot.chat_colors['background'])
 
-        bot.locations.remove(target_player.steamid, 'death')
+            bot.locations.remove(target_player.steamid, 'death')
 
-        message = "{}s place of death has been removed ^^".format(target_player.name)
-        response_messages.add_message(message, True)
+            message = "{}s place of death has been removed ^^".format(target_player.name)
+            response_messages.add_message(message, True)
 
-    except KeyError:
-        bot.tn.send_message_to_player(target_player, "I don't have your last death on record, sorry :(".format(target_player.name), color=bot.chat_colors['warning'])
+        except KeyError:
+            bot.tn.send_message_to_player(target_player, "I don't have your last death on record, sorry :(".format(target_player.name), color=bot.chat_colors['warning'])
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({

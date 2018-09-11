@@ -19,14 +19,19 @@ def fix_players_legs(bot, source_player, target_player, command):
     notes:
     does not check if the player is injured at all
     """
-    response_messages = ResponseMessage()
-    bot.tn.debuffplayer(target_player, "brokenLeg")
-    bot.tn.debuffplayer(target_player, "sprainedLeg")
-    message = "your legs have been taken care of ^^"
-    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
-    response_messages.add_message(message, True)
+    try:
+        response_messages = ResponseMessage()
+        bot.tn.debuffplayer(target_player, "brokenLeg")
+        bot.tn.debuffplayer(target_player, "sprainedLeg")
+        message = "your legs have been taken care of ^^"
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        response_messages.add_message(message, True)
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -57,13 +62,18 @@ def stop_the_bleeding(bot, source_player, target_player, command):
     notes:
     does not check if the player is injured at all
     """
-    response_messages = ResponseMessage()
-    bot.tn.debuffplayer(target_player, "bleeding")
-    message = "your wounds have been bandaided ^^"
-    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
-    response_messages.add_message(message, True)
+    try:
+        response_messages = ResponseMessage()
+        bot.tn.debuffplayer(target_player, "bleeding")
+        message = "your wounds have been bandaided ^^"
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        response_messages.add_message(message, True)
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -94,13 +104,18 @@ def apply_first_aid(bot, source_player, target_player, command):
     notes:
     does not check if the player is injured at all
     """
-    response_messages = ResponseMessage()
-    bot.tn.buffplayer(target_player, "firstAidLarge")
-    message = "feel the power flowing through you!! ^^"
-    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
-    response_messages.add_message(message, True)
+    try:
+        response_messages = ResponseMessage()
+        bot.tn.buffplayer(target_player, "firstAidLarge")
+        message = "feel the power flowing through you!! ^^"
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        response_messages.add_message(message, True)
 
-    return response_messages
+        return response_messages
+
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
@@ -117,21 +132,26 @@ common.actions_list.append({
 
 
 def remove_entity(bot, source_player, target_player, command):
-    p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
-    if p:
-        response_messages = ResponseMessage()
-        entity_id = p.group("entity_id")
-        if bot.tn.remove_entity(entity_id):
-            message = "entity with id {} removed".format(entity_id)
-            logger.info(message)
+    try:
+        p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
+        if p:
+            response_messages = ResponseMessage()
+            entity_id = p.group("entity_id")
+            if bot.tn.remove_entity(entity_id):
+                message = "entity with id {} removed".format(entity_id)
+                logger.info(message)
+            else:
+                message = "removing of entity with id {} failed :/".format(entity_id)
+            response_messages.add_message(message, True)
+
+            return response_messages
+
         else:
-            message = "removing of entity with id {} failed :/".format(entity_id)
-        response_messages.add_message(message, True)
+            raise ValueError("action does not fully match the trigger-string")
 
-        return response_messages
-
-    else:
-        raise ValueError("action does not fully match the trigger-string")
+    except Exception as e:
+        logger.exception(e)
+        pass
 
 
 common.actions_list.append({
