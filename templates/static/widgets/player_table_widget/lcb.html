@@ -1,7 +1,11 @@
 {% if lcb_list %}
 <ul id="plcbw_{{ player_object.steamid }}">
     {% for location in lcb_list %}
-    <li>(x:{{ location[0] }}, y:{{ location[1] }}, z:{{ location[1] }})</li>
+    <li onclick="center_canvas_on_coords({{ location[0] }}, {{ location[2] }}); return false;"><span>(x:{{ location[0] }}, y:{{ location[1] }}, z:{{ location[2] }})</span></li>
     {% endfor %}
 </ul>
+{% else %}
+<div id="plcbw_{{ player_object.steamid }}">
+    <span>no lcb placed</span>
+</div>
 {% endif %}

@@ -195,6 +195,10 @@ function init_radar() {
     window.socket.emit('initiate_leaflet', {data: true});
 }
 
-function center_canvas_on(id) {
+function center_canvas_on_marker(id) {
     window.map.panTo(markers[id].getLatLng());
+}
+
+function center_canvas_on_coords(pos_x, pos_z) {
+    window.map.panTo(xy(pos_x, pos_z));
 }

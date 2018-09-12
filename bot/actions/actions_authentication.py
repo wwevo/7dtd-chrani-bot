@@ -15,7 +15,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        response_messages.add_message("Player {} has been seen in the srtream".format(target_player.name), True)
+        response_messages.add_message("Player {} has been seen in the stream".format(target_player.name), True)
 
         target_player.is_online = True
         bot.players.upsert(target_player, save=True)

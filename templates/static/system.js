@@ -71,10 +71,11 @@ $(document).ready(
             $("main #banned_players_widget").toggleClass("shamed");
             $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").toggle();
             $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").toggle();
-            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").toggle();
+            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").toggleClass("tiny");
             $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").toggle();
             $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").toggle();
             $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").toggle();
+            $("main #player_table_widget td:nth-child(8), main #player_table_widget th:nth-child(8)").toggle();
             if ($("main #location_radar_widget").hasClass("dominant")) {
                 Cookies.set("map_fullscreen", true);
             } else {
@@ -95,10 +96,11 @@ $(document).ready(
             $("main #banned_players_widget").addClass("shamed");
             $("main #player_table_widget td:nth-child(2), main #player_table_widget th:nth-child(2)").hide();
             $("main #player_table_widget td:nth-child(3), main #player_table_widget th:nth-child(3)").hide();
-            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").hide();
+            $("main #player_table_widget td:nth-child(4), main #player_table_widget th:nth-child(4)").addClass("tiny");
             $("main #player_table_widget td:nth-child(5), main #player_table_widget th:nth-child(5)").hide();
             $("main #player_table_widget td:nth-child(6), main #player_table_widget th:nth-child(6)").hide();
             $("main #player_table_widget td:nth-child(7), main #player_table_widget th:nth-child(7)").hide();
+            $("main #player_table_widget td:nth-child(8), main #player_table_widget th:nth-child(8)").hide();
         }
 
         // These should come last so we have no flicker while rearranging stuff ^^

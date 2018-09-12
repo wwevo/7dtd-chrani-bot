@@ -171,6 +171,26 @@ footer {
     background-color: #ccfccc;
 }
 
+/* player landclaim widget */
+.tiny [id^=plcbw_] span {
+    display: none; visibility: hidden;
+    overflow: hidden;
+}
+
+.tiny [id^=plcbw_] li {
+    border: 1px solid black;
+    width: 12px; height: 12px;
+    float: left;
+}
+
+.tiny [id^=plcbw_] li {
+    margin-right: 0.125em;
+}
+
+.tiny [id^=plcbw_] li:last-child {
+    margin-right: 0;
+}
+
 /* player location widget */
 [id^=plw_] .is_outside {
     background-color: #eeeeee;

@@ -106,7 +106,7 @@ class ChraniBot(Thread):
         self.listplayers_interval = 1.5
         self.listplayers_interval_idle = self.listplayers_interval * 10
 
-        self.listlandprotection_interval = 45
+        self.listlandprotection_interval = 15
 
         self.whitelist = Whitelist()
         if self.settings.get_setting_by_name('whitelist_active') is not False:
@@ -205,7 +205,12 @@ class ChraniBot(Thread):
             for keystone in keystones:
                 keystone_list.append(keystone)
 
-            lcb_dict.update({m.group("player_steamid"): keystone_list})
+            try:
+                target_player = self.players.get_by_steamid(m.group("player_steamid"))
+            except KeyError:
+                continue
+
+            lcb_dict.update({target_player.steamid: keystone_list})
 
         return lcb_dict
 
@@ -310,7 +315,18 @@ class ChraniBot(Thread):
                         self.oberservers_execution_time = execution_time / count
 
                 if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
-                    self.landclaims_dict = self.poll_lcb()
+                    polled_lcb = self.poll_lcb()
+                    lcb_owners_to_update = [x for x in self.landclaims_dict.keys() if x not in polled_lcb.keys()]
+
+                    lcb_owners_to_update.extend(polled_lcb.keys())
+                    for lcb_widget_owner in lcb_owners_to_update:
+                        try:
+                            player_object = self.players.get_by_steamid(lcb_widget_owner)
+                        except KeyError:
+                            continue
+
+                        self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                    self.landclaims_dict = polled_lcb
                     listlandprotection_timeout_start = time.time()
 
                 if telnet_lines is not None:

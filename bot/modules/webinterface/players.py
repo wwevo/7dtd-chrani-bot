@@ -58,7 +58,11 @@ common.actions_list.append({
 
 def get_player_lcb_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    try:
+        player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    except KeyError:
+        return ""
+
     try:
         lcb_list = webinterface.landclaims_dict[target_player_steamid]
     except:

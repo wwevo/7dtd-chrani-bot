@@ -14,6 +14,10 @@ $(document).ready(function(){
         refresh_player_permissions_widget(msg)
     });
 
+    window.socket.on('refresh_player_lcb_widget', function(msg) {
+        refresh_player_lcb_widget(msg)
+    });
+
     window.socket.on('refresh_locations', function(msg) {
         refresh_player_locations_widget(msg)
     });
