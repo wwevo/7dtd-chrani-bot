@@ -139,9 +139,9 @@ def remove_entity(bot, source_player, target_player, command):
             entity_id = p.group("entity_id")
             if bot.tn.remove_entity(entity_id):
                 message = "entity with id {} removed".format(entity_id)
-                logger.info(message)
             else:
                 message = "removing of entity with id {} failed :/".format(entity_id)
+            logger.info(message)
             response_messages.add_message(message, True)
 
             return response_messages
