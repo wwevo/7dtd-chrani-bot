@@ -37,8 +37,8 @@ def on_player_join(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -83,8 +83,8 @@ def on_player_death(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

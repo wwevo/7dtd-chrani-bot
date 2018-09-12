@@ -15,8 +15,8 @@ def check_building_site(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "bases near: {}, landclaims near: {}".format(len(bases_near_list), len(landclaims_near_list)), color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -72,8 +72,8 @@ def set_up_home(bot, source_player, target_player, command):
 
         return response_messages
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -106,8 +106,8 @@ def remove_home(bot, source_player, target_player, command):
         return True
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -139,8 +139,8 @@ def set_up_home_teleport(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "your position seems to be outside your home", color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -173,8 +173,8 @@ def protect_inner_core(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -207,8 +207,8 @@ def unprotect_inner_core(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -251,8 +251,8 @@ def set_up_home_name(bot, source_player, target_player, command):
         return True
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -284,8 +284,8 @@ def take_me_home(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "You seem to be homeless".format(target_player.name), color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -322,8 +322,8 @@ def goto_player_home(bot, source_player, target_player, command):
                 pass
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -368,8 +368,8 @@ def set_up_home_outer_perimeter(bot, source_player, target_player, command):
         bot.locations.upsert(location_object, save=True)
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -406,8 +406,8 @@ def set_up_home_inner_perimeter(bot, source_player, target_player, command):
         bot.locations.upsert(location_object, save=True)
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

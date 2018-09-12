@@ -75,8 +75,8 @@ def set_up_location(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -115,8 +115,8 @@ def set_up_location_teleport(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -163,8 +163,8 @@ def set_up_location_name(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -203,8 +203,8 @@ def change_location_visibility(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -256,8 +256,8 @@ def set_up_location_outer_perimeter(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -302,8 +302,8 @@ def set_up_location_inner_perimeter(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -337,8 +337,8 @@ def list_locations(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -378,8 +378,8 @@ def goto_location(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -435,8 +435,8 @@ def remove_location(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -476,8 +476,8 @@ def protect_inner_core(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -517,8 +517,8 @@ def unprotect_inner_core(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -564,8 +564,8 @@ def change_perimeter_warning(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -610,8 +610,8 @@ def change_location_shape(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -654,8 +654,8 @@ def change_location_type(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

@@ -33,8 +33,8 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -166,8 +166,8 @@ def password(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -242,8 +242,8 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -318,8 +318,8 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

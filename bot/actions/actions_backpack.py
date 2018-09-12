@@ -35,8 +35,8 @@ def on_player_death(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -57,8 +57,8 @@ def on_player_kill(bot, source_player, target_player, command):
         return on_player_death(bot, source_player, target_player, command)
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -113,8 +113,8 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

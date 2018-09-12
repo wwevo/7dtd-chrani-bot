@@ -46,8 +46,8 @@ def password(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -99,8 +99,8 @@ def set_up_lobby(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -150,8 +150,8 @@ def set_up_lobby_outer_perimeter(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -194,8 +194,8 @@ def set_up_lobby_inner_perimeter(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -221,8 +221,8 @@ def goto_lobby(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "There is no lobby :(", color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -257,8 +257,8 @@ def remove_lobby(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -289,8 +289,8 @@ def set_up_lobby_teleport(bot, source_player, target_player, command):
             bot.tn.send_message_to_player(target_player, "your position seems to be outside of the location", color=bot.chat_colors['warning'])
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

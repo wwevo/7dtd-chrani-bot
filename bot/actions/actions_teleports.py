@@ -75,8 +75,8 @@ def set_up_teleport_point(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -133,8 +133,8 @@ def connect_teleport(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -188,8 +188,8 @@ def activate_teleport(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -232,8 +232,8 @@ def deactivate_teleport(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

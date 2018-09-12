@@ -46,8 +46,8 @@ def add_player_to_whitelist(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -108,8 +108,8 @@ def remove_player_from_whitelist(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -137,8 +137,8 @@ def activate_whitelist(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -166,8 +166,8 @@ def deactivate_whitelist(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

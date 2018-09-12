@@ -28,14 +28,14 @@ def reload_from_db(bot, source_player, target_player, command):
             message = "loading data from storage failed."
             bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, False)
-            logger.exception(e)
+            logger.debug(e)
             pass
 
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 common.actions_list.append({
     "match_mode": "isequal",
@@ -76,7 +76,7 @@ def shutdown_bot(bot, source_player, target_player, command):
                 bot.tn.say(message, color=bot.chat_colors['background'])
                 bot.initiate_shutdown = True
             except Exception as e:
-                logger.exception(e)
+                logger.debug(e)
                 pass
 
             return ResponseMessage()
@@ -84,8 +84,8 @@ def shutdown_bot(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -126,14 +126,14 @@ def pause_bot(bot, source_player, target_player, command):
             message = "Pausing of the bot failed."
             response_messages.add_message(message, False)
             bot.tn.say(message, color=bot.chat_colors['warning'])
-            logger.exception(e)
+            logger.debug(e)
             pass
 
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -174,14 +174,14 @@ def resume_bot(bot, source_player, target_player, command):
             message = "Resuming of the bot failed."
             response_messages.add_message(message, False)
             bot.tn.say(message, color=bot.chat_colors['warning'])
-            logger.exception(e)
+            logger.debug(e)
             pass
 
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -208,15 +208,15 @@ def shutdown_server(bot, source_player, target_player, command):
                 bot.tn.say(message, color=bot.chat_colors['background'])
                 bot.tn.shutdown()
             except Exception as e:
-                logger.exception(e)
+                logger.debug(e)
 
             return ResponseMessage()
         else:
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({

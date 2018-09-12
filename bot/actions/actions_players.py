@@ -20,8 +20,8 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -63,8 +63,8 @@ def on_player_leave(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -91,8 +91,8 @@ def on_player_death(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -119,8 +119,8 @@ def on_player_kill(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -169,8 +169,8 @@ def teleport_player_to_coords(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -209,7 +209,7 @@ def teleport_self_to_player(bot, source_player, target_player, command):
                 return False
 
         except Exception as e:
-            logger.exception(e)
+            logger.debug(e)
             raise KeyError
 
         coord_tuple = (player_object_to_teleport_to.pos_x, player_object_to_teleport_to.pos_y, player_object_to_teleport_to.pos_z)
@@ -225,8 +225,8 @@ def teleport_self_to_player(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -265,7 +265,7 @@ def teleport_player_to_self(bot, source_player, target_player, command):
                 return False
 
         except Exception as e:
-            logger.exception(e)
+            logger.debug(e)
             raise KeyError
 
         coord_tuple = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
@@ -281,8 +281,8 @@ def teleport_player_to_self(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -325,14 +325,14 @@ def list_online_players(bot, source_player, target_player, command):
             response_messages.add_message(message, True)
 
         except Exception as e:
-            logger.exception(e)
+            logger.debug(e)
             pass
 
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -387,8 +387,8 @@ def list_available_player_actions(bot, source_player, target_player, command):
         return response_messages
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -464,8 +464,8 @@ def obliterate_player(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -501,8 +501,8 @@ def obliterate_me(bot, source_player, target_player, command):
         return obliterate_player(bot, source_player, target_player, "obliterate player {}".format(target_player.steamid))
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -570,8 +570,8 @@ def ban_player(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -627,8 +627,8 @@ def unban_player(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
@@ -684,8 +684,8 @@ def kick_player(bot, source_player, target_player, command):
             raise ValueError("action does not fully match the trigger-string")
 
     except Exception as e:
-        logger.exception(e)
-        pass
+        logger.debug(e)
+        raise
 
 
 common.actions_list.append({
