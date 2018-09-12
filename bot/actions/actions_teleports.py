@@ -4,15 +4,17 @@ from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 import common
 
+from bot.actions.actions_locations import location_identifier_regex
+
 
 def set_up_teleport_point(bot, source_player, target_player, command):
     try:
-        p = re.search(r"add\steleport\spoint\s(?P<location_name>[\W\w\s].*)$", command)
+        p = re.search(r"add\steleport\s(?P<location_name>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             name = p.group("location_name")
             location_name_is_not_reserved = False
-            if name in ["point", "teleport", "lobby", "spawn", "home", "death"]:
+            if name in bot.settings.get_setting_by_name("restricted_names"):
                 message = "{} is a reserved name!".format(name)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
@@ -80,8 +82,8 @@ def set_up_teleport_point(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "startswith",
     "command": {
-        "trigger": "add teleport point",
-        "usage": "/add teleport point <location name>"
+        "trigger": "add teleport",
+        "usage": "/add teleport <location name>"
     },
     "action": set_up_teleport_point,
     "env": "(self, command)",
@@ -92,21 +94,24 @@ common.actions_list.append({
 
 def connect_teleport(bot, source_player, target_player, command):
     try:
-        p = re.search(r"connect\steleport\s(?P<source_location_identifier>[\W\w\s]{1,19})\swith\s(?P<target_location_identifier>[\W\w\s]{1,19})$", command)
+        p = re.search(r"connect\steleport\s(?P<source_location_identifier>{lir})\swith\s(?P<target_location_identifier>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
+
             source_location_identifier = p.group("source_location_identifier")
             source_location_exists = False
+
             try:
                 source_location_object = bot.locations.get('system', source_location_identifier)
                 source_location_exists = True
             except KeyError:
-                message = "your source location does not exist :("
+                message = "The source location does not exist :("
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
 
             target_location_identifier = p.group("target_location_identifier")
             target_location_exists = False
+
             try:
                 target_location_object = bot.locations.get('system', target_location_identifier)
                 target_location_exists = True
@@ -147,7 +152,7 @@ common.actions_list.append({
 
 def activate_teleport(bot, source_player, target_player, command):
     try:
-        p = re.search(r"activate\steleport\s(?P<location_identifier>[\W\w\s]{1,19})$", command)
+        p = re.search(r"activate\steleport\s(?P<location_identifier>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             source_location_identifier = p.group("location_identifier")
@@ -202,7 +207,7 @@ common.actions_list.append({
 
 def deactivate_teleport(bot, source_player, target_player, command):
     try:
-        p = re.search(r"deactivate\steleport\s(?P<location_identifier>[\W\w\s]{1,19})$", command)
+        p = re.search(r"deactivate\steleport\s(?P<location_identifier>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             source_location_identifier = p.group("location_identifier")

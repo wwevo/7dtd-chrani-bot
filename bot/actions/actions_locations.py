@@ -4,10 +4,12 @@ from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 import common
 
+location_identifier_regex = r"[\w\s(\'\"\(\)\!\?)]{1,19}"
+
 
 def set_up_location(bot, source_player, target_player, command):
     try:
-        p = re.search(r"add\slocation\s(?P<location_name>[\W\w\s].*)$", command)
+        p = re.search(r"add\slocation\s(?P<location_name>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             name = p.group("location_name")
@@ -92,7 +94,7 @@ common.actions_list.append({
 
 def set_up_location_teleport(bot, source_player, target_player, command):
     try:
-        p = re.search(r"edit\slocation\steleport\s(?P<location_identifier>[\W\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\steleport\s(?P<location_identifier>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -132,7 +134,7 @@ common.actions_list.append({
 
 def set_up_location_name(bot, source_player, target_player, command):
     try:
-        p = re.search(r"edit\slocation\sname\s(?P<location_identifier>[\W\w\s]{1,19})\s=\s(?P<location_name>[\W\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\sname\s(?P<location_identifier>{lir})\s=\s(?P<location_name>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -180,7 +182,7 @@ common.actions_list.append({
 
 def change_location_visibility(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(public|private))$", command)
+        p = re.search(r"make\slocation\s(?P<location_identifier>{lir})\s(?P<status>(public|private))$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -220,7 +222,7 @@ common.actions_list.append({
 
 def set_up_location_outer_perimeter(bot, source_player, target_player, command):
     try:
-        p = re.search(r"edit\slocation\souter\sperimeter\s(?P<location_identifier>[\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\souter\sperimeter\s(?P<location_identifier>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -273,7 +275,7 @@ common.actions_list.append({
 
 def set_up_location_inner_perimeter(bot, source_player, target_player, command):
     try:
-        p = re.search(r"edit\slocation\sinner\sperimeter\s(?P<location_identifier>[\w\s]{1,19})$", command)
+        p = re.search(r"edit\slocation\sinner\sperimeter\s(?P<location_identifier>{lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -354,7 +356,7 @@ common.actions_list.append({
 
 def goto_location(bot, source_player, target_player, command):
     try:
-        p = re.search(r"goto\slocation\s([\w\s]{1,19})$", command)
+        p = re.search(r"goto\slocation\s({lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             location_identifier = p.group(1)
@@ -395,7 +397,7 @@ common.actions_list.append({
 
 def remove_location(bot, source_player, target_player, command):
     try:
-        p = re.search(r"remove\slocation\s([\w\s]{1,19})$", command)
+        p = re.search(r"remove\slocation\s({lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group(1)
@@ -452,7 +454,7 @@ common.actions_list.append({
 
 def protect_inner_core(bot, source_player, target_player, command):
     try:
-        p = re.search(r"enable\slocation\sprotection\s([\w\s]{1,19})$", command)
+        p = re.search(r"enable\slocation\sprotection\s({lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group(1)
@@ -493,7 +495,7 @@ common.actions_list.append({
 
 def unprotect_inner_core(bot, source_player, target_player, command):
     try:
-        p = re.search(r"disable\slocation\sprotection\s([\w\s]{1,19})$", command)
+        p = re.search(r"disable\slocation\sprotection\s({lir})$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group(1)
@@ -534,7 +536,7 @@ common.actions_list.append({
 
 def change_perimeter_warning(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<status>(warn\son\souter|warn\son\sboth|never\swarn))$", command)
+        p = re.search(r"make\slocation\s(?P<location_identifier>{lir})\s(?P<status>(warn\son\souter|warn\son\sboth|never\swarn))$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -581,7 +583,7 @@ common.actions_list.append({
 
 def change_location_shape(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<shape>(a\ssphere|a\scube|a\sround\sarea|a\ssquare\sarea))$", command)
+        p = re.search(r"make\slocation\sa\s(?P<location_identifier>{lir})\s(?P<shape>(sphere|cube|round\sarea|square\sarea))$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
@@ -627,7 +629,7 @@ common.actions_list.append({
 
 def change_location_type(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\slocation\s(?P<location_identifier>[\W\w\s]{1,19})\s(?P<type>(a\svillage|a\sstandard location|a\steleport))$", command)
+        p = re.search(r"make\slocation\sa\s(?P<location_identifier>{lir})\s(?P<type>(village|standard location|teleport))$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
