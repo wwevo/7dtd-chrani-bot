@@ -214,6 +214,28 @@ class ChraniBot(Thread):
 
         return lcb_dict
 
+    def get_lcb_marker_json(self, lcb_dict):
+        lcb_list_final = []
+        server_settings = self.server_settings_dict
+        land_claim_size = server_settings["LandClaimSize"]
+        for lcb_owner, lcb_list in lcb_dict.iteritems():
+            for lcb in lcb_list:
+                lcb_list_final.append({
+                    "id": "{}_lcb_{}{}{}".format(str(lcb_owner), str(lcb[0]), str(lcb[1]), str(lcb[2])),
+                    "owner": str(lcb_owner),
+                    "identifier": "{}_lcb_{}{}{}".format(str(lcb_owner), str(lcb[0]), str(lcb[1]), str(lcb[2])),
+                    "name": str(lcb_owner),
+                    "radius": int(land_claim_size),
+                    "inner_radius": 3,
+                    "pos_x": int(lcb[0]),
+                    "pos_y": int(lcb[1]),
+                    "pos_z": int(lcb[2]),
+                    "type": "square",
+                    "layerGroup": "landclaims"
+                })
+
+        return lcb_list_final
+
     def get_game_preferences(self):
         game_preferences = self.tn.get_game_preferences()
         logger.debug(game_preferences)
@@ -316,16 +338,20 @@ class ChraniBot(Thread):
 
                 if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
                     polled_lcb = self.poll_lcb()
-                    lcb_owners_to_update = [x for x in self.landclaims_dict.keys() if x not in polled_lcb.keys()]
-
-                    lcb_owners_to_update.extend(polled_lcb.keys())
-                    for lcb_widget_owner in lcb_owners_to_update:
+                    lcb_owners_to_delete = {}
+                    lcb_owners_to_update = {}
+                    lcb_owners_to_update.update(polled_lcb)
+                    for lcb_widget_owner in lcb_owners_to_update.keys():
                         try:
                             player_object = self.players.get_by_steamid(lcb_widget_owner)
                         except KeyError:
                             continue
 
                         self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+
+                    self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
+                    self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
+
                     self.landclaims_dict = polled_lcb
                     listlandprotection_timeout_start = time.time()
 

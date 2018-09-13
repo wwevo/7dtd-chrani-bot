@@ -67,6 +67,7 @@ def get_player_lcb_widget(target_player_steamid):
         lcb_list = webinterface.landclaims_dict[target_player_steamid]
     except:
         lcb_list = []
+
     return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/lcb.html', bot=webinterface, player_object=player_object, lcb_list=lcb_list))
 
 

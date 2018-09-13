@@ -184,7 +184,7 @@ footer {
 }
 
 .tiny [id^=plcbw_] li {
-    margin-right: 0.125em;
+    margin: 0.125em 0.125em 0 0;
 }
 
 .tiny [id^=plcbw_] li:last-child {

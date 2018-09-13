@@ -160,7 +160,7 @@ function removeMarkers(data) {
     data.forEach(function (obj) {
         // Check if there is already a marker with that id in the markers object
         if (markers.hasOwnProperty(obj.id)) {
-            if (obj.type == "circle") {
+            if (obj.type == "circle" || obj.type == "square") {
                 window.map.removeLayer(markers[obj.id]);
                 window.map.removeLayer(markers[obj.id + "_inner"]);
                 delete markers[obj.id + "_inner"];
