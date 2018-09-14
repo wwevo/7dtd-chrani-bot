@@ -32,25 +32,26 @@ class Players(object):
             listplayers_result = bot.poll_tn.listplayers()
             for m in re.finditer(bot.match_types_system["listplayers_result_regexp"], listplayers_result):
                 online_players_dict.update({m.group(16): {
-                    "entityid":     m.group(1),
-                    "name":         str(m.group(2)),
-                    "pos_x":        float(m.group(3)),
-                    "pos_y":        float(m.group(4)),
-                    "pos_z":        float(m.group(5)),
-                    "rot_x":        float(m.group(6)),
-                    "rot_y":        float(m.group(7)),
-                    "rot_z":        float(m.group(8)),
-                    "remote":       bool(m.group(9)),
-                    "health":       int(m.group(10)),
-                    "deaths":       int(m.group(11)),
-                    "zombies":      int(m.group(12)),
-                    "players":      int(m.group(13)),
-                    "score":        m.group(14),
-                    "level":        m.group(15),
-                    "steamid":      m.group(16),
-                    "ip":           str(m.group(17)),
-                    "ping":         int(m.group(18)),
-                    "is_online":    True
+                    "entityid":         m.group(1),
+                    "name":             str(m.group(2)),
+                    "pos_x":            float(m.group(3)),
+                    "pos_y":            float(m.group(4)),
+                    "pos_z":            float(m.group(5)),
+                    "rot_x":            float(m.group(6)),
+                    "rot_y":            float(m.group(7)),
+                    "rot_z":            float(m.group(8)),
+                    "remote":           bool(m.group(9)),
+                    "health":           int(m.group(10)),
+                    "deaths":           int(m.group(11)),
+                    "zombies":          int(m.group(12)),
+                    "players":          int(m.group(13)),
+                    "score":            m.group(14),
+                    "level":            m.group(15),
+                    "steamid":          m.group(16),
+                    "ip":               str(m.group(17)),
+                    "ping":             int(m.group(18)),
+                    "is_online":        True,
+                    "is_logging_in":    False
                 }})
             return online_players_dict
 

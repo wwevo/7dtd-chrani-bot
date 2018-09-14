@@ -15,9 +15,10 @@ def on_enter_gameworld(bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        response_messages.add_message("Player {} has been seen in the stream".format(target_player.name), True)
+        response_messages.add_message("Player {} has been seen in the logs".format(target_player.name), True)
 
         target_player.is_online = True
+        target_player.is_logging_in = False
         bot.players.upsert(target_player, save=True)
 
         if not target_player.has_permission_level("authenticated"):
@@ -40,7 +41,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "entered the stream",
+        "trigger": "EnterMultiplayer",
         "usage": None
     },
     "action": on_enter_gameworld,
@@ -52,7 +53,7 @@ common.actions_list.append({
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "EnterMultiplayer",
+        "trigger": "found in the world",
         "usage": None
     },
     "action": on_enter_gameworld,

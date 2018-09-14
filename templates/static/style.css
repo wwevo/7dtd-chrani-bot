@@ -171,6 +171,14 @@ footer {
     background-color: #ccfccc;
 }
 
+#player_table_widget > table > tbody > tr.connecting {
+    background-color: #eeffee;
+}
+
+#player_table_widget > table > tbody > tr:nth-child(odd) .connecting {
+    background-color: #eefeee;
+}
+
 /* player landclaim widget */
 .tiny [id^=plcbw_] span {
     display: none; visibility: hidden;

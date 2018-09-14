@@ -22,7 +22,8 @@ def get_player_status(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)
     player_status = {
-        "is_online": player_object.is_online
+        "is_online": player_object.is_online,
+        "is_logging_in": player_object.is_logging_in
     }
     return webinterface.app.response_class(
         response=webinterface.flask.json.dumps(player_status),

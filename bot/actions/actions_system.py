@@ -37,6 +37,7 @@ def reload_from_db(bot, source_player, target_player, command):
         logger.debug(e)
         raise
 
+
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {

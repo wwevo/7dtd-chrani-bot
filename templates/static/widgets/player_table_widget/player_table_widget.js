@@ -17,11 +17,20 @@ function update_player_status(msg) {
             xhr.setRequestHeader('Accept', 'application/json');
         },
         success: function(data) {
-            if (data["is_online"] == true) {
+            if (data["is_logging_in"] == true) {
+                $('#opw_' + msg.steamid).addClass("connecting");
+                $('#opw_' + msg.steamid).removeClass("offline");
+                $('#opw_' + msg.steamid).removeClass("online");
+                $('#opw_' + msg.steamid).appendTo('#player_table_widget > table');
+            } else if (data["is_online"] == true) {
                 $('#opw_' + msg.steamid).addClass("online");
+                $('#opw_' + msg.steamid).removeClass("connecting");
+                $('#opw_' + msg.steamid).removeClass("offline");
                 $('#opw_' + msg.steamid).prependTo('#player_table_widget > table');
             } else {
+                $('#opw_' + msg.steamid).addClass("offline");
                 $('#opw_' + msg.steamid).removeClass("online");
+                $('#opw_' + msg.steamid).removeClass("connecting");
                 $('#opw_' + msg.steamid).appendTo('#player_table_widget > table');
             }
             refresh_player_actions_widget(msg);

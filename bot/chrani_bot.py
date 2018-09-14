@@ -395,6 +395,7 @@ class ChraniBot(Thread):
                                         "name": player_name,
                                         "steamid": player_id,
                                         "ip": player_ip,
+                                        "is_logging_in": True,
                                         "is_online": True,
                                         "pos_x": 0.0,
                                         "pos_y": 0.0,

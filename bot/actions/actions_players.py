@@ -5,6 +5,42 @@ import re
 import common
 
 
+def on_enter_telnet(bot, source_player, target_player, command):
+    """Will greet an unauthenticated player
+
+    Keyword arguments:
+    self -- the bot
+
+    notes:
+    does nothing for authenticated players
+    """
+    try:
+        response_messages = ResponseMessage()
+        response_messages.add_message("Player {} has been seen in the stream".format(target_player.name), True)
+        target_player.is_logging_in = True
+        bot.players.upsert(target_player, save=True)
+
+        bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "entered the stream",
+        "usage": None
+    },
+    "action": on_enter_telnet,
+    "group": "players",
+    "essential": True
+})
+
+
 def on_enter_gameworld(bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
