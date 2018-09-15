@@ -3,13 +3,11 @@ import re
 import time
 import datetime
 import math
-import sys
 import os
 from collections import deque
 from threading import Event
 
 from bot.player_observer import PlayerObserver
-from bot.objects.player import Player
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
@@ -131,7 +129,7 @@ class ChraniBot(Thread):
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat|Chat): '(?P<player_name>.*)': /(?P<command>.*)",
+            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat): '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
