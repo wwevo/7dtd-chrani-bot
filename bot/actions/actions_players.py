@@ -94,7 +94,7 @@ def on_player_leave(bot, source_player, target_player, command):
         bot.players.upsert(target_player, save=True)
         bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         message = "Player {} left the game".format(target_player.name)
-        response_messages.add_message(message, False)
+        response_messages.add_message(message, True)
 
         return response_messages
 
@@ -107,6 +107,19 @@ common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "left the game",
+        "usage": None
+    },
+    "action": on_player_leave,
+    "env": "(self)",
+    "group": "players",
+    "essential": True
+})
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "disconnected",
         "usage": None
     },
     "action": on_player_leave,

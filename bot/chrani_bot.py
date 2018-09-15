@@ -134,7 +134,8 @@ class ChraniBot(Thread):
             'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat| Chat): '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
-            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)"
+            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
+            'hacker_stacksize': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player\swith\sID\s(?P<entity_id>[0-9]+)\s(?P<command>.*)"
         }
 
         self.match_types_system = {
@@ -395,16 +396,21 @@ class ChraniBot(Thread):
                     # handle playerspawns
                     m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
                     if m:
-                        connecting_player = self.players.player_entered_telnet(m)
-                        connecting_player.thread.trigger_action(connecting_player.player_object, "entered the stream")
+                        try:
+                            connecting_player = self.players.player_entered_telnet(m)
+                            connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
+                        except KeyError:
+                            pass
 
                     m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
                     if m:
-                        spawning_player = self.players.player_entered_the_world(m)
-                        spawning_player.thread.trigger_action(spawning_player.player_object, "entered the world")
+                        try:
+                            spawning_player = self.players.player_entered_the_world(m)
+                            spawning_player["thread"].trigger_action(spawning_player["player_object"], "entered the world")
+                        except KeyError:
+                            pass
 
                     # handle other spawns
-                    # r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Spawned \[type=(.*), name=zombieScreamer, id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)"
                     m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
                     if m:
                         self.on_screamer_spawn(m)
@@ -413,7 +419,7 @@ class ChraniBot(Thread):
                     check 'chat' telnet-line(s) for any known playername currently online
                     """
                     for player_steamid, player_object in self.players.players_dict.iteritems():
-                        possible_action_for_player = re.search(re.escape(player_object.name), telnet_line)
+                        possible_action_for_player = re.search("{}|{}".format(re.escape(player_object.name), player_object.entityid), telnet_line)
                         if possible_action_for_player:
                             if player_steamid in self.active_player_threads_dict:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]

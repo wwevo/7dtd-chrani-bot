@@ -62,9 +62,10 @@ class Players(object):
                     self.upsert(player_object)
 
                 bot.start_player_thread(player_object)
-                connecting_player = {}
-                connecting_player.thread = bot.active_player_threads_dict[player_id]
-                connecting_player.player_object = player_object
+                connecting_player = {
+                    "thread": bot.active_player_threads_dict[player_id]["thread"],
+                    "player_object": player_object
+                }
 
             return connecting_player
 
@@ -73,13 +74,37 @@ class Players(object):
         try:
             player_id = m.group("player_id")
             command = m.group("command")
+            player_object = self.get_by_steamid(player_id)
+
             if command != "Teleport":
-                player_object = self.load(player_id)
-                spawning_player = {}
-                spawning_player.thread = bot.active_player_threads_dict[player_id]
-                spawning_player.player_object = player_object
+                spawning_player = {
+                    "thread": bot.active_player_threads_dict[player_id]["thread"],
+                    "player_object": player_object
+                }
 
                 return spawning_player
+
+            raise KeyError
+
+        except KeyError:
+            raise
+
+    def player_left_the_world(self, m):
+        bot = __main__.chrani_bot
+        try:
+            player_id = m.group("player_id")
+            command = m.group("command")
+            if command != "Teleport":
+                player_object = self.get_by_steamid(player_id)
+                spawning_player = {
+                    "thread": bot.active_player_threads_dict[player_id]["thread"],
+                    "player_object": player_object
+                }
+
+                return spawning_player
+
+            raise KeyError
+
         except KeyError:
             pass
 

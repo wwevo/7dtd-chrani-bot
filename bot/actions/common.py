@@ -56,12 +56,12 @@ def trigger_action(bot, source_player, target_player, command_parameters):
                 response = command["action"](bot, source_player, target_player, command["command_parameters"])
                 if response is not False:
                     response_messages.add_message(command["func_name"], response.get_message_dict())
-                    bot.socketio.emit('command_log', {"steamid": source_player.steamid, "command": "{}:{}=/{}".format(command["group"], command["func_name"],command["command_parameters"])}, namespace='/chrani-bot/public')
                     logger.info("Player {} has executed {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
-                    continue
             except ValueError as e:
                 logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(source_player.name, command["group"], command["func_name"], command["command_parameters"], e.message))
             except Exception as e:
                 logger.exception(e)
+
+            bot.socketio.emit('command_log', {"steamid": source_player.steamid, "name": source_player.name, "command": "{}:{} = /{}".format(command["group"], command["func_name"],command["command_parameters"])}, namespace='/chrani-bot/public')
 
         return response_messages

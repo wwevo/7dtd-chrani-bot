@@ -118,7 +118,12 @@ class PlayerObserver(Thread):
         for match_type in self.bot.match_types:
             m = re.search(self.bot.match_types[match_type], telnet_line)
             if m:
-                player_name = m.group('player_name')
+                try:
+                    player_name = m.group('player_name')
+                except IndexError:
+                    player_object = self.bot.players.get_by_steamid(self.bot.players.entityid_to_steamid(m.group('entity_id')))
+                    player_name = player_object.name
+
                 command = m.group('command')
                 for player_steamid, player_object in self.bot.players.players_dict.iteritems():
                     if player_object.name == player_name:
