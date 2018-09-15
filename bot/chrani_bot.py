@@ -361,20 +361,21 @@ class ChraniBot(Thread):
                 if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
                     if len(listplayers_dict) > 0 or not self.landclaims_dict:
                         polled_lcb = self.poll_lcb()
-                        lcb_owners_to_delete = {}
-                        lcb_owners_to_update = {}
-                        lcb_owners_to_update.update(polled_lcb)
-                        for lcb_widget_owner in lcb_owners_to_update.keys():
-                            try:
-                                player_object = self.players.get_by_steamid(lcb_widget_owner)
-                            except KeyError:
-                                continue
+                        if polled_lcb != self.landclaims_dict:
+                            lcb_owners_to_delete = {}
+                            lcb_owners_to_update = {}
+                            lcb_owners_to_update.update(polled_lcb)
+                            for lcb_widget_owner in lcb_owners_to_update.keys():
+                                try:
+                                    player_object = self.players.get_by_steamid(lcb_widget_owner)
+                                except KeyError:
+                                    continue
 
-                            self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                                self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
 
-                        self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
-                        self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
-                        self.landclaims_dict = polled_lcb
+                            self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
+                            self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
+                            self.landclaims_dict = polled_lcb
 
                     listlandprotection_timeout_start = time.time()
 
