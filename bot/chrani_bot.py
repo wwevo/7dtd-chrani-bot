@@ -131,7 +131,7 @@ class ChraniBot(Thread):
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat| Chat): '(?P<player_name>.*)': /(?P<command>.*)",
+            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat|Chat): '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
@@ -324,6 +324,10 @@ class ChraniBot(Thread):
                     self.shutdown()
                     continue
 
+                if self.is_paused and self.has_connection:
+                    time.sleep(self.listplayers_interval)
+                    continue
+
                 if timeout_occurred(listplayers_interval, listplayers_timeout_start):
                     if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
                         listplayers_interval = self.listplayers_interval_idle
@@ -332,17 +336,6 @@ class ChraniBot(Thread):
 
                     listplayers_dict = self.players.manage_online_players(self)
                     listplayers_timeout_start = time.time()
-
-                if self.is_paused and self.has_connection:
-                    time.sleep(self.listplayers_interval)
-                    continue
-
-                """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
-                I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
-                try:
-                    telnet_lines = self.tn.read_line()
-                except AttributeError:
-                    raise IOError
 
                 if timeout_occurred(update_status_interval, update_status_timeout_start):
                     self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
@@ -378,6 +371,13 @@ class ChraniBot(Thread):
                             self.landclaims_dict = polled_lcb
 
                     listlandprotection_timeout_start = time.time()
+
+                """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
+                I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
+                try:
+                    telnet_lines = self.tn.read_line()
+                except AttributeError:
+                    raise IOError
 
                 if telnet_lines is not None:
                     for line in telnet_lines:
@@ -420,11 +420,12 @@ class ChraniBot(Thread):
                     check 'chat' telnet-line(s) for any known playername currently online
                     """
                     for player_steamid, player_object in self.players.players_dict.iteritems():
-                        possible_action_for_player = re.search("{}|{}".format(re.escape(player_object.name), player_object.entityid), telnet_line)
-                        if possible_action_for_player:
-                            if player_steamid in self.active_player_threads_dict:
-                                active_player_thread = self.active_player_threads_dict[player_steamid]
-                                active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+                        if player_object.name not in self.settings.get_setting_by_name("restricted_names"):
+                            possible_action_for_player = re.search("{}|{}".format(re.escape(player_object.name), player_object.entityid), telnet_line)
+                            if possible_action_for_player:
+                                if player_steamid in self.active_player_threads_dict:
+                                    active_player_thread = self.active_player_threads_dict[player_steamid]
+                                    active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 time.sleep(0.125)  # to limit the speed a bit ^^
 
