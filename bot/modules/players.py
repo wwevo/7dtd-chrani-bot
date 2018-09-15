@@ -1,3 +1,4 @@
+import __main__  # my ide throws a warning here, but it works oO
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.modules.logger import logger
@@ -25,6 +26,62 @@ class Players(object):
 
         self.players_dict = {}
         self.poll_listplayerfriends_interval = 30
+
+    def player_entered_telnet(self, m):
+        bot = __main__.chrani_bot
+        command = m.group("command")
+        player_id = m.group("player_id")
+        player_name = m.group("player_name")
+        entity_id = m.group("entity_id")
+        player_ip = m.group("player_ip")
+        if command == "connected":
+            player_found = False
+            try:
+                player_object = self.get_by_steamid(player_id)
+                player_found = True
+            except KeyError:
+                pass
+
+            try:
+                connecting_player = bot.active_player_threads_dict[player_id]
+            except KeyError:
+                if not player_found:
+                    player_dict = {
+                        "entityid": entity_id,
+                        "name": player_name,
+                        "steamid": player_id,
+                        "ip": player_ip,
+                        "is_logging_in": True,
+                        "is_online": True,
+                        "pos_x": 0.0,
+                        "pos_y": 0.0,
+                        "pos_z": 0.0,
+                    }
+
+                    player_object = Player(**player_dict)
+                    self.upsert(player_object)
+
+                bot.start_player_thread(player_object)
+                connecting_player = {}
+                connecting_player.thread = bot.active_player_threads_dict[player_id]
+                connecting_player.player_object = player_object
+
+            return connecting_player
+
+    def player_entered_the_world(self, m):
+        bot = __main__.chrani_bot
+        try:
+            player_id = m.group("player_id")
+            command = m.group("command")
+            if command != "Teleport":
+                player_object = self.load(player_id)
+                spawning_player = {}
+                spawning_player.thread = bot.active_player_threads_dict[player_id]
+                spawning_player.player_object = player_object
+
+                return spawning_player
+        except KeyError:
+            pass
 
     def manage_online_players(self, bot):
         def poll_players():

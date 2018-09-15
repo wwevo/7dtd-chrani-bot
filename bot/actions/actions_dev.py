@@ -133,16 +133,19 @@ common.actions_list.append({
 
 def remove_entity(bot, source_player, target_player, command):
     try:
-        p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
+        p = re.search(r"screamer\sspawned\sinside\svillage\s(?P<entity_id>[0-9]+)$", command)
         if p:
             response_messages = ResponseMessage()
             entity_id = p.group("entity_id")
             if bot.tn.remove_entity(entity_id):
-                message = "entity with id {} removed".format(entity_id)
+                message = "shunned screamer ({}) from village ^^".format(entity_id)
+                response_messages.add_message(message, True)
             else:
-                message = "removing of entity with id {} failed :/".format(entity_id)
+                message = "removal of screamer ({}) failed :/".format(entity_id)
+                response_messages.add_message(message, False)
+
             logger.info(message)
-            response_messages.add_message(message, True)
+            bot.tn.say(message, color=bot.chat_colors['background'])
 
             return response_messages
 
@@ -157,7 +160,7 @@ def remove_entity(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "startswith",
     "command": {
-        "trigger": "remove entity",
+        "trigger": "screamer spawned inside village",
         "usage": None
     },
     "action": remove_entity,

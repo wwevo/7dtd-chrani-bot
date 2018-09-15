@@ -217,7 +217,11 @@ class ChraniBot(Thread):
     def get_lcb_marker_json(self, lcb_dict):
         lcb_list_final = []
         server_settings = self.server_settings_dict
-        land_claim_size = server_settings["LandClaimSize"]
+        try:
+            land_claim_size = server_settings["LandClaimSize"]
+        except TypeError:
+            return lcb_list_final
+
         for lcb_owner, lcb_list in lcb_dict.iteritems():
             for lcb in lcb_list:
                 lcb_list_final.append({
@@ -278,6 +282,23 @@ class ChraniBot(Thread):
 
         return clean_bases_near_list, clean_landclaims_near_list
 
+    def on_screamer_spawn(self, m):
+        try:
+            entity_id = m.group("entity_id")
+            pos_x = m.group("pos_x")
+            pos_y = m.group("pos_y")
+            pos_z = m.group("pos_z")
+            command = m.group("command")
+            zombie_name = m.group("zombie_name")
+            player_object = self.players.get_by_steamid('system')
+            if command == "Spawned" and zombie_name == "zombieScreamer":
+                villages = self.locations.find_by_type('village')
+                for village in villages:
+                    if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
+                        self.actions.common.trigger_action(self, player_object, player_object, "screamer spawned inside village {}".format(entity_id))
+        except KeyError:
+            pass
+
     def run(self):
         self.load_from_db()
 
@@ -337,22 +358,23 @@ class ChraniBot(Thread):
                         self.oberservers_execution_time = execution_time / count
 
                 if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
-                    polled_lcb = self.poll_lcb()
-                    lcb_owners_to_delete = {}
-                    lcb_owners_to_update = {}
-                    lcb_owners_to_update.update(polled_lcb)
-                    for lcb_widget_owner in lcb_owners_to_update.keys():
-                        try:
-                            player_object = self.players.get_by_steamid(lcb_widget_owner)
-                        except KeyError:
-                            continue
+                    if len(listplayers_dict) > 0 or not self.landclaims_dict:
+                        polled_lcb = self.poll_lcb()
+                        lcb_owners_to_delete = {}
+                        lcb_owners_to_update = {}
+                        lcb_owners_to_update.update(polled_lcb)
+                        for lcb_widget_owner in lcb_owners_to_update.keys():
+                            try:
+                                player_object = self.players.get_by_steamid(lcb_widget_owner)
+                            except KeyError:
+                                continue
 
-                        self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                            self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
 
-                    self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
-                    self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
+                        self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
+                        self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
+                        self.landclaims_dict = polled_lcb
 
-                    self.landclaims_dict = polled_lcb
                     listlandprotection_timeout_start = time.time()
 
                 if telnet_lines is not None:
@@ -373,74 +395,19 @@ class ChraniBot(Thread):
                     # handle playerspawns
                     m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
                     if m:
-                        command = m.group("command")
-                        player_id = m.group("player_id")
-                        player_name = m.group("player_name")
-                        entity_id = m.group("entity_id")
-                        player_ip = m.group("player_ip")
-                        if command == "connected":
-                            player_found = False
-                            try:
-                                player_object = self.players.get_by_steamid(player_id)
-                                player_found = True
-                            except KeyError:
-                                pass
-
-                            try:
-                                active_player_thread = self.active_player_threads_dict[player_id]
-                            except KeyError:
-                                if not player_found:
-                                    player_dict = {
-                                        "entityid": entity_id,
-                                        "name": player_name,
-                                        "steamid": player_id,
-                                        "ip": player_ip,
-                                        "is_logging_in": True,
-                                        "is_online": True,
-                                        "pos_x": 0.0,
-                                        "pos_y": 0.0,
-                                        "pos_z": 0.0,
-                                    }
-
-                                    player_object = Player(**player_dict)
-                                    self.players.upsert(player_object)
-
-                                self.start_player_thread(player_object)
-                                active_player_thread = self.active_player_threads_dict[player_id]
-
-                            active_player_thread["thread"].trigger_action(player_object, "entered the stream")
+                        connecting_player = self.players.player_entered_telnet(m)
+                        connecting_player.thread.trigger_action(connecting_player.player_object, "entered the stream")
 
                     m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
                     if m:
-                        try:
-                            player_id = m.group("player_id")
-                            command = m.group("command")
-                            if command != "Teleport":
-                                player_object = self.players.load(player_id)
-                                active_player_thread = self.active_player_threads_dict[player_id]
-                                active_player_thread["thread"].trigger_action(player_object, "entered the world")
-                        except KeyError:
-                            pass
+                        spawning_player = self.players.player_entered_the_world(m)
+                        spawning_player.thread.trigger_action(spawning_player.player_object, "entered the world")
 
                     # handle other spawns
                     # r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Spawned \[type=(.*), name=zombieScreamer, id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)"
                     m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
                     if m:
-                        try:
-                            entity_id = m.group("entity_id")
-                            pos_x = m.group("pos_x")
-                            pos_y = m.group("pos_y")
-                            pos_z = m.group("pos_z")
-                            command = m.group("command")
-                            zombie_name = m.group("zombie_name")
-                            player_object = self.players.get_by_steamid('system')
-                            if command == "Spawned" and zombie_name == "zombieScreamer":
-                                villages = self.locations.find_by_type('village')
-                                for village in villages:
-                                    if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
-                                        self.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
-                        except KeyError:
-                            pass
+                        self.on_screamer_spawn(m)
 
                     """ send telnet_line to player-thread
                     check 'chat' telnet-line(s) for any known playername currently online
