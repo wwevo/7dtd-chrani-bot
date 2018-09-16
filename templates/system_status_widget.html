@@ -1,6 +1,8 @@
 
 <div id="bot_status">
-    uptime: ({{ bot.uptime }}), execution time: ({{ "{:02.4f}".format(bot.oberservers_execution_time) }}/{{ "{:02.4f}".format(bot.listplayers_interval) }})<br />
+    bot-uptime: ({{ bot.time_running }}s),
+    execution time: ({{ "{:02.4f}".format(bot.oberservers_execution_time) }}/{{ "{:02.4f}".format(bot.listplayers_interval) }})
+    server-uptime: ({{ bot.server_time_running }}s)<br />
     {% if current_user.is_authenticated %}
         {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
             {% if bot.is_paused == True %}

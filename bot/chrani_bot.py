@@ -7,6 +7,8 @@ import os
 from collections import deque
 from threading import Event
 
+from bot.modules.settings import Settings
+
 from bot.player_observer import PlayerObserver
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
@@ -14,7 +16,6 @@ from bot.assorted_functions import timeout_occurred
 import bot.actions as actions
 import bot.observers as observers
 
-from bot.modules.settings import Settings
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.modules.players import Players
@@ -34,6 +35,7 @@ class ChraniBot(Thread):
 
     time_launched = float
     time_running = float
+    server_time_running = float
     oberservers_execution_time = float
     uptime = str
     is_active = bool  # used for restarting the bot safely after connection loss
@@ -83,7 +85,8 @@ class ChraniBot(Thread):
         self.has_connection = False
         self.settings = Settings()
         self.time_launched = time.time()
-        self.time_running = 0
+        self.time_running = 0.0
+        self.server_time_running = 0.0
         self.uptime = "not available"
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
@@ -124,7 +127,7 @@ class ChraniBot(Thread):
             "error": "8c0012",
             "warning": "ffbf00",
             "alert": "ba0085",
-            "background": "cccccc",
+            "background": "cccccc"
         }
 
         self.match_types = {
@@ -327,7 +330,7 @@ class ChraniBot(Thread):
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active or not self.stopped:
             try:
-                time_running_seconds = int(time.time() - self.time_launched)
+                self.time_running = int(time.time() - self.time_launched)
 
                 if self.initiate_shutdown is True:
                     self.shutdown()
@@ -347,8 +350,6 @@ class ChraniBot(Thread):
                     listplayers_timeout_start = time.time()
 
                 if timeout_occurred(update_status_interval, update_status_timeout_start):
-                    self.time_running = datetime.datetime(1, 1, 1) + datetime.timedelta(seconds=time_running_seconds)
-                    self.uptime = "{}d, {}h{}m".format(self.time_running.day-1, self.time_running.hour, self.time_running.minute)
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
                     self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
                     update_status_timeout_start = time.time()
@@ -402,6 +403,8 @@ class ChraniBot(Thread):
                     if not m or m and m.group('telnet_command') != 'lp' and m.group('telnet_command') != 'llp2':
                         if telnet_line != '':
                             logger.debug(telnet_line)
+                    elif m:
+                        self.server_time_running = int(float(m.group("stardate")))
 
                     # handle playerspawns
                     m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)

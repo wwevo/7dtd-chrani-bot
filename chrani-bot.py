@@ -63,12 +63,11 @@ if __name__ == '__main__':
     def user_loader(steamid):
         try:
             player_object = chrani_bot.players.get_by_steamid(steamid)
-            authentication_groups = chrani_bot.settings.get_setting_by_name("authentication_groups")
+            # authentication_groups = chrani_bot.settings.get_setting_by_name("authentication_groups")
             if any(x in ["donator", "mod", "admin"] for x in player_object.permission_levels):
                 return player_object
         except:
             return None
-
 
     @app.route('/login')
     def login():
