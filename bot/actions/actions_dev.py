@@ -168,3 +168,42 @@ common.actions_list.append({
     "group": "testing",
     "essential": False
 })
+
+
+def supply_crate_spawned(bot, source_player, target_player, command):
+    try:
+        p = re.search(r"an\sairdrop\shas\sarrived\s@\s\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)$", command)
+        if p:
+            response_messages = ResponseMessage()
+            pos_x = p.group("pos_x")
+            pos_y = p.group("pos_y")
+            pos_z = p.group("pos_z")
+            message = "supply crate at position ([ffffff]{pos_x}[-] [ffffff]{pos_y}[-] [ffffff]{pos_z}[-])".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z)
+
+            logger.info(message)
+            online_players = bot.players.get_all_players(get_online_only=True)
+            for player in online_players:
+                if any(x in ["donator", "mod", "admin"] for x in player.permission_levels):
+                    bot.tn.send_message_to_player(player, message, color=bot.chat_colors['success'])
+
+            return response_messages
+
+        else:
+            raise ValueError("action does not fully match the trigger-string")
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "an airdrop has arrived @",
+        "usage": None
+    },
+    "action": supply_crate_spawned,
+    "env": "(self)",
+    "group": "testing",
+    "essential": False
+})

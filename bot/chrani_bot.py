@@ -129,7 +129,7 @@ class ChraniBot(Thread):
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (GameMessage handled by mod ('Coppis command additions'|'Coppis command additions Light'): Chat): '(?P<player_name>.*)': /(?P<command>.*)",
+            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat: '(?P<player_name>.*)': /(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
@@ -159,7 +159,8 @@ class ChraniBot(Thread):
             # 'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
             'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'",
-            'screamer_spawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)"
+            'screamer_spawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)",
+            'airdrop_spawn': r"^(?P<datetime>.+?)\s(?P<stardate>.+?)\sINF\sAIAirDrop:\sSpawned\ssupply\scrate\s@\s\(\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)\)"
         }
 
         self.banned_countries_list = self.settings.get_setting_by_name('banned_countries')
@@ -298,6 +299,16 @@ class ChraniBot(Thread):
         except KeyError:
             pass
 
+    def on_airdrop_spawn(self, m):
+        try:
+            pos_x = m.group("pos_x")
+            pos_y = m.group("pos_y")
+            pos_z = m.group("pos_z")
+            player_object = self.players.get_by_steamid('system')
+            self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x}, {pos_y}, {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
+        except KeyError:
+            pass
+
     def run(self):
         self.load_from_db()
 
@@ -413,6 +424,10 @@ class ChraniBot(Thread):
                     m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
                     if m:
                         self.on_screamer_spawn(m)
+
+                    m = re.search(self.match_types_system["airdrop_spawn"], telnet_line)
+                    if m:
+                        self.on_airdrop_spawn(m)
 
                     """ send telnet_line to player-thread
                     check 'chat' telnet-line(s) for any known playername currently online

@@ -425,12 +425,13 @@ def list_available_player_actions(bot, source_player, target_player, command):
                     available_player_actions.append("({}) - [ffffff]{}[-]".format(function_category, action_string))
 
             bot.tn.send_message_to_player(target_player, "The following actions are available to you:", color=bot.chat_colors['success'])
-            # available_player_actions = list(set(available_player_actions))
+            # available_player_actions = list(set(available_player_actions))  # this removes entries present in more than one group
 
             for player_action in available_player_actions:
                 bot.tn.send_message_to_player(target_player, "{}".format(player_action), color=bot.chat_colors['success'])
 
             message = "Listed {} available actions.".format(len(available_player_actions))
+            bot.tn.send_message_to_player(target_player, message)
             response_messages.add_message(message, True)
 
         return response_messages
