@@ -192,7 +192,7 @@ class ChraniBot(Thread):
         test_str = self.tn.listlandprotection()
 
         # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
-        # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried sting declarations,
+        # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
         # I've tried flags. Something was always up. This is the only way i got this working.
         try:
             unicode(test_str, "ascii")
