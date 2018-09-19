@@ -120,7 +120,3 @@ common.schedulers_dict["list_landprotection"] = {
     "env": "(self)",
     "essential": True
 }
-
-
-
-
