@@ -1,6 +1,7 @@
 import time
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
+from bot.assorted_functions import timepassed_occurred
 import common
 
 
@@ -114,9 +115,35 @@ def list_landprotection(bot):
 common.schedulers_dict["list_landprotection"] = {
     "type": "schedule",
     "title": "list land protection",
-    "trigger": "interval",  # "interval, gametime, gameday"
+    "trigger": "interval",  # "interval, timepassed, gametime, gameday"
     "last_executed": "0",
     "action": list_landprotection,
+    "env": "(self)",
+    "essential": True
+}
+
+
+def reboot(bot):
+    try:
+        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - 5, bot.server_time_running) and bot.reboot_imminent:
+            message = "server will restart NOW!!"
+            bot.reboot_imminent = False
+            bot.tn.say(message, color=bot.chat_colors['warning'])
+            common.schedulers_dict["reboot"]["last_executed"] = time.time()
+            bot.tn.shutdown()
+
+            return True
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.schedulers_dict["reboot"] = {
+    "type": "schedule",
+    "title": "reboot",
+    "trigger": "timepassed",  # "interval, gametime, gameday"
+    "last_executed": time.time(),
+    "action": reboot,
     "env": "(self)",
     "essential": True
 }

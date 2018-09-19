@@ -1,6 +1,7 @@
 import time
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
+from bot.assorted_functions import timepassed_occurred
 import common
 import random
 
@@ -32,6 +33,34 @@ common.schedulers_dict["rolling_announcements"] = {
     "trigger": "interval",  # "interval, gametime, gameday"
     "last_executed": time.time(),
     "action": rolling_announcements,
+    "env": "(self)",
+    "essential": True
+}
+
+
+def reboot_announcement(bot):
+    try:
+        if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
+            return True
+
+        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running) and not bot.reboot_imminent:
+            message = "server will restart in {} minutes!!".format(int((bot.settings.get_setting_by_name('restart_timer') - bot.server_time_running) / 60))
+            bot.reboot_imminent = True
+            bot.tn.say(message, color=bot.chat_colors['warning'])
+            common.schedulers_dict["reboot_announcement"]["last_executed"] = time.time()
+
+            return True
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.schedulers_dict["reboot_announcement"] = {
+    "type": "schedule",
+    "title": "announce reboot",
+    "trigger": "timepassed",  # "interval, gametime, gameday"
+    "last_executed": time.time(),
+    "action": reboot_announcement,
     "env": "(self)",
     "essential": True
 }

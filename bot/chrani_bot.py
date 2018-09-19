@@ -1,7 +1,6 @@
 from threading import *
 import re
 import time
-import datetime
 import math
 import os
 from collections import deque
@@ -11,7 +10,6 @@ from bot.modules.settings import Settings
 
 from bot.player_observer import PlayerObserver
 from bot.modules.logger import logger
-from bot.assorted_functions import timeout_occurred
 
 import bot.actions as actions
 import bot.observers as observers
@@ -54,6 +52,7 @@ class ChraniBot(Thread):
     listlandprotection_interval = int
     listplayers_interval = int
     restart_delay = int
+    reboot_imminent = bool
 
     chat_colors = dict
     passwords = dict
@@ -87,8 +86,9 @@ class ChraniBot(Thread):
         self.has_connection = False
         self.settings = Settings()
         self.time_launched = time.time()
-        self.time_running = 0.0
-        self.server_time_running = 0.0
+        self.time_running = None
+        self.reboot_imminent = False
+        self.server_time_running = None
         self.uptime = "not available"
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
@@ -443,6 +443,7 @@ class ChraniBot(Thread):
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.has_connection = False
                     self.is_paused = True
+                    self.server_time_running = None
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
                     # logger.exception(log_message)

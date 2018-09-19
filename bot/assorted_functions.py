@@ -5,9 +5,22 @@ import math
 def timeout_occurred(timeout_in_seconds, timeout_start):
     if timeout_start == 0:  # set it to 0 to get a direct exit
         return True
+    if timeout_start is None:
+        return None
     if timeout_in_seconds != 0:
         elapsed_time = time.time() - timeout_start
         if elapsed_time >= timeout_in_seconds:
+            return True
+    return None
+
+
+def timepassed_occurred(timeout_in_seconds, threshold):
+    if threshold == 0:
+        return True
+    if threshold is None:
+        return None
+    if timeout_in_seconds != 0:
+        if threshold >= timeout_in_seconds:
             return True
     return None
 
