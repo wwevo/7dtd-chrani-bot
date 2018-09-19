@@ -322,7 +322,16 @@ class ChraniBot(Thread):
     def ongoing_bloodmoon(self):
         if self.current_gametime is None:
             return True
-        if (multiple(int(self.current_gametime["day"]), 7) and int(self.current_gametime["hour"]) >= 20) or (multiple(int(self.current_gametime["day"]) + 1, 7) and int(self.current_gametime["hour"] <= 14)):
+
+        horde_day = False
+        if multiple(int(self.current_gametime["day"]), 7) and int(self.current_gametime["hour"]) >= 20:
+            horde_day = True
+
+        horde_day_after = False
+        if multiple(int(self.current_gametime["day"]) - 1, 7) and int(self.current_gametime["hour"]) < 14:
+            horde_day_after = True
+
+        if horde_day or horde_day_after:
             return True
 
         return False
