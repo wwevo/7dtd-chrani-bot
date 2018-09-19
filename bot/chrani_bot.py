@@ -15,6 +15,7 @@ from bot.assorted_functions import timeout_occurred
 
 import bot.actions as actions
 import bot.observers as observers
+import bot.schedulers as schedulers
 
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
@@ -75,6 +76,7 @@ class ChraniBot(Thread):
 
     observers_list = list
     actions_list = list
+    schedulers_dict = dict
 
     def __init__(self, event, app, flask, flask_login, socketio):
         self.app = app
@@ -98,16 +100,18 @@ class ChraniBot(Thread):
         self.actions = actions
         self.actions_list = actions.actions_list
         self.observers_list = observers.observers_list
+        self.schedulers_dict = schedulers.schedulers_dict
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
         self.active_player_threads_dict = {}
         self.landclaims_dict = {}
 
-        self.listplayers_interval = 1.5
-        self.listplayers_interval_idle = self.listplayers_interval * 10
+        self.listplayers_interval = self.settings.get_setting_by_name('list_players_interval')
+        self.listplayers_interval_idle = self.settings.get_setting_by_name('list_players_interval_idle')
 
-        self.listlandprotection_interval = 15
+        self.listlandprotection_interval = self.settings.get_setting_by_name('list_landprotection_interval')
+        self.listlandprotection_interval_idle = self.settings.get_setting_by_name('list_landprotection_interval_idle')
 
         self.whitelist = Whitelist()
         if self.settings.get_setting_by_name('whitelist_active') is not False:
@@ -315,15 +319,15 @@ class ChraniBot(Thread):
     def run(self):
         self.load_from_db()
 
-        listplayers_dict = {}
-        listplayers_timeout_start = 0
-        listplayers_interval = self.listplayers_interval
-
-        listlandprotection_timeout_start = 0
-        listlandprotection_interval = self.listlandprotection_interval
-
-        update_status_timeout_start = 0
-        update_status_interval = self.listplayers_interval * 2
+        # listplayers_dict = {}
+        # listplayers_timeout_start = 0
+        # listplayers_interval = self.listplayers_interval
+        #
+        # listlandprotection_timeout_start = 0
+        # listlandprotection_interval = self.listlandprotection_interval
+        #
+        # update_status_timeout_start = 0
+        # update_status_interval = self.listplayers_interval * 2
 
         self.telnet_lines_list = deque()
 
@@ -340,47 +344,26 @@ class ChraniBot(Thread):
                     time.sleep(self.listplayers_interval)
                     continue
 
-                if timeout_occurred(listplayers_interval, listplayers_timeout_start):
-                    if len(listplayers_dict) == 0:  # adjust poll frequency when the server is empty
-                        listplayers_interval = self.listplayers_interval_idle
-                    else:
-                        listplayers_interval = self.listplayers_interval
+                if self.schedulers_dict and self.has_connection:
+                    """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
+                    """
+                    command_queue = []
+                    for name, scheduler in self.schedulers_dict.iteritems():
+                        if scheduler["type"] == 'schedule':  # we only want the monitors here, the player is active, no triggers needed
+                            scheduler_function_name = scheduler["action"]
+                            scheduler_parameters = eval(scheduler["env"])  # yes. Eval. It's my own data, chill out!
+                            command_queue.append({
+                                "scheduler": scheduler_function_name,
+                                "command_parameters": scheduler_parameters
+                            })
 
-                    listplayers_dict = self.players.manage_online_players(self)
-                    listplayers_timeout_start = time.time()
-
-                if timeout_occurred(update_status_interval, update_status_timeout_start):
-                    self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
-                    self.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
-                    update_status_timeout_start = time.time()
-                    execution_time = 0.0
-                    count = 0
-                    for player_steamid, player_thread in self.active_player_threads_dict.iteritems():
-                        count = count + 1
-                        execution_time += player_thread["thread"].last_execution_time
-                    if count > 0:
-                        self.oberservers_execution_time = execution_time / count
-
-                if timeout_occurred(listlandprotection_interval, listlandprotection_timeout_start):
-                    if len(listplayers_dict) > 0 or not self.landclaims_dict:
-                        polled_lcb = self.poll_lcb()
-                        if polled_lcb != self.landclaims_dict:
-                            lcb_owners_to_delete = {}
-                            lcb_owners_to_update = {}
-                            lcb_owners_to_update.update(polled_lcb)
-                            for lcb_widget_owner in lcb_owners_to_update.keys():
-                                try:
-                                    player_object = self.players.get_by_steamid(lcb_widget_owner)
-                                except KeyError:
-                                    continue
-
-                                self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-
-                            self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
-                            self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
-                            self.landclaims_dict = polled_lcb
-
-                    listlandprotection_timeout_start = time.time()
+                    for command in command_queue:
+                        try:
+                            result = command["scheduler"](command["command_parameters"])
+                            if not result:
+                                continue
+                        except TypeError:
+                            command["scheduler"](*command["command_parameters"])
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """

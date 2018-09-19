@@ -85,7 +85,7 @@ class PlayerObserver(Thread):
             if self.bot.observers_list:
                 """ execute real-time observers
                 these are run regardless of telnet activity!
-                Everything that needs to be checked periodically should be done in observers
+                Everything directly player-related that needs to be checked periodically should be done in observers
                 """
                 command_queue = []
                 for observer in self.bot.observers_list:
