@@ -4,6 +4,7 @@
   "bot_ip": "127.0.0.1",
   "bot_port": 5000,
   "ipinfo.io_password": "",
+  "banned_countries": ["CN", "CHN", "KP", "PRK", "RU", "RUS", "NG", "NGA"],
 
   "telnet_ip": "",
   "telnet_port": ,
@@ -12,6 +13,15 @@
   "webinterface_admins": [
     "steamid"
   ]
+
+  "restricted_names": {
+    "teleport": "Teleports",
+    "lobby": "Lobby",
+    "spawn": "Player Spawns" ,
+    "home": "Player Homes",
+    "death": "RIP",
+	"system": "System"
+  },
 
   "silent_mode": false,
 
@@ -26,5 +36,22 @@
   "whitelist_active": false,
 
   "location_default_radius": 15,
-  "location_default_warning_boundary": 10
+  "location_default_warning_boundary": 10,
+
+  "list_players_interval": 1.5,
+  "list_players_interval_idle": 15.0,
+
+  "list_status_interval": 3,
+  "list_status_interval_idle": 10,
+
+  "list_landprotection_interval": 15.0,
+  "list_landprotection_interval_idle": null,
+
+  "rolling_announcements_interval": 10.0,
+  "rolling_announcements_interval_idle": null,
+  "rolling_announcements": [
+    "message [ffffff]# 1[-]",
+    "message [ffffff]# 2[-]",
+    "message [ffffff]# 3[-]"
+  ]
 }
