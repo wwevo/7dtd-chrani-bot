@@ -43,6 +43,9 @@ def reboot_announcement(bot):
         if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             return True
 
+        if bot.ongoing_bloodmoon():
+            return True
+
         if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running) and not bot.reboot_imminent:
             message = "server will restart in {} minutes!!".format(int((bot.settings.get_setting_by_name('restart_timer') - bot.server_time_running) / 60))
             bot.reboot_imminent = True

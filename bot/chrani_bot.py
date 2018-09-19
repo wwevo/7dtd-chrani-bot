@@ -6,6 +6,7 @@ import os
 from collections import deque
 from threading import Event
 
+from bot.assorted_functions import multiple
 from bot.modules.settings import Settings
 
 from bot.player_observer import PlayerObserver
@@ -37,6 +38,7 @@ class ChraniBot(Thread):
     server_time_running = float
     oberservers_execution_time = float
     uptime = str
+    current_gametime = dict
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
     has_connection = bool  # used to pause all processing without shutting down the bot
@@ -86,6 +88,7 @@ class ChraniBot(Thread):
         self.has_connection = False
         self.settings = Settings()
         self.time_launched = time.time()
+        self.current_gametime = None
         self.time_running = None
         self.reboot_imminent = False
         self.server_time_running = None
@@ -315,6 +318,14 @@ class ChraniBot(Thread):
             self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x}, {pos_y}, {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
         except KeyError:
             pass
+
+    def ongoing_bloodmoon(self):
+        if self.current_gametime is None:
+            return True
+        if (multiple(int(self.current_gametime["day"]), 7) and int(self.current_gametime["hour"]) >= 20) or (multiple(int(self.current_gametime["day"]) + 1, 7) and int(self.current_gametime["hour"] <= 14)):
+            return True
+
+        return False
 
     def run(self):
         self.load_from_db()

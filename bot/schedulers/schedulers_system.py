@@ -1,3 +1,4 @@
+import re
 import time
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
@@ -31,6 +32,37 @@ common.schedulers_dict["poll_players"] = {
     "trigger": "interval",  # "interval, gametime, gameday"
     "last_executed": "0",
     "action": poll_players,
+    "env": "(self)",
+    "essential": True
+}
+
+
+def get_gametime(bot):
+    try:
+        if timeout_occurred(2.5, float(common.schedulers_dict["get_gametime"]["last_executed"])):
+            game_time = bot.tn.gettime()
+            common.schedulers_dict["get_gametime"]["last_executed"] = time.time()
+            p = re.search(r"^Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*\r\n", game_time)
+            if p:
+                bot.current_gametime = {
+                    "day": p.group("day"),
+                    "hour": p.group("hour"),
+                    "minute": p.group("minute")
+                }
+            else:
+                bot.current_gametime = None
+            return True
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.schedulers_dict["get_gametime"] = {
+    "type": "schedule",
+    "title": "get gametime",
+    "trigger": "interval",
+    "last_executed": "0",
+    "action": get_gametime,
     "env": "(self)",
     "essential": True
 }
@@ -125,6 +157,9 @@ common.schedulers_dict["list_landprotection"] = {
 
 def reboot(bot):
     try:
+        if bot.ongoing_bloodmoon():
+            return True
+
         if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - 5, bot.server_time_running) and bot.reboot_imminent:
             message = "server will restart NOW!!"
             bot.reboot_imminent = False

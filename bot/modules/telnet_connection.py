@@ -133,6 +133,30 @@ class TelnetConnection:
 
         return telnet_response
 
+    def gettime(self):
+        try:
+            connection = self.tn
+            connection.write("gt" + b"\r\n")
+        except Exception as e:
+            log_message = 'trying to get the game time on telnet connection failed: {}'.format(e)
+            raise IOError(log_message)
+
+        telnet_response = ""
+        poll_is_finished = False
+        while poll_is_finished is not True:
+            try:
+                telnet_line = connection.read_until(b"\r\n")
+            except Exception as e:
+                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                raise IOError(log_message)
+
+            m = re.search(r"^Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*\r\n", telnet_line)
+            if m:
+                poll_is_finished = True
+                telnet_response = telnet_line
+
+        return telnet_response
+
     def listplayerfriends(self, player_object):
         try:
             connection = self.tn

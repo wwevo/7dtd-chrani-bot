@@ -2,6 +2,10 @@ import time
 import math
 
 
+def multiple(m, n):
+    return True if m % n == 0 else False
+
+
 def timeout_occurred(timeout_in_seconds, timeout_start):
     if timeout_start == 0:  # set it to 0 to get a direct exit
         return True

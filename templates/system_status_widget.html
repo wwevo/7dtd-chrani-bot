@@ -4,6 +4,7 @@
     execution time: ({{ "{:02.4f}".format(bot.oberservers_execution_time) }}/{{ "{:02.4f}".format(bot.listplayers_interval) }})
     server-uptime: {% if bot.server_time_running != None %}({{ bot.server_time_running }}s){% else %}(n/A){% endif %}<br />
     {% if current_user.is_authenticated %}
+        gametime: {% if bot.current_gametime != None %}({{ bot.current_gametime["day"] }}, {{ bot.current_gametime["hour"] }}:{{ bot.current_gametime["minute"] }}){% else %}(n/A){% endif %}
         {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
             {% if bot.is_paused == True %}
             (<a href="/protected/system/resume" onclick="player_action(this); return false;">resume bot</a>)
