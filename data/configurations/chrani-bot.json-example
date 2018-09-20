@@ -53,5 +53,8 @@
     "message [ffffff]# 1[-]",
     "message [ffffff]# 2[-]",
     "message [ffffff]# 3[-]"
-  ]
+  ],
+
+  "restart_timer": 28800,
+  "restart_warning": 300
 }
