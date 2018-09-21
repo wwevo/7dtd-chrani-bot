@@ -160,11 +160,10 @@ def reboot(bot):
         if bot.ongoing_bloodmoon():
             return True
 
-        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - 5, bot.server_time_running) and bot.reboot_imminent:
+        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - 10, bot.server_time_running) and bot.server_time_running < common.schedulers_dict["reboot"]["last_executed"]:
             message = "server will restart NOW!!"
-            bot.reboot_imminent = False
             bot.tn.say(message, color=bot.chat_colors['warning'])
-            common.schedulers_dict["reboot"]["last_executed"] = time.time()
+            common.schedulers_dict["reboot"]["last_executed"] = bot.server_time_running
             bot.tn.shutdown()
 
             return True
