@@ -39,6 +39,7 @@ class ChraniBot(Thread):
     oberservers_execution_time = float
     uptime = str
     current_gametime = dict
+    mem_status = str
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
     has_connection = bool  # used to pause all processing without shutting down the bot
@@ -96,6 +97,7 @@ class ChraniBot(Thread):
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
+        self.mem_status = None
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -147,6 +149,8 @@ class ChraniBot(Thread):
         }
 
         self.match_types_system = {
+            'server_running': r"^(?P<datetime>.+?) (?P<time_in_seconds>.+?) INF .*",
+            'mem_status': r"^Time:\s(?P<time_in_minutes>.*)m\sFPS:\s(?P<server_fps>.*)\sHeap:\s(?P<heap>.*)MB\sMax:\s(?P<max>.*)MB\sChunks:\s(?P<chunks>.*)\sCGO:\s(?P<cgo>.*)\sPly:\s(?P<players>.*)\sZom:\s(?P<zombies>.*)\sEnt:\s(?P<entities>.*\s\(.*\))\sItems:\s(?P<items>.*)\sCO:\s(?P<co>.*)\sRSS:\s(?P<rss>.*)MB",
             # captures the response for telnet commands. used for example to capture teleport response
             'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
             # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
@@ -348,9 +352,7 @@ class ChraniBot(Thread):
         #
         # update_status_timeout_start = 0
         # update_status_interval = self.listplayers_interval * 2
-
         self.telnet_lines_list = deque()
-
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active or not self.stopped:
             try:
@@ -402,12 +404,14 @@ class ChraniBot(Thread):
                     telnet_line = None
 
                 if telnet_line is not None:
+                    m = re.search(self.match_types_system["server_running"], telnet_line)
+                    if m:
+                        self.server_time_running = int(float(m.group("time_in_seconds")))
+
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                    if not m or m and m.group('telnet_command') != 'lp' and m.group('telnet_command') != 'llp2':
+                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['lp', 'llp2', 'lpf']:
                         if telnet_line != '':
                             logger.debug(telnet_line)
-                    elif m:
-                        self.server_time_running = int(float(m.group("stardate")))
 
                     # handle playerspawns
                     m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
@@ -455,10 +459,12 @@ class ChraniBot(Thread):
                 try:
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
                     self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
+                    self.mem_status = self.tn.get_mem_status()
                     self.has_connection = True
                     self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()
                     self.tn.togglechatcommandhide("/")
+
                 except IOError as e:
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.has_connection = False

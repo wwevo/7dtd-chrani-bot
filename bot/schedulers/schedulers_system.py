@@ -1,5 +1,6 @@
 import re
 import time
+import threading
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 from bot.assorted_functions import timepassed_occurred
@@ -156,15 +157,36 @@ common.schedulers_dict["list_landprotection"] = {
 
 
 def reboot(bot):
+    """ this function is special as it will start a timer-threrad to initiate the shutdown procedures """
+    def reboot_worker():
+        restart_timer = bot.settings.get_setting_by_name('restart_timer')
+        message = "server will restart in {} seconds".format(restart_timer)
+        bot.tn.say(message, color=bot.chat_colors['warning'])
+        shutdown_initiated = False
+        common.schedulers_dict["reboot"]["current_countdown"] = 0
+        while not shutdown_initiated:
+            time.sleep(1)
+            common.schedulers_dict["reboot"]["current_countdown"] += 1
+            if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
+                message = "server will restart in {} seconds".format(int(restart_timer / 2))
+                bot.tn.say(message, color=bot.chat_colors['warning'])
+            if common.schedulers_dict["reboot"]["current_countdown"] == restart_timer - 10:
+                message = "server will restart in NOW!"
+                bot.tn.say(message, color=bot.chat_colors['warning'])
+                bot.tn.shutdown()
+                shutdown_initiated = True
+                bot.reboot_imminent = False
+
     try:
-        if bot.ongoing_bloodmoon():
+        if bot.ongoing_bloodmoon() or bot.reboot_imminent:
             return True
 
-        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - 10, bot.server_time_running) and bot.server_time_running < common.schedulers_dict["reboot"]["last_executed"]:
-            message = "server will restart NOW!!"
+        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer'), bot.server_time_running):
+            message = "server restart procedures initiated..."
+            bot.reboot_imminent = True
             bot.tn.say(message, color=bot.chat_colors['warning'])
-            common.schedulers_dict["reboot"]["last_executed"] = bot.server_time_running
-            bot.tn.shutdown()
+            t = threading.Thread(target=reboot_worker)
+            t.start()
 
             return True
     except Exception as e:
