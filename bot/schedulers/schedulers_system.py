@@ -159,7 +159,7 @@ common.schedulers_dict["list_landprotection"] = {
 def reboot(bot):
     """ this function is special as it will start a timer-threrad to initiate the shutdown procedures """
     def reboot_worker():
-        restart_timer = bot.settings.get_setting_by_name('restart_timer')
+        restart_timer = bot.settings.get_setting_by_name('restart_warning')
         message = "server will restart in {} seconds".format(restart_timer)
         bot.tn.say(message, color=bot.chat_colors['warning'])
         shutdown_initiated = False
