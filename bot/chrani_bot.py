@@ -245,7 +245,7 @@ class ChraniBot(Thread):
                     "owner": str(lcb_owner),
                     "identifier": "{}_lcb_{}{}{}".format(str(lcb_owner), str(lcb[0]), str(lcb[1]), str(lcb[2])),
                     "name": str(lcb_owner),
-                    "radius": int(land_claim_size),
+                    "radius": int(land_claim_size / 2),
                     "inner_radius": 3,
                     "pos_x": int(lcb[0]),
                     "pos_y": int(lcb[1]),
