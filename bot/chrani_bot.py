@@ -234,7 +234,7 @@ class ChraniBot(Thread):
         lcb_list_final = []
         server_settings = self.server_settings_dict
         try:
-            land_claim_size = server_settings["LandClaimSize"]
+            land_claim_size = int(server_settings["LandClaimSize"])
         except TypeError:
             return lcb_list_final
 
