@@ -32,6 +32,7 @@ class ChraniBot(Thread):
     flask = object
     flask_login = object
     socketio = object
+    reboot_thread = object
 
     time_launched = float
     time_running = float
@@ -85,6 +86,7 @@ class ChraniBot(Thread):
         self.flask = flask
         self.flask_login = flask_login
         self.socketio = socketio
+        self.reboot_thread = None
         self.is_paused = False
         self.has_connection = False
         self.settings = Settings()
@@ -343,15 +345,6 @@ class ChraniBot(Thread):
     def run(self):
         self.load_from_db()
 
-        # listplayers_dict = {}
-        # listplayers_timeout_start = 0
-        # listplayers_interval = self.listplayers_interval
-        #
-        # listlandprotection_timeout_start = 0
-        # listlandprotection_interval = self.listlandprotection_interval
-        #
-        # update_status_timeout_start = 0
-        # update_status_interval = self.listplayers_interval * 2
         self.telnet_lines_list = deque()
         self.is_active = True  # this is set so the main loop can be started / stopped
         while self.is_active or not self.stopped:
@@ -376,7 +369,7 @@ class ChraniBot(Thread):
                             scheduler_parameters = eval(scheduler["env"])  # yes. Eval. It's my own data, chill out!
                             command_queue.append({
                                 "scheduler": scheduler_function_name,
-                                "command_parameters": scheduler_parameters
+                                "command_parameters": scheduler_parameters,
                             })
 
                     for command in command_queue:
@@ -460,6 +453,11 @@ class ChraniBot(Thread):
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
                     self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
                     self.mem_status = self.tn.get_mem_status()
+                    self.server_time_running = 0
+                    m = re.search(self.match_types_system["mem_status"], self.mem_status)
+                    if m:
+                        self.server_time_running = int(float(m.group("time_in_minutes")) * 60)
+
                     self.has_connection = True
                     self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()
@@ -469,7 +467,7 @@ class ChraniBot(Thread):
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.has_connection = False
                     self.is_paused = True
-                    self.server_time_running = None
+                    self.server_time_running = 0
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
                     # logger.exception(log_message)

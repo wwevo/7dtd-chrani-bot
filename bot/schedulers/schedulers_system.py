@@ -162,6 +162,7 @@ def reboot(bot):
         restart_timer = bot.settings.get_setting_by_name('restart_warning')
         message = "server will restart in {} seconds".format(restart_timer)
         bot.tn.say(message, color=bot.chat_colors['warning'])
+        bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
         shutdown_initiated = False
         common.schedulers_dict["reboot"]["current_countdown"] = 0
         while not shutdown_initiated:
@@ -170,9 +171,11 @@ def reboot(bot):
             if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
                 message = "server will restart in {} seconds".format(int(restart_timer / 2))
                 bot.tn.say(message, color=bot.chat_colors['warning'])
-            if common.schedulers_dict["reboot"]["current_countdown"] == restart_timer - 10:
-                message = "server will restart in NOW!"
+                bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
+            if common.schedulers_dict["reboot"]["current_countdown"] == restart_timer - 15:
+                message = "server will restart NOW!"
                 bot.tn.say(message, color=bot.chat_colors['warning'])
+                bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
                 bot.tn.shutdown()
                 shutdown_initiated = True
                 bot.reboot_imminent = False
@@ -186,7 +189,8 @@ def reboot(bot):
             bot.reboot_imminent = True
             bot.tn.say(message, color=bot.chat_colors['warning'])
             t = threading.Thread(target=reboot_worker)
-            t.start()
+            bot.reboot_thread = t
+            bot.reboot_thread.start()
 
             return True
     except Exception as e:
