@@ -1,8 +1,6 @@
 import time
-import math
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
-from bot.assorted_functions import timepassed_occurred
 import common
 import random
 

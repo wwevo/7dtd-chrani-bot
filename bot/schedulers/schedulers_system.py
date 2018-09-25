@@ -41,7 +41,7 @@ common.schedulers_dict["poll_players"] = {
 def get_gametime(bot):
     try:
         if timeout_occurred(2.5, float(common.schedulers_dict["get_gametime"]["last_executed"])):
-            game_time = bot.tn.gettime()
+            game_time = bot.poll_tn.gettime()
             common.schedulers_dict["get_gametime"]["last_executed"] = time.time()
             p = re.search(r"^Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*\r\n", game_time)
             if p:

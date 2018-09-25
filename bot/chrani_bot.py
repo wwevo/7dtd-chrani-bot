@@ -202,7 +202,7 @@ class ChraniBot(Thread):
 
     def poll_lcb(self):
         lcb_dict = {}
-        test_str = self.tn.listlandprotection()
+        test_str = self.poll_tn.listlandprotection()
 
         # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
         # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
@@ -257,7 +257,7 @@ class ChraniBot(Thread):
         return lcb_list_final
 
     def get_game_preferences(self):
-        game_preferences = self.tn.get_game_preferences()
+        game_preferences = self.poll_tn.get_game_preferences()
         logger.debug(game_preferences)
 
         game_preferences_dict = {}
@@ -402,7 +402,7 @@ class ChraniBot(Thread):
                         self.server_time_running = int(float(m.group("time_in_seconds")))
 
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['lp', 'llp2', 'lpf']:
+                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['gt', 'lp', 'llp2', 'lpf']:
                         if telnet_line != '':
                             logger.debug(telnet_line)
 

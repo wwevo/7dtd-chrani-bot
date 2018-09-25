@@ -64,7 +64,6 @@ def player_crossed_boundary(self):
                     self.bot.socketio.emit('refresh_locations', {"steamid": self.player_object.steamid, "entityid": self.player_object.entityid}, namespace='/chrani-bot/public')
 
 
-
 common.observers_list.append({
     "type": "monitor",
     "title": "player crossed location boundary",
