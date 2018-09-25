@@ -180,9 +180,10 @@ def reboot(bot):
                 message = "server will restart NOW!"
                 bot.tn.say(message, color=bot.chat_colors['warning'])
                 bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
-                bot.tn.shutdown()
                 shutdown_initiated = True
                 bot.reboot_imminent = False
+                common.schedulers_dict["reboot"]["current_countdown"] = 0
+                bot.tn.shutdown()
                 bot.reboot_thread.stop()
 
     try:
