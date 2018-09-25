@@ -7,6 +7,32 @@ from bot.assorted_functions import timepassed_occurred
 import common
 
 
+def get_mem_status(bot):
+    try:
+        if timeout_occurred(10, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
+            mem_status = bot.poll_tn.get_mem_status()
+            common.schedulers_dict["get_mem_status"]["last_executed"] = time.time()
+            m = re.search(bot.match_types_system["mem_status"], mem_status)
+            if m:
+                bot.server_time_running = int(float(m.group("time_in_minutes")) * 60)
+
+            return True
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.schedulers_dict["get_mem_status"] = {
+    "type": "schedule",
+    "title": "get mem status",
+    "trigger": "interval",
+    "last_executed": "0",
+    "action": get_mem_status,
+    "env": "(self)",
+    "essential": True
+}
+
+
 def poll_players(bot):
     try:
         if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
@@ -163,9 +189,8 @@ def reboot(bot):
         message = "server will restart in {} seconds".format(restart_timer)
         bot.tn.say(message, color=bot.chat_colors['warning'])
         bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
-        shutdown_initiated = False
         common.schedulers_dict["reboot"]["current_countdown"] = 0
-        while not shutdown_initiated:
+        while True:
             time.sleep(1)
             common.schedulers_dict["reboot"]["current_countdown"] += 1
             if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
@@ -180,23 +205,24 @@ def reboot(bot):
                 message = "server will restart NOW!"
                 bot.tn.say(message, color=bot.chat_colors['warning'])
                 bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
-                shutdown_initiated = True
                 bot.reboot_imminent = False
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
                 bot.tn.shutdown()
-                bot.reboot_thread.stop()
+                return True
 
     try:
         if bot.ongoing_bloodmoon() or bot.reboot_imminent:
             return True
 
         if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running):
-            message = "server restart procedures initiated..."
             bot.reboot_imminent = True
             bot.server_time_running = 0
-            bot.tn.say(message, color=bot.chat_colors['warning'])
             bot.reboot_thread = threading.Thread(target=reboot_worker)
             bot.reboot_thread.start()
+
+            message = "server restart procedures initiated..."
+            bot.tn.say(message, color=bot.chat_colors['warning'])
+            bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
 
             return True
     except Exception as e:

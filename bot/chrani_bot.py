@@ -40,7 +40,6 @@ class ChraniBot(Thread):
     oberservers_execution_time = float
     uptime = str
     current_gametime = dict
-    mem_status = str
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
     has_connection = bool  # used to pause all processing without shutting down the bot
@@ -99,7 +98,6 @@ class ChraniBot(Thread):
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
-        self.mem_status = None
 
         self.name = self.settings.get_setting_by_name('bot_name')
         logger.info("{} started".format(self.name))
@@ -397,12 +395,8 @@ class ChraniBot(Thread):
                     telnet_line = None
 
                 if telnet_line is not None:
-                    m = re.search(self.match_types_system["server_running"], telnet_line)
-                    if m:
-                        self.server_time_running = int(float(m.group("time_in_seconds")))
-
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['gt', 'lp', 'llp2', 'lpf']:
+                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp2', 'lpf']:
                         if telnet_line != '':
                             logger.debug(telnet_line)
 
@@ -452,12 +446,6 @@ class ChraniBot(Thread):
                 try:
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
                     self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
-                    self.mem_status = self.tn.get_mem_status()
-                    self.server_time_running = 0
-                    m = re.search(self.match_types_system["mem_status"], self.mem_status)
-                    if m:
-                        self.server_time_running = int(float(m.group("time_in_minutes")) * 60)
-
                     self.has_connection = True
                     self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()
@@ -467,6 +455,7 @@ class ChraniBot(Thread):
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.has_connection = False
                     self.is_paused = True
+                    self.server_time_running = None
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
                     # logger.exception(log_message)
