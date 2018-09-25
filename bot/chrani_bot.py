@@ -39,6 +39,7 @@ class ChraniBot(Thread):
     server_time_running = float
     oberservers_execution_time = float
     uptime = str
+    restart_in = int
     current_gametime = dict
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
@@ -93,6 +94,7 @@ class ChraniBot(Thread):
         self.current_gametime = None
         self.time_running = None
         self.reboot_imminent = False
+        self.restart_in = 0
         self.server_time_running = None
         self.uptime = "not available"
         self.initiate_shutdown = False
@@ -446,6 +448,7 @@ class ChraniBot(Thread):
                 try:
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
                     self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
+                    self.reboot_imminent = False
                     self.has_connection = True
                     self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()

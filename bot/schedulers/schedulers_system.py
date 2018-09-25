@@ -193,6 +193,7 @@ def reboot(bot):
         while True:
             time.sleep(1)
             common.schedulers_dict["reboot"]["current_countdown"] += 1
+            bot.restart_in = bot.settings.get_setting_by_name('restart_warning') - common.schedulers_dict["reboot"]["current_countdown"]
             if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
                 message = "server will restart in {} seconds".format(int(restart_timer / 2))
                 bot.tn.say(message, color=bot.chat_colors['warning'])
@@ -205,8 +206,6 @@ def reboot(bot):
                 message = "server will restart NOW!"
                 bot.tn.say(message, color=bot.chat_colors['warning'])
                 bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
-                bot.reboot_imminent = False
-                bot.server_time_running = None
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
                 bot.tn.shutdown()
                 return True
