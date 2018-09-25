@@ -192,9 +192,9 @@ def reboot(bot):
         if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running):
             message = "server restart procedures initiated..."
             bot.reboot_imminent = True
+            bot.server_time_running = 0
             bot.tn.say(message, color=bot.chat_colors['warning'])
-            t = threading.Thread(target=reboot_worker)
-            bot.reboot_thread = t
+            bot.reboot_thread = threading.Thread(target=reboot_worker)
             bot.reboot_thread.start()
 
             return True
