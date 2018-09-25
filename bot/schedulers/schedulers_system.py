@@ -206,6 +206,7 @@ def reboot(bot):
                 bot.tn.say(message, color=bot.chat_colors['warning'])
                 bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
                 bot.reboot_imminent = False
+                bot.server_time_running = None
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
                 bot.tn.shutdown()
                 return True
@@ -214,9 +215,9 @@ def reboot(bot):
         if bot.ongoing_bloodmoon() or bot.reboot_imminent:
             return True
 
-        if timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running):
+        if bot.server_time_running is not None and timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running):
             bot.reboot_imminent = True
-            bot.server_time_running = 0
+            bot.server_time_running = None
             bot.reboot_thread = threading.Thread(target=reboot_worker)
             bot.reboot_thread.start()
 
