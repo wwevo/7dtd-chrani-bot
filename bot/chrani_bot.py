@@ -444,6 +444,7 @@ class ChraniBot(Thread):
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
                 log_message = "no telnet-connection - trying to connect..."
+                self.server_time_running = None
 
                 try:
                     self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
@@ -458,7 +459,6 @@ class ChraniBot(Thread):
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.has_connection = False
                     self.is_paused = True
-                    self.server_time_running = None
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
                     # logger.exception(log_message)
