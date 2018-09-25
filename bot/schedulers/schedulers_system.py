@@ -9,7 +9,7 @@ import common
 
 def get_mem_status(bot):
     try:
-        if timeout_occurred(10, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
+        if not bot.reboot_imminent and timeout_occurred(10, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
             mem_status = bot.poll_tn.get_mem_status()
             common.schedulers_dict["get_mem_status"]["last_executed"] = time.time()
             m = re.search(bot.match_types_system["mem_status"], mem_status)
