@@ -202,7 +202,7 @@ class ChraniBot(Thread):
 
     def poll_lcb(self):
         lcb_dict = {}
-        test_str = self.poll_tn.listlandprotection()
+        test_str = self.tn.listlandprotection()
 
         # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
         # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
@@ -257,7 +257,7 @@ class ChraniBot(Thread):
         return lcb_list_final
 
     def get_game_preferences(self):
-        game_preferences = self.poll_tn.get_game_preferences()
+        game_preferences = self.tn.get_game_preferences()
         logger.debug(game_preferences)
 
         game_preferences_dict = {}
@@ -457,6 +457,7 @@ class ChraniBot(Thread):
 
                 except IOError as e:
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+                    self.clear_env()
                     self.has_connection = False
                     self.is_paused = True
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
@@ -465,17 +466,20 @@ class ChraniBot(Thread):
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
 
-    def shutdown(self):
-        self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
-        time.sleep(5)
-        self.is_active = False
+    def clear_env(self):
         for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
             active_player_thread = self.active_player_threads_dict[player_steamid]
             active_player_thread["thread"].stopped.set()
 
         self.active_player_threads_dict.clear()
-        self.telnet_lines_list = None
+        self.telnet_lines_list = deque()
+
+    def shutdown(self):
+        self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+        time.sleep(5)
+        self.is_active = False
+        self.clear_env()
         self.stopped.set()
         try:
             os._exit(0)
