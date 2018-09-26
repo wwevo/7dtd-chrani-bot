@@ -42,7 +42,7 @@ common.observers_list.append({
 
 def poll_playerfriends(self):
     if timeout_occurred(self.bot.players.poll_listplayerfriends_interval, self.player_object.poll_listplayerfriends_lastpoll):
-        self.player_object.playerfriends_list = self.poll_tn.listplayerfriends(self.player_object)
+        self.player_object.playerfriends_list = self.tn.listplayerfriends(self.player_object)
         self.player_object.poll_listplayerfriends_lastpoll = time()
         self.player_object.update()
 

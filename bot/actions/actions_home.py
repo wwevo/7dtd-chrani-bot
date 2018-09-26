@@ -7,13 +7,20 @@ from bot.assorted_functions import ResponseMessage
 
 def check_building_site(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
         bases_near_list, landclaims_near_list = bot.check_for_homes(target_player)
 
         if not bases_near_list and not landclaims_near_list:
-            bot.tn.send_message_to_player(target_player, "Nothing near or far. Feel free to build here".format(len(bases_near_list), len(landclaims_near_list)), color=bot.chat_colors['success'])
+            message = "Nothing near or far. Feel free to build here"
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         else:
-            bot.tn.send_message_to_player(target_player, "bases near: {}, landclaims near: {}".format(len(bases_near_list), len(landclaims_near_list)), color=bot.chat_colors['warning'])
+            message = "Bases near: {}, Landclaims near: {}".format(len(bases_near_list), len(landclaims_near_list))
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
+        return response_messages
     except Exception as e:
         logger.debug(e)
         raise
@@ -37,9 +44,13 @@ def set_up_home(bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         bases_near_list, landclaims_near_list = bot.check_for_homes(target_player)
 
-        if bases_near_list or landclaims_near_list:
-            bot.tn.send_message_to_player(target_player, "Can not set up a home here. Other bases are too close!", color=bot.chat_colors['error'])
-            return False
+        can_i_build_here = False
+        if not bases_near_list and not landclaims_near_list:
+            can_i_build_here = True
+        else:
+            message = "Can not set up a home here. Other bases are too close!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
 
         location_object = Location()
         location_object.set_owner(target_player.steamid)
@@ -67,7 +78,10 @@ def set_up_home(bot, source_player, target_player, command):
 
         bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-        bot.tn.say("{} has decided to settle down!".format(target_player.name), color=bot.chat_colors['background'])
+
+        message = "{} has decided to settle down!".format(target_player.name)
+        response_messages.add_message(message, True)
+        bot.tn.say(message, color=bot.chat_colors['background'])
         bot.tn.send_message_to_player(target_player, "Home is where your hat is!", color=bot.chat_colors['success'])
 
         return response_messages
@@ -91,19 +105,28 @@ common.actions_list.append({
 
 def remove_home(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
         try:
             location_object = bot.locations.get(target_player.steamid, "home")
-
+            player_home_exists = True
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "I could not find your home. Did you set one up?", color=bot.chat_colors['warning'])
-            raise KeyError
+            pass
 
-        bot.locations.remove(target_player.steamid, 'home')
-        bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
-        bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-        bot.tn.send_message_to_player(target_player, "Your home has been removed.", color=bot.chat_colors['warning'])
+        if player_home_exists and bot.locations.remove(target_player.steamid, 'home'):
+            message = "Your home has been removed!"
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
 
-        return True
+            bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+        else:
+            message = "I could not find your home. Did you set one up?"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+
+        return response_messages
 
     except Exception as e:
         logger.debug(e)
@@ -125,18 +148,28 @@ common.actions_list.append({
 
 def set_up_home_teleport(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
         try:
             location_object = bot.locations.get(target_player.steamid, "home")
-
+            player_home_exists = True
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up a home first!", color=bot.chat_colors['warning'])
-            return False
+            message = "coming from the wrong end... set up a home first!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        if location_object.set_teleport_coordinates(target_player):
+        if player_home_exists and location_object.set_teleport_coordinates(target_player):
             bot.locations.upsert(location_object, save=True)
-            bot.tn.send_message_to_player(target_player, "your teleport has been set up!", color=bot.chat_colors['success'])
+            message = "your teleport has been set up!"
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         else:
-            bot.tn.send_message_to_player(target_player, "your position seems to be outside your home", color=bot.chat_colors['warning'])
+            message = "your position seems to be outside your home"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+
+        return response_messages
 
     except Exception as e:
         logger.debug(e)
@@ -158,20 +191,29 @@ common.actions_list.append({
 
 def protect_inner_core(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
         try:
             location_object = bot.locations.get(target_player.steamid, "home")
-
+            player_home_exists = True
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up a home first!", color=bot.chat_colors['warning'])
-            return False
+            message = "coming from the wrong end... set up a home first!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        if location_object.set_protected_core(True):
+        if player_home_exists and location_object.set_protected_core(True):
             bot.locations.upsert(location_object, save=True)
+            message = "your home is now protected!"
+            response_messages.add_message(message, True)
             bot.tn.send_message_to_player(target_player, "your home is now protected!", color=bot.chat_colors['success'])
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
-            bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
+            message = "something went wrong :("
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
+        return response_messages
     except Exception as e:
         logger.debug(e)
         raise
@@ -192,20 +234,27 @@ common.actions_list.append({
 
 def unprotect_inner_core(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
         try:
             location_object = bot.locations.get(target_player.steamid, "home")
-
+            player_home_exists = True
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up a home first!", color=bot.chat_colors['warning'])
-            return False
+            message = "coming from the wrong end... set up a home first!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        if location_object.set_protected_core(False):
+        if player_home_exists and location_object.set_protected_core(False):
             bot.locations.upsert(location_object, save=True)
             bot.tn.send_message_to_player(target_player, "your home is now unprotected!", color=bot.chat_colors['success'])
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
-            bot.tn.send_message_to_player(target_player, "something went wrong :(", color=bot.chat_colors['warning'])
+            message = "something went wrong :("
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
+        return response_messages
     except Exception as e:
         logger.debug(e)
         raise
@@ -226,29 +275,46 @@ common.actions_list.append({
 
 def set_up_home_name(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
+        try:
+            location_object = bot.locations.get(target_player.steamid, "home")
+            player_home_exists = True
+        except KeyError:
+            message = "coming from the wrong end... set up a home first!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+
+        description_found = False
         p = re.search(r"edit\shome\sname\s([\W\w\s]{1,19})$", command)
         if p:
             description = p.group(1)
-            try:
-                location_object = bot.locations.get(target_player.steamid, "home")
-            except KeyError:
-                bot.tn.send_message_to_player(target_player, "{} can not name that which you do not have!".format(target_player.name), color=bot.chat_colors['warning'])
-                raise KeyError
+            description_found = True
 
-        location_object.set_description(description)
-        messages_dict = {
-            "left_locations_core": "you are leaving {}\'s core".format(description),
-            "left_location": "you are leaving {}".format(description),
-            "entered_location": "you are entering {}".format(description),
-            "entered_locations_core": "you are entering {}\'s core".format(description)
-        }
-        location_object.set_messages(messages_dict)
-        bot.locations.upsert(location_object, save=True)
-        bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
-        bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-        bot.tn.send_message_to_player(target_player, "Your home is called {} now \o/".format(location_object.description), color=bot.chat_colors['background'])
+        if player_home_exists and description_found:
+            location_object.set_description(description)
+            messages_dict = {
+                "left_locations_core": "you are leaving {}\'s core".format(description),
+                "left_location": "you are leaving {}".format(description),
+                "entered_location": "you are entering {}".format(description),
+                "entered_locations_core": "you are entering {}\'s core".format(description)
+            }
+            location_object.set_messages(messages_dict)
+            bot.locations.upsert(location_object, save=True)
 
-        return True
+            message = "Your home is called {} now \o/".format(location_object.description)
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+
+            bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+        else:
+            message = "something went wrong :("
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+
+        return response_messages
 
     except Exception as e:
         logger.debug(e)
@@ -270,8 +336,8 @@ common.actions_list.append({
 
 def take_me_home(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         try:
-            response_messages = ResponseMessage()
             location_object = bot.locations.get(target_player.steamid, "home")
             if location_object.player_is_inside_boundary(target_player):
                 bot.tn.send_message_to_player(target_player, "eh, you already ARE home oO".format(target_player.name), color=bot.chat_colors['warning'])
@@ -279,9 +345,10 @@ def take_me_home(bot, source_player, target_player, command):
                 bot.tn.teleportplayer(target_player, location_object=location_object)
                 bot.tn.send_message_to_player(target_player, "you have ported home!".format(target_player.name), color=bot.chat_colors['success'])
 
-            return response_messages
         except KeyError:
             bot.tn.send_message_to_player(target_player, "You seem to be homeless".format(target_player.name), color=bot.chat_colors['warning'])
+
+        return response_messages
 
     except Exception as e:
         logger.debug(e)
@@ -303,6 +370,7 @@ common.actions_list.append({
 
 def goto_player_home(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         p = re.search(r"take\sme\sto\splayer\s((?P<steamid>([0-9]{17}))|(?P<entityid>[0-9]+))\shome", command)
         if p:
             player_steamid = p.group("steamid")
@@ -311,6 +379,7 @@ def goto_player_home(bot, source_player, target_player, command):
                 player_steamid = bot.players.entityid_to_steamid(player_entityid)
                 if player_steamid is False:
                     raise KeyError
+
             try:
                 player_object_to_port_to = bot.players.load(player_steamid)
                 location_object = bot.locations.get(player_object_to_port_to.steamid, "home")
@@ -321,6 +390,7 @@ def goto_player_home(bot, source_player, target_player, command):
                 bot.tn.send_message_to_player(target_player, "Could not find {}'s home".format(player_steamid), color=bot.chat_colors['warning'])
                 pass
 
+        return response_messages
     except Exception as e:
         logger.debug(e)
         raise
@@ -341,32 +411,48 @@ common.actions_list.append({
 
 def set_up_home_outer_perimeter(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
         try:
             location_object = bot.locations.get(target_player.steamid, "home")
+            player_home_exists = True
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up a home first!", color=bot.chat_colors['warning'])
-            return False
+            message = "coming from the wrong end... set up a home first!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
-        distance_to_location = location_object.get_distance(coords)
-        set_radius, allowed_range = location_object.set_radius(distance_to_location)
-        if set_radius is True:
-            bot.locations.upsert(location_object)
-            bot.tn.send_message_to_player(target_player, "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2)), color=bot.chat_colors['success'])
-            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-        else:
-            bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2)), color=bot.chat_colors['warning'])
-            return False
-
-        if location_object.radius <= location_object.warning_boundary:
-            set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
+        coords_are_valid = False
+        if player_home_exists:
+            coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+            distance_to_location = location_object.get_distance(coords)
+            set_radius, allowed_range = location_object.set_radius(distance_to_location)
             if set_radius is True:
-                bot.tn.send_message_to_player(target_player, "the inner core has been set to match the outer perimeter.", color=bot.chat_colors['warning'])
+                coords_are_valid = True
             else:
-                return False
+                message = "you given range ({}) seems to be invalid :(".format(int(location_object.radius * 2))
+                response_messages.add_message(message, False)
+                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        bot.locations.upsert(location_object, save=True)
+        if player_home_exists and coords_are_valid:
+            message = "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2))
+            response_messages.add_message(message, True)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
 
+            bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+
+            if location_object.radius <= location_object.warning_boundary:
+                set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
+                if set_radius is True:
+                    bot.tn.send_message_to_player(target_player, "the inner core has been set to match the outer perimeter.", color=bot.chat_colors['warning'])
+
+            bot.locations.upsert(location_object, save=True)
+        else:
+            message = "something went wrong :("
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+
+        return response_messages
     except Exception as e:
         logger.debug(e)
         raise
@@ -387,23 +473,37 @@ common.actions_list.append({
 
 def set_up_home_inner_perimeter(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
+
+        player_home_exists = False
         try:
             location_object = bot.locations.get(target_player.steamid, "home")
+            player_home_exists = True
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up a home first!", color=bot.chat_colors['warning'])
-            return False
+            message = "coming from the wrong end... set up a home first!"
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
-        distance_to_location = location_object.get_distance(coords)
-        set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
-        if set_radius is True:
+        coords_are_valid = False
+        if player_home_exists:
+            coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+            distance_to_location = location_object.get_distance(coords)
+            set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
+            if set_radius is True:
+                coords_are_valid = True
+            else:
+                bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid. Are you inside your home area?".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['warning'])
+
+        if player_home_exists and coords_are_valid:
             bot.tn.send_message_to_player(target_player, "your private area ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['success'])
+
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
-            bot.tn.send_message_to_player(target_player, "you given range ({}) seems to be invalid. Are you inside your home area?".format(int(location_object.warning_boundary * 2)), color=bot.chat_colors['warning'])
-            return False
+            message = "something went wrong :("
+            response_messages.add_message(message, False)
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
-        bot.locations.upsert(location_object, save=True)
+        return response_messages
 
     except Exception as e:
         logger.debug(e)
