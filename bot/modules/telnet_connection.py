@@ -250,6 +250,9 @@ class TelnetConnection:
         return True
 
     def kick(self, player_object, reason='just because'):
+        if not player_object.is_online:
+            return True
+
         command = "kick {} \"{}\"\r\n".format(str(player_object.steamid), reason)
         try:
             connection = self.tn

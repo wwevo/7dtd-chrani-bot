@@ -44,7 +44,7 @@ def get_player_whitelist_widget(target_player_steamid):
     try:
         player_object = webinterface.players.get_by_steamid(target_player_steamid)
     except KeyError:
-        return
+        return ""
 
     return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/whitelist_status.html', bot=webinterface, player_object=player_object))
 
@@ -114,7 +114,8 @@ def get_player_status_widget(target_player_steamid):
     try:
         player_object = webinterface.players.get_by_steamid(target_player_steamid)
     except KeyError:
-        return
+        return ""
+
     return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/status.html', player_object=player_object))
 
 
@@ -132,7 +133,7 @@ def get_player_locations_widget(target_player_steamid):
     try:
         player_locations_dict = chrani_bot.locations.get(target_player_steamid)
     except KeyError:
-        return
+        return ""
 
     try:
         public_locations_dict = chrani_bot.locations.get('system')

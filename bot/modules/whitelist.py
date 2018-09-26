@@ -52,7 +52,7 @@ class Whitelist(object):
                 'whitelisted_by': player_object.steamid
             }})
 
-        if save:
+        if save and not is_in_dict:
             self.save(player_dict_to_whitelist)
 
         return True
