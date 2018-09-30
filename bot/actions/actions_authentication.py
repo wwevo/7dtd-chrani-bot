@@ -22,7 +22,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         bot.players.upsert(target_player, save=True)
 
         if not target_player.has_permission_level("authenticated"):
-            bot.tn.send_message_to_player(target_player, "read the rules on https://chrani.net/chrani-bot", color=bot.chat_colors['warning'])
+            bot.tn.send_message_to_player(target_player, "read the rules on {}".format(bot.settings.get_setting_by_name('rules_url')), color=bot.chat_colors['warning'])
             bot.tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
             bot.tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
             bot.players.upsert(target_player)
