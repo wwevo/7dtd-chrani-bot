@@ -44,6 +44,7 @@ class Whitelist(object):
         self.whitelist_active = False
 
     def add(self, player_object, player_dict_to_whitelist, save=False):
+        is_in_dict = False
         try:
             is_in_dict = self.whitelisted_players_dict[player_dict_to_whitelist["steamid"]]
         except:
