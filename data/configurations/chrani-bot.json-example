@@ -1,5 +1,6 @@
 {
   "bot_name": "example-bot",
+  "rules_url": "https://",
 
   "bot_ip": "127.0.0.1",
   "bot_port": 5000,
@@ -9,6 +10,9 @@
   "telnet_ip": "",
   "telnet_port": ,
   "telnet_password": "",
+
+  "webmap_ip": "",
+  "webmap_port": ,
 
   "webinterface_admins": [
     "steamid"

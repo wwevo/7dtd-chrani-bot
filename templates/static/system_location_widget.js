@@ -1,11 +1,3 @@
-var yx = L.latLng;
-var xy = function(x, y) {
-    if (L.Util.isArray(x)) {    // When doing xy([x, y]);
-        return yx(x[1], x[0]);
-    }
-    return yx(y, x);  // When doing xy(x, y);
-};
-
 var resetSize = function(map) {
     var height = $("#location_radar_widget").height() - $("#location_radar_widget table thead").height();
     var width = $("#location_radar_widget").width();
@@ -31,41 +23,34 @@ var layers = {};
 var active_controls = [];
 
 function createCircleMarker(obj) {
-    markers[obj.id] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'green', radius: obj.radius});
+    bounds = [obj.pos_x, obj.pos_z]
+    markers[obj.id] = new L.circle(bounds, {weight: 1, color: 'green', radius: Number(obj.radius / Math.pow(2, 4))});
     markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
     if (obj.protected) {
-        markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 1, color: 'red', radius: obj.inner_radius});
+        markers[obj.id + "_inner"] = new L.circle(bounds, {weight: 1, color: 'red', radius: Number(obj.inner_radius / Math.pow(2, 4))});
     } else {
-        markers[obj.id + "_inner"] = new L.circle(xy(obj.pos_x, obj.pos_z), {weight: 0, color: 'darkgreen', radius: obj.inner_radius});
+        markers[obj.id + "_inner"] = new L.circle(bounds, {weight: 0, color: 'darkgreen', radius: Number(obj.inner_radius / Math.pow(2, 4))});
     }
     layers[obj.layerGroup].addLayer(markers[obj.id]);
     layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
 }
 
 function createRectangleMarker(obj) {
-    markers[obj.id] = new L.rectangle([
-        xy(obj.pos_x - obj.radius, obj.pos_z - obj.radius),
-        xy(obj.pos_x + obj.radius, obj.pos_z + obj.radius)
-    ], {weight: 1, color: 'green'});
+    bounds = [[obj.pos_x - obj.radius, obj.pos_z - obj.radius], [obj.pos_x + obj.radius, obj.pos_z + obj.radius]]
+    markers[obj.id] = new L.rectangle(bounds, {weight: 1, color: 'green'});
 
     markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
     if (obj.protected) {
-        markers[obj.id + "_inner"] = new L.rectangle([
-            xy(obj.pos_x - obj.inner_radius, obj.pos_z - obj.inner_radius),
-            xy(obj.pos_x + obj.inner_radius, obj.pos_z + obj.inner_radius)
-        ], {weight: 1, color: 'red'});
+        markers[obj.id + "_inner"] = new L.rectangle(bounds, {weight: 1, color: 'red'});
     } else {
-        markers[obj.id + "_inner"] = new L.rectangle([
-            xy(obj.pos_x - obj.inner_radius, obj.pos_z - obj.inner_radius),
-            xy(obj.pos_x + obj.inner_radius, obj.pos_z + obj.inner_radius)
-        ], {weight: 1, color: 'darkgreen'});
+        markers[obj.id + "_inner"] = new L.rectangle(bounds, {weight: 1, color: 'darkgreen'});
     }
     layers[obj.layerGroup].addLayer(markers[obj.id]);
     layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
 }
 
 function createStandardMarker(obj) {
-    markers[obj.id] = new L.marker(xy(obj.pos_x, obj.pos_z), {icon: PlayerOfflineIcon});
+    markers[obj.id] = new L.marker([obj.pos_x, obj.pos_z], {icon: PlayerOfflineIcon});
     if (obj.online) {
         markers[obj.id].bindTooltip(obj.name, { permanent: true });
         markers[obj.id].setIcon(PlayerOnlineIcon)
@@ -107,9 +92,9 @@ function setMarkers(data) {
                     removeGeometricMarker(obj);
                     createCircleMarker(obj);
                 } else {
-                    markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
+                    markers[obj.id].setLatLng([obj.pos_x, obj.pos_z]);
                     markers[obj.id].setRadius(obj.radius);
-                    markers[obj.id + "_inner"].setLatLng(xy(obj.pos_x, obj.pos_z));
+                    markers[obj.id + "_inner"].setLatLng([obj.pos_x, obj.pos_z]);
                     markers[obj.id + "_inner"].setRadius(obj.inner_radius);
                     if (obj.protected) {
                         markers[obj.id + "_inner"].setStyle({weight: 1, color: 'red'});
@@ -122,17 +107,13 @@ function setMarkers(data) {
                     removeGeometricMarker(obj);
                     createRectangleMarker(obj);
                 } else {
-                    markers[obj.id].setBounds([
-                        xy(obj.pos_x - obj.radius / 2, obj.pos_z - obj.radius / 2),
-                        xy(obj.pos_x + obj.radius / 2, obj.pos_z + obj.radius / 2)
-                    ]);
-                    markers[obj.id + "_inner"].setBounds([
-                        xy(obj.pos_x - obj.inner_radius / 2, obj.pos_z - obj.inner_radius / 2),
-                        xy(obj.pos_x + obj.inner_radius / 2, obj.pos_z + obj.inner_radius / 2)
-                    ]);
+                    bounds = [[obj.pos_x - obj.radius / 2, obj.pos_z - obj.radius / 2], [obj.pos_x + obj.radius / 2, obj.pos_z + obj.radius / 2]]
+                    markers[obj.id].setBounds(bounds);
+                    bounds = [[obj.pos_x - obj.inner_radius / 2, obj.pos_z - obj.inner_radius / 2], [obj.pos_x + obj.inner_radius / 2, obj.pos_z + obj.inner_radius / 2]]
+                    markers[obj.id + "_inner"].setBounds(bounds);
                 }
             } else {
-                markers[obj.id].setLatLng(xy(obj.pos_x, obj.pos_z));
+                markers[obj.id].setLatLng([obj.pos_x, obj.pos_z]);
                 if (obj.online) {
                     markers[obj.id].openTooltip();
                     markers[obj.id].setIcon(PlayerOnlineIcon);
@@ -172,16 +153,59 @@ function removeMarkers(data) {
     });
 }
 
-function init_radar() {
-    window.map = L.map('location_radar', {
-        crs: L.CRS.Simple,
-        minZoom: -10,
-        maxZoom: 4,
-        zoom: -3,
+function initMap() {
+    SDTD_Projection = {
+        project: function (latlng) {
+            return new L.Point(
+                    (latlng.lat) / Math.pow(2, 4),
+                    (latlng.lng) / Math.pow(2, 4));
+        },
+        unproject: function (point) {
+            return new L.LatLng(
+                    point.x * Math.pow(2, 4),
+                    point.y * Math.pow(2, 4));
+        }
+    };
+
+    SDTD_CRS = L.extend({}, L.CRS.Simple, {
+        projection: SDTD_Projection,
+        transformation: new L.Transformation(1, 0, -1, 0),
+        scale: function (zoom) {
+            return Math.pow(2, zoom);
+        }
     });
 
-	var bounds = [xy(-10000, -10000), xy(10000, 10000)];
-    var image = L.imageOverlay('uqm_map_full.png', bounds).addTo(window.map);
+    return new L.Map('location_radar', {
+        crs: SDTD_CRS,
+        center: [0, -0],
+        zoom: 2
+    });
+}
+
+/*	fetch all map tiles and perform manual offset manipulation */
+function pollTileLayer() {
+    var _tileLayer = L.tileLayer(allocs_webmap_tilelayer, {
+        tileSize: 128,
+        minNativeZoom: 0,
+        minZoom: -1,
+        maxNativeZoom: 4,
+        maxZoom: 7,
+        attribution: 'Tiles Courtesy of <a href="http://7daystodie.com/" target="_blank">7DtD</a>'
+    });
+    /*	Small hack to be able to use the weird tile-layout 7dtd provides
+     thanks goes out to IvanSanchez and ghybs from stackexchange.
+     */
+    _tileLayer.getTileUrl = function (coords) {
+        coords.y = (-coords.y) - 1;
+        return L.TileLayer.prototype.getTileUrl.bind(_tileLayer)(coords);
+    };
+    return _tileLayer;
+}
+// </editor-fold>
+function init_radar() {
+    window.map = initMap();
+    window.tileLayer = pollTileLayer();
+
     window.map.on('overlayadd', function(overlay) {
         Cookies.set(overlay.name, true);
     });
@@ -189,7 +213,9 @@ function init_radar() {
         Cookies.remove(overlay.name);
     });
     resetSize(window.map);
-	window.map.setView(xy(0, 0), map.getZoom());
+
+    window.tileLayer.addTo(window.map);
+	window.map.setView([0, 0], map.getZoom());
     window.control = L.control.layers(null, null, {collapsed: false}).addTo(window.map);
 
     window.socket.emit('initiate_leaflet', {data: true});
@@ -200,5 +226,5 @@ function center_canvas_on_marker(id) {
 }
 
 function center_canvas_on_coords(pos_x, pos_z) {
-    window.map.panTo(xy(pos_x, pos_z));
+    window.map.panTo([pos_x, pos_z]);
 }
