@@ -1,3 +1,4 @@
+import __main__
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.modules.logger import logger
@@ -87,12 +88,14 @@ class Whitelist(object):
         self -- the bot
         player_object -- player to check
         """
+        bot = __main__.chrani_bot
+        authentication_groups = bot.settings.get_setting_by_name("authentication_groups")
         try:
             is_in_dict = self.whitelisted_players_dict[player_object.steamid]
             return True
         except KeyError:
             try:
-                return [i for i in ["admin", "mod", "donator"] if i in player_object.permission_levels]
+                return [i for i in authentication_groups if i in player_object.permission_levels]
             except Exception:
                 return False
 
