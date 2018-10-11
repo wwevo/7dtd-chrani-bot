@@ -13,7 +13,7 @@ def on_player_death(bot, source_player, target_player, command):
                 identifier='death',
                 name='Place of Death',
                 owner=target_player.steamid,
-                shape='point',
+                shape='sphere',
                 radius=None,
                 region=None
             )
