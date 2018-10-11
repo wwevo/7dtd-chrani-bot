@@ -22,29 +22,38 @@ var markers = {};
 var layers = {};
 var active_controls = [];
 
-function createCircleMarker(obj) {
+function createCircleMarker(obj, color) {
     bounds = [obj.pos_x, obj.pos_z]
-    markers[obj.id] = new L.circle(bounds, {weight: 1, color: 'green', radius: Number(obj.radius / Math.pow(2, 4))});
-    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
+    tooltip = obj.identifier + "<br />" + obj.owner_name, { permanent: false };
+    markers[obj.id] = new L.circle(bounds, {weight: 1, fill: color["fill"], color: color["area"], radius: Number(obj.radius / Math.pow(2, 4))});
+
     if (obj.protected) {
-        markers[obj.id + "_inner"] = new L.circle(bounds, {weight: 1, color: 'red', radius: Number(obj.inner_radius / Math.pow(2, 4))});
+        markers[obj.id + "_inner"] = new L.circle(bounds, {weight: 1, fill: color["fill"], color: color["inner_protected"], radius: Number(obj.inner_radius / Math.pow(2, 4))});
     } else {
-        markers[obj.id + "_inner"] = new L.circle(bounds, {weight: 0, color: 'darkgreen', radius: Number(obj.inner_radius / Math.pow(2, 4))});
+        markers[obj.id + "_inner"] = new L.circle(bounds, {weight: 0, fill: color["fill"], color: color["inner"], radius: Number(obj.inner_radius / Math.pow(2, 4))});
     }
+
+    markers[obj.id].bindTooltip(tooltip);
+    markers[obj.id + "_inner"].bindTooltip(tooltip);
     layers[obj.layerGroup].addLayer(markers[obj.id]);
     layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
 }
 
-function createRectangleMarker(obj) {
-    bounds = [[obj.pos_x - obj.radius, obj.pos_z - obj.radius], [obj.pos_x + obj.radius, obj.pos_z + obj.radius]]
-    markers[obj.id] = new L.rectangle(bounds, {weight: 1, color: 'green'});
+function createRectangleMarker(obj, color) {
+    bounds = [[obj.pos_x - obj.radius, obj.pos_z - obj.radius], [obj.pos_x + obj.radius, obj.pos_z + obj.radius]];
+    bounds_inner = [[obj.pos_x - obj.inner_radius, obj.pos_z - obj.inner_radius], [obj.pos_x + obj.inner_radius, obj.pos_z + obj.inner_radius]];
+    tooltip = obj.identifier + "<br />" + obj.owner_name, { permanent: false };
+    markers[obj.id] = new L.rectangle(bounds, {weight: 1, fill: color["fill"], color: color["area"]});
 
-    markers[obj.id].bindTooltip(obj.identifier + "<br />" + obj.owner_name, { permanent: false });
     if (obj.protected) {
-        markers[obj.id + "_inner"] = new L.rectangle(bounds, {weight: 1, color: 'red'});
+        markers[obj.id + "_inner"] = new L.rectangle(bounds_inner, {weight: 1, fill: color["fill"], color: color["inner_protected"]});
     } else {
-        markers[obj.id + "_inner"] = new L.rectangle(bounds, {weight: 1, color: 'darkgreen'});
+        markers[obj.id + "_inner"] = new L.rectangle(bounds_inner, {weight: 0, fill: color["fill"], color: color["inner"]});
     }
+
+    markers[obj.id].bindTooltip(tooltip);
+    markers[obj.id + "_inner"].bindTooltip(tooltip);
+
     layers[obj.layerGroup].addLayer(markers[obj.id]);
     layers[obj.layerGroup].addLayer(markers[obj.id + "_inner"]);
 }
@@ -72,25 +81,40 @@ function removeGeometricMarker(obj) {
 
 // Function for setting/updating markers
 function setMarkers(data) {
+    var color;
+    var standard_location_color = { area: 'Blue', inner: 'DarkBlue', inner_protected: 'Red', fill: true };
+    var village_color = { area: 'Beige', inner: 'BurlyWood', inner_protected: 'Chocolate', fill: false };
+
     data.forEach(function (obj) {
+        if (obj.type == "standard location" || obj.type == "standard marker") {
+            color = standard_location_color;
+        }
+        if (obj.type == "village") {
+            color = village_color;
+        }
+
         // Check if there is already a marker with that id in the markers object
         if (!markers.hasOwnProperty(obj.id)) {
+            // if there is no marker with that id continue to create it
+            // check if the layergroup already exists
             if (!layers.hasOwnProperty(obj.layerGroup)) {
+                // if not, create the layergroup
                 layers[obj.layerGroup] = L.layerGroup();
             }
-            if (obj.type == "circle" || obj.type == "sphere") {
-                createCircleMarker(obj);
-            } else if (obj.type == "square" || obj.type == "cube") {
-                createRectangleMarker(obj);
+
+            if (obj.shape == "circle" || obj.shape == "sphere") {
+                createCircleMarker(obj, color);
+            } else if (obj.shape == "square" || obj.shape == "cube") {
+                createRectangleMarker(obj, color);
             } else {
                 createStandardMarker(obj);
             }
         } else {
             // Set new latlng on marker
-            if (obj.type == "circle" || obj.type == "sphere") {
+            if (obj.shape == "circle" || obj.shape == "sphere") {
                 if (!markers[obj.id].hasOwnProperty('setRadius')) {
                     removeGeometricMarker(obj);
-                    createCircleMarker(obj);
+                    createCircleMarker(obj, color);
                 } else {
                     markers[obj.id].setLatLng([obj.pos_x, obj.pos_z]);
                     markers[obj.id].setRadius(obj.radius);
@@ -102,10 +126,10 @@ function setMarkers(data) {
                         markers[obj.id + "_inner"].setStyle({weight: 0, color: 'blue'});
                     }
                 }
-            } else if (obj.type == "square" || obj.type == "cube") {
+            } else if (obj.shape == "square" || obj.shape == "cube") {
                 if (!markers[obj.id].hasOwnProperty('setLatLng')) {
                     removeGeometricMarker(obj);
-                    createRectangleMarker(obj);
+                    createRectangleMarker(obj, color);
                 } else {
                     bounds = [[obj.pos_x - obj.radius / 2, obj.pos_z - obj.radius / 2], [obj.pos_x + obj.radius / 2, obj.pos_z + obj.radius / 2]]
                     markers[obj.id].setBounds(bounds);

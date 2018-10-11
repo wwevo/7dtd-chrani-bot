@@ -279,7 +279,8 @@ class Players(object):
                 "pos_y": player.pos_y,
                 "pos_z": player.pos_z,
                 "online": player.is_online,
-                "type": "marker",
+                "shape": "icon",
+                "type": "icon",
                 "layerGroup": "players"
             })
 

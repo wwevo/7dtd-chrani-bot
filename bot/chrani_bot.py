@@ -250,7 +250,8 @@ class ChraniBot(Thread):
                     "pos_x": int(lcb[0]),
                     "pos_y": int(lcb[1]),
                     "pos_z": int(lcb[2]),
-                    "type": "square",
+                    "shape": "square",
+                    "type": "standard marker",
                     "layerGroup": "landclaims"
                 })
 
