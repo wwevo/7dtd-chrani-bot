@@ -583,18 +583,18 @@ common.actions_list.append({
 
 def change_location_shape(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\slocation\sa\s(?P<location_identifier>{lir})\s(?P<shape>(sphere|cube|round\sarea|square\sarea))$".format(lir=location_identifier_regex), command)
+        p = re.search(r"make\slocation\s(?P<location_identifier>{lir})\sa\s(?P<shape>(sphere|cube|round\sarea|square\sarea))$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
             shape_to_set = p.group("shape")
             try:
                 location_object = bot.locations.get(source_player.steamid, identifier)
-                if shape_to_set == "a sphere":
+                if shape_to_set == "sphere":
                     location_object.set_shape("sphere")
-                elif shape_to_set == "a cube":
+                elif shape_to_set == "cube":
                     location_object.set_shape("cube")
-                elif shape_to_set == "a round area":
+                elif shape_to_set == "round area":
                     location_object.set_shape("circle")
                 else:
                     location_object.set_shape("square")
@@ -629,16 +629,16 @@ common.actions_list.append({
 
 def change_location_type(bot, source_player, target_player, command):
     try:
-        p = re.search(r"make\slocation\sa\s(?P<location_identifier>{lir})\s(?P<type>(village|standard location|teleport))$".format(lir=location_identifier_regex), command)
+        p = re.search(r"make\slocation\s(?P<location_identifier>{lir})\sa\s(?P<type>(village|standard location|teleport))$".format(lir=location_identifier_regex), command)
         if p:
             response_messages = ResponseMessage()
             identifier = p.group("location_identifier")
             type_to_set = p.group("type")
             try:
                 location_object = bot.locations.get(source_player.steamid, identifier)
-                if type_to_set == "a village":
+                if type_to_set == "village":
                     location_object.set_type("village")
-                elif type_to_set == "a teleport":
+                elif type_to_set == "teleport":
                     location_object.set_type("teleport")
                 else:
                     location_object.set_type("standard")
