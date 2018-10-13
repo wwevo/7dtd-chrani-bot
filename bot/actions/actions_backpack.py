@@ -6,26 +6,31 @@ import common
 
 def on_player_death(bot, source_player, target_player, command):
     try:
+        response_messages = ResponseMessage()
         try:
             location_object = bot.locations.get(target_player.steamid, 'death')
         except KeyError:
+            location_name = 'Place of Death'
             location_dict = dict(
                 identifier='death',
-                name='Place of Death',
+                name=location_name,
+                description="{}'s {}".format(target_player.name, location_name),
                 owner=target_player.steamid,
                 shape='sphere',
-                radius=None,
-                region=None
+                region=None,
+                show_messages=False
             )
             location_object = Location(**location_dict)
 
         location_object.set_coordinates(target_player)
+        location_object.set_radius(5)
+        location_object.set_warning_boundary(3)
+
         try:
             bot.locations.upsert(location_object, save=True)
         except:
             return False
 
-        response_messages = ResponseMessage()
         target_player.initialized = False
         bot.players.upsert(target_player, save=True)
         message = "{}s place of death has been recorded ^^".format(target_player.name)
