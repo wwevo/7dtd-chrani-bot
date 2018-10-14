@@ -53,7 +53,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.019"
+    chrani_bot_thread.bot_version = "0.7.020"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -152,7 +152,9 @@ if __name__ == '__main__':
         if flask_login.current_user.is_authenticated is True:
             return flask.redirect("/protected")
 
-        output = "Welcome to the <strong>{}</strong><br />".format(chrani_bot.name)
+        output = '<div class="widget wide">'
+        output += "Welcome to the <strong>{}</strong><br />".format(chrani_bot.name)
+        output += "</div>"
 
         markup = flask.Markup(output)
         system_status_widget = get_system_status()

@@ -37,10 +37,10 @@
                 <div id="user">
                     {% if current_user.is_authenticated %}
                     {{ current_user.name }} - <a href="/logout" onclick="player_action(this);">logout</a><br />
+                    <button class="switch_map_fullscreen">toggle map</button>
                     {% else %}
                     guest - <a href="/login">log in with steam!</a><br />
                     {% endif %}
-                    <button class="switch_map_fullscreen">toggle map</button>
                 </div>
             </header>
             <main>
