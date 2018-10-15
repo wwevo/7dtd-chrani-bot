@@ -110,10 +110,10 @@ $(document).ready(
 
 function showWebinterface() {
     $('#loading_screen').addClass("shamed");
-    $('#flex_layout').removeClass("shamed");
+    $('#flex_layout').removeClass("background");
 }
 
 function showLoadingScreen() {
     $('#loading_screen').removeClass("shamed");
-    $('#flex_layout').addClass("shamed");
+    $('#flex_layout').addClass("background");
 }
