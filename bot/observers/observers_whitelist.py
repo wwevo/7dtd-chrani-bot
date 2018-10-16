@@ -12,7 +12,7 @@ def check_if_player_is_on_whitelist(self):
 
     if player_object.is_online and self.bot.whitelist.is_active() is True:
         if not self.bot.whitelist.player_is_allowed(player_object):
-            self.tn.kick(player_object, "You are not on our whitelist. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")
+            self.tn.kick(player_object, "You are not on our whitelist. Visit http://chrani.net to find out what that means and if / what options are available to you!")
             self.tn.say("{} has been kicked. This is VIP Only!".format(player_object.name), color=self.bot.chat_colors['alert'])
             logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
 
