@@ -326,19 +326,26 @@ class ChraniBot(Thread):
         except KeyError:
             pass
 
+    def is_it_horde_day(self, current_day):
+        horde_day = False
+        if multiple(current_day, 7):
+            horde_day = True
+
+        return horde_day
+
     def ongoing_bloodmoon(self):
         if self.current_gametime is None:
             return True
 
-        horde_day = False
-        if multiple(int(self.current_gametime["day"]), 7) and int(self.current_gametime["hour"]) >= 20:
-            horde_day = True
+        bloodmoon = False
+        if self.is_it_horde_day(int(self.current_gametime["day"])) and int(self.current_gametime["hour"]) >= 20:
+            bloodmoon = True
 
-        horde_day_after = False
-        if multiple(int(self.current_gametime["day"]) - 1, 7) and int(self.current_gametime["hour"]) < 14:
-            horde_day_after = True
+        day_after_bloodmoon = False
+        if self.is_it_horde_day(int(self.current_gametime["day"]) - 1) and int(self.current_gametime["hour"]) < 14:
+            day_after_bloodmoon = True
 
-        if horde_day or horde_day_after:
+        if bloodmoon or day_after_bloodmoon:
             return True
 
         return False
