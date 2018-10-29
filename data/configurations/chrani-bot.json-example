@@ -53,11 +53,11 @@
 
   "rolling_announcements_interval": 10.0,
   "rolling_announcements_interval_idle": null,
-  "rolling_announcements": [
-    "message [ffffff]# 1[-]",
-    "message [ffffff]# 2[-]",
-    "message [ffffff]# 3[-]"
-  ],
+  "rolling_announcements": {
+    "message [ffffff]# 1[-]": "all",
+    "message [ffffff]# 2[-]": "all",
+    "message [ffffff]# 3[-]": "all"
+  },
 
   "restart_timer": 28800,
   "restart_warning": 300
