@@ -223,10 +223,10 @@ class ChraniBot(Thread):
 
             try:
                 target_player = self.players.get_by_steamid(m.group("player_steamid"))
+                lcb_dict.update({target_player.steamid: keystone_list})
             except KeyError:
-                continue
-
-            lcb_dict.update({target_player.steamid: keystone_list})
+                # found LCB, but no corresponding player
+                lcb_dict.update({m.group("player_steamid"): keystone_list})
 
         return lcb_dict
 

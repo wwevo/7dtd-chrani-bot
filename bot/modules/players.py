@@ -250,8 +250,8 @@ class Players(object):
                 player_dict = byteify(json.load(file_to_read))
                 player_object = Player(**player_dict)
                 return player_object
-        except Exception as e:
-            logger.debug(e.message)
+        except IOError as e:
+            logger.debug("{error} for {file}".format(error=e.strerror, file=e.filename))
 
         raise KeyError
 
@@ -262,7 +262,7 @@ class Players(object):
                 self.save(player_object)
                 return True
         except Exception as e:
-            logger.exception(e.message)
+            logger.exception(e)
 
         return False
 
