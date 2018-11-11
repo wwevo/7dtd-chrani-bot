@@ -101,7 +101,7 @@ class ChraniBot(Thread):
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
 
-        self.name = self.settings.get_setting_by_name('bot_name')
+        self.name = self.settings.get_setting_by_name(name='bot_name')
         logger.info("{} started".format(self.name))
 
         self.actions = actions
@@ -114,19 +114,19 @@ class ChraniBot(Thread):
         self.active_player_threads_dict = {}
         self.landclaims_dict = {}
 
-        self.listplayers_interval = self.settings.get_setting_by_name('list_players_interval')
-        self.listplayers_interval_idle = self.settings.get_setting_by_name('list_players_interval_idle')
+        self.listplayers_interval = self.settings.get_setting_by_name(name='list_players_interval')
+        self.listplayers_interval_idle = self.settings.get_setting_by_name(name='list_players_interval_idle')
 
-        self.listlandprotection_interval = self.settings.get_setting_by_name('list_landprotection_interval')
-        self.listlandprotection_interval_idle = self.settings.get_setting_by_name('list_landprotection_interval_idle')
+        self.listlandprotection_interval = self.settings.get_setting_by_name(name='list_landprotection_interval')
+        self.listlandprotection_interval_idle = self.settings.get_setting_by_name(name='list_landprotection_interval_idle')
 
         self.whitelist = Whitelist()
-        if self.settings.get_setting_by_name('whitelist_active') is not False:
+        if self.settings.get_setting_by_name(name='whitelist_active') is not False:
             self.whitelist.activate()
 
         self.locations = Locations()
 
-        self.passwords = self.settings.get_setting_by_name('authentication_groups')
+        self.passwords = self.settings.get_setting_by_name(name='authentication_groups')
 
         self.permission_levels_list = self.passwords.keys()  # ['admin', 'mod', 'donator', 'authenticated']
         self.permissions = Permissions(self.actions_list, self.permission_levels_list)
@@ -179,7 +179,7 @@ class ChraniBot(Thread):
             'airdrop_spawn': r"^(?P<datetime>.+?)\s(?P<stardate>.+?)\sINF\sAIAirDrop:\sSpawned\ssupply\scrate\s@\s\(\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)\)"
         }
 
-        self.banned_countries_list = self.settings.get_setting_by_name('banned_countries')
+        self.banned_countries_list = self.settings.get_setting_by_name(name='banned_countries')
         self.stopped = event
         Thread.__init__(self)
 
@@ -440,7 +440,7 @@ class ChraniBot(Thread):
                     check 'chat' telnet-line(s) for any known playername currently online
                     """
                     for player_steamid, player_object in self.players.players_dict.iteritems():
-                        if player_object.name not in self.settings.get_setting_by_name("restricted_names"):
+                        if player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
                             possible_action_for_player = re.search("{}|{}".format(re.escape(player_object.name), player_object.entityid), telnet_line)
                             if possible_action_for_player:
                                 if player_steamid in self.active_player_threads_dict:
@@ -455,8 +455,8 @@ class ChraniBot(Thread):
                 self.server_time_running = None
 
                 try:
-                    self.tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'), show_log_init=True)
-                    self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name('telnet_ip'), self.settings.get_setting_by_name('telnet_port'), self.settings.get_setting_by_name('telnet_password'))
+                    self.tn = TelnetConnection(self, self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True)
+                    self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.reboot_imminent = False
                     self.has_connection = True
                     self.is_paused = False

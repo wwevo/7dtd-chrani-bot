@@ -280,7 +280,7 @@ class TelnetConnection:
             return False
 
     def say(self, message, color=None):
-        silent_mode = self.bot.settings.get_setting_by_name('silent_mode')
+        silent_mode = self.bot.settings.get_setting_by_name(name='silent_mode')
         if silent_mode:
             return True
         try:
@@ -293,7 +293,7 @@ class TelnetConnection:
             return False
 
     def send_message_to_player(self, player_object, message, color=None):
-        silent_mode = self.bot.settings.get_setting_by_name('silent_mode')
+        silent_mode = self.bot.settings.get_setting_by_name(name='silent_mode')
         if silent_mode:
             return True
         if not player_object.is_online:

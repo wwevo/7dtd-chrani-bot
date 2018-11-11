@@ -57,8 +57,8 @@ def set_up_home(bot, source_player, target_player, command):
         name = 'My Home'
 
         location_object.set_name(name)
-        location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
-        location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_warning_boundary"))
+        location_object.radius = float(bot.settings.get_setting_by_name(name="location_default_radius"))
+        location_object.warning_boundary = float(bot.settings.get_setting_by_name(name="location_default_warning_boundary"))
 
         location_object.set_coordinates(target_player)
         location_object.set_identifier('home')

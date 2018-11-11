@@ -14,7 +14,7 @@ def set_up_teleport_point(bot, source_player, target_player, command):
             response_messages = ResponseMessage()
             name = p.group("location_name")
             location_name_is_not_reserved = False
-            if name in bot.settings.get_setting_by_name("restricted_names"):
+            if name in bot.settings.get_setting_by_name(name="restricted_names"):
                 message = "{} is a reserved name!".format(name)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)

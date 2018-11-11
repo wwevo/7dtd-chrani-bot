@@ -37,11 +37,11 @@ def poll_players(bot):
     try:
         if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             try:
-                listplayers_interval = float(bot.settings.get_setting_by_name('list_players_interval_idle'))
+                listplayers_interval = float(bot.settings.get_setting_by_name(name='list_players_interval_idle'))
             except TypeError:
                 return True
         else:
-            listplayers_interval = float(bot.settings.get_setting_by_name('list_players_interval'))
+            listplayers_interval = float(bot.settings.get_setting_by_name(name='list_players_interval'))
 
         if timeout_occurred(listplayers_interval, float(common.schedulers_dict["poll_players"]["last_executed"])):
             bot.players.manage_online_players(bot)
@@ -99,11 +99,11 @@ def update_system_status(bot):
     try:
         if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             try:
-                update_status_interval = float(bot.settings.get_setting_by_name('list_status_interval_idle'))
+                update_status_interval = float(bot.settings.get_setting_by_name(name='list_status_interval_idle'))
             except TypeError:
                 return True
         else:
-            update_status_interval = float(bot.settings.get_setting_by_name('list_status_interval'))
+            update_status_interval = float(bot.settings.get_setting_by_name(name='list_status_interval'))
 
         if timeout_occurred(update_status_interval, float(common.schedulers_dict["update_system_status"]["last_executed"])):
             bot.socketio.emit('server_online', '', namespace='/chrani-bot/public')
@@ -138,11 +138,11 @@ def list_landprotection(bot):
     try:
         if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             try:
-                listlandprotection_interval = float(bot.settings.get_setting_by_name('list_landprotection_interval_idle'))
+                listlandprotection_interval = float(bot.settings.get_setting_by_name(name='list_landprotection_interval_idle'))
             except TypeError:
                 return True
         else:
-            listlandprotection_interval = float(bot.settings.get_setting_by_name('list_landprotection_interval'))
+            listlandprotection_interval = float(bot.settings.get_setting_by_name(name='list_landprotection_interval'))
 
         if timeout_occurred(listlandprotection_interval, float(common.schedulers_dict["list_landprotection"]["last_executed"])):
             if len(bot.active_player_threads_dict) > 0 or not bot.landclaims_dict:
@@ -185,7 +185,7 @@ common.schedulers_dict["list_landprotection"] = {
 def reboot(bot):
     """ this function is special as it will start a timer-threrad to initiate the shutdown procedures """
     def reboot_worker():
-        restart_timer = bot.settings.get_setting_by_name('restart_warning')
+        restart_timer = bot.settings.get_setting_by_name(name='restart_warning')
         message = "server will restart in {} seconds".format(restart_timer)
         bot.tn.say(message, color=bot.chat_colors['warning'])
         bot.socketio.emit('command_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot" , message)}, namespace='/chrani-bot/public')
@@ -193,7 +193,7 @@ def reboot(bot):
         while True:
             time.sleep(1)
             common.schedulers_dict["reboot"]["current_countdown"] += 1
-            bot.restart_in = bot.settings.get_setting_by_name('restart_warning') - common.schedulers_dict["reboot"]["current_countdown"]
+            bot.restart_in = bot.settings.get_setting_by_name(name='restart_warning') - common.schedulers_dict["reboot"]["current_countdown"]
             if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
                 message = "server will restart in {} seconds".format(int(restart_timer / 2))
                 bot.tn.say(message, color=bot.chat_colors['warning'])
@@ -214,7 +214,7 @@ def reboot(bot):
         if bot.ongoing_bloodmoon() or bot.reboot_imminent:
             return True
 
-        if bot.server_time_running is not None and timepassed_occurred(bot.settings.get_setting_by_name('restart_timer') - bot.settings.get_setting_by_name('restart_warning'), bot.server_time_running):
+        if bot.server_time_running is not None and timepassed_occurred(bot.settings.get_setting_by_name(name='restart_timer') - bot.settings.get_setting_by_name(name='restart_warning'), bot.server_time_running):
             bot.reboot_imminent = True
             bot.server_time_running = None
             bot.reboot_thread = threading.Thread(target=reboot_worker)

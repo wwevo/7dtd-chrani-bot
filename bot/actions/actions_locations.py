@@ -14,7 +14,7 @@ def set_up_location(bot, source_player, target_player, command):
             response_messages = ResponseMessage()
             name = p.group("location_name")
             location_name_is_not_reserved = False
-            if name in bot.settings.get_setting_by_name("restricted_names"):
+            if name in bot.settings.get_setting_by_name(name="restricted_names"):
                 message = "{} is a reserved name!".format(name)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
@@ -43,8 +43,8 @@ def set_up_location(bot, source_player, target_player, command):
                 location_name_not_in_use = True
 
             if location_name_is_valid and location_name_is_not_reserved and location_name_not_in_use:
-                location_object.radius = float(bot.settings.get_setting_by_name("location_default_radius"))
-                location_object.warning_boundary = float(bot.settings.get_setting_by_name("location_default_warning_boundary"))
+                location_object.radius = float(bot.settings.get_setting_by_name(name="location_default_radius"))
+                location_object.warning_boundary = float(bot.settings.get_setting_by_name(name="location_default_warning_boundary"))
 
                 location_object.set_coordinates(target_player)
                 location_object.set_owner(target_player.steamid)

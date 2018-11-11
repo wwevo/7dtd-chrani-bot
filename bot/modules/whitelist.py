@@ -89,7 +89,7 @@ class Whitelist(object):
         player_object -- player to check
         """
         bot = __main__.chrani_bot
-        authentication_groups = bot.settings.get_setting_by_name("authentication_groups")
+        authentication_groups = bot.settings.get_setting_by_name(name="authentication_groups")
         try:
             is_in_dict = self.whitelisted_players_dict[player_object.steamid]
             return True

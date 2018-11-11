@@ -53,7 +53,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.023"
+    chrani_bot_thread.bot_version = "0.7.024"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -75,8 +75,8 @@ if __name__ == '__main__':
             'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
             'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
             'openid.mode': 'checkid_setup',
-            'openid.return_to': "http://{}:{}/authenticate".format(chrani_bot.settings.get_setting_by_name('bot_ip'), chrani_bot.settings.get_setting_by_name('bot_port')),
-            'openid.realm': "http://{}:{}".format(chrani_bot.settings.get_setting_by_name('bot_ip'), chrani_bot.settings.get_setting_by_name('bot_port'))
+            'openid.return_to': "http://{}:{}/authenticate".format(chrani_bot.settings.get_setting_by_name(name='bot_ip'), chrani_bot.settings.get_setting_by_name(name='bot_port')),
+            'openid.realm': "http://{}:{}".format(chrani_bot.settings.get_setting_by_name(name='bot_ip'), chrani_bot.settings.get_setting_by_name(name='bot_port'))
         }
         query_string = urlencode(u)
         auth_url = "{}?{}".format(steam_openid_url, query_string)
@@ -174,8 +174,8 @@ if __name__ == '__main__':
 
         return flask.render_template(
             'index.html',
-            webmap_ip = chrani_bot.settings.get_setting_by_name("webmap_ip"),
-            webmap_port = chrani_bot.settings.get_setting_by_name("webmap_port"),
+            webmap_ip = chrani_bot.settings.get_setting_by_name(name="webmap_ip"),
+            webmap_port = chrani_bot.settings.get_setting_by_name(name="webmap_port"),
             system_status=get_system_status(),
             bot=chrani_bot,
             widgets=widgets_dict
@@ -202,4 +202,4 @@ if __name__ == '__main__':
             action = actions_list_entry['action']
             app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
 
-    socketio.run(app, host='0.0.0.0', port=chrani_bot.settings.get_setting_by_name('bot_port'), debug=False)
+    socketio.run(app, host='0.0.0.0', port=chrani_bot.settings.get_setting_by_name(name='bot_port'), debug=False)

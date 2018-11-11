@@ -56,7 +56,7 @@ def check_ip_country(self):
         except KeyError:
             return False
 
-        if player_object.is_blacklisted() or self.bot.settings.get_setting_by_name('ipinfo.io_password') is None:
+        if player_object.is_blacklisted() or self.bot.settings.get_setting_by_name(name='ipinfo.io_password') is None:
             return
 
         # check if we already know the country code and check against whitelist and banned list
@@ -66,7 +66,7 @@ def check_ip_country(self):
 
         try:
             if users_country is None:
-                f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings.get_setting_by_name('ipinfo.io_password')))
+                f = urllib.urlopen("https://ipinfo.io/" + player_object.ip + "/country?token=" + str(self.bot.settings.get_setting_by_name(name='ipinfo.io_password')))
                 users_country = f.read().rstrip()
         except Exception:
             logger.debug("something went wrong in fetching the ipinfo dataset for player {}".format(player_object.name))

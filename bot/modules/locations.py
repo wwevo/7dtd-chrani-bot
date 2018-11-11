@@ -119,7 +119,7 @@ class Locations(object):
                     "pos_z": location.pos_z,
                     "shape": location.shape,
                     "type": location.type,
-                    "layerGroup": location.owner if location.owner == "system" else "locations" if (location.identifier not in bot.settings.get_setting_by_name("restricted_names")) else location.identifier
+                    "layerGroup": location.owner if location.owner == "system" else "locations" if (location.identifier not in bot.settings.get_setting_by_name(name="restricted_names")) else location.identifier
                 })
             except KeyError:
                 continue

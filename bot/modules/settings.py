@@ -28,11 +28,14 @@ class Settings(object):
         except IOError:  # no settings file available
             pass
 
-    def get_setting_by_name(self, setting_name):
+    def get_setting_by_name(self, *args, **kwargs):
+        setting_name = kwargs.get('name', None)
+        default_value = kwargs.get('default', None)
         try:
             setting_value = self.settings_dict[setting_name]
         except (TypeError, KeyError):
-            return None
+            logger.debug("could not find '{setting_name}' in the settings file, using default values.".format(setting_name=setting_name))
+            setting_value = default_value
 
         return setting_value
 
