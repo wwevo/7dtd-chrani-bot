@@ -193,8 +193,18 @@ class Players(object):
 
         return listplayers_dict
 
+    def load(self, steamid):
+        try:
+            with open("{}/{}_{}.{}".format(self.root, self.prefix, str(steamid), self.extension)) as file_to_read:
+                player_dict = byteify(json.load(file_to_read))
+                player_object = Player(**player_dict)
+                return player_object
+        except IOError as e:
+            logger.debug("{error} for {file}".format(error=e.strerror, file=e.filename))
+
+        raise KeyError
+
     def load_all(self):
-        # TODO: this need to be cached or whatever!
         players_dict = {}
         for root, dirs, files in os.walk(self.root):
             for filename in files:
@@ -221,12 +231,12 @@ class Players(object):
         try:
             return self.players_dict[steamid]
         except KeyError:
-            pass
-
-        try:
-            return self.load(steamid)
-        except KeyError:
             raise
+
+        # try:
+        #     return self.load(steamid)
+        # except KeyError:
+        #     raise
 
     def get_all_players(self, get_online_only=False):
         try:
@@ -243,17 +253,6 @@ class Players(object):
 
         except KeyError:
             raise
-
-    def load(self, steamid):
-        try:
-            with open("{}/{}_{}.{}".format(self.root, self.prefix, str(steamid), self.extension)) as file_to_read:
-                player_dict = byteify(json.load(file_to_read))
-                player_object = Player(**player_dict)
-                return player_object
-        except IOError as e:
-            logger.debug("{error} for {file}".format(error=e.strerror, file=e.filename))
-
-        raise KeyError
 
     def upsert(self, player_object, save=False):
         try:
