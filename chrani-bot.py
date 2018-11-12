@@ -53,7 +53,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.026"
+    chrani_bot_thread.bot_version = "0.7.029"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     def user_loader(steamid):
         try:
             player_object = chrani_bot.players.get_by_steamid(steamid)
-            if chrani_bot.whitelist.player_is_allowed(player_object):
+            if player_object.steamid in chrani_bot.settings.get_setting_by_name(name='webinterface_admins') or chrani_bot.whitelist.player_is_allowed(player_object):
                 return player_object
         except:
             return None

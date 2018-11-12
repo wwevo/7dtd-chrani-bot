@@ -44,7 +44,7 @@ function reload_page() {
 }
 
 function update_command_log(msg) {
-    $('#command_log_widget #command_log').prepend(msg['steamid'] + "/" + msg['command'] + "<br/>");
+    $('#command_log_widget #command_log').prepend("(" + msg['type'] + ")" + msg['steamid'] + "/" + msg['command'] + "<br/>");
 }
 
 $(document).ready(

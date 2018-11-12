@@ -37,7 +37,7 @@ def player_crossed_boundary(self):
                             if self.tn.teleportplayer(self.player_object, coord_tuple=location_object.get_ejection_coords_tuple()):
                                 location_object_owner = self.bot.players.get_by_steamid(location_object.owner)
                                 self.tn.send_message_to_player(self.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object_owner.name), color=self.bot.chat_colors['warning'])
-                                self.bot.socketio.emit('command_log', {"steamid": self.player_object.steamid, "command": "{} has been ejected from {}'s protected core owned by {}!".format(self.player_object.name, location_object.name, location_object_owner.name)}, namespace='/chrani-bot/public')
+                                self.bot.socketio.emit('status_log', {"steamid": self.player_object.steamid, "command": "{} has been ejected from {}'s protected core owned by {}!".format(self.player_object.name, location_object.name, location_object_owner.name)}, namespace='/chrani-bot/public')
 
                 update_table = False
                 if player_status == "has left":

@@ -32,6 +32,8 @@ class Permissions(object):
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if player_object.steamid == 'system':
             return True
+        if player_object.steamid in __main__.chrani_bot.settings.get_setting_by_name(name='webinterface_admins'):
+            return True
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():
                 pass
