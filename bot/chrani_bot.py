@@ -327,7 +327,7 @@ class ChraniBot(Thread):
             pos_y = m.group("pos_y")
             pos_z = m.group("pos_z")
             player_object = self.players.get_by_steamid('system')
-            self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x}, {pos_y}, {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
+            self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
         except KeyError:
             pass
 

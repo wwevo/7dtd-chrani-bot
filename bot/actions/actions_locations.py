@@ -323,14 +323,17 @@ def list_locations(bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         try:
-            output_list = []
+            available_locations_dict = {}
             location_objects_dict = bot.locations.get_available_locations(target_player)
-            for name, location_object in location_objects_dict.iteritems():
-                output_list.append("{} @ ([ffffff]{}[-] x:[ffffff]{}[-], y:[ffffff]{}[-], z:[ffffff]{}[-]) - [ffffff]{}[-]".format(location_object.name, location_object.identifier, location_object.pos_x, location_object.pos_y, location_object.pos_z, 'public' if location_object.is_public else 'private'))
+            for location_identifier, location_object in location_objects_dict.iteritems():
+                output_line = "{location_name} (id:[ffffff]{location_identifier}[-] coords:[ffffff]{pos_x} {pos_y} {pos_z}[-])".format(
+                        location_name=location_object.name, location_identifier=location_identifier, pos_x=location_object.pos_x, pos_y=location_object.pos_y, pos_z=location_object.pos_z
+                    )
 
-            for output_line in output_list:
-                bot.tn.send_message_to_player(target_player, output_line, color=bot.chat_colors['success'])
+                chat_color = bot.chat_colors['warning'] if location_object.is_public else bot.chat_colors['success']
+                bot.tn.send_message_to_player(target_player, output_line, color=chat_color)
 
+            bot.tn.send_message_to_player(target_player, "[{color_public}]public [-] / [{color_private}] private [-]".format(color_public=bot.chat_colors['success'], color_private=bot.chat_colors['warning']))
         except KeyError:
             bot.tn.send_message_to_player(target_player, "{} can not list that which you do not have!".format(target_player.name), color=bot.chat_colors['warning'])
 
