@@ -32,6 +32,11 @@ class PlayerObserver(Thread):
 
     def player_moved_mouse(self):
         player_moved_mouse = False
+        if self.player_object.old_rot_x == 0.0 and self.player_object.old_rot_y == 0.0 and self.player_object.old_rot_z == 0.0:
+            self.player_object.old_rot_x = self.player_object.rot_x
+            self.player_object.old_rot_y = self.player_object.rot_y
+            self.player_object.old_rot_z = self.player_object.rot_z
+
         if self.player_object.old_rot_x != self.player_object.rot_x:
             player_moved_mouse = True
         if self.player_object.old_rot_z != self.player_object.rot_z:
@@ -48,6 +53,15 @@ class PlayerObserver(Thread):
 
     def player_moved(self):
         player_moved = False
+        initial_pos_x = self.player_object.pos_x
+        initial_pos_y = self.player_object.pos_y
+        initial_pos_z = self.player_object.pos_z
+
+        if self.player_object.old_pos_x == 0.0 and self.player_object.old_pos_y == 0.0 and self.player_object.old_pos_z == 0.0:
+            self.player_object.old_pos_x = self.player_object.pos_x
+            self.player_object.old_pos_y = self.player_object.pos_y
+            self.player_object.old_pos_z = self.player_object.pos_z
+
         if self.player_object.old_pos_x != self.player_object.pos_x:
             player_moved = True
         if self.player_object.old_pos_y != self.player_object.pos_y:
@@ -74,11 +88,12 @@ class PlayerObserver(Thread):
                 continue
 
             profile_start = time()
-            if not self.player_object.is_responsive() and self.player_moved_mouse():
-                self.player_object.initialized = True
-                logger.debug("{} has been caught moving their head :)".format(self.player_object.name))
+            player_is_responsive = self.player_object.is_responsive()
+            player_moved = self.player_moved()
+            player_moved_mouse = self.player_moved_mouse()
 
-            if self.player_object.is_responsive() and self.player_moved():
+            if player_is_responsive and player_moved:
+                self.player_object.initialized = True
                 json = self.bot.players.get_leaflet_marker_json([self.player_object])
                 self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 

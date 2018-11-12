@@ -313,10 +313,11 @@ class Players(object):
                 "last_responsive": player_object.last_responsive,
                 "last_seen": player_object.last_seen,
                 "playerfriends_list": player_object.playerfriends_list,
-                "pos_x": player_object.pos_x if isinstance(player_object.pos_x, float) else 0,
-                "pos_y": player_object.pos_y if isinstance(player_object.pos_y, float) else 0,
-                "pos_z": player_object.pos_z if isinstance(player_object.pos_z, float) else 0,
+                "pos_x": (player_object.pos_x if isinstance(player_object.pos_x, float) else 0.0) if player_object.authenticated else 0.0,
+                "pos_y": (player_object.pos_y if isinstance(player_object.pos_y, float) else 0.0) if player_object.authenticated else 0.0,
+                "pos_z": (player_object.pos_z if isinstance(player_object.pos_z, float) else 0.0) if player_object.authenticated else 0.0,
             }
+
         except Exception as e:
             logger.debug("Preparing player-record for player {} failed: {}".format(player_object.steamid, e.message))
             dict_to_save = {}  # this will fail the next

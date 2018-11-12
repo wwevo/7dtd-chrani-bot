@@ -360,6 +360,7 @@ class ChraniBot(Thread):
 
         self.telnet_lines_list = deque()
         self.is_active = True  # this is set so the main loop can be started / stopped
+        self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
         while self.is_active or not self.stopped:
             try:
                 self.time_running = int(time.time() - self.time_launched)

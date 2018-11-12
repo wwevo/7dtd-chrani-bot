@@ -51,6 +51,7 @@ class Player(flask_login.UserMixin):
 
     playerfriends_list = list
     poll_listplayerfriends_lastpoll = float
+    active_teleport_thread = bool
 
     def get_id(self):
         return unicode(self.steamid)
@@ -75,6 +76,7 @@ class Player(flask_login.UserMixin):
         self.country_code = None
         self.blacklisted = False
         self.is_to_be_obliterated = False
+        self.active_teleport_thread = False
         self.rot_x = 0.0
         self.rot_y = 0.0
         self.rot_z = 0.0
