@@ -19,6 +19,7 @@ import bot.schedulers as schedulers
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.modules.players import Players
+from bot.objects.player import Player
 from bot.modules.telnet_connection import TelnetConnection
 from bot.modules.whitelist import Whitelist
 
@@ -221,12 +222,7 @@ class ChraniBot(Thread):
             for keystone in keystones:
                 keystone_list.append(keystone)
 
-            try:
-                target_player = self.players.get_by_steamid(m.group("player_steamid"))
-                lcb_dict.update({target_player.steamid: keystone_list})
-            except KeyError:
-                # found LCB, but no corresponding player
-                lcb_dict.update({m.group("player_steamid"): keystone_list})
+            lcb_dict.update({m.group("player_steamid"): keystone_list})
 
         return lcb_dict
 
@@ -238,14 +234,23 @@ class ChraniBot(Thread):
         except TypeError:
             return lcb_list_final
 
-        for lcb_owner, lcb_list in lcb_dict.iteritems():
+        for lcb_owner_steamid, lcb_list in lcb_dict.iteritems():
+            try:
+                player_object = self.players.get_by_steamid(lcb_owner_steamid)
+            except KeyError:
+                player_dict = {
+                        "name": "unknown player",
+                        "steamid": lcb_owner_steamid,
+                    }
+                player_object = Player(**player_dict)
+
             for lcb in lcb_list:
                 lcb_list_final.append({
-                    "id": "{}_lcb_{}{}{}".format(str(lcb_owner), str(lcb[0]), str(lcb[1]), str(lcb[2])),
-                    "owner": str(lcb_owner),
-                    "identifier": "{}_lcb_{}{}{}".format(str(lcb_owner), str(lcb[0]), str(lcb[1]), str(lcb[2])),
-                    "name": str(lcb_owner),
-                    "radius": int(land_claim_size / 2),
+                    "id": "{}_lcb_{}{}{}".format(str(player_object.steamid), str(lcb[0]), str(lcb[1]), str(lcb[2])),
+                    "owner": str(player_object.steamid),
+                    "identifier": "{}_lcb_{}{}{}".format(str(player_object.steamid), str(lcb[0]), str(lcb[1]), str(lcb[2])),
+                    "name": str(player_object.name),
+                    "radius": int((land_claim_size - 1) / 2),
                     "inner_radius": 3,
                     "pos_x": int(lcb[0]),
                     "pos_y": int(lcb[1]),
