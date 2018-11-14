@@ -1,5 +1,6 @@
 import re
 from time import time, sleep
+import math
 from threading import *
 
 import bot.actions
@@ -53,29 +54,46 @@ class PlayerObserver(Thread):
 
     def player_moved(self):
         player_moved = False
-        initial_pos_x = self.player_object.pos_x
-        initial_pos_y = self.player_object.pos_y
-        initial_pos_z = self.player_object.pos_z
 
-        if self.player_object.old_pos_x == 0.0 and self.player_object.old_pos_y == 0.0 and self.player_object.old_pos_z == 0.0:
+        logger.debug("{name}: x:{px}/{opx} y:{py}/{opy} z:{pz}/{opz}, {moved_flag}".format(
+            name=self.player_object.name,
+            px=self.player_object.pos_x, opx=self.player_object.old_pos_x,
+            py=self.player_object.pos_y, opy=self.player_object.old_pos_y,
+            pz=self.player_object.pos_z, opz=self.player_object.old_pos_z,
+            moved_flag=player_moved
+        ))
+
+        if not isinstance(self.player_object.pos_x, float) or not isinstance(self.player_object.pos_y, float) or not isinstance(self.player_object.pos_z, float):
+            return player_moved
+
+        # pos_x+y+z has a value, so we can store the old one as well. if either hadn't got a value, the player certainly wouldn't be initialized completely.
+        if not isinstance(self.player_object.old_pos_x, float):
+            self.player_object.old_pos_x = self.player_object.pos_x
+        if not isinstance(self.player_object.old_pos_y, float):
+            self.player_object.old_pos_y = self.player_object.pos_y
+        if not isinstance(self.player_object.old_pos_z, float):
+            self.player_object.old_pos_z = self.player_object.pos_z
+
+        player_moved_bias = [
+            math.fabs(self.player_object.old_pos_x - self.player_object.pos_x) >= 2,
+            math.fabs(self.player_object.old_pos_y - self.player_object.pos_y) >= 2,
+            math.fabs(self.player_object.old_pos_z - self.player_object.pos_z) >= 2
+        ]
+
+        if any(player_moved_bias):
             self.player_object.old_pos_x = self.player_object.pos_x
             self.player_object.old_pos_y = self.player_object.pos_y
             self.player_object.old_pos_z = self.player_object.pos_z
-
-        if self.player_object.old_pos_x != self.player_object.pos_x:
-            player_moved = True
-        if self.player_object.old_pos_y != self.player_object.pos_y:
-            player_moved = True
-        if self.player_object.old_pos_z != self.player_object.pos_z:
             player_moved = True
 
-        if self.player_object.old_pos_x != self.player_object.pos_x:
-            self.player_object.old_pos_x = self.player_object.pos_x
-        if self.player_object.old_pos_y != self.player_object.pos_y:
-            self.player_object.old_pos_y = self.player_object.pos_y
-        if self.player_object.old_pos_z != self.player_object.pos_z:
-            self.player_object.old_pos_z = self.player_object.pos_z
-            
+        logger.debug("{name}: x:{px}/{opx} y:{py}/{opy} z:{pz}/{opz}, {moved_flag}".format(
+            name=self.player_object.name,
+            px=self.player_object.pos_x, opx=self.player_object.old_pos_x,
+            py=self.player_object.pos_y, opy=self.player_object.old_pos_y,
+            pz=self.player_object.pos_z, opz=self.player_object.old_pos_z,
+            moved_flag=player_moved
+        ))
+
         return player_moved
 
     def run(self):
@@ -88,14 +106,16 @@ class PlayerObserver(Thread):
                 continue
 
             profile_start = time()
-            player_is_responsive = self.player_object.is_responsive()
-            player_moved = self.player_moved()
-            player_moved_mouse = self.player_moved_mouse()
 
-            if player_is_responsive and player_moved:
-                self.player_object.initialized = True
-                json = self.bot.players.get_leaflet_marker_json([self.player_object])
-                self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
+            if not self.player_object.initialized:
+                player_is_responsive = self.player_object.is_responsive()
+                player_moved = self.player_moved()
+                player_moved_mouse = self.player_moved_mouse()
+
+                if player_is_responsive and player_moved:
+                    self.player_object.initialized = True
+                    json = self.bot.players.get_leaflet_marker_json([self.player_object])
+                    self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
             if self.bot.observers_list:
                 """ execute real-time observers
@@ -118,7 +138,10 @@ class PlayerObserver(Thread):
                         if not result:
                             continue
                     except TypeError:
-                        command["action"](*command["command_parameters"])
+                        try:
+                            command["action"](*command["command_parameters"])
+                        except:
+                            pass
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - self.last_execution_time

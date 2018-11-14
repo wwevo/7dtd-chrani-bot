@@ -77,18 +77,6 @@ class Player(flask_login.UserMixin):
         self.blacklisted = False
         self.is_to_be_obliterated = False
         self.active_teleport_thread = False
-        self.rot_x = 0.0
-        self.rot_y = 0.0
-        self.rot_z = 0.0
-        self.pos_x = 0.0
-        self.pos_y = 0.0
-        self.pos_z = 0.0
-        self.old_rot_x = 0.0
-        self.old_rot_y = 0.0
-        self.old_rot_z = 0.0
-        self.old_pos_x = 0.0
-        self.old_pos_y = 0.0
-        self.old_pos_z = 0.0
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0

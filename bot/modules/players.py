@@ -53,9 +53,6 @@ class Players(object):
                         "ip": player_ip,
                         "is_logging_in": True,
                         "is_online": True,
-                        "pos_x": 0.0,
-                        "pos_y": 0.0,
-                        "pos_z": 0.0,
                     }
 
                     player_object = Player(**player_dict)
@@ -175,6 +172,7 @@ class Players(object):
 
                 del bot.active_player_threads_dict[player_steamid]
             if player_object.is_to_be_obliterated is True:
+                player_object.is_online = False
                 players_to_obliterate.append(player_object)
 
         for player_object in players_to_obliterate:
@@ -268,6 +266,10 @@ class Players(object):
     def get_leaflet_marker_json(self, player_objects):
         player_list = []
         for player in player_objects:
+
+            if not isinstance(player.pos_x, float) or not isinstance(player.pos_y, float) or not isinstance(player.pos_z, float):
+                continue
+
             player_list.append({
                 "id": "{}".format(player.steamid),
                 "owner": player.steamid,
@@ -313,9 +315,6 @@ class Players(object):
                 "last_responsive": player_object.last_responsive,
                 "last_seen": player_object.last_seen,
                 "playerfriends_list": player_object.playerfriends_list,
-                "pos_x": (player_object.pos_x if isinstance(player_object.pos_x, float) else 0.0) if player_object.authenticated else 0.0,
-                "pos_y": (player_object.pos_y if isinstance(player_object.pos_y, float) else 0.0) if player_object.authenticated else 0.0,
-                "pos_z": (player_object.pos_z if isinstance(player_object.pos_z, float) else 0.0) if player_object.authenticated else 0.0,
             }
 
         except Exception as e:

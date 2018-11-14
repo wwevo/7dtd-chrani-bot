@@ -2,8 +2,8 @@ import common
 
 
 def player_entered_teleport(self):
-    player_object = self.bot.players.get_by_steamid(self.player_steamid)
     try:
+        player_object = self.bot.players.get_by_steamid(self.player_steamid)
         locations_dict = dict((k, v) for k, v in self.bot.locations.get('system').iteritems() if v.teleport_active is True)
     except KeyError:
         return
