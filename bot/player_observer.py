@@ -55,14 +55,6 @@ class PlayerObserver(Thread):
     def player_moved(self):
         player_moved = False
 
-        logger.debug("{name}: x:{px}/{opx} y:{py}/{opy} z:{pz}/{opz}, {moved_flag}".format(
-            name=self.player_object.name,
-            px=self.player_object.pos_x, opx=self.player_object.old_pos_x,
-            py=self.player_object.pos_y, opy=self.player_object.old_pos_y,
-            pz=self.player_object.pos_z, opz=self.player_object.old_pos_z,
-            moved_flag=player_moved
-        ))
-
         if not isinstance(self.player_object.pos_x, float) or not isinstance(self.player_object.pos_y, float) or not isinstance(self.player_object.pos_z, float):
             return player_moved
 
@@ -86,13 +78,13 @@ class PlayerObserver(Thread):
             self.player_object.old_pos_z = self.player_object.pos_z
             player_moved = True
 
-        logger.debug("{name}: x:{px}/{opx} y:{py}/{opy} z:{pz}/{opz}, {moved_flag}".format(
-            name=self.player_object.name,
-            px=self.player_object.pos_x, opx=self.player_object.old_pos_x,
-            py=self.player_object.pos_y, opy=self.player_object.old_pos_y,
-            pz=self.player_object.pos_z, opz=self.player_object.old_pos_z,
-            moved_flag=player_moved
-        ))
+        # logger.debug("{name}: x:{px}/{opx} y:{py}/{opy} z:{pz}/{opz}, {moved_flag}".format(
+        #     name=self.player_object.name,
+        #     px=self.player_object.pos_x, opx=self.player_object.old_pos_x,
+        #     py=self.player_object.pos_y, opy=self.player_object.old_pos_y,
+        #     pz=self.player_object.pos_z, opz=self.player_object.old_pos_z,
+        #     moved_flag=player_moved
+        # ))
 
         return player_moved
 
@@ -107,13 +99,13 @@ class PlayerObserver(Thread):
 
             profile_start = time()
 
+            player_is_responsive = self.player_object.is_responsive()
+            player_moved = self.player_moved()
             if not self.player_object.initialized:
-                player_is_responsive = self.player_object.is_responsive()
-                player_moved = self.player_moved()
-                player_moved_mouse = self.player_moved_mouse()
-
                 if player_is_responsive and player_moved:
                     self.player_object.initialized = True
+            else:
+                if player_is_responsive and player_moved:
                     json = self.bot.players.get_leaflet_marker_json([self.player_object])
                     self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
