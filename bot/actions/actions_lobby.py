@@ -216,7 +216,7 @@ def goto_lobby(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
             if bot.tn.teleportplayer(target_player, location_object=location_object):
-                bot.tn.send_message_to_player(target_player, "You have ported to the lobby", color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, "You have ported to the lobby", color=bot.chat_colors['standard'])
         except KeyError:
             bot.tn.send_message_to_player(target_player, "There is no lobby :(", color=bot.chat_colors['warning'])
 

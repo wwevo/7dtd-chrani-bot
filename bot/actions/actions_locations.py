@@ -153,7 +153,7 @@ def set_up_location_name(bot, source_player, target_player, command):
                 bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
 
-                bot.tn.send_message_to_player(target_player, "You called your location {}".format(name), color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, "You called your location {}".format(name), color=bot.chat_colors['standard'])
 
             except KeyError:
                 bot.tn.send_message_to_player(target_player, "You can not name that which you do not have!!", color=bot.chat_colors['warning'])
@@ -190,11 +190,11 @@ def change_location_visibility(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(source_player.steamid, identifier)
                 if location_object.set_visibility(status_to_set):
-                    bot.tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, 'public' if status_to_set else 'private'), color=bot.chat_colors['background'])
+                    bot.tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, 'public' if status_to_set else 'private'), color=bot.chat_colors['standard'])
                     bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                     bot.locations.upsert(location_object, save=True)
                 else:
-                    bot.tn.send_message_to_player(target_player, "A public location with the identifier {} already exists".format(location_object.identifier), color=bot.chat_colors['background'])
+                    bot.tn.send_message_to_player(target_player, "A public location with the identifier {} already exists".format(location_object.identifier), color=bot.chat_colors['standard'])
             except KeyError:
                 bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
 
@@ -427,7 +427,7 @@ def remove_location(bot, source_player, target_player, command):
                 message = "{} deleted location {}".format(target_player.name, identifier)
                 response_messages.add_message(message, False)
                 bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
             else:
                 message = "Location {} could not be removed :(".format(identifier)
                 bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
@@ -556,7 +556,7 @@ def change_perimeter_warning(bot, source_player, target_player, command):
                     location_object.show_messages = False
                     location_object.show_warning_messages = False
 
-                bot.tn.send_message_to_player(target_player, "Your location {} will {}".format(location_object.name, status_to_set), color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, "Your location {} will {}".format(location_object.name, status_to_set), color=bot.chat_colors['standard'])
                 bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                 bot.locations.upsert(location_object, save=True)
             except KeyError:
@@ -602,7 +602,7 @@ def change_location_shape(bot, source_player, target_player, command):
                 else:
                     location_object.set_shape("square")
 
-                bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, shape_to_set), color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, shape_to_set), color=bot.chat_colors['standard'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
                 bot.locations.upsert(location_object, save=True)
             except KeyError:
@@ -646,7 +646,7 @@ def change_location_type(bot, source_player, target_player, command):
                 else:
                     location_object.set_type("standard")
 
-                bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, type_to_set), color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, type_to_set), color=bot.chat_colors['standard'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
                 bot.locations.upsert(location_object, save=True)
             except KeyError:

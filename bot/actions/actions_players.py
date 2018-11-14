@@ -612,7 +612,7 @@ def ban_player(bot, source_player, target_player, command):
             if not player_object_to_ban.is_banned and bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
                 player_object_to_ban.is_banned = True
                 bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['alert'])
+                bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['warning'])
                 bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
                 message = "{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban)
                 bot.tn.say(message, color=bot.chat_colors['success'])

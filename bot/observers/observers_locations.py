@@ -44,11 +44,11 @@ def player_crossed_boundary(self):
                     self.bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True:
-                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['background'])
+                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['standard'])
                 if player_status == "has left core":
                     update_table = True
                     if location_object.messages_dict["left_locations_core"] is not None and location_object.show_warning_messages is True:
-                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['background'])
+                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['standard'])
                 if player_status == "has entered":
                     self.bot.locations.upsert(location_object, save=True)
                     update_table = True

@@ -34,7 +34,7 @@ def on_player_death(bot, source_player, target_player, command):
         target_player.initialized = False
         bot.players.upsert(target_player, save=True)
         message = "{}s place of death has been recorded ^^".format(target_player.name)
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -105,7 +105,7 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
             else:
                 coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
                 bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple)
-                bot.tn.say("{} can't live without their stuff".format(target_player.name), color=bot.chat_colors['background'])
+                bot.tn.say("{} can't live without their stuff".format(target_player.name), color=bot.chat_colors['standard'])
 
             bot.locations.remove(target_player.steamid, 'death')
 

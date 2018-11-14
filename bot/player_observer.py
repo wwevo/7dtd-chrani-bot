@@ -57,8 +57,9 @@ class PlayerObserver(Thread):
 
         if not isinstance(self.player_object.pos_x, float) or not isinstance(self.player_object.pos_y, float) or not isinstance(self.player_object.pos_z, float):
             return player_moved
+        # at this point, pos_x+y+z has a value, so we can store the old one as well. if either hadn't got a value, the player certainly wouldn't be initialized completely.
 
-        # pos_x+y+z has a value, so we can store the old one as well. if either hadn't got a value, the player certainly wouldn't be initialized completely.
+        # if old_pos_x+y+z is not set, we need to set it, or the player_moved_bias will fire later on
         if not isinstance(self.player_object.old_pos_x, float):
             self.player_object.old_pos_x = self.player_object.pos_x
         if not isinstance(self.player_object.old_pos_y, float):
@@ -66,6 +67,7 @@ class PlayerObserver(Thread):
         if not isinstance(self.player_object.old_pos_z, float):
             self.player_object.old_pos_z = self.player_object.pos_z
 
+        # using >= 2 to catch eventualities where players are spawning slightly into the ground or a wall, being moved around by the game because of it
         player_moved_bias = [
             math.fabs(self.player_object.old_pos_x - self.player_object.pos_x) >= 2,
             math.fabs(self.player_object.old_pos_y - self.player_object.pos_y) >= 2,
@@ -77,14 +79,6 @@ class PlayerObserver(Thread):
             self.player_object.old_pos_y = self.player_object.pos_y
             self.player_object.old_pos_z = self.player_object.pos_z
             player_moved = True
-
-        # logger.debug("{name}: x:{px}/{opx} y:{py}/{opy} z:{pz}/{opz}, {moved_flag}".format(
-        #     name=self.player_object.name,
-        #     px=self.player_object.pos_x, opx=self.player_object.old_pos_x,
-        #     py=self.player_object.pos_y, opy=self.player_object.old_pos_y,
-        #     pz=self.player_object.pos_z, opz=self.player_object.old_pos_z,
-        #     moved_flag=player_moved
-        # ))
 
         return player_moved
 

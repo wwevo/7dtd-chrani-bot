@@ -145,7 +145,7 @@ def remove_entity(bot, source_player, target_player, command):
                 response_messages.add_message(message, False)
 
             logger.info(message)
-            bot.tn.say(message, color=bot.chat_colors['background'])
+            bot.tn.say(message, color=bot.chat_colors['standard'])
 
             return response_messages
 

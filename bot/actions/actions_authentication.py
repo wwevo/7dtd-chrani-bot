@@ -133,7 +133,7 @@ def password(bot, source_player, target_player, command):
                 if not target_player.authenticated:
                     message = "{} joined the ranks of literate people. Welcome!".format(target_player.name)
                     response_messages.add_message(message, True)
-                    bot.tn.say(message, color=bot.chat_colors['background'])
+                    bot.tn.say(message, color=bot.chat_colors['standard'])
 
                 target_player.add_permission_level("authenticated")
                 message = "You were added to the group authenticated"

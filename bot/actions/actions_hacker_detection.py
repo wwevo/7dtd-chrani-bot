@@ -22,13 +22,13 @@ def oversized_stack(bot, source_player, target_player, command):
             response_messages = ResponseMessage()
             message = "Found item-stack of {} that's way too big for player {}".format(p.group("item_quantity"), target_player.name)
             logger.info(message)
-            bot.tn.say(message, color=bot.chat_colors['alert'])
+            bot.tn.say(message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, True)
             if bot.tn.kick(target_player, message):
                 target_player.blacklisted = True
                 message = "kicked player {} for {}".format(target_player.name, message)
                 logger.info(message)
-                bot.tn.say(message, color=bot.chat_colors['alert'])
+                bot.tn.say(message, color=bot.chat_colors['warning'])
             return response_messages
         else:
             raise ValueError("action does not fully match the trigger-string")

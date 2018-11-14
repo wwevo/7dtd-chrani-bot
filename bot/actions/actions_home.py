@@ -81,7 +81,7 @@ def set_up_home(bot, source_player, target_player, command):
 
         message = "{} has decided to settle down!".format(target_player.name)
         response_messages.add_message(message, True)
-        bot.tn.say(message, color=bot.chat_colors['background'])
+        bot.tn.say(message, color=bot.chat_colors['standard'])
         bot.tn.send_message_to_player(target_player, "Home is where your hat is!", color=bot.chat_colors['success'])
 
         return response_messages
@@ -117,7 +117,7 @@ def remove_home(bot, source_player, target_player, command):
         if player_home_exists and bot.locations.remove(target_player.steamid, 'home'):
             message = "Your home has been removed!"
             response_messages.add_message(message, True)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
 
             bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
             bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
@@ -305,7 +305,7 @@ def set_up_home_name(bot, source_player, target_player, command):
 
             message = "Your home is called {} now \o/".format(location_object.description)
             response_messages.add_message(message, False)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['background'])
+            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
 
             bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
@@ -384,7 +384,7 @@ def goto_player_home(bot, source_player, target_player, command):
                 player_object_to_port_to = bot.players.load(player_steamid)
                 location_object = bot.locations.get(player_object_to_port_to.steamid, "home")
                 bot.tn.teleportplayer(target_player, location_object=location_object)
-                bot.tn.send_message_to_player(target_player, "You went to visit {}'s home".format(player_object_to_port_to.name), color=bot.chat_colors['background'])
+                bot.tn.send_message_to_player(target_player, "You went to visit {}'s home".format(player_object_to_port_to.name), color=bot.chat_colors['standard'])
                 bot.tn.send_message_to_player(player_object_to_port_to, "{} went to visit your home!".format(target_player.name), color=bot.chat_colors['warning'])
             except KeyError:
                 bot.tn.send_message_to_player(target_player, "Could not find {}'s home".format(player_steamid), color=bot.chat_colors['warning'])

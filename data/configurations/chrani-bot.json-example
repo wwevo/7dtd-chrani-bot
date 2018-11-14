@@ -35,6 +35,16 @@
     "authenticated": "authenticated_pass"
   },
 
+  "chatbox_color_scheme": {
+    "standard": "afb0b2",
+    "highlight": "b3b8bc",
+    "header": "e57255",
+    "warning": "e5c453",
+    "success": "52d273",
+    "error": "e95065",
+    "info": "46bddf"
+  },
+
   "mute_unauthenticated": true,
   "scan_for_lcb": true,
   "whitelist_active": false,
