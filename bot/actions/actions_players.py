@@ -486,15 +486,11 @@ def obliterate_player(bot, source_player, target_player, command):
                 if steamid_to_obliterate is False:
                     raise KeyError
 
-            target_player.is_to_be_obliterated = True
-            target_player.is_online = False
-            target_player.update()
-
             reason_for_kick = "Your profile and all your bot stuff will be removed now!"
             if bot.tn.kick(target_player, reason_for_kick):
                 response_messages.add_message("player {} has been kicked".format(target_player.name), True)
             else:
-                response_messages.add_message("could not kick player {}".format(target_player.name), True)
+                response_messages.add_message("could not kick player {}".format(target_player.name), False)
 
             try:
                 location_objects_dict = bot.locations.get(target_player.steamid)
@@ -519,7 +515,12 @@ def obliterate_player(bot, source_player, target_player, command):
                 else:
                     response_messages.add_message("could not remove player {} from the whitelist :(".format(target_player.name), False)
 
+            target_player.is_to_be_obliterated = True
             response_messages.add_message("player {} is marked for removal ^^".format(target_player.name), True)
+
+            target_player.is_online = False
+            response_messages.add_message("player {} is set to offlilne ^^".format(target_player.name), True)
+            target_player.update()
 
             return response_messages
         else:
