@@ -490,6 +490,12 @@ def obliterate_player(bot, source_player, target_player, command):
             target_player.is_online = False
             target_player.update()
 
+            reason_for_kick = "Your profile and all your bot stuff will be removed now!"
+            if bot.tn.kick(target_player, reason_for_kick):
+                response_messages.add_message("player {} has been kicked".format(target_player.name), True)
+            else:
+                response_messages.add_message("could not kick player {}".format(target_player.name), True)
+
             try:
                 location_objects_dict = bot.locations.get(target_player.steamid)
             except KeyError:
