@@ -160,7 +160,7 @@ class TelnetConnection:
     def listplayerfriends(self, player_object):
         try:
             connection = self.tn
-            connection.write("lpf " + player_object.steamid + b" \r\n")
+            connection.write("lpf {}".format(player_object.steamid) + b" \r\n")
         except Exception as e:
             log_message = 'trying to listplayerfriends on telnet connection failed: {}'.format(e)
             raise IOError(log_message)

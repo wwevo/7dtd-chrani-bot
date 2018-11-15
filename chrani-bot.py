@@ -31,6 +31,7 @@ from bot.modules.webinterface.system import get_system_status
 from bot.modules.webinterface.whitelist import get_whitelist_widget
 from bot.modules.webinterface.players import get_banned_players_widget
 from bot.modules.webinterface.locations import get_player_location_radar_widget
+from bot.objects.player import Player
 
 if __name__ == '__main__':
     app = flask.Flask(
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.037"
+    chrani_bot_thread.bot_version = "0.7.038"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -65,7 +66,15 @@ if __name__ == '__main__':
             if player_object.steamid in chrani_bot.settings.get_setting_by_name(name='webinterface_admins') or chrani_bot.whitelist.player_is_allowed(player_object):
                 return player_object
         except:
-            return None
+            player_dict = {
+                "steamid": steamid,
+                "name": "system",
+            }
+
+            player_object = Player(**player_dict)
+            chrani_bot.players.upsert(player_object)
+            player_object.add_permission_level("admin")
+            return player_object
 
     @app.route('/login')
     def login():
