@@ -34,6 +34,7 @@ def player_is_outside_boundary(self):
 
             time.sleep(seconds)
             player_object.active_teleport_thread = False
+            return True
 
         if not player_object.active_teleport_thread:
             player_object.active_teleport_thread = True

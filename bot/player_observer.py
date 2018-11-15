@@ -95,13 +95,11 @@ class PlayerObserver(Thread):
 
             player_is_responsive = self.player_object.is_responsive()
             player_moved = self.player_moved()
-            if not self.player_object.initialized:
-                if player_is_responsive and player_moved:
+            if player_is_responsive and player_moved:
+                if not self.player_object.initialized:
                     self.player_object.initialized = True
-            else:
-                if player_is_responsive and player_moved:
-                    json = self.bot.players.get_leaflet_marker_json([self.player_object])
-                    self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
+                json = self.bot.players.get_leaflet_marker_json([self.player_object])
+                self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
             if self.bot.observers_list:
                 """ execute real-time observers

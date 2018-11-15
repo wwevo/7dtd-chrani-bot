@@ -24,7 +24,7 @@ var active_controls = [];
 
 function createCircleMarker(obj, color) {
     bounds = [obj.pos_x, obj.pos_z]
-    tooltip = obj.identifier + "<br />" + obj.owner_name, { permanent: false };
+    tooltip = obj.name + " (" + obj.identifier + ")<br />" + obj.owner_name, { permanent: false };
     markers[obj.id] = new L.circle(bounds, {weight: 1, fill: color["fill"], color: color["area"], radius: Number(obj.radius / Math.pow(2, 4))});
 
     if (obj.protected) {
@@ -42,7 +42,7 @@ function createCircleMarker(obj, color) {
 function createRectangleMarker(obj, color) {
     bounds = [[obj.pos_x - obj.radius, obj.pos_z - obj.radius], [obj.pos_x + obj.radius, obj.pos_z + obj.radius]];
     bounds_inner = [[obj.pos_x - obj.inner_radius, obj.pos_z - obj.inner_radius], [obj.pos_x + obj.inner_radius, obj.pos_z + obj.inner_radius]];
-    tooltip = obj.identifier + "<br />" + obj.name, { permanent: false };
+    tooltip = obj.name + " (" + obj.identifier + ")<br />" + obj.owner_name, { permanent: false };
     markers[obj.id] = new L.rectangle(bounds, {weight: 1, fill: color["fill"], color: color["area"]});
 
     if (obj.protected) {

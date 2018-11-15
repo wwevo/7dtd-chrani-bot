@@ -133,7 +133,7 @@ common.actions_list.append({
 
 def remove_entity(bot, source_player, target_player, command):
     try:
-        p = re.search(r"screamer\sspawned\sinside\svillage\s(?P<entity_id>[0-9]+)$", command)
+        p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
         if p:
             response_messages = ResponseMessage()
             entity_id = p.group("entity_id")
@@ -160,7 +160,7 @@ def remove_entity(bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "startswith",
     "command": {
-        "trigger": "screamer spawned inside village",
+        "trigger": "remove entity",
         "usage": None
     },
     "action": remove_entity,

@@ -309,7 +309,7 @@ class ChraniBot(Thread):
                 villages = self.locations.find_by_type('village')
                 for village in villages:
                     if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
-                        self.actions.common.trigger_action(self, player_object, player_object, "screamer spawned inside village {}".format(entity_id))
+                        self.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
         except KeyError:
             pass
 
