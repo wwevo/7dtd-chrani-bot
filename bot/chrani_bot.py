@@ -353,8 +353,10 @@ class ChraniBot(Thread):
         self.telnet_lines_list = deque()
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
-        while self.is_active or not self.stopped:
+        next_cycle = 0
+        while self.is_active or not self.stopped.wait(next_cycle):
             try:
+                next_cycle = 0.125
                 self.time_running = int(time.time() - self.time_launched)
 
                 if self.initiate_shutdown is True:
@@ -444,8 +446,6 @@ class ChraniBot(Thread):
                                 if player_steamid in self.active_player_threads_dict:
                                     active_player_thread = self.active_player_threads_dict[player_steamid]
                                     active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
-
-                time.sleep(0.125)  # to limit the speed a bit ^^
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """

@@ -83,9 +83,9 @@ class PlayerObserver(Thread):
         return player_moved
 
     def run(self):
-        next_cycle = 0
         self.player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.player_object.is_online = True
+        next_cycle = 0
         while not self.stopped.wait(next_cycle):
             if self.bot.is_paused is not False:
                 sleep(1)

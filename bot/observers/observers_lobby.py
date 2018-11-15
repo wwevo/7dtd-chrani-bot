@@ -21,7 +21,7 @@ def player_is_outside_boundary(self):
 
     if location_object.enabled is True and not location_object.player_is_inside_boundary(player_object) and player_object.initialized:
         def teleport_worker():
-            seconds = 5
+            seconds = 2
             self.tn.send_message_to_player(player_object, "You will be ported to the lobby in {seconds} seconds!".format(seconds=seconds), color=self.bot.chat_colors['warning'])
             time.sleep(seconds)
 
