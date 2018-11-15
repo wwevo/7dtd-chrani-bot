@@ -43,7 +43,7 @@ def player_crossed_boundary(self):
                 if player_status == "has left":
                     self.bot.locations.upsert(location_object, save=True)
                     update_table = True
-                    if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True and (location_object.owner == self.player_object.steamid or (location_object.is_public or location_object.protected_core)):
+                    if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True and (location_object.owner in [self.player_object.steamid, "system"] or (location_object.is_public or location_object.protected_core)):
                         self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['standard'])
                 if player_status == "has left core":
                     update_table = True
@@ -52,7 +52,7 @@ def player_crossed_boundary(self):
                 if player_status == "has entered":
                     self.bot.locations.upsert(location_object, save=True)
                     update_table = True
-                    if location_object.messages_dict["entered_location"] is not None and location_object.show_messages is True and (location_object.owner == self.player_object.steamid or (location_object.is_public or location_object.protected_core)):
+                    if location_object.messages_dict["entered_location"] is not None and location_object.show_messages is True and (location_object.owner in [self.player_object.steamid, "system"] or (location_object.is_public or location_object.protected_core)):
                         if location_object.protected_core:
                             self.tn.send_message_to_player(self.player_object, "{} ({})".format(location_object.messages_dict["entered_location"], "protected"), color=self.bot.chat_colors['error'])
                         else:
