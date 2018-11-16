@@ -132,7 +132,15 @@ class ChraniBot(Thread):
         self.permission_levels_list = self.passwords.keys()  # ['admin', 'mod', 'donator', 'authenticated']
         self.permissions = Permissions(self.actions_list, self.permission_levels_list)
 
-        self.chat_colors = self.settings.get_setting_by_name(name='chatbox_color_scheme')
+        self.chat_colors = self.settings.get_setting_by_name(name='chatbox_color_scheme', default={
+            "standard": "afb0b2",
+            "highlight": "b3b8bc",
+            "header": "e57255",
+            "warning": "e5c453",
+            "success": "52d273",
+            "error": "e95065",
+            "info": "46bddf"
+        })
 
         self.match_types = {
             # matches any command a player issues in game-chat
