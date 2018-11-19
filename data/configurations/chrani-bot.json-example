@@ -69,6 +69,6 @@
     "message [ffffff]# 3[-]": "all"
   },
 
-  "restart_timer": 28800,
-  "restart_warning": 300
+  "restart_timer": 86400,
+  "restart_warning": 600
 }
