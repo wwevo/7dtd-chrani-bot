@@ -185,7 +185,7 @@ class TelnetConnection:
     def listlandprotection(self):
         try:
             connection = self.tn
-            connection.write("llp2" + b"\r\n")
+            connection.write("llp" + b"\r\n")
         except Exception as e:
             log_message = 'trying to listlandprotection on telnet connection failed: {}'.format(e)
             raise IOError(log_message)
