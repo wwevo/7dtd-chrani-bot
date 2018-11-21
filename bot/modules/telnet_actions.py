@@ -1,75 +1,31 @@
 import math
 import re
-import telnetlib
 
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
 
-class TelnetConnection:
+class TelnetActions:
     tn = object
     bot = object
+    last_line = str
     show_log_init = bool
 
     full_banner = str
 
-    def __init__(self, bot, ip, port, password, show_log_init=False):
-        try:
-            connection = telnetlib.Telnet(ip, port, timeout=2)
-        except Exception as e:
-            log_message = 'trying to establish telnet connection failed: {}'.format(e)
-            raise IOError(log_message)
-
+    def __init__(self, bot, telnet_connection):
         self.bot = bot
-        self.show_log_init = show_log_init
-        self.full_banner = ""
-        self.tn = self.authenticate(connection, password)
+        self.last_line = ""
+        self.tn = telnet_connection.tn
 
-    def authenticate(self, connection, password):
+    def read(self):
         try:
-            # Waiting for the prompt.
-            found_prompt = False
-            while found_prompt is not True:
-                telnet_response = connection.read_until(b"\r\n")
-                if re.match(r"Please enter password:\r\n", telnet_response):
-                    found_prompt = True
-
-            # Sending password.
-            full_auth_response = ''
-            authenticated = False
-            connection.write(password.encode('ascii') + b"\r\n")
-            while authenticated is not True:  # loop until authenticated, it's required
-                telnet_response = connection.read_until(b"\r\n")
-                full_auth_response += telnet_response.rstrip()
-                # last 'welcome' line from the games telnet. it might change with a new game-version
-                if re.match(r"Password incorrect, please enter password:\r\n", telnet_response) is not None:
-                    log_message = 'incorrect telnet password'
-                    logger.critical(log_message)
-                    raise ValueError
-                if re.match(r"Logon successful.\r\n", telnet_response) is not None:
-                    authenticated = True
-            if self.show_log_init is True and full_auth_response != '':
-                logger.info(full_auth_response)
-
-            # Waiting for banner.
-            full_banner = ''
-            displayed_welcome = False
-            while displayed_welcome is not True:  # loop until ready, it's required
-                telnet_response = connection.read_until(b"\r\n")
-                full_banner += telnet_response.rstrip(b"\n")
-                if re.match(r"Press 'help' to get a list of all commands. Press 'exit' to end session.", telnet_response):
-                    displayed_welcome = True
-
-            if self.show_log_init is True and full_banner != '':
-                self.full_banner = full_banner
-                logger.info(full_banner)
-
+            connection = self.tn
+            telnet_response = connection.read_very_eager()
+            return telnet_response
         except Exception as e:
-            log_message = 'trying to authenticate telnet connection failed: {}'.format(e)
+            log_message = 'trying to read_eager from telnet connection failed: {}'.format(e)
             raise IOError(log_message)
-
-        logger.debug("telnet connection established: " + str(connection))
-        return connection
 
     def get_game_preferences(self):
         try:
@@ -96,18 +52,6 @@ class TelnetConnection:
         game_preferences = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", telnet_response)
 
         return game_preferences
-
-    def read_line(self):
-        try:
-            connection = self.tn
-            telnet_response = connection.read_very_eager()
-            if len(telnet_response) > 0:
-                telnet_response_list = telnet_response.splitlines()
-                telnet_response_list = [value for value in telnet_response_list if value != ""]
-                return telnet_response_list
-        except Exception as e:
-            log_message = 'trying to read_eager from telnet connection failed: {}'.format(e)
-            raise IOError(log_message)
 
     def listplayers(self):
         try:

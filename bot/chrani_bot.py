@@ -10,6 +10,7 @@ from bot.assorted_functions import multiple
 from bot.modules.settings import Settings
 
 from bot.player_observer import PlayerObserver
+from bot.telnet_observer import TelnetObserver
 from bot.modules.logger import logger
 
 import bot.actions as actions
@@ -20,7 +21,8 @@ from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.modules.players import Players
 from bot.objects.player import Player
-from bot.modules.telnet_connection import TelnetConnection
+from bot.objects.telnet import Telnet
+from bot.modules.telnet_actions import TelnetActions
 from bot.modules.whitelist import Whitelist
 
 
@@ -77,6 +79,7 @@ class ChraniBot(Thread):
     webinterface = object
     permission = object
     settings = object
+    telnet_observer = object
 
     observers_list = list
     actions_list = list
@@ -365,6 +368,9 @@ class ChraniBot(Thread):
         next_cycle = 0
         while self.is_active or not self.stopped.wait(next_cycle):
             try:
+                if not isinstance(self.telnet_observer, TelnetObserver):
+                    raise IOError
+
                 next_cycle = 0.125
                 self.time_running = int(time.time() - self.time_launched)
 
@@ -400,16 +406,7 @@ class ChraniBot(Thread):
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
                 try:
-                    telnet_lines = self.tn.read_line()
-                except AttributeError:
-                    raise IOError
-
-                if telnet_lines is not None:
-                    for line in telnet_lines:
-                        self.telnet_lines_list.append(line)  # get the current global telnet-response
-
-                try:
-                    telnet_line = self.telnet_lines_list.popleft()
+                    telnet_line = self.telnet_observer.valid_telnet_lines.popleft()
                 except IndexError:
                     telnet_line = None
 
@@ -462,8 +459,16 @@ class ChraniBot(Thread):
                 self.server_time_running = None
 
                 try:
-                    self.tn = TelnetConnection(self, self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True)
-                    self.poll_tn = TelnetConnection(self, self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    telnet_observer_thread_stop_flag = Event()
+                    telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, TelnetActions(self, Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))))
+                    telnet_observer_thread.name = "telnet observer"
+                    telnet_observer_thread.isDaemon()
+
+                    self.telnet_observer = telnet_observer_thread
+                    self.telnet_observer.start()
+                    self.tn = TelnetActions(self, Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True))
+                    self.poll_tn = TelnetActions(self, Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password')))
+
                     self.reboot_imminent = False
                     self.has_connection = True
                     self.is_paused = False
@@ -471,15 +476,21 @@ class ChraniBot(Thread):
                     self.tn.togglechatcommandhide("/")
 
                 except IOError as e:
-                    self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+                    # self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.clear_env()
                     self.has_connection = False
                     self.is_paused = True
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
                     # logger.exception(log_message)
+                    try:
+                        self.telnet_observer.stopped.set()
+                    except AttributeError:
+                        pass
+
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
+
 
     def clear_env(self):
         for player_steamid in self.active_player_threads_dict:
