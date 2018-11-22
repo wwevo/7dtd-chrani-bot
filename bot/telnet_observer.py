@@ -8,6 +8,7 @@ from bot.modules.logger import logger
 class TelnetObserver(Thread):
     tn = object
     bot = object
+    stopped = object
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
@@ -15,7 +16,6 @@ class TelnetObserver(Thread):
     valid_telnet_lines = deque
 
     def __init__(self, event, chrani_bot, telnet_actions):
-
         self.tn = telnet_actions
         self.bot = chrani_bot
         self.run_observer_interval = 1
@@ -38,7 +38,8 @@ class TelnetObserver(Thread):
             try:
                 telnet_response = self.tn.read()
             except:
-                raise IOError
+                self.stopped.set()
+                continue
 
             if len(telnet_response) > 0:
                 if len(self.recent_telnet_response) > 0:

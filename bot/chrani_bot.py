@@ -478,20 +478,10 @@ class ChraniBot(Thread):
                 except IOError as e:
                     # self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                     self.clear_env()
-                    self.has_connection = False
-                    self.is_paused = True
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
-                    # logger.exception(log_message)
-                    try:
-                        self.telnet_observer.stopped.set()
-                    except AttributeError:
-                        pass
-
-                    self.telnet_observer = object
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
-
 
     def clear_env(self):
         for player_steamid in self.active_player_threads_dict:
@@ -501,6 +491,15 @@ class ChraniBot(Thread):
 
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = deque()
+        self.has_connection = False
+        self.is_paused = True
+        # logger.exception(log_message)
+        try:
+            self.telnet_observer.stopped.set()
+        except AttributeError:
+            pass
+
+        self.telnet_observer = object
 
     def shutdown(self):
         self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
