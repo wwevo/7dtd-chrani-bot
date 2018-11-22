@@ -35,7 +35,11 @@ class TelnetObserver(Thread):
                 continue
 
             profile_start = time()
-            telnet_response = self.tn.read()
+            try:
+                telnet_response = self.tn.read()
+            except:
+                raise IOError
+
             if len(telnet_response) > 0:
                 if len(self.recent_telnet_response) > 0:
                     # adding the remaining lines from last run

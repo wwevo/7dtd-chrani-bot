@@ -488,6 +488,7 @@ class ChraniBot(Thread):
                     except AttributeError:
                         pass
 
+                    self.telnet_observer = object
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
 
