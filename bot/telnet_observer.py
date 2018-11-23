@@ -29,7 +29,7 @@ class TelnetObserver(Thread):
     def run(self):
         logger.info("telnet observer thread started")
         next_cycle = 0
-        while not self.stopped.wait(next_cycle):
+        while not self.stopped.wait(next_cycle) and self.bot.has_connection:
             if self.bot.is_paused is not False:
                 sleep(1)
                 continue
@@ -45,17 +45,21 @@ class TelnetObserver(Thread):
                 if len(self.recent_telnet_response) > 0:
                     # adding the remaining lines from last run
                     telnet_response_complete = self.recent_telnet_response + telnet_response
-                    self.recent_telnet_response = ""
                     telnet_response = telnet_response_complete
+                    self.recent_telnet_response = ""
 
                 # the response consists solely of complete line
                 telnet_response_list = [value for value in telnet_response.splitlines(True) if value not in ["", b"\r\n"]]
                 for telnet_line in telnet_response_list:
-                    m = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})T(\d{2}):(\d{2}):(\d{2})\s(.*)\sINF\s(.*)\r\n", telnet_line)
-                    if m:
+                    found = False
+                    for regex in self.bot.match_types_system.itervalues():
+                        m = re.search(regex, telnet_line)
+                        if m:
+                            found = True
+                        else:
+                            self.recent_telnet_response = telnet_line
+                    if found:
                         self.valid_telnet_lines.append(telnet_line.rstrip(b"\r\n"))
-                    else:
-                        self.recent_telnet_response = telnet_line
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

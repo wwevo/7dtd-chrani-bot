@@ -166,6 +166,7 @@ class TelnetActions:
         except Exception:
             return False
 
+        return True
         telnet_response = ""
         poll_is_finished = False
         while poll_is_finished is not True:

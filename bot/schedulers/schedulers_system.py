@@ -9,12 +9,12 @@ import common
 
 def get_mem_status(bot):
     try:
-        if not bot.reboot_imminent and timeout_occurred(10, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
-            mem_status = bot.poll_tn.get_mem_status()
+        if not bot.reboot_imminent and timeout_occurred(0.25 * 60, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
+            mem_status = bot.telnet_observer.tn.get_mem_status()
             common.schedulers_dict["get_mem_status"]["last_executed"] = time.time()
-            m = re.search(bot.match_types_system["mem_status"], mem_status)
-            if m:
-                bot.server_time_running = int(float(m.group("time_in_minutes")) * 60)
+            # m = re.search(bot.match_types_system["mem_status"], mem_status)
+            # if m:
+            #     bot.server_time_running = int(float(m.group("time_in_minutes")) * 60)
 
             return True
     except Exception as e:

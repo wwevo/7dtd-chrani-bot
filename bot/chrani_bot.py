@@ -6,7 +6,7 @@ import os
 from collections import deque
 from threading import Event
 
-from bot.assorted_functions import multiple
+from bot.assorted_functions import multiple, timeout_occurred
 from bot.modules.settings import Settings
 
 from bot.player_observer import PlayerObserver
@@ -366,6 +366,7 @@ class ChraniBot(Thread):
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
         next_cycle = 0
+        last_schedule = 0
         while self.is_active or not self.stopped.wait(next_cycle):
             try:
                 if not isinstance(self.telnet_observer, TelnetObserver):
@@ -374,7 +375,7 @@ class ChraniBot(Thread):
                 next_cycle = 0.125
                 self.time_running = int(time.time() - self.time_launched)
 
-                if self.initiate_shutdown is True:
+                if self.initiate_shutdown is True and self.has_connection:
                     self.shutdown()
                     continue
 
@@ -382,7 +383,8 @@ class ChraniBot(Thread):
                     time.sleep(self.listplayers_interval)
                     continue
 
-                if self.schedulers_dict and self.has_connection:
+                if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 8, last_schedule):
+                    last_schedule = time.time()
                     """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
                     """
                     command_queue = []
@@ -408,13 +410,17 @@ class ChraniBot(Thread):
                 try:
                     telnet_line = self.telnet_observer.valid_telnet_lines.popleft()
                 except IndexError:
-                    telnet_line = None
+                    continue
 
-                if telnet_line is not None:
+                if telnet_line is not None and self.has_connection:
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
                     if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp2', 'lpf']:
                         if telnet_line != '':
                             logger.debug(telnet_line)
+
+                    m = re.search(self.match_types_system["mem_status"], telnet_line)
+                    if m:
+                        self.server_time_running = int(float(m.group("time_in_minutes")) * 60)
 
                     # handle playerspawns
                     m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
@@ -459,18 +465,23 @@ class ChraniBot(Thread):
                 self.server_time_running = None
 
                 try:
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    self.has_connection = True
+
                     telnet_observer_thread_stop_flag = Event()
-                    telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, TelnetActions(self, Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))))
+                    telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, TelnetActions(self, tn))
                     telnet_observer_thread.name = "telnet observer"
                     telnet_observer_thread.isDaemon()
-
                     self.telnet_observer = telnet_observer_thread
                     self.telnet_observer.start()
-                    self.tn = TelnetActions(self, Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True))
-                    self.poll_tn = TelnetActions(self, Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password')))
+
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True)
+                    self.tn = TelnetActions(self, tn)
+
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True)
+                    self.poll_tn = TelnetActions(self, tn)
 
                     self.reboot_imminent = False
-                    self.has_connection = True
                     self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()
                     self.tn.togglechatcommandhide("/")
