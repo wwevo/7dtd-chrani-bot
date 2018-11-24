@@ -5,7 +5,7 @@ import threading
 
 
 # the only lobby specific observer. since it is a location, generic observers can be found in actions_locations
-def player_is_outside_boundary(self):
+def player_is_outside_lobby_boundary(self):
     try:
         player_object = self.bot.players.get_by_steamid(self.player_steamid)
     except KeyError:
@@ -42,10 +42,15 @@ def player_is_outside_boundary(self):
             teleport_thread.start()
 
 
-common.observers_list.append({
+common.observers_dict["player_is_outside_lobby_boundary"] = {
     "type": "monitor",
     "title": "player left lobby",
-    "action": player_is_outside_boundary,
+    "action": player_is_outside_lobby_boundary,
     "env": "(self)",
     "essential": True
-})
+}
+
+
+common.observers_controller["player_is_outside_lobby_boundary"] = {
+    "is_active": True
+}

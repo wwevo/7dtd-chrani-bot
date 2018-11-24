@@ -13,13 +13,18 @@ def record_time_of_last_activity(self):
     self.player_object.update()
 
 
-common.observers_list.append({
+common.observers_dict["record_time_of_last_activity"] = {
     "type": "monitor",
     "title": "player is active",
     "action": record_time_of_last_activity,
     "env": "(self)",
     "essential": True
-})
+}
+
+
+common.observers_controller["record_time_of_last_activity"] = {
+    "is_active": True
+}
 
 
 def update_player_region(self):
@@ -31,13 +36,18 @@ def update_player_region(self):
             self.bot.socketio.emit('refresh_player_status', {"steamid": self.player_object.steamid, "entityid": self.player_object.entityid}, namespace='/chrani-bot/public')
 
 
-common.observers_list.append({
+common.observers_dict["update_player_region"] = {
     "type": "monitor",
     "title": "player changed region",
     "action": update_player_region,
     "env": "(self)",
     "essential": True
-})
+}
+
+
+common.observers_controller["update_player_region"] = {
+    "is_active": True
+}
 
 
 def poll_playerfriends(self):
@@ -47,16 +57,21 @@ def poll_playerfriends(self):
         self.player_object.update()
 
 
-common.observers_list.append({
+common.observers_dict["poll_playerfriends"] = {
     "type": "monitor",
     "title": "poll playerfriends",
     "action": poll_playerfriends,
     "env": "(self)",
     "essential": True
-})
+}
 
 
-def mute_unauthenticated_player(self):
+common.observers_controller["poll_playerfriends"] = {
+    "is_active": True
+}
+
+
+def mute_unauthenticated_players(self):
     if not self.player_object.authenticated and not self.player_object.is_muted:
         if self.tn.muteplayerchat(self.player_object, True):
             self.tn.send_message_to_player(self.player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
@@ -65,12 +80,15 @@ def mute_unauthenticated_player(self):
             self.tn.send_message_to_player(self.player_object, "Your chat has been enabled", color=self.bot.chat_colors['success'])
 
 
-common.observers_list.append({
+common.observers_dict["mute_unauthenticated_players"] = {
     "type": "monitor",
     "title": "mute unauthenticated players",
-    "action": mute_unauthenticated_player,
+    "action": mute_unauthenticated_players,
     "env": "(self)",
     "essential": True
-})
+}
 
 
+common.observers_controller["mute_unauthenticated_players"] = {
+    "is_active": True
+}

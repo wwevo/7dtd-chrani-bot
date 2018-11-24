@@ -1,7 +1,7 @@
 import common
 
 
-def player_crossed_boundary(self):
+def player_crossed_location_boundary(self):
     locations_dict = self.bot.locations.locations_dict
     for location_owner_steamid in locations_dict:
         """ go through each location and check if the player is inside
@@ -67,11 +67,14 @@ def player_crossed_boundary(self):
                     self.bot.socketio.emit('refresh_locations', {"steamid": self.player_object.steamid, "entityid": self.player_object.entityid}, namespace='/chrani-bot/public')
 
 
-common.observers_list.append({
+common.observers_dict["player_crossed_location_boundary"] = {
     "type": "monitor",
     "title": "player crossed location boundary",
-    "action": player_crossed_boundary,
+    "action": player_crossed_location_boundary,
     "env": "(self)",
     "essential": True
-})
+}
 
+common.observers_controller["player_crossed_location_boundary"] = {
+    "is_active": True
+}

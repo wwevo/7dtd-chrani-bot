@@ -84,4 +84,8 @@ $(document).ready(function(){
     window.socket.on('refresh_scheduler_status', function(msg) {
         refresh_scheduler_status_widget(msg)
     });
+
+    window.socket.on('refresh_player_observer_status', function(msg) {
+        refresh_player_observer_status_widget(msg)
+    });
 });

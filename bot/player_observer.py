@@ -102,31 +102,33 @@ class PlayerObserver(Thread):
                 json = self.bot.players.get_leaflet_marker_json([self.player_object])
                 self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
-            if self.bot.observers_list:
+            if self.bot.observers_dict:
                 """ execute real-time observers
                 these are run regardless of telnet activity!
                 Everything directly player-related that needs to be checked periodically should be done in observers
                 """
                 command_queue = []
-                for observer in self.bot.observers_list:
+                for name, observer in self.bot.observers_dict.iteritems():
                     if observer["type"] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
                         observer_function_name = observer["action"]
                         observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
                         command_queue.append({
                             "action": observer_function_name,
-                            "command_parameters": observer_parameters
+                            "command_parameters": observer_parameters,
+                            "is_active": self.bot.observers_controller[name]["is_active"]
                         })
 
                 for command in command_queue:
-                    try:
-                        result = command["action"](command["command_parameters"])
-                        if not result:
-                            continue
-                    except TypeError:
+                    if command["is_active"]:
                         try:
-                            command["action"](*command["command_parameters"])
-                        except:
-                            pass
+                            result = command["action"](command["command_parameters"])
+                            if not result:
+                                continue
+                        except TypeError:
+                            try:
+                                command["action"](*command["command_parameters"])
+                            except:
+                                pass
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - self.last_execution_time

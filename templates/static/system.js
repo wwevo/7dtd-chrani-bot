@@ -89,6 +89,8 @@ $(document).ready(
             resetSize(window.map);
         }
         if (Cookies.get("page") == "settings")  {
+            $("main #settings_scheduler_widget").addClass("wide");
+            $("main #settings_player_observer_widget").addClass("wide");
             $("main #command_log_widget").addClass("wide");
         }
         if (Cookies.get("page") == "players")  {

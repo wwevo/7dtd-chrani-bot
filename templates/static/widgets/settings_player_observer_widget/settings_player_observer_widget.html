@@ -1,0 +1,26 @@
+{% if current_user.has_permission_level("admin") %}
+<table>
+    <thead>
+    <tr>
+        <th>Player-observers</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ player_observer_entries }}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+{% endif %}

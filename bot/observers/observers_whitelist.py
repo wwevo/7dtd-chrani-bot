@@ -17,13 +17,18 @@ def check_if_player_is_on_whitelist(self):
             logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
 
 
-common.observers_list.append({
+common.observers_dict["check_if_player_is_on_whitelist"] ={
     "type": "monitor",
-    "title": "set to online",
+    "title": "check_if_player_is_on_whitelist",
     "action": check_if_player_is_on_whitelist,
     "env": "(self)",
     "essential": True
-})
+}
+
+
+common.observers_controller["check_if_player_is_on_whitelist"] = {
+    "is_active": True
+}
 
 
 def check_if_player_has_url_name(self):
@@ -40,13 +45,18 @@ def check_if_player_has_url_name(self):
             self.tn.kick(player_object, self.bot.settings.get_setting_by_name(name='whitelist_url_name_kick_msg', default="We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"))
 
 
-common.observers_list.append({
+common.observers_dict["check_if_player_has_url_name"] = {
     "type": "monitor",
-    "title": "set to online",
+    "title": "check_if_player_has_url_name",
     "action": check_if_player_has_url_name,
     "env": "(self)",
     "essential": True
-})
+}
+
+
+common.observers_controller["check_if_player_has_url_name"] = {
+    "is_active": True
+}
 
 
 def check_ip_country(self):
@@ -88,10 +98,14 @@ def check_ip_country(self):
         pass
 
 
-common.observers_list.append({
+common.observers_dict["check_ip_country"] = {
     "type": "monitor",
-    "title": "set to online",
+    "title": "check_ip_country",
     "action": check_ip_country,
     "env": "(self)",
     "essential": True
-})
+}
+
+common.observers_controller["check_ip_country"] = {
+    "is_active": True
+}

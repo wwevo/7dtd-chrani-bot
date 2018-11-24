@@ -19,10 +19,15 @@ def player_entered_teleport(self):
         self.bot.locations.upsert(location_object)
 
 
-common.observers_list.append({
+common.observers_dict["player_entered_teleport"] = {
     "type": "monitor",
     "title": "player crossed teleport boundary",
     "action": player_entered_teleport,
     "env": "(self)",
     "essential": True
-})
+}
+
+
+common.observers_controller["player_entered_teleport"] = {
+    "is_active": True
+}

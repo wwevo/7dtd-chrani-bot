@@ -295,3 +295,66 @@ common.actions_list.append({
     "essential": False
 })
 
+
+def disable_player_observer(bot, source_player, target_player, command):
+    try:
+        response_messages = ResponseMessage()
+        p = re.search(r"disable\splayer_observer\s(?P<player_observer>(\S+))$", command)
+        if p:
+            player_observer_name = p.group("player_observer")
+            bot.socketio.emit('refresh_player_observer_status', {"player_observer_name": player_observer_name}, namespace='/chrani-bot/public')
+            bot.observers_controller[player_observer_name]["is_active"] = False
+            response_messages.add_message("player_observer {} disabled".format(player_observer_name), True)
+        else:
+            response_messages.add_message("disabling player_observer failed", False)
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "disable player_observer ",
+        "usage": "/disable player_observer <name>"
+    },
+    "action": disable_player_observer,
+    "env": "(self)",
+    "group": "system",
+    "essential": False
+})
+
+
+def enable_player_observer(bot, source_player, target_player, command):
+    try:
+        response_messages = ResponseMessage()
+        p = re.search(r"enable\splayer_observer\s(?P<player_observer>(\S+))$", command)
+        if p:
+            player_observer_name = p.group("player_observer")
+            bot.socketio.emit('refresh_player_observer_status', {"player_observer_name": player_observer_name}, namespace='/chrani-bot/public')
+            bot.observers_controller[player_observer_name]["is_active"] = True
+            response_messages.add_message("player_observer {} enabled".format(player_observer_name), True)
+        else:
+            response_messages.add_message("enabling player_observer failed", False)
+
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "enable player_observer ",
+        "usage": "/enable player_observer <name>"
+    },
+    "action": enable_player_observer,
+    "env": "(self)",
+    "group": "system",
+    "essential": False
+})
+

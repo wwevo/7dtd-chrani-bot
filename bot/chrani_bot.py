@@ -81,7 +81,8 @@ class ChraniBot(Thread):
     settings = object
     telnet_observer = object
 
-    observers_list = list
+    observers_dict = dict
+    observers_controller = dict
     actions_list = list
     schedulers_dict = dict
     schedulers_controller = dict
@@ -111,7 +112,10 @@ class ChraniBot(Thread):
 
         self.actions = actions
         self.actions_list = actions.actions_list
-        self.observers_list = observers.observers_list
+
+        self.observers_dict = observers.observers_dict
+        self.observers_controller = observers.observers_controller
+
         self.schedulers_dict = schedulers.schedulers_dict
         self.schedulers_controller = schedulers.schedulers_controller
 
@@ -391,21 +395,23 @@ class ChraniBot(Thread):
                     """
                     command_queue = []
                     for name, scheduler in self.schedulers_dict.iteritems():
-                        if scheduler["type"] == 'schedule' and self.schedulers_controller[name]["is_active"]:  # we only want the monitors here, the player is active, no triggers needed
+                        if scheduler["type"] == 'schedule':  # we only want the monitors here, the player is active, no triggers needed
                             scheduler_function_name = scheduler["action"]
                             scheduler_parameters = eval(scheduler["env"])  # yes. Eval. It's my own data, chill out!
                             command_queue.append({
                                 "scheduler": scheduler_function_name,
-                                "command_parameters": scheduler_parameters
+                                "command_parameters": scheduler_parameters,
+                                "is_active": self.schedulers_controller[name]["is_active"]
                             })
 
                     for command in command_queue:
-                        try:
-                            result = command["scheduler"](command["command_parameters"])
-                            if not result:
-                                continue
-                        except TypeError:
-                            command["scheduler"](*command["command_parameters"])
+                        if command["is_active"]:
+                            try:
+                                result = command["scheduler"](command["command_parameters"])
+                                if not result:
+                                    continue
+                            except TypeError:
+                                command["scheduler"](*command["command_parameters"])
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """

@@ -27,6 +27,7 @@ static_dir = os.path.join(template_dir, 'static')
 from bot.chrani_bot import ChraniBot
 import bot.actions
 from bot.modules.webinterface.settings import get_settings_scheduler_widget
+from bot.modules.webinterface.settings import get_settings_player_observer_widget
 from bot.modules.webinterface.players import get_player_table_widget
 from bot.modules.webinterface.system import get_system_status
 from bot.modules.webinterface.whitelist import get_whitelist_widget
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.045"
+    chrani_bot_thread.bot_version = "0.7.047"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -184,6 +185,7 @@ if __name__ == '__main__':
         elif page == "settings":
             widgets_dict = {
                 "settings_scheduler_widget": flask.Markup(get_settings_scheduler_widget()),
+                "settings_player_observer_widget": flask.Markup(get_settings_player_observer_widget()),
                 "command_log_widget": flask.Markup(flask.render_template('command_log_widget.html')),
             }
         else:

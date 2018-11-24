@@ -1,0 +1,9 @@
+{% if current_user.is_authenticated %}
+<div id="pocw_{{ player_observer_name }}">
+    {% if player_observers_controller_status == True %}
+    <a href="/protected/system/settings/disable/player_observer/{{ player_observer_name }}" onclick="player_action(this); return false;">disable</a>
+    {% else %}
+    <a href="/protected/system/settings/enable/player_observer/{{ player_observer_name }}" onclick="player_action(this); return false;">enable</a>
+    {% endif %}
+</div>
+{% endif %}
