@@ -54,7 +54,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.043"
+    chrani_bot_thread.bot_version = "0.7.044"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -173,22 +173,34 @@ if __name__ == '__main__':
     @app.route('/protected')
     @flask_login.login_required
     def protected():
-        widgets_dict = {
-            "player_table_widget": flask.Markup(get_player_table_widget()),
-            "whitelist_widget": get_whitelist_widget(),
-            "banned_players_widget": get_banned_players_widget(),
-            "command_log_widget": flask.Markup(flask.render_template('command_log_widget.html')),
-            "location_radar_widget": get_player_location_radar_widget(),
-        }
+        page = flask.request.cookies.get('page')
+        if page == "map":
+            widgets_dict = {
+                "player_table_widget": flask.Markup(get_player_table_widget()),
+                "location_radar_widget": get_player_location_radar_widget(),
+                "status_log_widget": flask.Markup(flask.render_template('status_log_widget.html')),
+            }
+        elif page == "settings":
+            widgets_dict = {
+                "command_log_widget": flask.Markup(flask.render_template('command_log_widget.html')),
+            }
+        else:
+            widgets_dict = {
+                "player_table_widget": flask.Markup(get_player_table_widget()),
+                "whitelist_widget": get_whitelist_widget(),
+                "banned_players_widget": get_banned_players_widget(),
+                "status_log_widget": flask.Markup(flask.render_template('status_log_widget.html')),
+            }
 
-        return flask.render_template(
+        response = flask.make_response(flask.render_template(
             'index.html',
             webmap_ip = chrani_bot.settings.get_setting_by_name(name="webmap_ip"),
             webmap_port = chrani_bot.settings.get_setting_by_name(name="webmap_port"),
             system_status=get_system_status(),
             bot=chrani_bot,
             widgets=widgets_dict
-        )
+        ))
+        return response
 
 
     @socketio.on('initiate_leaflet', namespace='/chrani-bot/public')
