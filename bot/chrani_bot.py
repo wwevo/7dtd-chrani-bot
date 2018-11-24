@@ -460,12 +460,11 @@ class ChraniBot(Thread):
                     check 'chat' telnet-line(s) for any known playername currently online
                     """
                     for player_steamid, player_object in self.players.players_dict.iteritems():
-                        if player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
+                        if player_steamid in self.active_player_threads_dict and player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
                             possible_action_for_player = re.search("{}|{}".format(re.escape(player_object.name), player_object.entityid), telnet_line)
                             if possible_action_for_player:
-                                if player_steamid in self.active_player_threads_dict:
-                                    active_player_thread = self.active_player_threads_dict[player_steamid]
-                                    active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+                                active_player_thread = self.active_player_threads_dict[player_steamid]
+                                active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
