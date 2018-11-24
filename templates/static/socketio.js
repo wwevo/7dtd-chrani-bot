@@ -81,4 +81,7 @@ $(document).ready(function(){
         showWebinterface()
     });
 
+    window.socket.on('refresh_scheduler_status', function(msg) {
+        refresh_scheduler_status_widget(msg)
+    });
 });

@@ -232,3 +232,66 @@ common.actions_list.append({
     "essential": False
 })
 
+
+def disable_scheduler(bot, source_player, target_player, command):
+    try:
+        response_messages = ResponseMessage()
+        p = re.search(r"disable\sscheduler\s(?P<scheduler>(\S+))$", command)
+        if p:
+            scheduler_name = p.group("scheduler")
+            bot.socketio.emit('refresh_scheduler_status', {"scheduler_name": scheduler_name}, namespace='/chrani-bot/public')
+            bot.schedulers_controller[scheduler_name]["is_active"] = False
+            response_messages.add_message("scheduler {} disabled".format(scheduler_name), True)
+        else:
+            response_messages.add_message("disabling scheduler failed", False)
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "disable scheduler ",
+        "usage": "/disable scheduler <name>"
+    },
+    "action": disable_scheduler,
+    "env": "(self)",
+    "group": "system",
+    "essential": False
+})
+
+
+def enable_scheduler(bot, source_player, target_player, command):
+    try:
+        response_messages = ResponseMessage()
+        p = re.search(r"enable\sscheduler\s(?P<scheduler>(\S+))$", command)
+        if p:
+            scheduler_name = p.group("scheduler")
+            bot.socketio.emit('refresh_scheduler_status', {"scheduler_name": scheduler_name}, namespace='/chrani-bot/public')
+            bot.schedulers_controller[scheduler_name]["is_active"] = True
+            response_messages.add_message("scheduler {} enabled".format(scheduler_name), True)
+        else:
+            response_messages.add_message("enabling scheduler failed", False)
+
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "enable scheduler ",
+        "usage": "/enable scheduler <name>"
+    },
+    "action": enable_scheduler,
+    "env": "(self)",
+    "group": "system",
+    "essential": False
+})
+

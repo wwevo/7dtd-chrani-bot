@@ -1,0 +1,26 @@
+{% if current_user.has_permission_level("admin") %}
+<table>
+    <thead>
+    <tr>
+        <th>Schedulers</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ scheduler_entries }}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+{% endif %}

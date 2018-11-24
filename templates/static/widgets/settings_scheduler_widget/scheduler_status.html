@@ -1,0 +1,9 @@
+{% if current_user.is_authenticated %}
+<div id="ssw_{{ scheduler_name }}">
+    {% if schedulers_controller_status == True %}
+    <a href="/protected/system/settings/disable/scheduler/{{ scheduler_name }}" onclick="player_action(this); return false;">disable</a>
+    {% else %}
+    <a href="/protected/system/settings/enable/scheduler/{{ scheduler_name }}" onclick="player_action(this); return false;">enable</a>
+    {% endif %}
+</div>
+{% endif %}

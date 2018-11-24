@@ -84,6 +84,7 @@ class ChraniBot(Thread):
     observers_list = list
     actions_list = list
     schedulers_dict = dict
+    schedulers_controller = dict
 
     def __init__(self, event, app, flask, flask_login, socketio):
         self.app = app
@@ -112,6 +113,7 @@ class ChraniBot(Thread):
         self.actions_list = actions.actions_list
         self.observers_list = observers.observers_list
         self.schedulers_dict = schedulers.schedulers_dict
+        self.schedulers_controller = schedulers.schedulers_controller
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
@@ -389,12 +391,12 @@ class ChraniBot(Thread):
                     """
                     command_queue = []
                     for name, scheduler in self.schedulers_dict.iteritems():
-                        if scheduler["type"] == 'schedule':  # we only want the monitors here, the player is active, no triggers needed
+                        if scheduler["type"] == 'schedule' and self.schedulers_controller[name]["is_active"]:  # we only want the monitors here, the player is active, no triggers needed
                             scheduler_function_name = scheduler["action"]
                             scheduler_parameters = eval(scheduler["env"])  # yes. Eval. It's my own data, chill out!
                             command_queue.append({
                                 "scheduler": scheduler_function_name,
-                                "command_parameters": scheduler_parameters,
+                                "command_parameters": scheduler_parameters
                             })
 
                     for command in command_queue:

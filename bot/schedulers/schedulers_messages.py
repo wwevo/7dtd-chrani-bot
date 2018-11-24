@@ -31,5 +31,10 @@ common.schedulers_dict["rolling_announcements"] = {
     "last_executed": time.time(),
     "action": rolling_announcements,
     "env": "(self)",
-    "essential": True
+    "essential": True,
+}
+
+
+common.schedulers_controller["rolling_announcements"] = {
+    "is_active": True
 }
