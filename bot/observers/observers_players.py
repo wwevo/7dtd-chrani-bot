@@ -52,7 +52,11 @@ common.observers_controller["update_player_region"] = {
 
 def poll_playerfriends(self):
     if timeout_occurred(self.bot.players.poll_listplayerfriends_interval, self.player_object.poll_listplayerfriends_lastpoll):
-        self.player_object.playerfriends_list = self.tn.listplayerfriends(self.player_object)
+        try:
+            self.player_object.playerfriends_list = self.tn.listplayerfriends(self.player_object)
+        except IOError:
+            raise
+
         self.player_object.poll_listplayerfriends_lastpoll = time()
         self.player_object.update()
 

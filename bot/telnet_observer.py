@@ -55,7 +55,10 @@ class TelnetObserver(Thread):
     def run(self):
         logger.info("telnet observer thread started")
         next_cycle = 0
-        while not self.stopped.wait(next_cycle) and self.bot.has_connection:
+        while not self.stopped.wait(next_cycle):
+            if not self.bot.has_connection:
+                raise IOError
+
             if self.bot.is_paused is not False:
                 sleep(1)
                 continue

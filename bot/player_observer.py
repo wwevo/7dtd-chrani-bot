@@ -88,6 +88,9 @@ class PlayerObserver(Thread):
         self.player_object.is_online = True
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
+            if not self.bot.has_connection:
+                raise IOError
+
             if self.bot.is_paused is not False:
                 sleep(1)
                 continue
@@ -124,6 +127,8 @@ class PlayerObserver(Thread):
                             result = command["action"](command["command_parameters"])
                             if not result:
                                 continue
+                        except IOError:
+                            raise
                         except TypeError:
                             try:
                                 command["action"](*command["command_parameters"])
