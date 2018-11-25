@@ -61,6 +61,7 @@ class ChraniBot(Thread):
     listplayers_interval = int
     restart_delay = int
     reboot_imminent = bool
+    telnet_queue = int
 
     chat_colors = dict
     passwords = dict
@@ -108,6 +109,7 @@ class ChraniBot(Thread):
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
         self.last_execution_time = 0.0
+        self.telnet_queue = 0
 
         self.name = self.settings.get_setting_by_name(name='bot_name')
         logger.info("{} started".format(self.name))
@@ -421,7 +423,10 @@ class ChraniBot(Thread):
                 try:
                     telnet_line = self.telnet_observer.valid_telnet_lines.popleft()
                 except IndexError:
+                    telnet_line = None
                     pass
+
+                self.telnet_queue = len(self.telnet_observer.valid_telnet_lines)
 
                 if telnet_line is not None and self.has_connection:
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
@@ -470,7 +475,7 @@ class ChraniBot(Thread):
                                 active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 self.last_execution_time = time.time() - profile_start
-                next_cycle = (0.250 - self.last_execution_time)
+                next_cycle = (0.125 - self.last_execution_time)
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """

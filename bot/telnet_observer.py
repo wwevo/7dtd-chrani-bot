@@ -58,7 +58,10 @@ class TelnetObserver(Thread):
                         if m:
                             found = True
                         else:
-                            self.recent_telnet_response = telnet_line
+                            if self.recent_telnet_response != telnet_line:
+                                self.recent_telnet_response = telnet_line
+                            else:
+                                self.recent_telnet_response = ""
                     if found:
                         self.valid_telnet_lines.append(telnet_line.rstrip(b"\r\n"))
 
