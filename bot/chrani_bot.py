@@ -386,6 +386,9 @@ class ChraniBot(Thread):
         last_schedule = 0
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
+                if not self.has_connection:
+                    raise IOError
+
                 if self.is_paused is not False:
                     time.sleep(self.listplayers_interval)
                     continue
