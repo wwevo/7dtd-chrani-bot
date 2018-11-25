@@ -56,6 +56,7 @@ class ChraniBot(Thread):
     poll_tn = object
     telnet_lines_list = deque
 
+    last_execution_time = float
     listlandprotection_interval = int
     listplayers_interval = int
     restart_delay = int
@@ -106,6 +107,7 @@ class ChraniBot(Thread):
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
+        self.last_execution_time = 0.0
 
         self.name = self.settings.get_setting_by_name(name='bot_name')
         logger.info("{} started".format(self.name))
@@ -373,20 +375,21 @@ class ChraniBot(Thread):
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
         next_cycle = 0
         last_schedule = 0
-        while self.is_active or not self.stopped.wait(next_cycle):
+        while not self.stopped.wait(next_cycle) and self.is_active:
             try:
+                if self.is_paused is not False:
+                    time.sleep(self.listplayers_interval)
+                    continue
+
+                profile_start = time.time()
+
                 if not isinstance(self.telnet_observer, TelnetObserver):
                     raise IOError
 
-                next_cycle = 0.125
                 self.time_running = int(time.time() - self.time_launched)
 
                 if self.initiate_shutdown is True and self.has_connection:
                     self.shutdown()
-                    continue
-
-                if self.is_paused and self.has_connection:
-                    time.sleep(self.listplayers_interval)
                     continue
 
                 if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 8, last_schedule):
@@ -418,7 +421,7 @@ class ChraniBot(Thread):
                 try:
                     telnet_line = self.telnet_observer.valid_telnet_lines.popleft()
                 except IndexError:
-                    continue
+                    pass
 
                 if telnet_line is not None and self.has_connection:
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
@@ -465,6 +468,9 @@ class ChraniBot(Thread):
                             if possible_action_for_player:
                                 active_player_thread = self.active_player_threads_dict[player_steamid]
                                 active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+
+                self.last_execution_time = time.time() - profile_start
+                next_cycle = (0.250 - self.last_execution_time)
 
             except (IOError, NameError, AttributeError) as error:
                 """ clean up bot to have a clean restart when a new connection can be established """

@@ -35,6 +35,7 @@ class TelnetObserver(Thread):
                 continue
 
             profile_start = time()
+
             try:
                 telnet_response = self.tn.read()
             except:
