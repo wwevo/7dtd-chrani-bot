@@ -495,6 +495,7 @@ class ChraniBot(Thread):
                 try:
                     tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.has_connection = True
+                    self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
                     telnet_observer_thread_stop_flag = Event()
                     telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, TelnetActions(self, tn))
@@ -515,7 +516,9 @@ class ChraniBot(Thread):
                     self.tn.togglechatcommandhide("/")
 
                 except IOError as e:
-                    # self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+                    self.has_connection = False
+                    self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+
                     self.clear_env()
                     log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
                     logger.info(log_message)
@@ -530,9 +533,7 @@ class ChraniBot(Thread):
 
         self.active_player_threads_dict.clear()
         self.telnet_lines_list = deque()
-        self.has_connection = False
         self.is_paused = True
-        # logger.exception(log_message)
         try:
             self.telnet_observer.stopped.set()
         except AttributeError:
@@ -541,7 +542,6 @@ class ChraniBot(Thread):
         self.telnet_observer = object
 
     def shutdown(self):
-        self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
         time.sleep(5)
         self.is_active = False
         self.clear_env()
