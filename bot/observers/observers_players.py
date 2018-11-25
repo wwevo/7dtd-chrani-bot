@@ -88,7 +88,6 @@ def mute_unauthenticated_players(self):
             self.tn.send_message_to_player(self.player_object, "Your chat has been enabled", color=self.bot.chat_colors['success'])
 
 
-
 common.observers_dict["mute_unauthenticated_players"] = {
     "type": "monitor",
     "title": "mute unauthenticated players",
