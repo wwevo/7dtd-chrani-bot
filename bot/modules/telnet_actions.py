@@ -158,6 +158,13 @@ class TelnetActions:
         except Exception:
             return False
 
+        command = "bc-chatprefix {}{}".format(prefix, b"\r\n")
+        try:
+            connection = self.tn
+            connection.write(command)
+        except Exception:
+            return False
+
     def get_mem_status(self):
         command = b"mem\r\n"
         try:
@@ -185,6 +192,13 @@ class TelnetActions:
 
     def muteplayerchat(self, player_object, flag=True):
         command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
+        try:
+            connection = self.tn
+            connection.write(command)
+        except Exception:
+            raise IOError
+
+        command = "bc-mute {} {}\r\n".format(player_object.steamid, str(flag).lower())
         try:
             connection = self.tn
             connection.write(command)

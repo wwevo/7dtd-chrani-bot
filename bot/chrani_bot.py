@@ -50,6 +50,7 @@ class ChraniBot(Thread):
     initiate_shutdown = bool
 
     match_types = dict
+    match_types_generic = dict
     match_types_system = dict
 
     tn = object  # telnet connection to use for everything except player-actions and player-poll
@@ -158,15 +159,24 @@ class ChraniBot(Thread):
         self.match_types = {
             # matches any command a player issues in game-chat
             'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod 'Coppis command additions': Chat: '(?P<player_name>.*)': /(?P<command>.*)",
-            'chat_commands_a17': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat \(from '(?P<player_steamid>.*)', entity id '(?P<player_entityid>.*)', to '(?P<chat_target>.*)'\): '(?P<player_name>.*)': \/(?P<command>.*)",
+            'chat_commands_a17': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat (.*)\(from '(?P<player_steamid>.*)', entity id '(?P<player_entityid>.*)', to '(?P<chat_target>.*)'\): '(?P<player_name>.*)': \/(?P<command>.*)",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
             'hacker_stacksize': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player\swith\sID\s(?P<entity_id>[0-9]+)\s(?P<command>.*)"
         }
 
+        self.match_types_generic = {
+            'log_start': [
+                r"^(?P<datetime>.+?)\s(?P<time_in_seconds>.+?)\sINF .*",
+                r"^Time:\s(?P<time_in_minutes>.*)m\s",
+            ],
+            'log_end': [
+                r"\r\n$",
+            ]
+        }
+
         self.match_types_system = {
-            'server_running': r"^(?P<datetime>.+?) (?P<time_in_seconds>.+?) INF .*",
             'mem_status': r"^Time:\s(?P<time_in_minutes>.*)m\sFPS:\s(?P<server_fps>.*)\sHeap:\s(?P<heap>.*)MB\sMax:\s(?P<max>.*)MB\sChunks:\s(?P<chunks>.*)\sCGO:\s(?P<cgo>.*)\sPly:\s(?P<players>.*)\sZom:\s(?P<zombies>.*)\sEnt:\s(?P<entities>.*\s\(.*\))\sItems:\s(?P<items>.*)\sCO:\s(?P<co>.*)\sRSS:\s(?P<rss>.*)MB",
             # captures the response for telnet commands. used for example to capture teleport response
             'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
@@ -185,9 +195,6 @@ class ChraniBot(Thread):
             # player joined / died messages
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
             # pretty much the first usable line during a players login
-            # 'eac_register_client': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF \[EAC\] Log: \[RegisterClient\] Client: (?P<client>.*) PlayerGUID: (?P<player_id>.*) PlayerIP: (?P<player_ip>.*) OwnerGUID: (?P<owner_id>.*) PlayerName: (?P<player_name>.*)",
-            # player is 'valid' from here on
-            # 'eac_successful': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF EAC authentication successful, allowing user: EntityID=(?P<entitiy_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'"
             'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
             'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'",
             'screamer_spawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)",
@@ -430,7 +437,7 @@ class ChraniBot(Thread):
 
                 if telnet_line is not None and self.has_connection:
                     m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp2', 'lpf']:
+                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:
                         if telnet_line != '':
                             logger.debug(telnet_line)
 
