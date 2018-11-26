@@ -18,7 +18,7 @@ class TelnetObserver(Thread):
     def __init__(self, event, chrani_bot, telnet_actions):
         self.tn = telnet_actions
         self.bot = chrani_bot
-        self.run_observer_interval = 1
+        self.run_observer_interval = 0.8
         self.last_execution_time = 0.0
         self.valid_telnet_lines = deque()
         self.recent_telnet_response = ""
@@ -79,7 +79,7 @@ class TelnetObserver(Thread):
                 if len(self.recent_telnet_response) > 0:
                     # got something in the buffer!!
                     if telnet_response_has_valid_start:
-                        # there is some remainder of a telnet line, it seems to be outdated
+                        self.valid_telnet_lines.append(self.recent_telnet_response.rstrip(b"\r\n"))
                         self.recent_telnet_response = ""
                     elif telnet_response_has_valid_end:
                         # got no start, but got an end!! add it to the buffer
