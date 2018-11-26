@@ -1,5 +1,6 @@
 body {
     margin: 0; padding: 0;
+    font-size: 15px;
 }
 
 /* layout */
@@ -54,6 +55,12 @@ main .widget {
     overflow: auto;
 }
 
+
+main .full {
+    order: 0;
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+}
 
 main .dominant {
     order: 0;

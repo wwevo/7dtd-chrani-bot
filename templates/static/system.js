@@ -80,22 +80,25 @@ $(document).ready(
          */
         $('#messages_modal').hide();
 
-        if (Cookies.get("page") == "map")  {
+        if (Cookies.get("page") == "players")  {
+            $("main .widget").removeClass("wide");
+            $("main #player_table_widget").addClass("dominant").removeClass("prominent");
+            $("main #status_log_widget").addClass("wide");
+        } else if (Cookies.get("page") == "map")  {
             init_radar();
+            $("main .widget").removeClass("wide");
             $("main #player_table_widget").addClass("prominent").removeClass("dominant");
             $("main #location_radar_widget").addClass("dominant");
             $("main #status_log_widget").addClass("wide");
             // These should come last so we have no flicker while rearranging stuff ^^
             resetSize(window.map);
-        }
-        if (Cookies.get("page") == "settings")  {
+        } else if (Cookies.get("page") == "settings")  {
+            $("main .widget").removeClass("wide");
             $("main #settings_scheduler_widget").addClass("wide");
             $("main #settings_player_observer_widget").addClass("wide");
             $("main #command_log_widget").addClass("wide");
-        }
-        if (Cookies.get("page") == "players")  {
-            $("main #player_table_widget").addClass("dominant").removeClass("prominent");
-            $("main #status_log_widget").addClass("wide");
+        } else {
+            $("main .widget").removeClass("dominant").removeClass("prominent").removeClass("shamed").removeClass("full");
         }
     }
 );
