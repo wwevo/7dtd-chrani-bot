@@ -220,6 +220,15 @@ class TelnetActions:
         except Exception:
             return False
 
+    def settime(self, time_string):
+        command = "settime {}\r\n".format(str(time_string))
+        try:
+            connection = self.tn
+            connection.write(command)
+            return True
+        except Exception:
+            return False
+
     def ban(self, player_object, reason='does there always need to be a reason?'):
         command = "ban add " + str(player_object.steamid) + " 1 year \"" + reason.rstrip() + b"\"\r\n"
         try:

@@ -3,7 +3,7 @@ import math
 
 
 def multiple(m, n):
-    return True if m % n == 0 else False
+    return True if float(m) % float(n) == 0 else False
 
 
 def timeout_occurred(timeout_in_seconds, timeout_start):

@@ -119,3 +119,23 @@ common.actions_list.append({
 })
 
 
+@common.build_response
+def skip_bloodmoon():
+    chrani_bot = __main__.chrani_bot
+    try:
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
+    except AttributeError:
+        return chrani_bot.flask.redirect("/")
+
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "skip bloodmoon")
+
+
+common.actions_list.append({
+    "title": "skip bloodmoon",
+    "route": "/protected/system/skip_bloodmoon",
+    "action": skip_bloodmoon,
+    "authenticated": True
+})
+
+

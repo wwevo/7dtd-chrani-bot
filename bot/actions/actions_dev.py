@@ -207,3 +207,43 @@ common.actions_list.append({
     "group": "testing",
     "essential": False
 })
+
+
+def skip_bloodmoon(bot, source_player, target_player, command):
+    try:
+        response_messages = ResponseMessage()
+        if bot.current_gametime is not None and bot.ongoing_bloodmoon():
+            day_after_horde = None
+            if bot.is_it_horde_day(bot.current_gametime["day"]):
+                day_after_horde = int(bot.current_gametime["day"]) + 1
+            elif bot.is_it_horde_day(int(bot.current_gametime["day"]) -1):
+                day_after_horde = int(bot.current_gametime["day"])
+
+            if day_after_horde is not None:
+                bot.tn.settime("{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
+                message = "bloodmoon got skipped by {}".format(source_player.name)
+                response_messages.add_message(message, True)
+            else:
+                message = "skipping bloodmoon failed :(".format(source_player.name)
+                response_messages.add_message(message, False)
+
+            logger.info(message)
+            bot.tn.say(message, color=bot.chat_colors['warning'])
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "skip bloodmoon",
+        "usage": "/skip bloodmoon"
+    },
+    "action": skip_bloodmoon,
+    "env": "(self)",
+    "group": "testing",
+    "essential": False
+})

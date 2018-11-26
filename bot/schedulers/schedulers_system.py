@@ -218,7 +218,6 @@ def reboot(bot):
         while True:
             time.sleep(1)
             common.schedulers_dict["reboot"]["current_countdown"] += 1
-            bot.restart_in = bot.settings.get_setting_by_name(name='restart_warning') - common.schedulers_dict["reboot"]["current_countdown"]
             if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
                 message = "server will restart in {} seconds".format(int(restart_timer / 2))
                 bot.tn.say(message, color=bot.chat_colors['warning'])
@@ -236,6 +235,9 @@ def reboot(bot):
                 return True
 
     try:
+        if bot.server_time_running is not None:
+            bot.restart_in = bot.settings.get_setting_by_name(name='restart_timer') - bot.server_time_running
+
         if bot.ongoing_bloodmoon() or bot.reboot_imminent:
             return True
 
