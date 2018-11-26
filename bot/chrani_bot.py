@@ -364,11 +364,11 @@ class ChraniBot(Thread):
             return True
 
         bloodmoon = False
-        if self.is_it_horde_day(int(self.current_gametime["day"])) and int(self.current_gametime["hour"]) >= 20:
+        if self.is_it_horde_day(int(self.current_gametime["day"])) and int(self.current_gametime["hour"]) >= 21:
             bloodmoon = True
 
         day_after_bloodmoon = False
-        if self.is_it_horde_day(int(self.current_gametime["day"]) - 1) and int(self.current_gametime["hour"]) < 14:
+        if self.is_it_horde_day(int(self.current_gametime["day"]) - 1) and int(self.current_gametime["hour"]) < 4:
             day_after_bloodmoon = True
 
         if bloodmoon or day_after_bloodmoon:

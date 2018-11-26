@@ -76,7 +76,7 @@ common.observers_controller["poll_playerfriends"] = {
 
 
 def mute_unauthenticated_players(self):
-    if self.bot.settings.get_setting_by_name("mute_unauthenticated"):
+    if self.bot.settings.get_setting_by_name(name="mute_unauthenticated"):
         if not self.player_object.authenticated and not self.player_object.is_muted:
             if self.tn.muteplayerchat(self.player_object, True):
                 self.tn.send_message_to_player(self.player_object, "Your chat has been disabled!", color=self.bot.chat_colors['warning'])
