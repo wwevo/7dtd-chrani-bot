@@ -307,7 +307,7 @@ class ChraniBot(Thread):
         return landclaims_in_reach_list
 
     def check_for_homes(self, player_object):
-        distance = math.floor(41 / 2) + 20  # (landclaim size / 2) + Deadzone
+        distance = math.floor(int(self.server_settings_dict['LandClaimSize']) / 2) + int(self.server_settings_dict['LandClaimDeadZone'])  # (landclaim size / 2) + Deadzone
         start_coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
 
         bases_near_list = self.locations.find_by_distance(start_coords, distance, "home")
