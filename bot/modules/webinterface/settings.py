@@ -4,6 +4,48 @@ import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_settings_general_widget():
+    chrani_bot = __main__.chrani_bot
+
+    output = ""
+    settings_dict = chrani_bot.settings.settings_dict
+    for setting_name in settings_dict.keys():
+        output += get_settings_general_table_row(setting_name)
+
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/settings_general_widget/settings_general_widget.html', general_entries=output))
+
+
+common.actions_list.append({
+    "title": "get settings general widget",
+    "route": "/protected/system/widgets/get_settings_general_widget",
+    "action": get_settings_general_widget,
+    "authenticated": True
+})
+
+
+def get_settings_general_table_row(setting_name):
+    chrani_bot = __main__.chrani_bot
+
+    settings_dict = chrani_bot.settings.settings_dict
+    setting_value = settings_dict[setting_name]
+
+    output = chrani_bot.flask.Markup(chrani_bot.flask.render_template(
+        'static/widgets/settings_general_widget/settings_general_entry.html',
+        general_name=setting_name,
+        general_value=setting_value,
+    ))
+
+    return output
+
+
+common.actions_list.append({
+    "title": "fetches settings general table row",
+    "route": "/protected/system/get_settings_general_widget/<string:name>",
+    "action": get_settings_general_table_row,
+    "authenticated": True
+})
+
+
 def get_settings_scheduler_widget():
     chrani_bot = __main__.chrani_bot
 

@@ -338,7 +338,7 @@ class ChraniBot(Thread):
                 villages = self.locations.find_by_type('village')
                 for village in villages:
                     if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
-                        bot.modules.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
+                        self.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
         except KeyError:
             pass
 
@@ -348,7 +348,7 @@ class ChraniBot(Thread):
             pos_y = m.group("pos_y")
             pos_z = m.group("pos_z")
             player_object = self.players.get_by_steamid('system')
-            bot.modules.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
+            self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
         except KeyError:
             pass
 
@@ -384,6 +384,7 @@ class ChraniBot(Thread):
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
         next_cycle = 0
         last_schedule = 0
+
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
                 if not self.has_connection:

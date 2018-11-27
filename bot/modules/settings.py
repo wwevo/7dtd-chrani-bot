@@ -35,6 +35,7 @@ class Settings(object):
             setting_value = self.settings_dict[setting_name]
         except (TypeError, KeyError):
             logger.debug("could not find '{setting_name}' in the settings file, using default values.".format(setting_name=setting_name))
+            self.settings_dict[setting_name] = default_value
             setting_value = default_value
 
         return setting_value

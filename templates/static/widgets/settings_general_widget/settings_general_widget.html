@@ -1,0 +1,26 @@
+{% if current_user.has_permission_level("admin") %}
+<table>
+    <thead>
+    <tr>
+        <th>Settings</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ general_entries }}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+{% endif %}
