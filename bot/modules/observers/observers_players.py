@@ -71,7 +71,7 @@ common.observers_dict["poll_playerfriends"] = {
 
 
 common.observers_controller["poll_playerfriends"] = {
-    "is_active": True
+    "is_active": False
 }
 
 

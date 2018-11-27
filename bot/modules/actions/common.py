@@ -55,8 +55,10 @@ def trigger_action(bot, source_player, target_player, command_parameters):
             try:
                 response = command["action"](bot, source_player, target_player, command["command_parameters"])
                 if response is not False:
-                    response_messages.add_message(command["func_name"], response.get_message_dict())
-                    logger.info("Player {} has executed {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
+                    if response is not None:
+                        response_messages.add_message(command["func_name"], response.get_message_dict())
+                        logger.info("Player {} has executed {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
+
             except ValueError as e:
                 logger.debug("Player {} tried to execute {}:{} with '/{}', which led to: {}".format(source_player.name, command["group"], command["func_name"], command["command_parameters"], e.message))
             except Exception as e:
