@@ -2,7 +2,6 @@ import __main__  # my ide throws a warning here, but it works oO
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.modules.logger import logger
-import bot.actions as actions
 import json
 import os
 import re
@@ -158,7 +157,7 @@ class Players(object):
             """ start player_observer_thread for each player not already being observed """
             if player_object.steamid not in bot.active_player_threads_dict and player_object.is_online:
                 bot.start_player_thread(player_object)
-                actions.common.trigger_action(bot, player_object, player_object, "found in the world")
+                bot.modules.actions.common.trigger_action(bot, player_object, player_object, "found in the world")
 
         players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():

@@ -81,7 +81,8 @@ def set_up_lobby(bot, source_player, target_player, command):
         location_object.set_shape("sphere")
 
         messages_dict = location_object.get_messages_dict()
-        messages_dict["entered_locations_core"] = "authenticate with {} to leave the lobby".format(common.find_action_help("authentication", "password"))
+        messages_dict["entered_locations_core"] = "authenticate with {} to leave the lobby".format(
+            common.find_action_help("authentication", "password"))
         messages_dict["left_locations_core"] = "You are about to leave the lobby area!"
         messages_dict["entered_location"] = "You have entered the lobby"
         messages_dict["left_location"] = "You have left the lobby"
@@ -94,7 +95,8 @@ def set_up_lobby(bot, source_player, target_player, command):
         bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
         bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-        bot.tn.send_message_to_player(target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(common.find_action_help("lobby", "edit lobby outer perimeter")), color=bot.chat_colors['warning'])
+        bot.tn.send_message_to_player(target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(
+            common.find_action_help("lobby", "edit lobby outer perimeter")), color=bot.chat_colors['warning'])
 
         return response_messages
 
@@ -122,7 +124,8 @@ def set_up_lobby_outer_perimeter(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(common.find_action_help("lobby", "set_up_lobby")), color=bot.chat_colors['warning'])
+            bot.tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(
+                common.find_action_help("lobby", "set_up_lobby")), color=bot.chat_colors['warning'])
             return False
 
         coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
@@ -174,7 +177,8 @@ def set_up_lobby_inner_perimeter(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(common.find_action_help("lobby", "set_up_lobby")), color=bot.chat_colors['warning'])
+            bot.tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(
+                common.find_action_help("lobby", "set_up_lobby")), color=bot.chat_colors['warning'])
             return False
 
         coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)

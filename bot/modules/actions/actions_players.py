@@ -212,7 +212,8 @@ def teleport_player_to_coords(bot, source_player, target_player, command):
             else:
                 player_object_to_teleport = bot.players.get_by_steamid(steamid_to_teleport)
         else:
-            bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(common.find_action_help("players", "send player")), color=bot.chat_colors['warning'])
+            bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
+                common.find_action_help("players", "send player")), color=bot.chat_colors['warning'])
             return False
 
         coord_tuple = tuple(item for item in coords_to_teleport_to.split(',') if item.strip())
@@ -260,7 +261,8 @@ def teleport_self_to_player(bot, source_player, target_player, command):
                 else:
                     player_object_to_teleport_to = bot.players.get_by_steamid(steamid_to_teleport_to)
             else:
-                bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(common.find_action_help("players", "goto player")), color=bot.chat_colors['warning'])
+                bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
+                    common.find_action_help("players", "goto player")), color=bot.chat_colors['warning'])
                 return False
 
         except Exception as e:
@@ -316,7 +318,8 @@ def teleport_player_to_self(bot, source_player, target_player, command):
                 else:
                     player_object_to_teleport_to = bot.players.get_by_steamid(steamid_to_fetch)
             else:
-                bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(common.find_action_help("players", "summon player")), color=bot.chat_colors['warning'])
+                bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
+                    common.find_action_help("players", "summon player")), color=bot.chat_colors['warning'])
                 return False
 
         except Exception as e:

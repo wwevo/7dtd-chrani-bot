@@ -1,6 +1,6 @@
 from flask import request
 import common
-import bot.actions
+import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
@@ -76,7 +76,7 @@ def disable_scheduler(name):
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(chrani_bot, player_object, None, "disable scheduler {}".format(name))
+    return bot.modules.actions.common.trigger_action(chrani_bot, player_object, None, "disable scheduler {}".format(name))
 
 
 common.actions_list.append({
@@ -97,7 +97,7 @@ def enable_scheduler(name):
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
 
-    return bot.actions.common.trigger_action(chrani_bot, player_object, None, "enable scheduler {}".format(name))
+    return bot.modules.actions.common.trigger_action(chrani_bot, player_object, None, "enable scheduler {}".format(name))
 
 
 common.actions_list.append({
@@ -180,7 +180,7 @@ def disable_player_observer(name):
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(chrani_bot, player_object, None, "disable player_observer {}".format(name))
+    return bot.modules.actions.common.trigger_action(chrani_bot, player_object, None, "disable player_observer {}".format(name))
 
 
 common.actions_list.append({
@@ -201,7 +201,7 @@ def enable_player_observer(name):
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
 
-    return bot.actions.common.trigger_action(chrani_bot, player_object, None, "enable player_observer {}".format(name))
+    return bot.modules.actions.common.trigger_action(chrani_bot, player_object, None, "enable player_observer {}".format(name))
 
 
 common.actions_list.append({

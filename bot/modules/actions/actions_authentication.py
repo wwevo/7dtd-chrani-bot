@@ -110,7 +110,8 @@ def password(bot, source_player, target_player, command):
             pwd = p.group("password")
             if not pwd:
                 message = "No password provided"
-                bot.tn.send_message_to_player(target_player, "You have entered no password. Use {}".format(common.find_action_help("authentication", "password")), color=bot.chat_colors['warning'])
+                bot.tn.send_message_to_player(target_player, "You have entered no password. Use {}".format(
+                    common.find_action_help("authentication", "password")), color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             elif pwd not in bot.passwords.values() and not target_player.authenticated:
                 message = "Entered a wrong / unknown password"

@@ -13,15 +13,15 @@ from bot.player_observer import PlayerObserver
 from bot.telnet_observer import TelnetObserver
 from bot.modules.logger import logger
 
-import bot.actions as actions
-import bot.observers as observers
-import bot.schedulers as schedulers
+import bot.modules.actions as actions
+import bot.modules.observers as observers
+import bot.modules.schedulers as schedulers
 
+from bot.objects.player import Player
+from bot.objects.telnet import Telnet
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.modules.players import Players
-from bot.objects.player import Player
-from bot.objects.telnet import Telnet
 from bot.modules.telnet_actions import TelnetActions
 from bot.modules.whitelist import Whitelist
 
@@ -338,7 +338,7 @@ class ChraniBot(Thread):
                 villages = self.locations.find_by_type('village')
                 for village in villages:
                     if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
-                        self.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
+                        bot.modules.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
         except KeyError:
             pass
 
@@ -348,7 +348,7 @@ class ChraniBot(Thread):
             pos_y = m.group("pos_y")
             pos_z = m.group("pos_z")
             player_object = self.players.get_by_steamid('system')
-            self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
+            bot.modules.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
         except KeyError:
             pass
 

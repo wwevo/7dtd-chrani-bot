@@ -4,7 +4,7 @@ from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 import common
 
-from bot.actions.actions_locations import location_identifier_regex
+from bot.modules.actions.actions_locations import location_identifier_regex
 
 
 def set_up_teleport_point(bot, source_player, target_player, command):

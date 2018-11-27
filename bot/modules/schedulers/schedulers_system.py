@@ -9,7 +9,8 @@ import common
 
 def get_mem_status(bot):
     try:
-        if not bot.reboot_imminent and timeout_occurred(0.25 * 60, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
+        if not bot.reboot_imminent and timeout_occurred(0.25 * 60, float(
+                common.schedulers_dict["get_mem_status"]["last_executed"])):
             mem_status = bot.telnet_observer.tn.get_mem_status()
             common.schedulers_dict["get_mem_status"]["last_executed"] = time.time()
             # m = re.search(bot.match_types_system["mem_status"], mem_status)
@@ -120,7 +121,8 @@ def update_system_status(bot):
         else:
             update_status_interval = float(bot.settings.get_setting_by_name(name='list_status_interval'))
 
-        if timeout_occurred(update_status_interval, float(common.schedulers_dict["update_system_status"]["last_executed"])):
+        if timeout_occurred(update_status_interval, float(
+                common.schedulers_dict["update_system_status"]["last_executed"])):
             bot.socketio.emit('server_online', '', namespace='/chrani-bot/public')
             bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             execution_time = 0.0
@@ -164,7 +166,8 @@ def list_landprotection(bot):
         else:
             listlandprotection_interval = float(bot.settings.get_setting_by_name(name='list_landprotection_interval'))
 
-        if timeout_occurred(listlandprotection_interval, float(common.schedulers_dict["list_landprotection"]["last_executed"])):
+        if timeout_occurred(listlandprotection_interval, float(
+                common.schedulers_dict["list_landprotection"]["last_executed"])):
             if len(bot.active_player_threads_dict) > 0 or not bot.landclaims_dict:
                 polled_lcb = bot.poll_lcb()
                 if polled_lcb != bot.landclaims_dict:

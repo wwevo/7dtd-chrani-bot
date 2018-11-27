@@ -1,6 +1,6 @@
 from flask import request
 import common
-import bot.actions
+import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
@@ -270,7 +270,7 @@ def send_player_to_coords(target_player_steamid, coords_tuple_string):
     if form_coord_tuple:
         coord_tuple = form_coord_tuple
 
-    val = bot.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
+    val = bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
     return val
 
 
@@ -294,7 +294,7 @@ def obliterate_player(target_player_steamid):
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "obliterate player {}".format(target_player_steamid))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "obliterate player {}".format(target_player_steamid))
 
 
 common.actions_list.append({
@@ -320,7 +320,7 @@ def ban_player(target_player_steamid, reason):
     if form_reason:
         reason = form_reason
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "ban player {} for {}".format(target_player_steamid, reason))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "ban player {} for {}".format(target_player_steamid, reason))
 
 
 common.actions_list.append({
@@ -347,7 +347,7 @@ def kick_player(target_player_steamid, reason):
     if form_reason:
         reason = form_reason
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
 
 
 common.actions_list.append({
@@ -370,7 +370,7 @@ def unban_player(target_player_steamid):
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "unban player {}".format(target_player_steamid))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "unban player {}".format(target_player_steamid))
 
 
 common.actions_list.append({

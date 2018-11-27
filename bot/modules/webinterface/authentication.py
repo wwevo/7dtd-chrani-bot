@@ -1,5 +1,5 @@
 import common
-import bot.actions
+import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
@@ -13,7 +13,7 @@ def remove_player_from_group(target_player_steamid, group):
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "remove player {} from group {}".format(target_player_steamid, group))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "remove player {} from group {}".format(target_player_steamid, group))
 
 
 common.actions_list.append({
@@ -34,7 +34,7 @@ def add_player_to_group(target_player_steamid, group):
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "add player {} to group {}".format(target_player_steamid, group))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "add player {} to group {}".format(target_player_steamid, group))
 
 
 common.actions_list.append({

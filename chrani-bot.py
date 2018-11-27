@@ -25,7 +25,7 @@ template_dir = os.path.join(os.getcwd(), 'templates')
 static_dir = os.path.join(template_dir, 'static')
 
 from bot.chrani_bot import ChraniBot
-import bot.actions
+import bot.modules.actions
 from bot.modules.webinterface.settings import get_settings_scheduler_widget
 from bot.modules.webinterface.settings import get_settings_player_observer_widget
 from bot.modules.webinterface.players import get_player_table_widget
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.057"
+    chrani_bot_thread.bot_version = "0.7.100"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()

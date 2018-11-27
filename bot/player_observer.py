@@ -3,7 +3,7 @@ from time import time, sleep
 import math
 from threading import *
 
-import bot.actions
+import bot.modules.actions
 from bot.modules.logger import logger
 from bot.objects.telnet import Telnet
 from bot.modules.telnet_actions import TelnetActions
@@ -141,7 +141,7 @@ class PlayerObserver(Thread):
         logger.debug("thread has stopped")
 
     def trigger_action(self, target_player, command):
-        bot.actions.common.trigger_action(self.bot, self.player_object, target_player, command)
+        bot.modules.actions.common.trigger_action(self.bot, self.player_object, target_player, command)
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):

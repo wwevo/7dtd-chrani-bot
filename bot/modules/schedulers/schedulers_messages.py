@@ -10,7 +10,8 @@ def rolling_announcements(bot):
         if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             return True
 
-        if timeout_occurred(float(bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(common.schedulers_dict["rolling_announcements"]["last_executed"])):
+        if timeout_occurred(float(bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(
+                common.schedulers_dict["rolling_announcements"]["last_executed"])):
             message, interval = random.choice(list(bot.settings.get_setting_by_name(name='rolling_announcements').items()))
             if interval == "all":
                 bot.tn.say(message, color=bot.chat_colors['standard'])

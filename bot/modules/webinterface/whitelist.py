@@ -1,6 +1,6 @@
 from flask import request
 import common
-import bot.actions
+import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
@@ -31,7 +31,7 @@ def activate_whitelist():
         return webinterface.flask.redirect("/")
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "activate whitelist")
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, player_object, "activate whitelist")
 
 
 common.actions_list.append({
@@ -51,7 +51,7 @@ def deactivate_whitelist():
         return webinterface.flask.redirect("/")
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, player_object, "deactivate whitelist")
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, player_object, "deactivate whitelist")
 
 
 common.actions_list.append({
@@ -72,7 +72,7 @@ def remove_player_from_whitelist(target_player_steamid):
 
     player_object = webinterface.players.get_by_steamid(source_player_steamid)
     target_player = webinterface.players.get_by_steamid(target_player_steamid)
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "remove player {} from whitelist".format(target_player_steamid))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "remove player {} from whitelist".format(target_player_steamid))
 
 
 common.actions_list.append({
@@ -101,7 +101,7 @@ def add_player_to_whitelist(target_player_steamid):
     if form_player_to_add:
         target_player_steamid = form_player_to_add
 
-    return bot.actions.common.trigger_action(webinterface, player_object, target_player, "add player {} to whitelist".format(target_player_steamid))
+    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "add player {} to whitelist".format(target_player_steamid))
 
 
 common.actions_list.append({
