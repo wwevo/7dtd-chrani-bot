@@ -21,7 +21,7 @@ def rolling_announcements(bot):
 
             return True
     except Exception as e:
-        logger.debug("{source}/{error_msg}".format(source="rolling_announcements", error_msg=e.message))
+        logger.debug("{source}/{error_message}".format(source="rolling_announcements", error_message=e.message))
         raise
 
 

@@ -174,21 +174,6 @@ class TelnetActions:
             return False
 
         return True
-        telnet_response = ""
-        poll_is_finished = False
-        while poll_is_finished is not True:
-            try:
-                telnet_line = connection.read_until(b"\r\n")
-            except Exception as e:
-                log_message = 'trying to get mem status from telnet connection failed: {}'.format(e)
-                raise IOError(log_message)
-
-            m = re.search(self.bot.match_types_system['mem_status'], telnet_line)
-            if m:
-                telnet_response = telnet_line
-                poll_is_finished = True
-
-        return telnet_response
 
     def muteplayerchat(self, player_object, flag=True):
         command = "mpc {} {}\r\n".format(player_object.steamid, str(flag).lower())
