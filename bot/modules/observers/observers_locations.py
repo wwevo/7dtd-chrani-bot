@@ -34,9 +34,9 @@ def player_crossed_location_boundary(self):
                         elif self.player_object.steamid in location_object.protected_core_whitelist:
                             continue
                         else:
-                            if self.tn.teleportplayer(self.player_object, coord_tuple=location_object.get_ejection_coords_tuple()):
+                            if self.bot.tn.teleportplayer(self.player_object, coord_tuple=location_object.get_ejection_coords_tuple()):
                                 location_object_owner = self.bot.players.get_by_steamid(location_object.owner)
-                                self.tn.send_message_to_player(self.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object_owner.name), color=self.bot.chat_colors['warning'])
+                                self.bot.tn.send_message_to_player(self.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object_owner.name), color=self.bot.chat_colors['warning'])
                                 self.bot.socketio.emit('status_log', {"steamid": self.player_object.steamid, "command": "{} has been ejected from {}'s protected core owned by {}!".format(self.player_object.name, location_object.name, location_object_owner.name)}, namespace='/chrani-bot/public')
 
                 update_table = False
@@ -44,23 +44,23 @@ def player_crossed_location_boundary(self):
                     self.bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True and (location_object.owner in [self.player_object.steamid, "system"] or (location_object.is_public or location_object.protected_core)):
-                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['standard'])
+                        self.bot.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_location"], color=self.bot.chat_colors['standard'])
                 if player_status == "has left core":
                     update_table = True
                     if location_object.messages_dict["left_locations_core"] is not None and location_object.show_warning_messages is True and (location_object.owner == self.player_object.steamid or location_object.is_public):
-                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['standard'])
+                        self.bot.tn.send_message_to_player(self.player_object, location_object.messages_dict["left_locations_core"], color=self.bot.chat_colors['standard'])
                 if player_status == "has entered":
                     self.bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["entered_location"] is not None and location_object.show_messages is True and (location_object.owner in [self.player_object.steamid, "system"] or (location_object.is_public or location_object.protected_core)):
                         if location_object.protected_core:
-                            self.tn.send_message_to_player(self.player_object, "{} ({})".format(location_object.messages_dict["entered_location"], "protected"), color=self.bot.chat_colors['error'])
+                            self.bot.tn.send_message_to_player(self.player_object, "{} ({})".format(location_object.messages_dict["entered_location"], "protected"), color=self.bot.chat_colors['error'])
                         else:
-                            self.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
+                            self.bot.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_location"], color=self.bot.chat_colors['warning'])
                 if player_status == "has entered core":
                     update_table = True
                     if location_object.messages_dict["entered_locations_core"] is not None and (location_object.show_warning_messages is True or location_object.protected_core) and (location_object.owner == self.player_object.steamid or location_object.is_public):
-                        self.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
+                        self.bot.tn.send_message_to_player(self.player_object, location_object.messages_dict["entered_locations_core"], color=self.bot.chat_colors['warning'])
 
                 if update_table:
                     self.bot.locations.upsert(location_object)

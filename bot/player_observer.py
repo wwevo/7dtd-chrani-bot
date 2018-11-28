@@ -5,12 +5,9 @@ from threading import *
 
 import bot.modules.actions
 from bot.modules.logger import logger
-from bot.objects.telnet import Telnet
-from bot.modules.telnet_actions import TelnetActions
 
 
 class PlayerObserver(Thread):
-    tn = object
     bot = object
 
     player_steamid = str
@@ -24,7 +21,6 @@ class PlayerObserver(Thread):
 
         logger.info("thread started for player " + self.player_steamid)
 
-        self.tn = TelnetActions(bot, Telnet(bot.settings.get_setting_by_name(name='telnet_ip'), bot.settings.get_setting_by_name(name='telnet_port'), bot.settings.get_setting_by_name(name='telnet_password')))
         self.bot = bot
         self.run_observers_interval = 1
         self.last_execution_time = 0.0

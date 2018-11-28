@@ -6,7 +6,7 @@ import json
 import os
 import re
 from bot.objects.player import Player
-
+from bot.modules.actions.common import trigger_action
 
 class Players(object):
 
@@ -104,11 +104,11 @@ class Players(object):
         except KeyError:
             pass
 
-    def manage_online_players(self, bot):
+    def manage_online_players(self, chrani_bot):
         def poll_players():
             online_players_dict = {}
-            listplayers_result = bot.poll_tn.listplayers()
-            for m in re.finditer(bot.match_types_system["listplayers_result_regexp"], listplayers_result):
+            listplayers_result = chrani_bot.poll_tn.listplayers()
+            for m in re.finditer(chrani_bot.match_types_system["listplayers_result_regexp"], listplayers_result):
                 online_players_dict.update({m.group(16): {
                     "entityid":         m.group(1),
                     "name":             str(m.group(2)),
@@ -155,37 +155,37 @@ class Players(object):
         """ handle player-threads """
         for player_steamid, player_object in self.players_dict.iteritems():
             """ start player_observer_thread for each player not already being observed """
-            if player_object.steamid not in bot.active_player_threads_dict and player_object.is_online:
-                bot.start_player_thread(player_object)
-                bot.modules.actions.common.trigger_action(bot, player_object, player_object, "found in the world")
+            if player_object.steamid not in chrani_bot.active_player_threads_dict and player_object.is_online:
+                chrani_bot.start_player_thread(player_object)
+                trigger_action(chrani_bot, player_object, player_object, "found in the world")
 
         players_to_obliterate = []
         for player_steamid, player_object in self.players_dict.iteritems():
-            if player_steamid in bot.active_player_threads_dict and not player_object.is_online:
+            if player_steamid in chrani_bot.active_player_threads_dict and not player_object.is_online:
                 """ prune all active_player_threads from players no longer online """
-                active_player_thread = bot.active_player_threads_dict[player_steamid]
+                active_player_thread = chrani_bot.active_player_threads_dict[player_steamid]
                 stop_flag = active_player_thread["thread"]
                 stop_flag.stopped.set()
-                bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                bot.socketio.emit('update_leaflet_markers', bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
+                chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
 
-                del bot.active_player_threads_dict[player_steamid]
+                del chrani_bot.active_player_threads_dict[player_steamid]
             if player_object.is_to_be_obliterated is True:
                 player_object.is_online = False
                 players_to_obliterate.append(player_object)
 
         for player_object in players_to_obliterate:
-            bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-            bot.socketio.emit('remove_leaflet_markers', bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
+            chrani_bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+            chrani_bot.socketio.emit('remove_leaflet_markers', chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
             self.remove(player_object)
 
         player_threads_to_remove = []
-        for player_steamid, player_thread in bot.active_player_threads_dict.iteritems():
+        for player_steamid, player_thread in chrani_bot.active_player_threads_dict.iteritems():
             if player_steamid not in self.players_dict:
                 player_threads_to_remove.append(player_steamid)
 
         for player_steamid in player_threads_to_remove:
-            del bot.active_player_threads_dict[player_steamid]
+            del chrani_bot.active_player_threads_dict[player_steamid]
 
         return listplayers_dict
 

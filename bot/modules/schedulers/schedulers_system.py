@@ -19,7 +19,7 @@ def get_mem_status(bot):
 
             return True
     except Exception as e:
-        logger.debug(e)
+        logger.debug("{source}/{error_msg}".format(source="get_mem_status", error_msg=e.message))
         raise
 
 
@@ -55,7 +55,7 @@ def poll_players(bot):
 
             return True
     except Exception as e:
-        logger.debug(e)
+        logger.debug("{source}/{error_msg}".format(source="poll_players", error_msg=e.message))
         raise
 
 
@@ -91,7 +91,7 @@ def get_gametime(bot):
                 bot.current_gametime = None
             return True
     except Exception as e:
-        logger.debug(e)
+        logger.debug("{source}/{error_msg}".format(source="get_gametime", error_msg=e.message))
         raise
 
 
@@ -136,7 +136,7 @@ def update_system_status(bot):
 
             return True
     except Exception as e:
-        logger.debug(e)
+        logger.debug("{source}/{error_msg}".format(source="update_system_status", error_msg=e.message))
         raise
 
 
@@ -190,7 +190,7 @@ def list_landprotection(bot):
             return True
 
     except Exception as e:
-        logger.debug(e)
+        logger.debug("{source}/{error_msg}".format(source="list_landprotection", error_msg=e.message))
         raise
 
 
@@ -256,7 +256,7 @@ def reboot(bot):
 
             return True
     except Exception as e:
-        logger.debug(e)
+        logger.debug("{source}/{error_msg}".format(source="reboot", error_msg=e.message))
         raise
 
 

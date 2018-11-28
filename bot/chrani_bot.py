@@ -3,6 +3,7 @@ import re
 import time
 import math
 import os
+import sys
 from collections import deque
 from threading import Event
 
@@ -428,6 +429,8 @@ class ChraniBot(Thread):
                                     continue
                             except TypeError:
                                 command["scheduler"](*command["command_parameters"])
+                            except AttributeError:
+                                pass
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
@@ -489,12 +492,16 @@ class ChraniBot(Thread):
                 next_cycle = (0.125 - self.last_execution_time)
 
             except (IOError, NameError, AttributeError) as error:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+
                 """ clean up bot to have a clean restart when a new connection can be established """
                 log_message = "no telnet-connection - trying to connect..."
                 self.server_time_running = None
 
                 try:
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password', show_log_init=True))
                     self.has_connection = True
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
@@ -505,10 +512,10 @@ class ChraniBot(Thread):
                     self.telnet_observer = telnet_observer_thread
                     self.telnet_observer.start()
 
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True)
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.tn = TelnetActions(self, tn)
 
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'), show_log_init=True)
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.poll_tn = TelnetActions(self, tn)
 
                     self.reboot_imminent = False
