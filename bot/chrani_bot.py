@@ -520,18 +520,15 @@ class ChraniBot(Thread):
                     telnet_observer_thread.isDaemon()
                     self.telnet_observer = telnet_observer_thread
                     self.telnet_observer.start()
-                    time.sleep(1)
+                    time.sleep(0.5)
 
                     tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.tn = TelnetActions(self, tn)
-                    time.sleep(1)
+                    time.sleep(0.5)
 
-                    #tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.poll_tn = TelnetActions(self, tn)
-                    time.sleep(1)
-
-                    #tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
-                    self.message_tn = TelnetActions(self, tn)
+                    self.message_tn = self.poll_tn
 
                     self.reboot_imminent = False
                     self.is_paused = False
