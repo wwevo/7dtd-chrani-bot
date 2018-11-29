@@ -56,6 +56,7 @@ class ChraniBot(Thread):
 
     tn = object  # telnet connection to use for everything except player-actions and player-poll
     poll_tn = object
+    message_tn = object
     telnet_lines_list = deque
 
     last_execution_time = float
@@ -407,7 +408,7 @@ class ChraniBot(Thread):
                     self.shutdown()
                     continue
 
-                if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 8, last_schedule):
+                if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
                     last_schedule = time.time()
                     """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
                     """
@@ -435,70 +436,69 @@ class ChraniBot(Thread):
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
+                telnet_lines = []
                 try:
-                    telnet_line = self.telnet_observer.valid_telnet_lines.popleft()
+                    telnet_lines.append(self.telnet_observer.valid_telnet_lines.popleft())
                 except IndexError:
-                    telnet_line = None
                     pass
 
-                self.telnet_queue = len(self.telnet_observer.valid_telnet_lines)
+                if len(telnet_lines) >= 1 and self.has_connection:
+                    for telnet_line in telnet_lines:
+                        m = re.search(self.match_types_system["telnet_commands"], telnet_line)
+                        if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:
+                            if telnet_line != '':
+                                logger.debug(telnet_line)
 
-                if telnet_line is not None and self.has_connection:
-                    m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                    if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:
-                        if telnet_line != '':
-                            logger.debug(telnet_line)
+                        m = re.search(self.match_types_system["mem_status"], telnet_line)
+                        if m:
+                            self.server_time_running = int(float(m.group("time_in_minutes")) * 60)
 
-                    m = re.search(self.match_types_system["mem_status"], telnet_line)
-                    if m:
-                        self.server_time_running = int(float(m.group("time_in_minutes")) * 60)
+                        # handle playerspawns
+                        m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
+                        if m:
+                            try:
+                                connecting_player = self.players.player_entered_telnet(m)
+                                connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
+                            except KeyError:
+                                pass
 
-                    # handle playerspawns
-                    m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
-                    if m:
-                        try:
-                            connecting_player = self.players.player_entered_telnet(m)
-                            connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
-                        except KeyError:
-                            pass
+                        m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
+                        if m:
+                            try:
+                                spawning_player = self.players.player_entered_the_world(m)
+                                spawning_player["thread"].trigger_action(spawning_player["player_object"], "entered the world")
+                            except KeyError:
+                                pass
 
-                    m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
-                    if m:
-                        try:
-                            spawning_player = self.players.player_entered_the_world(m)
-                            spawning_player["thread"].trigger_action(spawning_player["player_object"], "entered the world")
-                        except KeyError:
-                            pass
+                        # handle other spawns
+                        m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
+                        if m:
+                            self.on_screamer_spawn(m)
 
-                    # handle other spawns
-                    m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
-                    if m:
-                        self.on_screamer_spawn(m)
+                        m = re.search(self.match_types_system["airdrop_spawn"], telnet_line)
+                        if m:
+                            self.on_airdrop_spawn(m)
 
-                    m = re.search(self.match_types_system["airdrop_spawn"], telnet_line)
-                    if m:
-                        self.on_airdrop_spawn(m)
+                        """ send telnet_line to player-thread
+                        check 'chat' telnet-line(s) for any known playername currently online
+                        """
+                        for player_steamid, player_object in self.players.players_dict.iteritems():
+                            if player_steamid in self.active_player_threads_dict and player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
+                                what_to_match = [
+                                    self.match_types['chat_commands'],
+                                    self.match_types['chat_commands_a17']
+                                ]
 
-                    """ send telnet_line to player-thread
-                    check 'chat' telnet-line(s) for any known playername currently online
-                    """
-                    for player_steamid, player_object in self.players.players_dict.iteritems():
-                        if player_steamid in self.active_player_threads_dict and player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
-                            what_to_match = [
-                                self.match_types['chat_commands'],
-                                self.match_types['chat_commands_a17']
-                            ]
-
-                            for match in what_to_match:
-                                m = re.search(match, telnet_line)
-                                if m:
-                                    player_name = m.group('player_name')
-                                    if player_name == player_object.name:
-                                        active_player_thread = self.active_player_threads_dict[player_steamid]
-                                        active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+                                for match in what_to_match:
+                                    m = re.search(match, telnet_line)
+                                    if m:
+                                        player_name = m.group('player_name')
+                                        if player_name == player_object.name:
+                                            active_player_thread = self.active_player_threads_dict[player_steamid]
+                                            active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 self.last_execution_time = time.time() - profile_start
-                next_cycle = (0.125 - self.last_execution_time)
+                next_cycle = (0.1 - self.last_execution_time)
 
             except (IOError, NameError, AttributeError) as error:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -520,12 +520,18 @@ class ChraniBot(Thread):
                     telnet_observer_thread.isDaemon()
                     self.telnet_observer = telnet_observer_thread
                     self.telnet_observer.start()
+                    time.sleep(1)
 
                     tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.tn = TelnetActions(self, tn)
+                    time.sleep(1)
 
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    #tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.poll_tn = TelnetActions(self, tn)
+                    time.sleep(1)
+
+                    #tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    self.message_tn = TelnetActions(self, tn)
 
                     self.reboot_imminent = False
                     self.is_paused = False

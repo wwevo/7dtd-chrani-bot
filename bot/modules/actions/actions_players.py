@@ -207,12 +207,12 @@ def teleport_player_to_coords(bot, source_player, target_player, command):
             if steamid_to_teleport is None:
                 steamid_to_teleport = bot.players.entityid_to_steamid(entityid_to_teleport)
                 if steamid_to_teleport is False:
-                    bot.tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
+                    bot.message_tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
                     return False
             else:
                 player_object_to_teleport = bot.players.get_by_steamid(steamid_to_teleport)
         else:
-            bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
+            bot.message_tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
                 common.find_action_help("players", "send player")), color=bot.chat_colors['warning'])
             return False
 
@@ -253,15 +253,15 @@ def teleport_self_to_player(bot, source_player, target_player, command):
                 if steamid_to_teleport_to is None:
                     steamid_to_teleport_to = bot.players.entityid_to_steamid(entityid_to_teleport_to)
                     if steamid_to_teleport_to is False:
-                        bot.tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
+                        bot.message_tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
                         return False
                 if int(steamid_to_teleport_to) == int(target_player.steamid):
-                    bot.tn.send_message_to_player(target_player, "Try meditation, if you want to find yourself ^^", color=bot.chat_colors['warning'])
+                    bot.message_tn.send_message_to_player(target_player, "Try meditation, if you want to find yourself ^^", color=bot.chat_colors['warning'])
                     return False
                 else:
                     player_object_to_teleport_to = bot.players.get_by_steamid(steamid_to_teleport_to)
             else:
-                bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
+                bot.message_tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
                     common.find_action_help("players", "goto player")), color=bot.chat_colors['warning'])
                 return False
 
@@ -272,11 +272,11 @@ def teleport_self_to_player(bot, source_player, target_player, command):
         coord_tuple = (player_object_to_teleport_to.pos_x, player_object_to_teleport_to.pos_y, player_object_to_teleport_to.pos_z)
         if bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple):
             message = "You have been ported to {}'s last known location".format(player_object_to_teleport_to.name)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             response_messages.add_message(message, True)
         else:
             message = "Teleporting to player {} failed :(".format(player_object_to_teleport_to.name)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
             response_messages.add_message(message, False)
 
         return response_messages
@@ -310,15 +310,15 @@ def teleport_player_to_self(bot, source_player, target_player, command):
                 if steamid_to_fetch is None:
                     steamid_to_fetch = bot.players.entityid_to_steamid(entityid_to_fetch)
                     if steamid_to_fetch is False:
-                        bot.tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
+                        bot.message_tn.send_message_to_player(target_player, "could not find player", color=bot.chat_colors['error'])
                         return False
                 if int(steamid_to_fetch) == int(target_player.steamid):
-                    bot.tn.send_message_to_player(target_player, "Hands off those drugs man. They ain't good for you!", color=bot.chat_colors['warning'])
+                    bot.message_tn.send_message_to_player(target_player, "Hands off those drugs man. They ain't good for you!", color=bot.chat_colors['warning'])
                     return False
                 else:
                     player_object_to_teleport_to = bot.players.get_by_steamid(steamid_to_fetch)
             else:
-                bot.tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
+                bot.message_tn.send_message_to_player(target_player, "you did not specify a player. Use {}".format(
                     common.find_action_help("players", "summon player")), color=bot.chat_colors['warning'])
                 return False
 
@@ -329,11 +329,11 @@ def teleport_player_to_self(bot, source_player, target_player, command):
         coord_tuple = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
         if bot.tn.teleportplayer(player_object_to_teleport_to, coord_tuple=coord_tuple):
             message = "You have been summoned to {}'s location".format(target_player.name)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             response_messages.add_message(message, True)
         else:
             message = "Summoning player {} failed :(".format(player_object_to_teleport_to.name)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['error'])
             response_messages.add_message(message, False)
 
         return response_messages
@@ -377,7 +377,7 @@ def list_online_players(bot, source_player, target_player, command):
             players_to_list = bot.players.get_all_players(get_online_only=True)
 
             for player_object_to_list in players_to_list:
-                bot.tn.send_message_to_player(target_player, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), color=bot.chat_colors['success'])
 
             message = "Listed {} online players.".format(len(players_to_list))
             response_messages.add_message(message, True)
@@ -433,14 +433,14 @@ def list_available_player_actions(bot, source_player, target_player, command):
                 if isinstance(has_permission, bool) and has_permission is True and action_string is not None:
                     available_player_actions.append("({}) - [ffffff]{}[-]".format(function_category, action_string))
 
-            bot.tn.send_message_to_player(target_player, "The following actions are available to you:", color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, "The following actions are available to you:", color=bot.chat_colors['success'])
             # available_player_actions = list(set(available_player_actions))  # this removes entries present in more than one group
 
             for player_action in available_player_actions:
-                bot.tn.send_message_to_player(target_player, "{}".format(player_action), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "{}".format(player_action), color=bot.chat_colors['success'])
 
             message = "Listed {} available actions.".format(len(available_player_actions))
-            bot.tn.send_message_to_player(target_player, message)
+            bot.message_tn.send_message_to_player(target_player, message)
             response_messages.add_message(message, True)
 
         return response_messages
@@ -622,14 +622,14 @@ def ban_player(bot, source_player, target_player, command):
             if not player_object_to_ban.is_banned and bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
                 player_object_to_ban.is_banned = True
                 bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['warning'])
-                bot.tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(player_object_to_ban, "you have been banned by {}".format(source_player.name), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "you have banned player {}".format(player_object_to_ban.name), color=bot.chat_colors['success'])
                 message = "{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban)
                 bot.tn.say(message, color=bot.chat_colors['success'])
                 response_messages.add_message(message, True)
                 bot.players.upsert(player_object_to_ban, save=True)
             else:
-                bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_ban), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_ban), color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -680,13 +680,13 @@ def unban_player(bot, source_player, target_player, command):
             if bot.tn.unban(player_object_to_unban):
                 player_object_to_unban.is_banned = False
                 bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(source_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(source_player, "you have unbanned player {}".format(player_object_to_unban.name), color=bot.chat_colors['success'])
                 message = "{} has been unbanned by {}.".format(player_object_to_unban.name, source_player.name)
                 bot.tn.say(message, color=bot.chat_colors['success'])
                 response_messages.add_message(message, True)
                 bot.players.upsert(player_object_to_unban, save=True)
             else:
-                bot.tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_unban), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "could not find a player with steamid {}".format(steamid_to_unban), color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -736,11 +736,11 @@ def kick_player(bot, source_player, target_player, command):
             try:
                 player_object_to_kick = bot.players.get_by_steamid(steamid_to_kick)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_kick), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "could not find a player with id {}".format(steamid_to_kick), color=bot.chat_colors['warning'])
                 return
 
             if bot.tn.kick(player_object_to_kick, reason_for_kick):
-                bot.tn.send_message_to_player(source_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(source_player, "you have kicked {}".format(player_object_to_kick.name), color=bot.chat_colors['success'])
                 message = "{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, source_player.name, reason_for_kick)
                 bot.tn.say(message, color=bot.chat_colors['success'])
                 response_messages.add_message(message, True)

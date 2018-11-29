@@ -18,13 +18,13 @@ class TelnetActions:
         self.last_line = ""
         self.tn = telnet_connection.tn
 
-    def read(self):
+    def read_very_eager(self):
         try:
             connection = self.tn
             telnet_response = connection.read_very_eager()
             return telnet_response
         except Exception as e:
-            log_message = 'trying to read_eager from telnet connection failed: {}'.format(e)
+            log_message = 'trying to read_very_eager from telnet connection failed: {}'.format(e)
             raise IOError(log_message)
 
     def get_game_preferences(self):

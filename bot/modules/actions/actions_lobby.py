@@ -32,13 +32,13 @@ def password(bot, source_player, target_player, command):
                 # if the spawn is enabled, do port the player and disable it.
                 if spawn_exists and location_object.enabled and bot.tn.teleportplayer(target_player, location_object=location_object):
                     message = "You have been ported back to your original spawn!"
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
                     response_messages.add_message(message, True)
                     location_object.enabled = False
                     bot.locations.upsert(location_object, save=True)
                 else:
                     message = "Taking you to your original spawn failed oO!"
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                     response_messages.add_message(message, False)
 
             return response_messages
@@ -92,10 +92,10 @@ def set_up_lobby(bot, source_player, target_player, command):
         bot.locations.upsert(location_object, save=True)
 
         message = "You have set up a lobby"
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
         bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-        bot.tn.send_message_to_player(target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(
+        bot.message_tn.send_message_to_player(target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(
             common.find_action_help("lobby", "edit lobby outer perimeter")), color=bot.chat_colors['warning'])
 
         return response_messages
@@ -124,7 +124,7 @@ def set_up_lobby_outer_perimeter(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(
+            bot.message_tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(
                 common.find_action_help("lobby", "set_up_lobby")), color=bot.chat_colors['warning'])
             return False
 
@@ -134,18 +134,18 @@ def set_up_lobby_outer_perimeter(bot, source_player, target_player, command):
         if set_radius is True:
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             message = "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2))
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             response_messages.add_message(message, True)
         else:
             message = "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2))
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, False)
 
         if set_radius and location_object.radius <= location_object.warning_boundary:
             set_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
             if set_boundary is True:
                 message = "The inner core has been set to match the outer perimeter."
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, True)
 
         bot.locations.upsert(location_object, save=True)
@@ -177,7 +177,7 @@ def set_up_lobby_inner_perimeter(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(
+            bot.message_tn.send_message_to_player(target_player, "You need to set up a lobby first silly: {}".format(
                 common.find_action_help("lobby", "set_up_lobby")), color=bot.chat_colors['warning'])
             return False
 
@@ -187,11 +187,11 @@ def set_up_lobby_inner_perimeter(bot, source_player, target_player, command):
         if set_boundary is True:
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             message = "The lobby warning perimeter ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2))
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             response_messages.add_message(message, True)
         else:
             message = "Your given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2))
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, False)
 
         bot.locations.upsert(location_object, save=True)
@@ -220,9 +220,9 @@ def goto_lobby(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
             if bot.tn.teleportplayer(target_player, location_object=location_object):
-                bot.tn.send_message_to_player(target_player, "You have ported to the lobby", color=bot.chat_colors['standard'])
+                bot.message_tn.send_message_to_player(target_player, "You have ported to the lobby", color=bot.chat_colors['standard'])
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "There is no lobby :(", color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "There is no lobby :(", color=bot.chat_colors['warning'])
 
     except Exception as e:
         logger.debug(e)
@@ -251,12 +251,12 @@ def remove_lobby(bot, source_player, target_player, command):
             bot.locations.remove(location_object)
             message = "lobby has been removed oO"
             response_messages.add_message(message, True)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         except KeyError:
             message = "no lobby found oO"
             response_messages.add_message(message, False)
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
         return response_messages
 
@@ -283,14 +283,14 @@ def set_up_lobby_teleport(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get('system', 'lobby')
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up the lobby first!", color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "coming from the wrong end... set up the lobby first!", color=bot.chat_colors['warning'])
             return False
 
         if location_object.set_teleport_coordinates(target_player):
             bot.locations.upsert(location_object, save=True)
-            bot.tn.send_message_to_player(target_player, "the teleport for {} has been set up!".format('lobby'), color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, "the teleport for {} has been set up!".format('lobby'), color=bot.chat_colors['success'])
         else:
-            bot.tn.send_message_to_player(target_player, "your position seems to be outside of the location", color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "your position seems to be outside of the location", color=bot.chat_colors['warning'])
 
     except Exception as e:
         logger.debug(e)

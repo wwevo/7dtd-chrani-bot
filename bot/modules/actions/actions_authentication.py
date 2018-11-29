@@ -22,14 +22,14 @@ def on_enter_gameworld(bot, source_player, target_player, command):
         bot.players.upsert(target_player, save=True)
 
         if not target_player.has_permission_level("authenticated"):
-            bot.tn.send_message_to_player(target_player, "read the rules on {}".format(bot.settings.get_setting_by_name(name='rules_url')), color=bot.chat_colors['warning'])
-            bot.tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
-            bot.tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
+            bot.message_tn.send_message_to_player(target_player, "read the rules on {}".format(bot.settings.get_setting_by_name(name='rules_url')), color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "this is a development server. you can play here, but there's no support or anything really.", color=bot.chat_colors['info'])
+            bot.message_tn.send_message_to_player(target_player, "Enjoy!", color=bot.chat_colors['info'])
             bot.players.upsert(target_player)
-            response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
+            # response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
 
         if command == "entered the world":
-            bot.tn.send_message_to_player(target_player, "List your available chat-actions with [{}]{}[-]".format(bot.chat_colors['standard'], common.find_action_help("players", "list actions")), color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "List your available chat-actions with [{}]{}[-]".format(bot.chat_colors['standard'], common.find_action_help("players", "list actions")), color=bot.chat_colors['warning'])
 
         return response_messages
 
@@ -110,12 +110,12 @@ def password(bot, source_player, target_player, command):
             pwd = p.group("password")
             if not pwd:
                 message = "No password provided"
-                bot.tn.send_message_to_player(target_player, "You have entered no password. Use {}".format(
+                bot.message_tn.send_message_to_player(target_player, "You have entered no password. Use {}".format(
                     common.find_action_help("authentication", "password")), color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             elif pwd not in bot.passwords.values() and not target_player.authenticated:
                 message = "Entered a wrong / unknown password"
-                bot.tn.send_message_to_player(target_player, "You have entered a wrong password!", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You have entered a wrong password!", color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             elif pwd not in bot.passwords.values() and target_player.authenticated:
                 target_player.set_authenticated(False)
@@ -125,7 +125,7 @@ def password(bot, source_player, target_player, command):
                 target_player.update()
                 message = "You have lost your authentication!"
                 response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 bot.tn.muteplayerchat(target_player, True)
                 bot.players.upsert(target_player, save=True)
                 bot.socketio.emit('refresh_permissions', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
@@ -147,19 +147,19 @@ def password(bot, source_player, target_player, command):
                     target_player.update()
                     message = "you are an Admin"
                     response_messages.add_message(message, True)
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
                 elif pwd == bot.passwords['mod']:
                     target_player.add_permission_level("mod")
                     target_player.update()
                     message = "you are a Moderator"
                     response_messages.add_message(message, True)
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
                 elif pwd == bot.passwords['donator']:
                     target_player.add_permission_level("donator")
                     target_player.update()
                     message = "you are a Donator. Thank you <3"
                     response_messages.add_message(message, True)
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
 
                 bot.socketio.emit('refresh_permissions', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                 bot.players.upsert(target_player, save=True)
@@ -220,7 +220,7 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
                 else:
                     message = "could not find a player to match steamid {}".format(steamid_to_modify)
                     response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
             group_exists = False
             group = str(p.group("group_name"))
@@ -229,13 +229,13 @@ def add_player_to_permission_group(bot, source_player, target_player, command):
             else:
                 message = "the group {} does not exist!".format(group)
                 response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
             if player_exists and group_exists:
                 player_object_to_modify.add_permission_level(group)
                 message = "{} has been added to the group {}".format(player_object_to_modify.name, group)
                 response_messages.add_message(message, True)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
                 bot.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
                 bot.players.upsert(player_object_to_modify, save=True)
 
@@ -296,7 +296,7 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
                 else:
                     message = "could not find a player with steamid {}".format(steamid_to_modify)
                     response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
             group_exists = False
             group = str(p.group("group_name"))
@@ -305,13 +305,13 @@ def remove_player_from_permission_group(bot, source_player, target_player, comma
             else:
                 message = "the group {} does not exist!".format(group)
                 response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
             if player_exists and group_exists:
                 player_object_to_modify.remove_permission_level(group)
                 message = "{} has been removed from the group {}".format(player_object_to_modify.name, group)
                 response_messages.add_message(message, True)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
                 bot.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
                 bot.players.upsert(player_object_to_modify, save=True)
 

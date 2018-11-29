@@ -16,7 +16,7 @@ def set_up_location(bot, source_player, target_player, command):
             location_name_is_not_reserved = False
             if name in bot.settings.get_setting_by_name(name="restricted_names"):
                 message = "{} is a reserved name!".format(name)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             else:
                 location_name_is_not_reserved = True
@@ -24,7 +24,7 @@ def set_up_location(bot, source_player, target_player, command):
             location_name_is_valid = False
             if len(name) >= 19:
                 message = "{} is too long. Keep it shorter than 19 letters ^^".format(name)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             else:
                 location_name_is_valid = True
@@ -36,7 +36,7 @@ def set_up_location(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(target_player.steamid, identifier)
                 message = "a location with the identifier {} already exists".format(identifier)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             except KeyError:
                 location_object.set_identifier(identifier)
@@ -64,8 +64,8 @@ def set_up_location(bot, source_player, target_player, command):
 
                 bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
-                bot.tn.send_message_to_player(target_player, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
-                bot.tn.send_message_to_player(target_player, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "You have created a location, it is stored as {} and spans {} meters.".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "use '{}' to access it with commands like /edit location name {} = Whatever the name shall be".format(identifier, identifier), color=bot.chat_colors['success'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             else:
                 response_messages.add_message("Location {} could not be created :(".format(identifier), False)
@@ -101,14 +101,14 @@ def set_up_location_teleport(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(target_player.steamid, identifier)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up the location first!", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "coming from the wrong end... set up the location first!", color=bot.chat_colors['warning'])
                 return False
 
             if location_object.set_teleport_coordinates(target_player):
                 bot.locations.upsert(location_object, save=True)
-                bot.tn.send_message_to_player(target_player, "the teleport for {} has been set up!".format(identifier), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "the teleport for {} has been set up!".format(identifier), color=bot.chat_colors['success'])
             else:
-                bot.tn.send_message_to_player(target_player, "your position seems to be outside the location", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "your position seems to be outside the location", color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -153,10 +153,10 @@ def set_up_location_name(bot, source_player, target_player, command):
                 bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
 
-                bot.tn.send_message_to_player(target_player, "You called your location {}".format(name), color=bot.chat_colors['standard'])
+                bot.message_tn.send_message_to_player(target_player, "You called your location {}".format(name), color=bot.chat_colors['standard'])
 
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "You can not name that which you do not have!!", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You can not name that which you do not have!!", color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -190,13 +190,13 @@ def change_location_visibility(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(source_player.steamid, identifier)
                 if location_object.set_visibility(status_to_set):
-                    bot.tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, 'public' if status_to_set else 'private'), color=bot.chat_colors['standard'])
+                    bot.message_tn.send_message_to_player(target_player, "You've made your location {} {}".format(location_object.name, 'public' if status_to_set else 'private'), color=bot.chat_colors['standard'])
                     bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                     bot.locations.upsert(location_object, save=True)
                 else:
-                    bot.tn.send_message_to_player(target_player, "A public location with the identifier {} already exists".format(location_object.identifier), color=bot.chat_colors['standard'])
+                    bot.message_tn.send_message_to_player(target_player, "A public location with the identifier {} already exists".format(location_object.identifier), color=bot.chat_colors['standard'])
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -229,22 +229,22 @@ def set_up_location_outer_perimeter(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(target_player.steamid, identifier)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "I can not find a location called {}".format(identifier), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "I can not find a location called {}".format(identifier), color=bot.chat_colors['warning'])
                 return False
 
             coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
             distance_to_location = location_object.get_distance(coords)
             set_radius, allowed_range = location_object.set_radius(distance_to_location)
             if set_radius is True:
-                bot.tn.send_message_to_player(target_player, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "the location {} ends here and spans {} meters ^^".format(identifier, int(location_object.radius * 2)), color=bot.chat_colors['success'])
             else:
-                bot.tn.send_message_to_player(target_player, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "you given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(set_radius), int(allowed_range[0]), int(allowed_range[-1])), color=bot.chat_colors['warning'])
                 return False
 
             if location_object.radius <= location_object.warning_boundary:
                 set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
                 if set_radius is True:
-                    bot.tn.send_message_to_player(target_player, "the inner core has been set to match the outer perimeter.", color=bot.chat_colors['warning'])
+                    bot.message_tn.send_message_to_player(target_player, "the inner core has been set to match the outer perimeter.", color=bot.chat_colors['warning'])
                 else:
                     return False
 
@@ -282,16 +282,16 @@ def set_up_location_inner_perimeter(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(target_player.steamid, identifier)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "I can not find a location called {}".format(identifier), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "I can not find a location called {}".format(identifier), color=bot.chat_colors['warning'])
                 return False
 
             coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
             distance_to_location = location_object.get_distance(coords)
             warning_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location)
             if warning_boundary is True:
-                bot.tn.send_message_to_player(target_player, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "the warning boundary {} ends here and spans {} meters ^^".format(identifier, int(location_object.warning_boundary * 2)), color=bot.chat_colors['success'])
             else:
-                bot.tn.send_message_to_player(target_player, "your given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(warning_boundary), int(allowed_range[0]), int(allowed_range[-1])), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "your given radius of {} seems to be invalid, allowed radius is {} to {} meters".format(int(warning_boundary), int(allowed_range[0]), int(allowed_range[-1])), color=bot.chat_colors['warning'])
                 return False
 
             bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
@@ -331,11 +331,11 @@ def list_locations(bot, source_player, target_player, command):
                     )
 
                 chat_color = bot.chat_colors['warning'] if location_object.is_public else bot.chat_colors['success']
-                bot.tn.send_message_to_player(target_player, output_line, color=chat_color)
+                bot.message_tn.send_message_to_player(target_player, output_line, color=chat_color)
 
-            bot.tn.send_message_to_player(target_player, "[{color_public}]public [-] / [{color_private}] private [-]".format(color_public=bot.chat_colors['success'], color_private=bot.chat_colors['warning']))
+            bot.message_tn.send_message_to_player(target_player, "[{color_public}]public [-] / [{color_private}] private [-]".format(color_public=bot.chat_colors['success'], color_private=bot.chat_colors['warning']))
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "{} can not list that which you do not have!".format(target_player.name), color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "{} can not list that which you do not have!".format(target_player.name), color=bot.chat_colors['warning'])
 
         return response_messages
 
@@ -367,14 +367,14 @@ def goto_location(bot, source_player, target_player, command):
                 locations_dict = bot.locations.get_available_locations(target_player)
                 try:
                     if locations_dict[location_identifier].enabled is True and bot.tn.teleportplayer(target_player, location_object=locations_dict[location_identifier]):
-                        bot.tn.send_message_to_player(target_player, "You have ported to the location {}".format(location_identifier), color=bot.chat_colors['success'])
+                        bot.message_tn.send_message_to_player(target_player, "You have ported to the location {}".format(location_identifier), color=bot.chat_colors['success'])
                     else:
-                        bot.tn.send_message_to_player(target_player, "Teleporting to location {} failed :(".format(location_identifier), color=bot.chat_colors['error'])
+                        bot.message_tn.send_message_to_player(target_player, "Teleporting to location {} failed :(".format(location_identifier), color=bot.chat_colors['error'])
                 except IndexError:
                     raise KeyError
 
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "You do not have access to that location with this command.".format(location_identifier), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You do not have access to that location with this command.".format(location_identifier), color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -408,7 +408,7 @@ def remove_location(bot, source_player, target_player, command):
             if identifier in ["teleport", "lobby", "spawn", "home", "death"]:
                 message = "{} is a reserved name. Aborted!.".format(identifier)
                 response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             else:
                 location_name_is_not_reserved = True
 
@@ -419,7 +419,7 @@ def remove_location(bot, source_player, target_player, command):
             except KeyError:
                 message = "I have never heard of a location called {}".format(identifier)
                 response_messages.add_message(message, False)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
 
             if location_name_is_not_reserved and location_name_in_use:
                 bot.locations.remove(target_player.steamid, identifier)
@@ -427,10 +427,10 @@ def remove_location(bot, source_player, target_player, command):
                 message = "{} deleted location {}".format(target_player.name, identifier)
                 response_messages.add_message(message, False)
                 bot.socketio.emit('remove_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
             else:
                 message = "Location {} could not be removed :(".format(identifier)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
 
             return response_messages
@@ -464,15 +464,15 @@ def protect_inner_core(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(target_player.steamid, identifier)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up the location first!", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "coming from the wrong end... set up the location first!", color=bot.chat_colors['warning'])
                 return False
 
             if location_object.set_protected_core(True):
                 bot.locations.upsert(location_object, save=True)
-                bot.tn.send_message_to_player(target_player, "The location {} is now protected!".format(location_object.identifier), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "The location {} is now protected!".format(location_object.identifier), color=bot.chat_colors['success'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             else:
-                bot.tn.send_message_to_player(target_player, "could not enable protection for location {} :(".format(location_object.identifier), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "could not enable protection for location {} :(".format(location_object.identifier), color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -505,15 +505,15 @@ def unprotect_inner_core(bot, source_player, target_player, command):
             try:
                 location_object = bot.locations.get(target_player.steamid, identifier)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "coming from the wrong end... set up the location first!", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "coming from the wrong end... set up the location first!", color=bot.chat_colors['warning'])
                 return False
 
             if location_object.set_protected_core(False):
                 bot.locations.upsert(location_object, save=True)
-                bot.tn.send_message_to_player(target_player, "The location {} is now unprotected!".format(location_object.identifier), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "The location {} is now unprotected!".format(location_object.identifier), color=bot.chat_colors['success'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             else:
-                bot.tn.send_message_to_player(target_player, "could not disable protection for location {} :(".format(location_object.identifier), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "could not disable protection for location {} :(".format(location_object.identifier), color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -556,11 +556,11 @@ def change_perimeter_warning(bot, source_player, target_player, command):
                     location_object.show_messages = False
                     location_object.show_warning_messages = False
 
-                bot.tn.send_message_to_player(target_player, "Your location {} will {}".format(location_object.name, status_to_set), color=bot.chat_colors['standard'])
+                bot.message_tn.send_message_to_player(target_player, "Your location {} will {}".format(location_object.name, status_to_set), color=bot.chat_colors['standard'])
                 bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                 bot.locations.upsert(location_object, save=True)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -602,11 +602,11 @@ def change_location_shape(bot, source_player, target_player, command):
                 else:
                     location_object.set_shape("square")
 
-                bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, shape_to_set), color=bot.chat_colors['standard'])
+                bot.message_tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, shape_to_set), color=bot.chat_colors['standard'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
                 bot.locations.upsert(location_object, save=True)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
 
             return response_messages
         else:
@@ -646,11 +646,11 @@ def change_location_type(bot, source_player, target_player, command):
                 else:
                     location_object.set_type("standard")
 
-                bot.tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, type_to_set), color=bot.chat_colors['standard'])
+                bot.message_tn.send_message_to_player(target_player, "Your location {} is now {}".format(location_object.name, type_to_set), color=bot.chat_colors['standard'])
                 bot.socketio.emit('update_leaflet_markers', bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
                 bot.locations.upsert(location_object, save=True)
             except KeyError:
-                bot.tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "You do not own that location :(", color=bot.chat_colors['warning'])
 
             return response_messages
         else:

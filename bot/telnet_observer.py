@@ -23,7 +23,7 @@ class TelnetObserver(Thread):
         self.tn = telnet_actions
         self.bot = chrani_bot
 
-        self.run_observer_interval = 0.8
+        self.run_observer_interval = 0.5
 
         self.recent_telnet_response = None
         self.recent_telnet_response_has_valid_start = False
@@ -84,7 +84,8 @@ class TelnetObserver(Thread):
             profile_start = time()
 
             try:
-                telnet_response = self.tn.read()
+                telnet_response = self.tn.read_very_eager()
+                # print(telnet_response)
             except:
                 self.stopped.set()
                 continue

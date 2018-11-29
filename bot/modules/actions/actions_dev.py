@@ -24,7 +24,7 @@ def fix_players_legs(bot, source_player, target_player, command):
         bot.tn.debuffplayer(target_player, "brokenLeg")
         bot.tn.debuffplayer(target_player, "sprainedLeg")
         message = "your legs have been taken care of ^^"
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -66,7 +66,7 @@ def stop_the_bleeding(bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         bot.tn.debuffplayer(target_player, "bleeding")
         message = "your wounds have been bandaided ^^"
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -108,7 +108,7 @@ def apply_first_aid(bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         bot.tn.buffplayer(target_player, "firstAidLarge")
         message = "feel the power flowing through you!! ^^"
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -184,7 +184,7 @@ def supply_crate_spawned(bot, source_player, target_player, command):
             online_players = bot.players.get_all_players(get_online_only=True)
             for player in online_players:
                 if any(x in ["donator", "mod", "admin"] for x in player.permission_levels):
-                    bot.tn.send_message_to_player(player, message, color=bot.chat_colors['success'])
+                    bot.message_tn.send_message_to_player(player, message, color=bot.chat_colors['success'])
 
             return response_messages
 

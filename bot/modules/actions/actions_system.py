@@ -21,12 +21,12 @@ def reload_from_db(bot, source_player, target_player, command):
         try:
             bot.load_from_db()
             message = "loaded all data from storage."
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
             response_messages.add_message(message, True)
             bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         except Exception as e:
             message = "loading data from storage failed."
-            bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
             response_messages.add_message(message, False)
             logger.debug(e)
             pass

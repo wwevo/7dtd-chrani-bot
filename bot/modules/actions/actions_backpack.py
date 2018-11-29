@@ -34,7 +34,7 @@ def on_player_death(bot, source_player, target_player, command):
         target_player.initialized = False
         bot.players.upsert(target_player, save=True)
         message = "{}s place of death has been recorded ^^".format(target_player.name)
-        bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
+        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['standard'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -101,7 +101,7 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
         try:
             location_object = bot.locations.get(target_player.steamid, "death")
             if location_object.player_is_inside_boundary(target_player):
-                bot.tn.send_message_to_player(target_player, "eh, you already ARE near your pack oO".format(target_player.name), color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, "eh, you already ARE near your pack oO".format(target_player.name), color=bot.chat_colors['warning'])
             else:
                 coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
                 bot.tn.teleportplayer(target_player, coord_tuple=coord_tuple)
@@ -113,7 +113,7 @@ def take_me_to_my_backpack(bot, source_player, target_player, command):
             response_messages.add_message(message, True)
 
         except KeyError:
-            bot.tn.send_message_to_player(target_player, "I don't have your last death on record, sorry :(".format(target_player.name), color=bot.chat_colors['warning'])
+            bot.message_tn.send_message_to_player(target_player, "I don't have your last death on record, sorry :(".format(target_player.name), color=bot.chat_colors['warning'])
 
         return response_messages
 

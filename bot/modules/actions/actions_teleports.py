@@ -16,7 +16,7 @@ def set_up_teleport_point(bot, source_player, target_player, command):
             location_name_is_not_reserved = False
             if name in bot.settings.get_setting_by_name(name="restricted_names"):
                 message = "{} is a reserved name!".format(name)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             else:
                 location_name_is_not_reserved = True
@@ -24,7 +24,7 @@ def set_up_teleport_point(bot, source_player, target_player, command):
             location_name_is_valid = False
             if len(name) >= 19:
                 message = "{} is too long. Keep it shorter than 19 letters ^^".format(name)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             else:
                 location_name_is_valid = True
@@ -37,7 +37,7 @@ def set_up_teleport_point(bot, source_player, target_player, command):
             try:
                 location_object = location_object = bot.locations.get('system', identifier)
                 message = "a location with the identifier {} already exists, moving it!".format(identifier)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
             except KeyError:
                 location_name_not_in_use = True
@@ -65,8 +65,8 @@ def set_up_teleport_point(bot, source_player, target_player, command):
 
                 # bot.socketio.emit('refresh_teleports', '', namespace='/chrani-bot/public')
 
-                bot.tn.send_message_to_player(target_player, "You have created a teleport point, it is stored as {}.".format(identifier, color=bot.chat_colors['success']))
-                bot.tn.send_message_to_player(target_player, "use '{}' to access it with commands like /connect teleport {} with {}2".format(identifier, identifier, identifier), color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, "You have created a teleport point, it is stored as {}.".format(identifier, color=bot.chat_colors['success']))
+                bot.message_tn.send_message_to_player(target_player, "use '{}' to access it with commands like /connect teleport {} with {}2".format(identifier, identifier, identifier), color=bot.chat_colors['success'])
             else:
                 response_messages.add_message("Location {} could not be created :(".format(identifier), False)
 
@@ -106,7 +106,7 @@ def connect_teleport(bot, source_player, target_player, command):
                 source_location_exists = True
             except KeyError:
                 message = "The source location does not exist :("
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
 
             target_location_identifier = p.group("target_location_identifier")
@@ -117,12 +117,12 @@ def connect_teleport(bot, source_player, target_player, command):
                 target_location_exists = True
             except KeyError:
                 message = "your target location does not exist :("
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
 
             if source_location_exists and target_location_exists:
                 message = "You have connected teleport point {} with {}".format(source_location_object.identifier, target_location_object.identifier)
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
                 response_messages.add_message(message, True)
 
                 source_location_object.teleport_target = target_location_object.identifier
@@ -162,7 +162,7 @@ def activate_teleport(bot, source_player, target_player, command):
                 source_location_exists = True
             except KeyError:
                 message = "that location does not exist :("
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
 
             if source_location_exists:
@@ -173,13 +173,13 @@ def activate_teleport(bot, source_player, target_player, command):
                     target_location_exists = True
                 except KeyError:
                     message = "your target location does not exist :("
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                     response_messages.add_message(message, False)
 
                 if target_location_exists:
                     source_location_object.teleport_active = True
                     message = "Your teleport has been activated"
-                    bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                    bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                     response_messages.add_message(message, True)
                     bot.locations.upsert(source_location_object, save=True)
 
@@ -217,13 +217,13 @@ def deactivate_teleport(bot, source_player, target_player, command):
                 source_location_exists = True
             except KeyError:
                 message = "that location does not exist :("
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, False)
 
             if source_location_exists:
                 source_location_object.teleport_active = False
                 message = "Your teleport has been deactivated"
-                bot.tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+                bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
                 response_messages.add_message(message, True)
                 bot.locations.upsert(source_location_object, save=True)
 
