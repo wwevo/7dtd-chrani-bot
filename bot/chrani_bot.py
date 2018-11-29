@@ -437,12 +437,18 @@ class ChraniBot(Thread):
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
                 telnet_lines = []
-                try:
-                    telnet_lines.append(self.telnet_observer.valid_telnet_lines.popleft())
-                except IndexError:
-                    pass
+                telnet_queue_length = 10
+                current_queue_length = 0
+                done = False
+                while (current_queue_length < telnet_queue_length) and not done:
+                    try:
+                        telnet_lines.append(self.telnet_observer.valid_telnet_lines.popleft())
+                        current_queue_length += 1
+                    except IndexError:
+                        done = True
+                        pass
 
-                if len(telnet_lines) >= 1 and self.has_connection:
+                if current_queue_length >= 1 and self.has_connection:
                     for telnet_line in telnet_lines:
                         m = re.search(self.match_types_system["telnet_commands"], telnet_line)
                         if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:
@@ -520,18 +526,15 @@ class ChraniBot(Thread):
                     telnet_observer_thread.isDaemon()
                     self.telnet_observer = telnet_observer_thread
                     self.telnet_observer.start()
-                    time.sleep(1)
+                    time.sleep(0.5)
 
                     tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.tn = TelnetActions(self, tn)
-                    time.sleep(1)
+                    time.sleep(0.5)
 
-                    #tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
+                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.poll_tn = TelnetActions(self, tn)
-                    time.sleep(1)
-
-                    #tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
-                    self.message_tn = TelnetActions(self, tn)
+                    self.message_tn = self.poll_tn
 
                     self.reboot_imminent = False
                     self.is_paused = False
