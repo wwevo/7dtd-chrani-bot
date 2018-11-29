@@ -80,7 +80,7 @@ def shutdown_bot(bot, source_player, target_player, command):
                 logger.debug(e)
                 pass
 
-            return ResponseMessage()
+            return response_messages
         else:
             raise ValueError("action does not fully match the trigger-string")
 
@@ -211,7 +211,7 @@ def shutdown_server(bot, source_player, target_player, command):
             except Exception as e:
                 logger.debug(e)
 
-            return ResponseMessage()
+            return response_messages
         else:
             raise ValueError("action does not fully match the trigger-string")
 
