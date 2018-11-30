@@ -1,4 +1,3 @@
-from flask import request
 import common
 import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO

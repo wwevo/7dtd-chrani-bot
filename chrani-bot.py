@@ -26,14 +26,14 @@ static_dir = os.path.join(template_dir, 'static')
 
 from bot.chrani_bot import ChraniBot
 import bot.modules.actions
-from bot.modules.webinterface.settings import get_settings_general_widget
-from bot.modules.webinterface.settings import get_settings_scheduler_widget
-from bot.modules.webinterface.settings import get_settings_player_observer_widget
-from bot.modules.webinterface.players import get_player_table_widget
-from bot.modules.webinterface.system import get_system_status
-from bot.modules.webinterface.whitelist import get_whitelist_widget
-from bot.modules.webinterface.players import get_banned_players_widget
-from bot.modules.webinterface.locations import get_player_location_radar_widget
+from bot.webinterface.settings import get_settings_general_widget
+from bot.webinterface.settings import get_settings_scheduler_widget
+from bot.webinterface.settings import get_settings_player_observer_widget
+from bot.webinterface.players import get_player_table_widget
+from bot.webinterface.system import get_system_status
+from bot.webinterface.whitelist import get_whitelist_widget
+from bot.webinterface.players import get_banned_players_widget
+from bot.webinterface.locations import get_player_location_radar_widget
 from bot.objects.player import Player
 
 if __name__ == '__main__':
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.114"
+    chrani_bot_thread.bot_version = "0.7.124"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -220,7 +220,7 @@ if __name__ == '__main__':
 
 
     """ collecting all defined webinterface-actions and creating routes for them """
-    for actions_list_entry in bot.modules.webinterface.actions_list:
+    for actions_list_entry in bot.webinterface.actions_list:
         if actions_list_entry['authenticated'] is True:
             action = actions_list_entry['action']
             wrapped_action = flask_login.login_required(action)
