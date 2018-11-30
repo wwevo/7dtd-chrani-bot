@@ -4,7 +4,7 @@ from bot.assorted_functions import ResponseMessage
 from bot.modules.logger import logger
 import common
 
-location_identifier_regex = r"[\w\s(\'\"\(\)\!\?)]{1,19}"
+location_identifier_regex = r"[\w\s(\-\_\'\"\(\)\!\?)]{1,19}"
 
 
 def set_up_location(bot, source_player, target_player, command):

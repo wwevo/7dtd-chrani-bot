@@ -10,8 +10,8 @@ from threading import Event
 from bot.assorted_functions import multiple, timeout_occurred
 from bot.modules.settings import Settings
 
-from bot.player_observer import PlayerObserver
-from bot.telnet_observer import TelnetObserver
+from bot.modules.player_observer import PlayerObserver
+from bot.modules.telnet_observer import TelnetObserver
 from bot.modules.logger import logger
 
 import bot.modules.actions as actions
@@ -434,21 +434,12 @@ class ChraniBot(Thread):
                             except AttributeError:
                                 pass
 
-                """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one line at a time.
-                I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
-                telnet_lines = []
-                telnet_queue_length = 10
-                current_queue_length = 0
-                done = False
-                while (current_queue_length < telnet_queue_length) and not done:
-                    try:
-                        telnet_lines.append(self.telnet_observer.valid_telnet_lines.popleft())
-                        current_queue_length += 1
-                    except IndexError:
-                        done = True
-                        pass
+                """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one
+                (or more) lines at a time.
+                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
+                telnet_lines = self.telnet_observer.get_a_bunch_of_lines(10)
 
-                if current_queue_length >= 1 and self.has_connection:
+                if telnet_lines and self.has_connection:
                     for telnet_line in telnet_lines:
                         m = re.search(self.match_types_system["telnet_commands"], telnet_line)
                         if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:

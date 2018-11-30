@@ -70,6 +70,22 @@ class TelnetObserver(Thread):
         telnet_lines_list = [telnet_line for telnet_line in telnet_response.splitlines(True)]
         return telnet_lines_list
 
+    def get_a_bunch_of_lines(self, this_many_lines):
+        telnet_lines = []
+        current_queue_length = 0
+        done = False
+        while (current_queue_length < this_many_lines) and not done:
+            try:
+                telnet_lines.append(self.valid_telnet_lines.popleft())
+                current_queue_length += 1
+            except IndexError:
+                done = True
+
+        if len(telnet_lines) >= 1:
+            return telnet_lines
+        else:
+            return False
+
     def run(self):
         logger.info("telnet observer thread started")
         next_cycle = 0

@@ -16,12 +16,12 @@ class PlayerObserver(Thread):
     run_observers_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
 
-    def __init__(self, event, bot, player_steamid):
+    def __init__(self, event, chrani_bot, player_steamid):
         self.player_steamid = str(player_steamid)
 
         logger.info("thread started for player " + self.player_steamid)
 
-        self.bot = bot
+        self.bot = chrani_bot
         self.run_observers_interval = 1
         self.last_execution_time = 0.0
 
