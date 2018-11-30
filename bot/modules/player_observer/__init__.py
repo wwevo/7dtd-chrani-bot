@@ -2,6 +2,7 @@ import re
 from time import time, sleep
 import math
 from threading import *
+from collections import deque
 
 import bot.modules.actions
 from bot.modules.logger import logger
@@ -15,6 +16,7 @@ class PlayerObserver(Thread):
 
     run_observers_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
+    action_queue = deque
 
     def __init__(self, event, chrani_bot, player_steamid):
         self.player_steamid = str(player_steamid)
@@ -24,6 +26,8 @@ class PlayerObserver(Thread):
         self.bot = chrani_bot
         self.run_observers_interval = 1
         self.last_execution_time = 0.0
+
+        self.action_queue = deque()
 
         self.stopped = event
         Thread.__init__(self)
@@ -101,6 +105,14 @@ class PlayerObserver(Thread):
                 json = self.bot.players.get_leaflet_marker_json([self.player_object])
                 self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
+            done = False
+            while not done:
+                try:
+                    action = self.action_queue.popleft()
+                    bot.modules.actions.common.trigger_action(self.bot, self.player_object, action["target_player"], action["command"])
+                except IndexError:
+                    done = True
+
             if self.bot.observers_dict:
                 """ execute real-time observers
                 these are run regardless of telnet activity!
@@ -137,7 +149,7 @@ class PlayerObserver(Thread):
         logger.debug("thread has stopped")
 
     def trigger_action(self, target_player, command):
-        bot.modules.actions.common.trigger_action(self.bot, self.player_object, target_player, command)
+        self.action_queue.append({"target_player": target_player, "command": command})
 
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):
