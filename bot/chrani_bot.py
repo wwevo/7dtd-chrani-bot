@@ -525,6 +525,7 @@ class ChraniBot(Thread):
 
                     tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
                     self.poll_tn = TelnetActions(self, tn)
+
                     self.message_tn = self.poll_tn
 
                     self.reboot_imminent = False

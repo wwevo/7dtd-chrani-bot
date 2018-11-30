@@ -79,12 +79,8 @@ $(document).ready(
          * This will directly affect output
          */
         $('#messages_modal').hide();
-
-        if (Cookies.get("page") == "players")  {
-            $("main .widget").removeClass("wide");
-            $("main #player_table_widget").addClass("dominant").removeClass("prominent");
-            $("main #status_log_widget").addClass("wide");
-        } else if (Cookies.get("page") == "map")  {
+        $("main .widget").removeClass("dominant").removeClass("prominent").removeClass("shamed").removeClass("full");
+        if (Cookies.get("page") == "map")  {
             init_radar();
             $("main .widget").removeClass("wide");
             $("main #player_table_widget").addClass("prominent").removeClass("dominant");
@@ -98,7 +94,11 @@ $(document).ready(
             $("main #settings_player_observer_widget").addClass("wide");
             $("main #command_log_widget").addClass("wide");
         } else {
-            $("main .widget").removeClass("dominant").removeClass("prominent").removeClass("shamed").removeClass("full");
+            $("main .widget").removeClass("wide").addClass("shamed");
+            $("main #player_table_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
+            $("main #status_log_widget").addClass("wide").removeClass("shamed");
+            $("main #whitelist_widget").removeClass("shamed");
+            $("main #banned_players_widget").removeClass("shamed");
         }
     }
 );
