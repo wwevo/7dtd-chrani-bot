@@ -51,8 +51,8 @@ $(document).ready(function(){
         update_player_table_row(msg)
     });
 
-    window.socket.on('refresh_player_table', function(msg) {
-        refresh_player_table(msg)
+    window.socket.on('refresh_player_table', function() {
+        refresh_player_table()
     });
 
     window.socket.on('command_log', function(msg) {
@@ -74,11 +74,11 @@ $(document).ready(function(){
     });
 
     window.socket.on('server_offline', function(msg) {
-        showLoadingScreen()
+        refresh_player_table()
     });
 
     window.socket.on('server_online', function(msg) {
-        showWebinterface()
+        refresh_player_table()
     });
 
     window.socket.on('refresh_scheduler_status', function(msg) {

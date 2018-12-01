@@ -1,4 +1,4 @@
-function refresh_player_table(msg) {
+function refresh_player_table() {
     $.ajax({
         url: "/protected/players/widgets/get_player_table_widget",
         type: "GET",

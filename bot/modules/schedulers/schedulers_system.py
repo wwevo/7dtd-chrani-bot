@@ -123,7 +123,7 @@ def update_system_status(bot):
 
         if timeout_occurred(update_status_interval, float(
                 common.schedulers_dict["update_system_status"]["last_executed"])):
-            bot.socketio.emit('server_online', '', namespace='/chrani-bot/public')
+            # bot.socketio.emit('server_online', '', namespace='/chrani-bot/public')
             bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             execution_time = 0.0
             count = 0
