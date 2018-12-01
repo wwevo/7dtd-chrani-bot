@@ -57,7 +57,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.125"
+    chrani_bot_thread.bot_version = "0.7.126"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -200,8 +200,9 @@ if __name__ == '__main__':
 
         response = flask.make_response(flask.render_template(
             'index.html',
-            webmap_ip = chrani_bot.settings.get_setting_by_name(name="webmap_ip"),
-            webmap_port = chrani_bot.settings.get_setting_by_name(name="webmap_port"),
+            title="{} {} - webinterface".format(chrani_bot.name,  chrani_bot.bot_version),
+            webmap_ip=chrani_bot.settings.get_setting_by_name(name="webmap_ip"),
+            webmap_port=chrani_bot.settings.get_setting_by_name(name="webmap_port"),
             system_status=get_system_status(),
             bot=chrani_bot,
             widgets=widgets_dict
