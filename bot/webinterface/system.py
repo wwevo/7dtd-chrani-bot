@@ -2,6 +2,20 @@ import common
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_banned_players_widget():
+    webinterface = __main__.chrani_bot
+
+    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/system_banned_players_widget/system_banned_players_widget.html', bot=webinterface))
+
+
+common.actions_list.append({
+    "title": "fetches banned players widget",
+    "route": "/protected/system/widgets/system_banned_players_widget",
+    "action": get_banned_players_widget,
+    "authenticated": True
+})
+
+
 def get_status_log_widget():
     bot = __main__.chrani_bot
     return bot.flask.Markup(bot.flask.render_template('static/widgets/system_log_widget/system_log_widget.html', widget_id="status_log", widget_title="status log", bot=bot))

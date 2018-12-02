@@ -4,20 +4,6 @@ import bot.modules.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
-def get_banned_players_widget():
-    webinterface = __main__.chrani_bot
-
-    return webinterface.flask.Markup(webinterface.flask.render_template('system_banned_players_widget.html', bot=webinterface))
-
-
-common.actions_list.append({
-    "title": "fetches banned players widget",
-    "route": "/protected/players/widgets/system_banned_players_widget",
-    "action": get_banned_players_widget,
-    "authenticated": True
-})
-
-
 def get_player_status(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)

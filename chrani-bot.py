@@ -34,7 +34,7 @@ from bot.webinterface.system import get_system_status
 from bot.webinterface.system import get_command_log_widget
 from bot.webinterface.system import get_status_log_widget
 from bot.webinterface.whitelist import get_whitelist_widget
-from bot.webinterface.players import get_banned_players_widget
+from bot.webinterface.system import get_banned_players_widget
 from bot.webinterface.system import get_map_widget
 from bot.objects.player import Player
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.130"
+    chrani_bot_thread.bot_version = "0.7.131"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
