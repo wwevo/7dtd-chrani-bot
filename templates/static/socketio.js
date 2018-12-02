@@ -57,12 +57,12 @@ $(document).ready(function(){
 
     window.socket.on('command_log', function(msg) {
         msg["type"] = "command";
-        update_command_log(msg)
+        update_system_log(msg)
     });
 
     window.socket.on('status_log', function(msg) {
         msg["type"] = "status";
-        update_command_log(msg)
+        update_system_log(msg)
     });
 
     window.socket.on('update_leaflet_markers', function(msg) {

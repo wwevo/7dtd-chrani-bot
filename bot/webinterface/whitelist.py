@@ -7,12 +7,12 @@ import __main__  # my ide throws a warning here, but it works oO
 def get_whitelist_widget():
     webinterface = __main__.chrani_bot
     players_not_on_whitelist_list = [x for x in webinterface.players.players_dict.values() if not webinterface.whitelist.player_is_on_whitelist(x.steamid)]
-    return webinterface.flask.Markup(webinterface.flask.render_template('system_whitelist_widget.html', bot=webinterface, players_not_on_whitelist_list=players_not_on_whitelist_list))
+    return webinterface.flask.Markup(webinterface.flask.render_template('/static/widgets/whitelist_general_widget/whitelist_general_widget.html', bot=webinterface, players_not_on_whitelist_list=players_not_on_whitelist_list))
 
 
 common.actions_list.append({
     "title": "fetches whitelist widget",
-    "route": "/protected/players/widgets/system_whitelist_widget",
+    "route": "/protected/system/widgets/whitelist_general_widget",
     "action": get_whitelist_widget,
     "authenticated": True
 })

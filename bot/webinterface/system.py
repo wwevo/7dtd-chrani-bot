@@ -2,9 +2,48 @@ import common
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_status_log_widget():
+    bot = __main__.chrani_bot
+    return bot.flask.Markup(bot.flask.render_template('static/widgets/system_log_widget/system_log_widget.html', widget_id="status_log", widget_title="status log", bot=bot))
+
+
+common.actions_list.append({
+    "title": "fetches map widget",
+    "route": "/protected/system/widgets/status_log_widget",
+    "action": get_status_log_widget,
+    "authenticated": True
+})
+
+
+def get_command_log_widget():
+    bot = __main__.chrani_bot
+    return bot.flask.Markup(bot.flask.render_template('static/widgets/system_log_widget/system_log_widget.html', widget_id="command_log", widget_title="command log", bot=bot))
+
+
+common.actions_list.append({
+    "title": "fetches map widget",
+    "route": "/protected/system/widgets/command_log_widget",
+    "action": get_command_log_widget,
+    "authenticated": True
+})
+
+
+def get_map_widget():
+    bot = __main__.chrani_bot
+    return bot.flask.Markup(bot.flask.render_template('static/widgets/system_map_widget/system_map_widget.html', bot=bot))
+
+
+common.actions_list.append({
+    "title": "fetches map widget",
+    "route": "/protected/system/widgets/map_widget",
+    "action": get_map_widget,
+    "authenticated": True
+})
+
+
 def get_system_status_widget():
     chrani_bot = __main__.chrani_bot
-    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('system_status_widget.html', bot=chrani_bot))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/system_status_widget/system_status_widget.html', bot=chrani_bot))
 
 
 common.actions_list.append({

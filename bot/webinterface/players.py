@@ -46,7 +46,7 @@ def get_player_whitelist_widget(target_player_steamid):
     except KeyError:
         return ""
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/whitelist_status.html', bot=webinterface, player_object=player_object))
+    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/whitelist_status.html', bot=webinterface, player_object=player_object))
 
 
 common.actions_list.append({
@@ -69,7 +69,7 @@ def get_player_lcb_widget(target_player_steamid):
     except:
         lcb_list = []
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/lcb.html', bot=webinterface, player_object=player_object, lcb_list=lcb_list))
+    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/lcb.html', bot=webinterface, player_object=player_object, lcb_list=lcb_list))
 
 
 common.actions_list.append({
@@ -84,7 +84,7 @@ def get_player_permissions_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)
     player_permissions_dict = player_object.get_permission_levels_dict(webinterface.permission_levels_list)
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/authentication_groups.html', player_object=player_object, player_permissions_dict=player_permissions_dict))
+    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/authentication_groups.html', player_object=player_object, player_permissions_dict=player_permissions_dict))
 
 
 common.actions_list.append({
@@ -98,7 +98,7 @@ common.actions_list.append({
 def get_player_actions_widget(target_player_steamid):
     webinterface = __main__.chrani_bot
     player_object = webinterface.players.get_by_steamid(target_player_steamid)
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/actions.html', player_object=player_object))
+    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/actions.html', player_object=player_object))
 
 
 common.actions_list.append({
@@ -116,7 +116,7 @@ def get_player_status_widget(target_player_steamid):
     except KeyError:
         return ""
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/player_table_widget/status.html', player_object=player_object))
+    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/status.html', player_object=player_object))
 
 
 common.actions_list.append({
@@ -140,7 +140,7 @@ def get_player_locations_widget(target_player_steamid):
     except KeyError:
         public_locations_dict = None
 
-    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/player_table_widget/locations.html', player_object=player_object, player_locations_dict=player_locations_dict, public_locations_dict=public_locations_dict))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/locations.html', player_object=player_object, player_locations_dict=player_locations_dict, public_locations_dict=public_locations_dict))
 
 
 common.actions_list.append({
@@ -163,7 +163,7 @@ def get_all_players_table_row(steamid):
     player_status_widget = get_player_status_widget(player_object.steamid)
 
     output = webinterface.flask.Markup(webinterface.flask.render_template(
-        'static/widgets/player_table_widget/player_table_entry.html',
+        'static/widgets/players_table_widget/player_table_entry.html',
         player_object=player_object,
         player_whitelist_widget=player_whitelist_widget,
         player_locations_widget=player_locations_widget,
@@ -189,12 +189,12 @@ def get_player_table_widget():
 
     output = ""
     player_objects_list = chrani_bot.players.get_all_players()
-    player_objects_list = [player_object for player_object in sorted(player_objects_list, key=lambda x: (x.is_online, x.authenticated, x.last_seen), reverse=True)]
+    player_objects_list = [player_object for player_object in sorted(player_objects_list, key=lambda x: x.last_seen, reverse=True)]
     for player_object in player_objects_list:
         if not player_object.is_to_be_obliterated:
             output += get_all_players_table_row(player_object.steamid)
 
-    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/player_table_widget/player_table_widget.html', player_entries=output))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/player_table_widget.html', player_entries=output))
 
 
 common.actions_list.append({

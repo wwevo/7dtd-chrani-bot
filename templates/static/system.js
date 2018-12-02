@@ -43,8 +43,8 @@ function reload_page() {
     }, 1000);
 }
 
-function update_command_log(msg) {
-    $('#command_log_widget #command_log').prepend("(" + msg['type'] + ")" + msg['steamid'] + "/" + msg['command'] + "<br/>");
+function update_system_log(msg) {
+    $('#system_log_widget #' + msg['type'] + '_log').prepend("(" + msg['type'] + ")" + msg['steamid'] + "/" + msg['command'] + "<br/>");
 }
 
 $(document).ready(
@@ -85,18 +85,18 @@ $(document).ready(
             $("main .widget").removeClass("wide");
             $("main #player_table_widget").addClass("prominent").removeClass("dominant");
             $("main #location_radar_widget").addClass("dominant");
-            $("main #status_log_widget").addClass("wide");
+            $("main #system_log_widget").addClass("wide");
             // These should come last so we have no flicker while rearranging stuff ^^
             resetSize(window.map);
         } else if (Cookies.get("page") == "settings")  {
             $("main .widget").removeClass("wide");
             $("main #settings_scheduler_widget").addClass("wide");
             $("main #settings_player_observer_widget").addClass("wide");
-            $("main #command_log_widget").addClass("wide");
+            $("main #system_log_widget").addClass("wide");
         } else {
             $("main .widget").removeClass("wide").addClass("shamed");
             $("main #player_table_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
-            $("main #status_log_widget").addClass("wide").removeClass("shamed");
+            $("main #system_log_widget").addClass("wide").removeClass("shamed");
             $("main #whitelist_widget").removeClass("shamed");
             $("main #banned_players_widget").removeClass("shamed");
         }
