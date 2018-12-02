@@ -2,14 +2,14 @@
 <div id="bot_status">
     Day {% if bot.current_gametime != None %}
          {{ bot.current_gametime["day"] }}, {{ bot.current_gametime["hour"] }}:{{ bot.current_gametime["minute"] }}
-        {% if bot.ongoing_bloodmoon() == True %}(<a href="/protected/system/skip_bloodmoon" onclick="player_action(this); return false;">skip bm</a>){% endif %}
-    {% else %}n/A{% endif %},
+        {% if bot.ongoing_bloodmoon() == True %}(<a href="/protected/system/skip_bloodmoon" onclick="player_action(this); return false;">skip bm</a>){% endif %},
+    {% else %}n/A,{% endif %}
     (bot-uptime: {% if bot.time_running != None %}
         {{ bot.time_running }}s
     {% else %}n/A{% endif %},
     server-uptime: {% if bot.server_time_running != None %}
-        {{ bot.server_time_running }}s, restart in {{ bot.restart_in }}s
-    {% else %}n/A{% endif %})<br />
+        {{ bot.server_time_running }}s, restart in {{ bot.restart_in }}s)
+    {% else %}n/A){% endif %}<br />
     {% if current_user.is_authenticated %}
         {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
             {% if bot.is_paused == True %}
