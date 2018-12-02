@@ -13,6 +13,7 @@ class Telnet:
             connection = telnetlib.Telnet(ip, port, timeout=3)
         except Exception as e:
             log_message = 'trying to establish telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         self.show_log_init = show_log_init
@@ -66,6 +67,7 @@ class Telnet:
 
         except Exception as e:
             log_message = 'trying to authenticate telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         logger.debug("telnet connection established: " + str(connection))

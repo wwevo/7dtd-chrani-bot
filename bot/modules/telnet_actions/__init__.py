@@ -25,6 +25,7 @@ class TelnetActions:
             return telnet_response
         except Exception as e:
             log_message = 'trying to read_very_eager from telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
     def get_game_preferences(self):
@@ -33,6 +34,7 @@ class TelnetActions:
             connection.write("gg" + b"\r\n")
         except Exception as e:
             log_message = 'trying to getgamepref on telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
@@ -43,6 +45,7 @@ class TelnetActions:
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                logger.error(log_message)
                 raise IOError(log_message)
 
             m = re.search(r"GamePref.ZombiesRun = (\d{1,2})\r\n", telnet_line)
@@ -59,6 +62,7 @@ class TelnetActions:
             connection.write("lp" + b"\r\n")
         except Exception as e:
             log_message = 'trying to listplayers on telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
@@ -69,6 +73,7 @@ class TelnetActions:
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                logger.error(log_message)
                 raise IOError(log_message)
 
             m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_line)
@@ -83,6 +88,7 @@ class TelnetActions:
             connection.write("gt" + b"\r\n")
         except Exception as e:
             log_message = 'trying to get the game time on telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
@@ -92,6 +98,7 @@ class TelnetActions:
                 telnet_line = connection.read_until(b"\r\n")
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                logger.error(log_message)
                 raise IOError(log_message)
 
             m = re.search(r"^Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*\r\n", telnet_line)
@@ -107,6 +114,7 @@ class TelnetActions:
             connection.write("lpf {}".format(player_object.steamid) + b" \r\n")
         except Exception as e:
             log_message = 'trying to listplayerfriends on telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
@@ -118,6 +126,7 @@ class TelnetActions:
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                logger.error(log_message)
                 raise IOError(log_message)
             m = re.search(r"FriendsOf id=" + str(player_object.steamid) + ", friends=(?P<friendslist>.*)\r\n", telnet_line)
             if m:
@@ -132,6 +141,7 @@ class TelnetActions:
             connection.write("llp" + b"\r\n")
         except Exception as e:
             log_message = 'trying to listlandprotection on telnet connection failed: {}'.format(e)
+            logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
@@ -142,6 +152,7 @@ class TelnetActions:
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                logger.error(log_message)
                 raise IOError(log_message)
 
             m = re.search(r"Total of (\d{1,3}) keystones in the game\r\n", telnet_line)
@@ -279,7 +290,7 @@ class TelnetActions:
         if player_object.is_responsive() and timeout_occurred(self.bot.listplayers_interval * 2, player_object.last_teleport):
             try:
                 connection = self.tn
-                command = "teleportplayer " + player_object.steamid + " " + str(coord_tuple[0]) + " " + str(coord_tuple[1]) + " " + str(coord_tuple[2])
+                command = "teleportplayer {player_steamid} {pos_x} {pos_y} {pos_z}".format(player_steamid=player_object.steamid, pos_x=coord_tuple[0], pos_y=coord_tuple[1], pos_z=coord_tuple[2])
                 logger.info(command)
                 connection.write(command + b"\r\n")
                 player_object.set_last_teleport()
@@ -308,7 +319,7 @@ class TelnetActions:
             return False
         try:
             connection = self.tn
-            command = "debuffplayer " + player_object.steamid + " " + str(buff) + "\r\n"
+            command = "debuffplayer {player_steamid} {buff} {lbr}".format(player_steamid=player_object.steamid, buff=buff, lbr=b"\r\n")
             logger.info(command)
             connection.write(command)
         except Exception:
