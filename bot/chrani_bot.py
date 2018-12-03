@@ -418,6 +418,7 @@ class ChraniBot(Thread):
                             scheduler_function_name = scheduler["action"]
                             scheduler_parameters = eval(scheduler["env"])  # yes. Eval. It's my own data, chill out!
                             command_queue.append({
+                                "name": name,
                                 "scheduler": scheduler_function_name,
                                 "command_parameters": scheduler_parameters,
                                 "is_active": self.schedulers_controller[name]["is_active"]

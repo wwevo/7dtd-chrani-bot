@@ -1,5 +1,6 @@
 import math
 import re
+import time
 
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
@@ -67,7 +68,9 @@ class TelnetActions:
 
         telnet_response = ""
         poll_is_finished = False
-        while poll_is_finished is not True:
+        lp_timeout_start = time.time()
+        lp_timeout = 5
+        while poll_is_finished is not True or timeout_occurred(lp_timeout, lp_timeout_start):
             try:
                 telnet_line = connection.read_until(b"\r\n")
                 telnet_response += telnet_line
@@ -80,6 +83,7 @@ class TelnetActions:
             if m:
                 poll_is_finished = True
 
+        logger.debug(telnet_response.rstrip(b"\r\n"))
         return telnet_response
 
     def gettime(self):

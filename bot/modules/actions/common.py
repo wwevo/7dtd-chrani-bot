@@ -53,6 +53,7 @@ def trigger_action(bot, source_player, target_player, command_parameters):
 
         for command in command_queue:
             try:
+                logger.debug("Player {} is about to execute {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
                 response = command["action"](bot, source_player, target_player, command["command_parameters"])
                 if response is not False:
                     if response is not None:

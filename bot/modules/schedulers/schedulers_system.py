@@ -50,6 +50,7 @@ def poll_players(bot):
             listplayers_interval = float(bot.settings.get_setting_by_name(name='list_players_interval'))
 
         if timeout_occurred(listplayers_interval, float(common.schedulers_dict["poll_players"]["last_executed"])):
+            logger.debug("{source}/{error_message}".format(source="poll_players", error_message="about to execute!"))
             bot.players.manage_online_players(bot)
             common.schedulers_dict["poll_players"]["last_executed"] = time.time()
 
