@@ -545,6 +545,8 @@ class ChraniBot(Thread):
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
 
+        logger.debug("the bots main loop has ended")
+
     def clear_env(self):
         for player_steamid in self.active_player_threads_dict:
             """ kill them ALL! """
