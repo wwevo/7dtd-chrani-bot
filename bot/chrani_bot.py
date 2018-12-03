@@ -405,7 +405,7 @@ class ChraniBot(Thread):
                 self.time_running = int(time.time() - self.time_launched)
 
                 if self.initiate_shutdown is True and self.has_connection:
-                    self.shutdown()
+                    self.is_active = False
                     continue
 
                 if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
@@ -546,6 +546,7 @@ class ChraniBot(Thread):
                     self.restart_delay = 20
 
         logger.debug("the bots main loop has ended")
+        self.shutdown()
 
     def clear_env(self):
         for player_steamid in self.active_player_threads_dict:
