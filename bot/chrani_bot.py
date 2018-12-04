@@ -7,7 +7,7 @@ import sys
 from collections import deque
 from threading import Event
 
-from bot.assorted_functions import multiple, timeout_occurred
+from bot.assorted_functions import multiple, timeout_occurred, TimeoutError
 from bot.modules.settings import Settings
 
 from bot.modules.custodian import Custodian
@@ -452,6 +452,9 @@ class ChraniBot(Thread):
                             except IOError as error:
                                 logger.debug("{} had an input/output error! ({})".format(command["scheduler"], error.message))
                                 self.has_connection = False
+                                pass
+                            except TimeoutError as error:
+                                logger.debug("{} had a timeout! ({})".format(command["scheduler"], error.message))
                                 pass
                             except Exception as error:
                                 logger.error("{} had an unknown error! ({})".format(command["scheduler"], type(error)))

@@ -1,6 +1,5 @@
 import math
 import re
-import time
 
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
@@ -78,11 +77,9 @@ class TelnetActions:
 
         telnet_response = ""
         poll_is_finished = False
-        lp_timeout_start = time.time()
-        lp_timeout = 5
-        while poll_is_finished is not True or timeout_occurred(lp_timeout, lp_timeout_start):
+        while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n")
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
@@ -110,7 +107,7 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n")
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
                 logger.error(log_message)
@@ -137,7 +134,7 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n")
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
@@ -163,7 +160,7 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n")
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)

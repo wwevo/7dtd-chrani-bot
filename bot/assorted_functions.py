@@ -2,6 +2,10 @@ import time
 import math
 
 
+class TimeoutError(Exception):
+    pass
+
+
 def multiple(m, n):
     return True if float(m) % float(n) == 0 else False
 
