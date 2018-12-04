@@ -402,6 +402,8 @@ class ChraniBot(Thread):
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
                 self.custodian.check_in('main_loop', True)
+                self.time_running = int(time.time() - self.time_launched)
+
                 if not self.has_connection:
                     raise IOError
 
@@ -413,8 +415,6 @@ class ChraniBot(Thread):
                     continue
 
                 profile_start = time.time()
-
-                self.time_running = int(time.time() - self.time_launched)
 
                 if self.initiate_shutdown is True and self.has_connection:
                     self.is_active = False
