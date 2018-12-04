@@ -6,6 +6,10 @@ $(document).ready(function(){
         refresh_system_status_widget(msg)
     });
 
+    window.socket.on('refresh_health', function() {
+        refresh_system_health_widget()
+    });
+
     window.socket.on('reinitialize', function(msg) {
         reload_page(msg)
     });

@@ -2,6 +2,23 @@ import common
 import __main__  # my ide throws a warning here, but it works oO
 
 
+def get_system_health_widget():
+    chrani_bot = __main__.chrani_bot
+
+    result = chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/system_health_widget/system_health_widget.html', health_dict=chrani_bot.custodian.health_dict, bot=chrani_bot))
+    chrani_bot.custodian.clear_env()
+
+    return result
+
+
+common.actions_list.append({
+    "title": "fetches system health widget",
+    "route": "/protected/players/widgets/system_health_widget",
+    "action": get_system_health_widget,
+    "authenticated": True
+})
+
+
 def get_banned_players_widget():
     webinterface = __main__.chrani_bot
 

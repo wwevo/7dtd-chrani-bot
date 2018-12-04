@@ -90,6 +90,8 @@ class TelnetObserver(Thread):
         logger.info("telnet observer thread started")
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
+            self.bot.custodian.check_in('telnet_observer', True)
+
             if not self.bot.has_connection:
                 raise IOError("{source}/{error_message}".format(source="telnet observer", error_message="lost telnet connection :("))
 

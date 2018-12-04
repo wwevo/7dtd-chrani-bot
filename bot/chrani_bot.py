@@ -10,6 +10,7 @@ from threading import Event
 from bot.assorted_functions import multiple, timeout_occurred
 from bot.modules.settings import Settings
 
+from bot.modules.custodian import Custodian
 from bot.modules.player_observer import PlayerObserver
 from bot.modules.telnet_observer import TelnetObserver
 from bot.modules.logger import logger
@@ -85,6 +86,7 @@ class ChraniBot(Thread):
     permission = object
     settings = object
     telnet_observer = object
+    custodian = object
 
     observers_dict = dict
     observers_controller = dict
@@ -214,16 +216,6 @@ class ChraniBot(Thread):
         self.locations.load_all()  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file
-
-    def start_player_thread(self, player_object):
-        player_observer_thread_stop_flag = Event()
-        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self, player_object.steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
-        player_observer_thread.name = player_object.steamid  # nice to have for the logs
-        player_observer_thread.isDaemon()
-        player_observer_thread.start()
-        self.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-        self.socketio.emit('update_leaflet_markers', self.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-        self.active_player_threads_dict.update({player_object.steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
 
     def poll_lcb(self):
         lcb_dict = {}
@@ -379,7 +371,26 @@ class ChraniBot(Thread):
 
         return False
 
+    def start_player_thread(self, player_object):
+        player_observer_thread_stop_flag = Event()
+        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self, player_object.steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
+        player_observer_thread.name = player_object.steamid  # nice to have for the logs
+        player_observer_thread.isDaemon()
+        player_observer_thread.start()
+        self.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+        self.socketio.emit('update_leaflet_markers', self.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
+        self.active_player_threads_dict.update({player_object.steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
+
+    def start_custodian(self):
+        custodian_thread_stop_flag = Event()
+        custodian_thread = Custodian(custodian_thread_stop_flag, self)
+        custodian_thread.name = "custodian"
+        custodian_thread.isDaemon()
+        self.custodian = custodian_thread
+        self.custodian.start()
+
     def run(self):
+        self.start_custodian()
         self.load_from_db()
 
         self.telnet_lines_list = deque()
@@ -390,7 +401,11 @@ class ChraniBot(Thread):
 
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
+                self.custodian.check_in('main_loop', True)
                 if not self.has_connection:
+                    raise IOError
+
+                if not isinstance(self.telnet_observer, TelnetObserver):
                     raise IOError
 
                 if self.is_paused is not False:
@@ -398,9 +413,6 @@ class ChraniBot(Thread):
                     continue
 
                 profile_start = time.time()
-
-                if not isinstance(self.telnet_observer, TelnetObserver):
-                    raise IOError
 
                 self.time_running = int(time.time() - self.time_launched)
 
@@ -502,7 +514,6 @@ class ChraniBot(Thread):
                 # exc_type, exc_obj, exc_tb = sys.exc_info()
                 # fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 # print(exc_type, fname, exc_tb.tb_lineno)
-                logger.debug("{}".format(error.message))
 
                 """ clean up bot to have a clean restart when a new connection can be established """
                 log_message = "no telnet-connection - trying to connect..."
