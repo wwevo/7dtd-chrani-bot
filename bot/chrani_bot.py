@@ -3,11 +3,11 @@ import re
 import time
 import math
 import os
-import sys
+
 from collections import deque
 from threading import Event
 
-from bot.assorted_functions import multiple, timeout_occurred, TimeoutError
+from bot.assorted_functions import multiple, timeout_occurred
 from bot.modules.settings import Settings
 
 from bot.modules.custodian import Custodian
@@ -18,6 +18,7 @@ from bot.modules.logger import logger
 import bot.modules.actions as actions
 import bot.modules.observers as observers
 import bot.modules.schedulers as schedulers
+from bot.modules.schedulers import run_schedulers
 
 from bot.objects.player import Player
 from bot.objects.telnet import Telnet
@@ -119,6 +120,8 @@ class ChraniBot(Thread):
         self.name = self.settings.get_setting_by_name(name='bot_name')
         logger.info("{} started".format(self.name))
 
+        self.players = Players()  # players will be loaded on a need-to-load basis
+
         self.actions = actions
         self.actions_list = actions.actions_list
 
@@ -127,8 +130,6 @@ class ChraniBot(Thread):
 
         self.schedulers_dict = schedulers.schedulers_dict
         self.schedulers_controller = schedulers.schedulers_controller
-
-        self.players = Players()  # players will be loaded on a need-to-load basis
 
         self.active_player_threads_dict = {}
         self.landclaims_dict = {}
@@ -401,6 +402,7 @@ class ChraniBot(Thread):
 
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
+                profile_start = time.time()
                 self.custodian.check_in('main_loop', True)
                 self.time_running = int(time.time() - self.time_launched)
 
@@ -414,51 +416,15 @@ class ChraniBot(Thread):
                     time.sleep(self.listplayers_interval)
                     continue
 
-                profile_start = time.time()
-
                 if self.initiate_shutdown is True and self.has_connection:
                     self.is_active = False
                     continue
 
                 if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
-                    last_schedule = time.time()
                     """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
                     """
-                    command_queue = []
-                    for name, scheduler in self.schedulers_dict.iteritems():
-                        if scheduler["type"] == 'schedule':  # we only want the monitors here, the player is active, no triggers needed
-                            scheduler_function_name = scheduler["action"]
-                            scheduler_parameters = eval(scheduler["env"])  # yes. Eval. It's my own data, chill out!
-                            command_queue.append({
-                                "name": name,
-                                "scheduler": scheduler_function_name,
-                                "command_parameters": scheduler_parameters,
-                                "is_active": self.schedulers_controller[name]["is_active"]
-                            })
-
-                    for command in command_queue:
-                        if command["is_active"]:
-                            try:
-                                result = command["scheduler"](command["command_parameters"])
-                                if not result:
-                                    continue
-                            except TypeError as error:
-                                logger.debug("{}s had a type error ({})".format(command["scheduler"], error.message))
-                                # command["scheduler"](*command["command_parameters"])
-                                pass
-                            except AttributeError as error:
-                                logger.debug("{} had an attribute error! ({})".format(command["scheduler"], error.message))
-                                pass
-                            except IOError as error:
-                                logger.debug("{} had an input/output error! ({})".format(command["scheduler"], error.message))
-                                self.has_connection = False
-                                pass
-                            except TimeoutError as error:
-                                logger.debug("{} had a timeout! ({})".format(command["scheduler"], error.message))
-                                pass
-                            except Exception as error:
-                                logger.error("{} had an unknown error! ({})".format(command["scheduler"], type(error)))
-                                pass
+                    last_schedule = profile_start
+                    run_schedulers(self)
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one
                 (or more) lines at a time.
@@ -524,10 +490,6 @@ class ChraniBot(Thread):
                 next_cycle = (0.1 - self.last_execution_time)
 
             except (IOError, NameError, AttributeError) as error:
-                # exc_type, exc_obj, exc_tb = sys.exc_info()
-                # fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                # print(exc_type, fname, exc_tb.tb_lineno)
-
                 """ clean up bot to have a clean restart when a new connection can be established """
                 log_message = "no telnet-connection - trying to connect..."
                 self.server_time_running = None

@@ -79,7 +79,7 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name='list_players_interval'))
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)

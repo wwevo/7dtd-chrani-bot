@@ -6,6 +6,7 @@ from collections import deque
 
 import bot.modules.actions
 from bot.modules.logger import logger
+from bot.assorted_functions import TimeoutError
 
 
 class PlayerObserver(Thread):
@@ -122,26 +123,31 @@ class PlayerObserver(Thread):
                 for name, observer in self.bot.observers_dict.iteritems():
                     if observer["type"] == 'monitor':  # we only want the monitors here, the player is active, no triggers needed
                         observer_function_name = observer["action"]
-                        observer_parameters = eval(observer["env"])  # yes. Eval. It's my own data, chill out!
                         command_queue.append({
-                            "action": observer_function_name,
-                            "command_parameters": observer_parameters,
+                            "observer": observer_function_name,
                             "is_active": self.bot.observers_controller[name]["is_active"]
                         })
 
                 for command in command_queue:
                     if command["is_active"]:
                         try:
-                            result = command["action"](command["command_parameters"])
-                            if not result:
-                                continue
-                        except IOError:
-                            raise
-                        except TypeError:
-                            try:
-                                command["action"](*command["command_parameters"])
-                            except:
-                                pass
+                            result = command["observer"](self.bot, self)
+                        except TypeError as error:
+                            logger.debug("{} had a type error ({})".format(command["observer"], error.message))
+                            pass
+                        except AttributeError as error:
+                            logger.debug("{} had an attribute error! ({})".format(command["observer"], error.message))
+                            pass
+                        except IOError as error:
+                            logger.debug("{} had an input/output error! ({})".format(command["observer"], error.message))
+                            self.bot.has_connection = False
+                            pass
+                        except TimeoutError as error:
+                            logger.debug("{} had a timeout! ({})".format(command["observer"], error.message))
+                            pass
+                        except Exception as error:
+                            logger.error("{} had an unknown error! ({})".format(command["observer"], type(error)))
+                            pass
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observers_interval - self.last_execution_time

@@ -8,6 +8,7 @@ import re
 from bot.objects.player import Player
 from bot.modules.actions.common import trigger_action
 
+
 class Players(object):
 
     root = str
