@@ -442,9 +442,19 @@ class ChraniBot(Thread):
                                 result = command["scheduler"](command["command_parameters"])
                                 if not result:
                                     continue
-                            except TypeError:
-                                command["scheduler"](*command["command_parameters"])
-                            except AttributeError:
+                            except TypeError as error:
+                                logger.debug("{}s had a type error ({})".format(command["scheduler"], error.message))
+                                # command["scheduler"](*command["command_parameters"])
+                                pass
+                            except AttributeError as error:
+                                logger.debug("{} had an attribute error! ({})".format(command["scheduler"], error.message))
+                                pass
+                            except IOError as error:
+                                logger.debug("{} had an input/output error! ({})".format(command["scheduler"], error.message))
+                                self.has_connection = False
+                                pass
+                            except Exception as error:
+                                logger.error("{} had an unknown error! ({})".format(command["scheduler"], type(error)))
                                 pass
 
                 """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one
