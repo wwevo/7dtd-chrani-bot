@@ -1,0 +1,17 @@
+
+<div id="bot_health">
+    {% if current_user.is_authenticated %}
+        {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
+    <table>
+    <tr>
+        <th>main-loop</th>
+        <th>telnet observer</th>
+    </tr>
+    <tr>
+        <td>{{ health_dict['main_loop'] }}</td>
+        <td>{{ health_dict['telnet_observer'] }}</td>
+    </tr>
+    </table>
+        {% endif %}
+    {% endif %}
+</div>

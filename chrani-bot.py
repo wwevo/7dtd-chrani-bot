@@ -33,6 +33,8 @@ from bot.webinterface.players import get_player_table_widget
 from bot.webinterface.system import get_system_status
 from bot.webinterface.system import get_command_log_widget
 from bot.webinterface.system import get_status_log_widget
+from bot.webinterface.system import get_system_health_widget
+
 from bot.webinterface.whitelist import get_whitelist_widget
 from bot.webinterface.system import get_banned_players_widget
 from bot.webinterface.system import get_map_widget
@@ -59,7 +61,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.136"
+    chrani_bot_thread.bot_version = "0.7.199"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -191,6 +193,7 @@ if __name__ == '__main__':
                 "settings_scheduler_widget": flask.Markup(get_settings_scheduler_widget()),
                 "settings_player_observer_widget": flask.Markup(get_settings_player_observer_widget()),
                 "system_log_widget": flask.Markup(get_command_log_widget()),
+                "system_health_widget": flask.Markup(get_system_health_widget()),
             }
         else:
             widgets_dict = {
