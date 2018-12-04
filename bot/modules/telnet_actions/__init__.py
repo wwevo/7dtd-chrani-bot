@@ -12,12 +12,17 @@ class TelnetActions:
     last_line = str
     show_log_init = bool
 
+    exclusive_actions = dict
+
     full_banner = str
 
     def __init__(self, bot, telnet_connection):
         self.bot = bot
         self.last_line = ""
         self.tn = telnet_connection.tn
+        self.exclusive_actions = {
+            "listplayers": False,
+        }
 
     def read_very_eager(self):
         try:
@@ -58,6 +63,11 @@ class TelnetActions:
         return game_preferences
 
     def listplayers(self):
+        if not self.exclusive_actions["listplayers"]:
+            self.exclusive_actions["listplayers"] = True
+        else:
+            return False
+
         try:
             connection = self.tn
             connection.write("lp" + b"\r\n")
@@ -83,7 +93,8 @@ class TelnetActions:
             if m:
                 poll_is_finished = True
 
-        logger.debug(telnet_response.rstrip(b"\r\n"))
+        # logger.debug(telnet_response.rstrip(b"\r\n"))
+        self.exclusive_actions["listplayers"] = False
         return telnet_response
 
     def gettime(self):

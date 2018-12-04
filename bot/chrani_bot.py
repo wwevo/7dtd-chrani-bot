@@ -556,7 +556,7 @@ class ChraniBot(Thread):
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
             except Exception as error:
-                logger.error("unknown error: {}".format(error.message))
+                logger.error("unknown error: {} ({})".format(error.message, type(error)))
 
         logger.debug("the bots main loop has ended")
         self.shutdown()
