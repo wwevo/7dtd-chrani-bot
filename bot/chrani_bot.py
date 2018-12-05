@@ -163,8 +163,7 @@ class ChraniBot(Thread):
 
         self.match_types = {
             # matches any command a player issues in game-chat
-            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GameMessage handled by mod 'Coppis command additions': Chat: '(?P<player_name>.*)': /(?P<command>.*)",
-            'chat_commands_a17': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Chat handled by mod 'Bad Company Manager': Chat (.*)\(from '(?P<player_steamid>.*)', entity id '(?P<player_entityid>.*)', to '(?P<chat_target>.*)'\): '(?P<player_name>.*)': \/(?P<command>.*)",
+            'chat_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (.*) handled by mod (.+?): Chat(.*): '(?P<player_name>.*)': /(?P<command>.*)$",
             # player joined / died messages etc
             'telnet_events_player': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): (?P<steamid>\d+)",
             'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
@@ -473,18 +472,12 @@ class ChraniBot(Thread):
                         """
                         for player_steamid, player_object in self.players.players_dict.iteritems():
                             if player_steamid in self.active_player_threads_dict and player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
-                                what_to_match = [
-                                    self.match_types['chat_commands'],
-                                    self.match_types['chat_commands_a17']
-                                ]
-
-                                for match in what_to_match:
-                                    m = re.search(match, telnet_line)
-                                    if m:
-                                        player_name = m.group('player_name')
-                                        if player_name == player_object.name:
-                                            active_player_thread = self.active_player_threads_dict[player_steamid]
-                                            active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+                                m = re.search(self.match_types['chat_commands'], telnet_line)
+                                if m:
+                                    player_name = m.group('player_name')
+                                    if player_name == player_object.name:
+                                        active_player_thread = self.active_player_threads_dict[player_steamid]
+                                        active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
 
                 self.last_execution_time = time.time() - profile_start
                 next_cycle = (0.1 - self.last_execution_time)

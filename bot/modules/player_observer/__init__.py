@@ -168,16 +168,14 @@ class PlayerObserver(Thread):
                     player_name = m.group('player_name')
                     player_name_found = True
                 except IndexError:
-                    pass
-
-                try:
-                    player_entity_id = m.group('entity_id')
-                    player_steamid = self.bot.players.entityid_to_steamid(player_entity_id)
-                    player_object = self.bot.players.get_by_steamid(player_steamid)
-                    player_name = player_object.name
-                    player_name_found = True
-                except IndexError:
-                    pass
+                    try:
+                        player_entity_id = m.group('entity_id')
+                        player_steamid = self.bot.players.entityid_to_steamid(player_entity_id)
+                        player_object = self.bot.players.get_by_steamid(player_steamid)
+                        player_name = player_object.name
+                        player_name_found = True
+                    except IndexError:
+                        pass
 
                 if player_name_found:
                     command = m.group('command')

@@ -107,7 +107,7 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name="list_players_interval"))
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
                 logger.error(log_message)
@@ -134,16 +134,27 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name="list_players_interval"))
                 telnet_response += telnet_line
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
                 logger.error(log_message)
                 raise IOError(log_message)
+
+            m = re.search(r"\*\*\* ERROR: unknown command \'lpf\'", telnet_line)
+            if m:
+                logger.error("command not recognized lpf")
+                poll_is_finished = True
+                continue
+
             m = re.search(r"FriendsOf id=" + str(player_object.steamid) + ", friends=(?P<friendslist>.*)\r\n", telnet_line)
             if m:
-                friendslist = m.group("friendslist").split(',')
-                poll_is_finished = True
+                try:
+                    friendslist = m.group("friendslist").split(',')
+                    poll_is_finished = True
+                    continue
+                except:
+                    logger.error("something went wrong :/")
 
         return friendslist
 
@@ -160,12 +171,16 @@ class TelnetActions:
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name("list_players_interval"))
+                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name="list_players_interval"))
                 telnet_response += telnet_line
+            except IndexError as e:
+                log_message = 'telnet response was empty or timed out: {}'.format(e)
+                logger.debug(log_message)
+                pass
             except Exception as e:
                 log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
-                logger.error(log_message)
-                raise IOError(log_message)
+                logger.debug(log_message)
+                pass
 
             m = re.search(r"Total of (\d{1,3}) keystones in the game\r\n", telnet_line)
             if m:
@@ -348,7 +363,7 @@ class TelnetActions:
             return False
         try:
             connection = self.tn
-            command = "buffplayer " + player_object.steamid + " " + str(buff) + "\r\n"
+            command = "buffplayer " + str(player_object.steamid) + " " + str(buff) + "\r\n"
             logger.info(command)
             connection.write(command)
         except Exception:
