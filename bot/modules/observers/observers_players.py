@@ -53,7 +53,7 @@ def poll_playerfriends(chrani_bot, player_observer):
         try:
             player_observer.player_object.playerfriends_list = chrani_bot.tn.listplayerfriends(player_observer.player_object)
         except IOError:
-            raise
+            return False
 
         player_observer.player_object.poll_listplayerfriends_lastpoll = time()
         player_observer.player_object.update()
@@ -68,7 +68,7 @@ common.observers_dict["poll_playerfriends"] = {
 
 
 common.observers_controller["poll_playerfriends"] = {
-    "is_active": False
+    "is_active": True
 }
 
 

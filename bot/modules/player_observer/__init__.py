@@ -131,7 +131,7 @@ class PlayerObserver(Thread):
                 for command in command_queue:
                     if command["is_active"]:
                         try:
-                            result = command["observer"](self.bot, self)
+                            command["observer"](self.bot, self)
                         except TypeError as error:
                             logger.debug("{} had a type error ({})".format(command["observer"], error.message))
                             pass
