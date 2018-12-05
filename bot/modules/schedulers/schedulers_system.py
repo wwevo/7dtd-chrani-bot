@@ -46,7 +46,6 @@ def poll_players(bot):
                 listplayers_interval = float(bot.settings.get_setting_by_name(name='list_players_interval_idle'))
             except TypeError:
                 return True
-            bot.settings.get_setting_by_name()
         else:
             listplayers_interval = float(bot.settings.get_setting_by_name(name='list_players_interval'))
 

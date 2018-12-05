@@ -1,3 +1,4 @@
+import time
 import math
 import re
 
@@ -12,11 +13,13 @@ class TelnetActions:
     show_log_init = bool
 
     exclusive_actions = dict
+    timeout = int
 
     full_banner = str
 
     def __init__(self, bot, telnet_connection):
         self.bot = bot
+        self.timeout = self.bot.settings.get_setting_by_name(name='list_players_interval')
         self.last_line = ""
         self.tn = telnet_connection.tn
         self.exclusive_actions = {
@@ -25,136 +28,157 @@ class TelnetActions:
 
     def read_very_eager(self):
         try:
-            connection = self.tn
-            telnet_response = connection.read_very_eager()
-            return telnet_response
+            return self.tn.read_very_eager()
         except Exception as e:
-            log_message = 'trying to read_very_eager from telnet connection failed: {}'.format(e)
+            log_message = 'trying to read_very_eager from telnet connection failed: {} / {}'.format(e, type(e))
             logger.error(log_message)
             raise IOError(log_message)
 
     def get_game_preferences(self):
+        command = "gg"
         try:
-            connection = self.tn
-            connection.write("gg" + b"\r\n")
+            self.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
         except Exception as e:
-            log_message = 'trying to getgamepref on telnet connection failed: {}'.format(e)
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
         poll_is_finished = False
-        while poll_is_finished is not True:
+        while not poll_is_finished:
             try:
-                telnet_line = connection.read_until(b"\r\n")
-                telnet_response += telnet_line
+                telnet_response += self.tn.read_until(b"\r\n", self.timeout)
             except Exception as e:
-                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                log_message = 'trying to read_until for {command} failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
                 logger.error(log_message)
                 raise IOError(log_message)
 
-            m = re.search(r"GamePref.ZombiesRun = (\d{1,2})\r\n", telnet_line)
+            m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), telnet_response)
+            if m:
+                logger.debug("command not recognized: {command}".format(command=command))
+                poll_is_finished = True
+                continue
+
+            m = re.search(r"GamePref.ZombiesRun = (\d{1,2})\r\n", telnet_response)
             if m:
                 poll_is_finished = True
+
+            time.sleep(0.1)
 
         game_preferences = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", telnet_response)
 
         return game_preferences
 
     def listplayers(self):
-        if not self.exclusive_actions["listplayers"]:
-            self.exclusive_actions["listplayers"] = True
+        if self.exclusive_actions["listplayers"]:
+            # we don't want several requests at the same time
+            return None
         else:
-            return False
+            self.exclusive_actions["listplayers"] = True
 
+        command = "lp"
         try:
-            connection = self.tn
-            connection.write("lp" + b"\r\n")
+            self.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
         except Exception as e:
-            log_message = 'trying to listplayers on telnet connection failed: {}'.format(e)
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
         poll_is_finished = False
-        while poll_is_finished is not True:
+        while not poll_is_finished:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name='list_players_interval'))
-                telnet_response += telnet_line
+                telnet_response += self.tn.read_until(b"\r\n", self.timeout)
             except Exception as e:
-                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                log_message = 'trying to read_until on telnet connection failed: {}/{}'.format(e, type(e))
                 logger.error(log_message)
                 raise IOError(log_message)
 
-            m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_line)
+            m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), telnet_response)
+            if m:
+                logger.debug("command not recognized: {command}".format(command=command))
+                poll_is_finished = True
+                continue
+
+            m = re.search(r"Total of (\d{1,2}) in the game\r\n", telnet_response)
             if m:
                 poll_is_finished = True
 
-        # logger.debug(telnet_response.rstrip(b"\r\n"))
+            time.sleep(0.1)
+
         self.exclusive_actions["listplayers"] = False
         return telnet_response
 
     def gettime(self):
+        command = "gt"
         try:
-            connection = self.tn
-            connection.write("gt" + b"\r\n")
+            self.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
         except Exception as e:
-            log_message = 'trying to get the game time on telnet connection failed: {}'.format(e)
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
             raise IOError(log_message)
 
         telnet_response = ""
         poll_is_finished = False
-        while poll_is_finished is not True:
+        while not poll_is_finished:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name="list_players_interval"))
+                telnet_response += self.tn.read_until(b"\r\n", self.timeout)
             except Exception as e:
-                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                log_message = 'trying to read_until on telnet connection failed: {}/{}'.format(e, type(e))
                 logger.error(log_message)
                 raise IOError(log_message)
 
-            m = re.search(r"^Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*\r\n", telnet_line)
+            m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), telnet_response)
+            if m:
+                logger.debug("command not recognized: {command}".format(command=command))
+                poll_is_finished = True
+                continue
+
+            m = re.search(r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*\r\n", telnet_response)
             if m:
                 poll_is_finished = True
-                telnet_response = telnet_line
+
+            time.sleep(0.1)
 
         return telnet_response
 
     def listplayerfriends(self, player_object):
+        command = "lpf"
         try:
-            connection = self.tn
-            connection.write("lpf {}".format(player_object.steamid) + b" \r\n")
+            self.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
         except Exception as e:
-            log_message = 'trying to listplayerfriends on telnet connection failed: {}'.format(e)
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
             raise IOError(log_message)
 
-        telnet_response = ""
         friendslist = []
+        telnet_response = ""
         poll_is_finished = False
         while poll_is_finished is not True:
             try:
-                telnet_line = connection.read_until(b"\r\n", self.bot.settings.get_setting_by_name(name="list_players_interval"))
-                telnet_response += telnet_line
+                telnet_response += self.tn.read_until(b"\r\n", self.timeout)
             except Exception as e:
-                log_message = 'trying to read_until from telnet connection failed: {}'.format(e)
+                log_message = 'trying to read_until on telnet connection failed: {error} / {error_type}'.format(error=e, error_type=type(e))
                 logger.error(log_message)
                 raise IOError(log_message)
 
-            m = re.search(r"\*\*\* ERROR: unknown command \'lpf\'", telnet_line)
+            m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), telnet_response)
             if m:
-                logger.error("command not recognized lpf")
+                logger.debug("command not recognized: {command}".format(command=command))
                 poll_is_finished = True
                 continue
 
-            m = re.search(r"FriendsOf id=" + str(player_object.steamid) + ", friends=(?P<friendslist>.*)\r\n", telnet_line)
+            m = re.search(r"FriendsOf id=" + str(player_object.steamid) + ", friends=(?P<friendslist>.*)\r\n", telnet_response)
             if m:
                 try:
                     friendslist = m.group("friendslist").split(',')
                     poll_is_finished = True
                     continue
-                except:
-                    logger.error("something went wrong :/")
+                except Exception as e:
+                    log_message = '{command}: converting the friendslist failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+                    logger.error(log_message)
+
+            time.sleep(0.1)
 
         return friendslist
 

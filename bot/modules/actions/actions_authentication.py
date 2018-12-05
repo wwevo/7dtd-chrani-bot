@@ -29,6 +29,7 @@ def on_enter_gameworld(bot, source_player, target_player, command):
             # response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
 
         if command == "entered the world":
+            bot.message_tn.send_message_to_player(target_player, "chrani-bot [{}]v{}[-]".format(bot.chat_colors['standard'], bot.bot_version), color=bot.chat_colors['warning'])
             bot.message_tn.send_message_to_player(target_player, "List your available chat-actions with [{}]{}[-]".format(bot.chat_colors['standard'], common.find_action_help("players", "list actions")), color=bot.chat_colors['warning'])
 
         return response_messages
