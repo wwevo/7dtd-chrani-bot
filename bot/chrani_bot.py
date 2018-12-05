@@ -482,7 +482,7 @@ class ChraniBot(Thread):
                 self.last_execution_time = time.time() - profile_start
                 next_cycle = (0.1 - self.last_execution_time)
 
-            except (IOError, NameError, AttributeError) as error:
+            except IOError as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
                 log_message = "no telnet-connection - trying to connect..."
                 self.server_time_running = None
@@ -523,6 +523,9 @@ class ChraniBot(Thread):
                     logger.info(log_message)
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
+
+            except (NameError, AttributeError) as error:
+                logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except Exception as error:
                 logger.error("unknown error: {} ({})".format(error.message, type(error)))
 
