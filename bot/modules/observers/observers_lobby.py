@@ -4,7 +4,7 @@ import common
 import threading
 
 
-# the only lobby specific observer. since it is a location, generic observers can be found in actions_locations
+# the only lobby specific observer. since it is a location, generic observers can be found in aobservers_locations
 def player_is_outside_lobby_boundary(chrani_bot, player_observer):
     try:
         player_object = chrani_bot.players.get_by_steamid(player_observer.player_steamid)
@@ -22,15 +22,15 @@ def player_is_outside_lobby_boundary(chrani_bot, player_observer):
     if location_object.enabled is True and not location_object.player_is_inside_boundary(player_object) and player_object.initialized:
         def teleport_worker():
             seconds = 2
-            chrani_bot.tn.send_message_to_player(player_object, "You will be ported to the lobby in {seconds} seconds!".format(seconds=seconds), color=chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "You will be ported to the lobby in {seconds} seconds!".format(seconds=seconds), chrani_bot.chat_colors['warning'])
             time.sleep(seconds)
 
-            if not location_object.player_is_inside_boundary(player_object) and chrani_bot.tn.teleportplayer(player_object, location_object=location_object):
+            if not location_object.player_is_inside_boundary(player_object) and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object, location_object=location_object):
                 player_object.set_coordinates(location_object)
                 chrani_bot.players.upsert(player_object)
                 logger.info("{} has been ported to the lobby!".format(player_object.name))
-                chrani_bot.tn.send_message_to_player(player_object, "You have been ported to the lobby! Authenticate with /password <password>", color=chrani_bot.chat_colors['warning'])
-                chrani_bot.tn.send_message_to_player(player_object, chrani_bot.settings.get_setting_by_name(name="basic_server_info", default="see https://chrani.net for more information!", color=chrani_bot.chat_colors['warning']))
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "You have been ported to the lobby! Authenticate with /password <password>", chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, chrani_bot.settings.get_setting_by_name(name="basic_server_info", default="see https://chrani.net for more information!"), chrani_bot.chat_colors['warning'])
 
             time.sleep(seconds)
             player_object.active_teleport_thread = False

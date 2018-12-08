@@ -4,9 +4,8 @@ from bot.assorted_functions import byteify
 from bot.modules.logger import logger
 import json
 import os
-import re
+
 from bot.objects.player import Player
-from bot.modules.actions.common import trigger_action
 
 
 class Players(object):
@@ -43,7 +42,7 @@ class Players(object):
                 pass
 
             try:
-                connecting_player = bot.active_player_threads_dict[player_id]
+                connecting_player = bot.player_observer.active_player_threads_dict[player_id]
             except KeyError:
                 if not player_found:
                     player_dict = {
@@ -58,9 +57,9 @@ class Players(object):
                     player_object = Player(**player_dict)
                     self.upsert(player_object)
 
-                bot.start_player_thread(player_object)
+                bot.player_observer.start_player_thread(player_object)
                 connecting_player = {
-                    "thread": bot.active_player_threads_dict[player_id]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_id]["thread"],
                     "player_object": player_object
                 }
 
@@ -75,7 +74,7 @@ class Players(object):
 
             if command != "Teleport":
                 spawning_player = {
-                    "thread": bot.active_player_threads_dict[player_id]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_id]["thread"],
                     "player_object": player_object
                 }
 
@@ -94,7 +93,7 @@ class Players(object):
             if command != "Teleport":
                 player_object = self.get_by_steamid(player_id)
                 spawning_player = {
-                    "thread": bot.active_player_threads_dict[player_id]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_id]["thread"],
                     "player_object": player_object
                 }
 
@@ -104,91 +103,6 @@ class Players(object):
 
         except KeyError:
             pass
-
-    def manage_online_players(self, chrani_bot):
-        def poll_players():
-            online_players_dict = {}
-            listplayers_result = chrani_bot.poll_tn.listplayers()
-            for m in re.finditer(chrani_bot.match_types_system["listplayers_result_regexp"], listplayers_result):
-                online_players_dict.update({m.group(16): {
-                    "entityid":         m.group(1),
-                    "name":             str(m.group(2)),
-                    "pos_x":            float(m.group(3)),
-                    "pos_y":            float(m.group(4)),
-                    "pos_z":            float(m.group(5)),
-                    "rot_x":            float(m.group(6)),
-                    "rot_y":            float(m.group(7)),
-                    "rot_z":            float(m.group(8)),
-                    "remote":           bool(m.group(9)),
-                    "health":           int(m.group(10)),
-                    "deaths":           int(m.group(11)),
-                    "zombies":          int(m.group(12)),
-                    "players":          int(m.group(13)),
-                    "score":            m.group(14),
-                    "level":            m.group(15),
-                    "steamid":          m.group(16),
-                    "ip":               str(m.group(17)),
-                    "ping":             int(m.group(18)),
-                    "is_online":        True,
-                    "is_logging_in":    False
-                }})
-            return online_players_dict
-
-        # get all currently online players and store them in a dictionary
-        listplayers_dict = poll_players()
-
-        # prune players not online anymore
-        for player in set(self.players_dict) - set(listplayers_dict.keys()):
-            self.players_dict[player].is_online = False
-
-        # create new player entries / update existing ones
-        for player_steamid, player_dict in listplayers_dict.iteritems():
-            try:
-                player_object = self.get_by_steamid(player_steamid)
-                # player is already online and needs updating
-                player_object.update(**player_dict)
-                self.upsert(player_object)
-            except KeyError:  # player is completely new
-                player_object = Player(**player_dict)
-                self.upsert(player_object, save=True)
-            # there should be a valid object state here now ^^
-
-        """ handle player-threads """
-        for player_steamid, player_object in self.players_dict.iteritems():
-            """ start player_observer_thread for each player not already being observed """
-            if player_object.steamid not in chrani_bot.active_player_threads_dict and player_object.is_online:
-                chrani_bot.start_player_thread(player_object)
-                trigger_action(chrani_bot, player_object, player_object, "found in the world")
-
-        players_to_obliterate = []
-        for player_steamid, player_object in self.players_dict.iteritems():
-            if player_steamid in chrani_bot.active_player_threads_dict and not player_object.is_online:
-                """ prune all active_player_threads from players no longer online """
-                active_player_thread = chrani_bot.active_player_threads_dict[player_steamid]
-                stop_flag = active_player_thread["thread"]
-                stop_flag.stopped.set()
-                chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-
-                del chrani_bot.active_player_threads_dict[player_steamid]
-            if player_object.is_to_be_obliterated is True:
-                player_object.is_online = False
-                players_to_obliterate.append(player_object)
-
-        for player_object in players_to_obliterate:
-            chrani_bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-            chrani_bot.socketio.emit('remove_leaflet_markers', chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-            self.remove(player_object)
-
-        player_threads_to_remove = []
-        for player_steamid, player_thread in chrani_bot.active_player_threads_dict.iteritems():
-            if player_steamid not in self.players_dict:
-                player_threads_to_remove.append(player_steamid)
-
-        for player_steamid in player_threads_to_remove:
-            del chrani_bot.active_player_threads_dict[player_steamid]
-
-        return listplayers_dict
 
     def load(self, steamid):
         try:

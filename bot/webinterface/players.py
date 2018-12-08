@@ -1,18 +1,18 @@
 from flask import request
 import common
-import bot.modules.actions
+import bot.modules.player_observer.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
 def get_player_status(target_player_steamid):
-    webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(target_player_steamid)
+    chrani_bot = __main__.chrani_bot
+    player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     player_status = {
         "is_online": player_object.is_online,
         "is_logging_in": player_object.is_logging_in
     }
-    return webinterface.app.response_class(
-        response=webinterface.flask.json.dumps(player_status),
+    return chrani_bot.app.response_class(
+        response=chrani_bot.flask.json.dumps(player_status),
         mimetype='application/json'
     )
 
@@ -26,13 +26,13 @@ common.actions_list.append({
 
 
 def get_player_whitelist_widget(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        player_object = webinterface.players.get_by_steamid(target_player_steamid)
+        player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     except KeyError:
         return ""
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/whitelist_status.html', bot=webinterface, player_object=player_object))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/whitelist_status.html', bot=chrani_bot, player_object=player_object))
 
 
 common.actions_list.append({
@@ -44,18 +44,18 @@ common.actions_list.append({
 
 
 def get_player_lcb_widget(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        player_object = webinterface.players.get_by_steamid(target_player_steamid)
+        player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     except KeyError:
         return ""
 
     try:
-        lcb_list = webinterface.landclaims_dict[target_player_steamid]
+        lcb_list = chrani_bot.landclaims_dict[target_player_steamid]
     except:
         lcb_list = []
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/lcb.html', bot=webinterface, player_object=player_object, lcb_list=lcb_list))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/lcb.html', bot=chrani_bot, player_object=player_object, lcb_list=lcb_list))
 
 
 common.actions_list.append({
@@ -67,10 +67,10 @@ common.actions_list.append({
 
 
 def get_player_permissions_widget(target_player_steamid):
-    webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(target_player_steamid)
-    player_permissions_dict = player_object.get_permission_levels_dict(webinterface.permission_levels_list)
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/authentication_groups.html', player_object=player_object, player_permissions_dict=player_permissions_dict))
+    chrani_bot = __main__.chrani_bot
+    player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
+    player_permissions_dict = player_object.get_permission_levels_dict(chrani_bot.permission_levels_list)
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/authentication_groups.html', player_object=player_object, player_permissions_dict=player_permissions_dict))
 
 
 common.actions_list.append({
@@ -82,9 +82,9 @@ common.actions_list.append({
 
 
 def get_player_actions_widget(target_player_steamid):
-    webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(target_player_steamid)
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/actions.html', player_object=player_object))
+    chrani_bot = __main__.chrani_bot
+    player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/actions.html', player_object=player_object))
 
 
 common.actions_list.append({
@@ -96,13 +96,13 @@ common.actions_list.append({
 
 
 def get_player_status_widget(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        player_object = webinterface.players.get_by_steamid(target_player_steamid)
+        player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     except KeyError:
         return ""
 
-    return webinterface.flask.Markup(webinterface.flask.render_template('static/widgets/players_table_widget/status.html', player_object=player_object))
+    return chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/players_table_widget/status.html', player_object=player_object))
 
 
 common.actions_list.append({
@@ -138,8 +138,8 @@ common.actions_list.append({
 
 
 def get_all_players_table_row(steamid):
-    webinterface = __main__.chrani_bot
-    player_object = webinterface.players.get_by_steamid(steamid)
+    chrani_bot = __main__.chrani_bot
+    player_object = chrani_bot.players.get_by_steamid(steamid)
 
     player_permissions_widget = get_player_permissions_widget(player_object.steamid)
     player_whitelist_widget = get_player_whitelist_widget(player_object.steamid)
@@ -148,7 +148,7 @@ def get_all_players_table_row(steamid):
     player_lcb_widget = get_player_lcb_widget(player_object.steamid)
     player_status_widget = get_player_status_widget(player_object.steamid)
 
-    output = webinterface.flask.Markup(webinterface.flask.render_template(
+    output = chrani_bot.flask.Markup(chrani_bot.flask.render_template(
         'static/widgets/players_table_widget/player_table_entry.html',
         player_object=player_object,
         player_whitelist_widget=player_whitelist_widget,
@@ -193,9 +193,9 @@ common.actions_list.append({
 
 @common.build_response
 def send_player_home(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        location_object = webinterface.locations.get(target_player_steamid, 'home')
+        location_object = chrani_bot.locations.get(target_player_steamid, 'home')
         pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
         coord_tuple = (pos_x, pos_y, pos_z)
     except (KeyError, AttributeError):
@@ -214,9 +214,9 @@ common.actions_list.append({
 
 @common.build_response
 def send_player_to_lobby(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     try:
-        location_object = webinterface.locations.get('system', 'lobby')
+        location_object = chrani_bot.locations.get('system', 'lobby')
         pos_x, pos_y, pos_z = location_object.get_teleport_coordinates()
         coord_tuple = (pos_x, pos_y, pos_z)
     except (KeyError, AttributeError):
@@ -235,15 +235,15 @@ common.actions_list.append({
 
 @common.build_response
 def send_player_to_coords(target_player_steamid, coords_tuple_string):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    target_player = chrani_bot.players.get_by_steamid(target_player_steamid)
 
     try:
         coord_tuple = eval(coords_tuple_string)
@@ -256,7 +256,7 @@ def send_player_to_coords(target_player_steamid, coords_tuple_string):
     if form_coord_tuple:
         coord_tuple = form_coord_tuple
 
-    val = bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
+    val = chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, target_player, "send player {} to {}".format(target_player_steamid, str(coord_tuple)))
     return val
 
 
@@ -270,17 +270,17 @@ common.actions_list.append({
 
 @common.build_response
 def obliterate_player(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    target_player = chrani_bot.players.get_by_steamid(target_player_steamid)
 
-    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "obliterate player {}".format(target_player_steamid))
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, target_player, "obliterate player {}".format(target_player_steamid))
 
 
 common.actions_list.append({
@@ -293,20 +293,20 @@ common.actions_list.append({
 
 @common.build_response
 def ban_player(target_player_steamid, reason):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    target_player = chrani_bot.players.get_by_steamid(target_player_steamid)
     form_reason = request.form.get('reason')
     if form_reason:
         reason = form_reason
 
-    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "ban player {} for {}".format(target_player_steamid, reason))
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, target_player, "ban player {} for {}".format(target_player_steamid, reason))
 
 
 common.actions_list.append({
@@ -319,21 +319,21 @@ common.actions_list.append({
 
 @common.build_response
 def kick_player(target_player_steamid, reason):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    target_player = chrani_bot.players.get_by_steamid(target_player_steamid)
 
     form_reason = request.form.get('reason')
     if form_reason:
         reason = form_reason
 
-    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, target_player, "kick player {} for {}".format(target_player_steamid, reason))
 
 
 common.actions_list.append({
@@ -346,17 +346,17 @@ common.actions_list.append({
 
 @common.build_response
 def unban_player(target_player_steamid):
-    webinterface = __main__.chrani_bot
+    chrani_bot = __main__.chrani_bot
     target_player_steamid = str(target_player_steamid)
     try:
-        source_player_steamid = webinterface.flask_login.current_user.steamid
+        source_player_steamid = chrani_bot.flask_login.current_user.steamid
     except AttributeError:
-        return webinterface.flask.redirect("/")
+        return chrani_bot.flask.redirect("/")
 
-    player_object = webinterface.players.get_by_steamid(source_player_steamid)
-    target_player = webinterface.players.get_by_steamid(target_player_steamid)
+    player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
+    target_player = chrani_bot.players.get_by_steamid(target_player_steamid)
 
-    return bot.modules.actions.common.trigger_action(webinterface, player_object, target_player, "unban player {}".format(target_player_steamid))
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, target_player, "unban player {}".format(target_player_steamid))
 
 
 common.actions_list.append({

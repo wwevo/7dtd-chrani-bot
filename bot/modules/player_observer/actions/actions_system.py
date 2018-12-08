@@ -4,7 +4,7 @@ import common
 from bot.assorted_functions import ResponseMessage
 
 
-def reload_from_db(bot, source_player, target_player, command):
+def reload_from_db(chrani_bot, source_player, target_player, command):
     """Reloads config and location files from storage
 
     Keyword arguments:
@@ -19,14 +19,14 @@ def reload_from_db(bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         try:
-            bot.load_from_db()
+            chrani_bot.load_from_db()
             message = "loaded all data from storage."
-            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
             response_messages.add_message(message, True)
-            bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
+            chrani_bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         except Exception as e:
             message = "loading data from storage failed."
-            bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
             response_messages.add_message(message, False)
             logger.debug(e)
             pass
@@ -51,7 +51,7 @@ common.actions_list.append({
 })
 
 
-def shutdown_bot(bot, source_player, target_player, command):
+def shutdown_bot(chrani_bot, source_player, target_player, command):
     """Shuts down the bot
 
     Keyword arguments:
@@ -74,8 +74,8 @@ def shutdown_bot(bot, source_player, target_player, command):
             try:
                 message = "The bot is about to shut down..."
                 response_messages.add_message(message, True)
-                bot.tn.say(message, color=bot.chat_colors['standard'])
-                bot.initiate_shutdown = True
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
+                chrani_bot.initiate_shutdown = True
             except Exception as e:
                 logger.debug(e)
                 pass
@@ -102,7 +102,7 @@ common.actions_list.append({
 })
 
 
-def pause_bot(bot, source_player, target_player, command):
+def pause_bot(chrani_bot, source_player, target_player, command):
     """Pauses the bot
 
     Keyword arguments:
@@ -118,15 +118,15 @@ def pause_bot(bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         try:
-            bot.is_paused = True
-            bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+            chrani_bot.is_paused = True
+            chrani_bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             message = "The bot operations have been suspended"
             response_messages.add_message(message, True)
-            bot.tn.say(message, color=bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
         except Exception as e:
             message = "Pausing of the bot failed."
             response_messages.add_message(message, False)
-            bot.tn.say(message, color=bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
             logger.debug(e)
             pass
 
@@ -150,7 +150,7 @@ common.actions_list.append({
 })
 
 
-def resume_bot(bot, source_player, target_player, command):
+def resume_bot(chrani_bot, source_player, target_player, command):
     """Resumes paused bot
 
     Keyword arguments:
@@ -166,15 +166,15 @@ def resume_bot(bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         try:
-            bot.is_paused = False
-            bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
+            chrani_bot.is_paused = False
+            chrani_bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             message = "The bots operations have been resumed"
             response_messages.add_message(message, True)
-            bot.tn.say(message, color=bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
         except Exception as e:
             message = "Resuming of the bot failed."
             response_messages.add_message(message, False)
-            bot.tn.say(message, color=bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
             logger.debug(e)
             pass
 
@@ -198,7 +198,7 @@ common.actions_list.append({
 })
 
 
-def shutdown_server(bot, source_player, target_player, command):
+def shutdown_server(chrani_bot, source_player, target_player, command):
     try:
         p = re.search(r"shut\sdown\sthe\sworld$", command)
         if p:
@@ -206,8 +206,8 @@ def shutdown_server(bot, source_player, target_player, command):
             try:
                 message = "The server is about to shut down..."
                 response_messages.add_message(message, True)
-                bot.tn.say(message, color=bot.chat_colors['standard'])
-                bot.tn.shutdown()
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
+                chrani_bot.tn.shutdown()
             except Exception as e:
                 logger.debug(e)
 
@@ -233,14 +233,14 @@ common.actions_list.append({
 })
 
 
-def disable_scheduler(bot, source_player, target_player, command):
+def disable_scheduler(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         p = re.search(r"disable\sscheduler\s(?P<scheduler>(\S+))$", command)
         if p:
             scheduler_name = p.group("scheduler")
-            bot.socketio.emit('refresh_scheduler_status', {"scheduler_name": scheduler_name}, namespace='/chrani-bot/public')
-            bot.schedulers_controller[scheduler_name]["is_active"] = False
+            chrani_bot.socketio.emit('refresh_scheduler_status', {"scheduler_name": scheduler_name}, namespace='/chrani-bot/public')
+            chrani_bot.schedulers_controller[scheduler_name]["is_active"] = False
             response_messages.add_message("scheduler {} disabled".format(scheduler_name), True)
         else:
             response_messages.add_message("disabling scheduler failed", False)
@@ -264,14 +264,14 @@ common.actions_list.append({
 })
 
 
-def enable_scheduler(bot, source_player, target_player, command):
+def enable_scheduler(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         p = re.search(r"enable\sscheduler\s(?P<scheduler>(\S+))$", command)
         if p:
             scheduler_name = p.group("scheduler")
-            bot.socketio.emit('refresh_scheduler_status', {"scheduler_name": scheduler_name}, namespace='/chrani-bot/public')
-            bot.schedulers_controller[scheduler_name]["is_active"] = True
+            chrani_bot.socketio.emit('refresh_scheduler_status', {"scheduler_name": scheduler_name}, namespace='/chrani-bot/public')
+            chrani_bot.schedulers_controller[scheduler_name]["is_active"] = True
             response_messages.add_message("scheduler {} enabled".format(scheduler_name), True)
         else:
             response_messages.add_message("enabling scheduler failed", False)
@@ -296,14 +296,14 @@ common.actions_list.append({
 })
 
 
-def disable_player_observer(bot, source_player, target_player, command):
+def disable_player_observer(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         p = re.search(r"disable\splayer_observer\s(?P<player_observer>(\S+))$", command)
         if p:
             player_observer_name = p.group("player_observer")
-            bot.socketio.emit('refresh_player_observer_status', {"player_observer_name": player_observer_name}, namespace='/chrani-bot/public')
-            bot.observers_controller[player_observer_name]["is_active"] = False
+            chrani_bot.socketio.emit('refresh_player_observer_status', {"player_observer_name": player_observer_name}, namespace='/chrani-bot/public')
+            chrani_bot.observers_controller[player_observer_name]["is_active"] = False
             response_messages.add_message("player_observer {} disabled".format(player_observer_name), True)
         else:
             response_messages.add_message("disabling player_observer failed", False)
@@ -327,14 +327,14 @@ common.actions_list.append({
 })
 
 
-def enable_player_observer(bot, source_player, target_player, command):
+def enable_player_observer(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         p = re.search(r"enable\splayer_observer\s(?P<player_observer>(\S+))$", command)
         if p:
             player_observer_name = p.group("player_observer")
-            bot.socketio.emit('refresh_player_observer_status', {"player_observer_name": player_observer_name}, namespace='/chrani-bot/public')
-            bot.observers_controller[player_observer_name]["is_active"] = True
+            chrani_bot.socketio.emit('refresh_player_observer_status', {"player_observer_name": player_observer_name}, namespace='/chrani-bot/public')
+            chrani_bot.observers_controller[player_observer_name]["is_active"] = True
             response_messages.add_message("player_observer {} enabled".format(player_observer_name), True)
         else:
             response_messages.add_message("enabling player_observer failed", False)

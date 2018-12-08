@@ -11,11 +11,10 @@ from bot.assorted_functions import multiple, timeout_occurred
 from bot.modules.settings import Settings
 
 from bot.modules.custodian import Custodian
-from bot.modules.player_observer import PlayerObserver
 from bot.modules.telnet_observer import TelnetObserver
+from bot.modules.player_observer import PlayerObserver
 from bot.modules.logger import logger
 
-import bot.modules.actions as actions
 import bot.modules.observers as observers
 import bot.modules.schedulers as schedulers
 from bot.modules.schedulers import run_schedulers
@@ -25,7 +24,6 @@ from bot.objects.telnet import Telnet
 from bot.modules.locations import Locations
 from bot.modules.permissions import Permissions
 from bot.modules.players import Players
-from bot.modules.telnet_actions import TelnetActions
 from bot.modules.whitelist import Whitelist
 
 
@@ -76,10 +74,8 @@ class ChraniBot(Thread):
     settings_dict = dict
     server_settings_dict = dict
 
-    active_player_threads_dict = dict  # contains link to the players observer-thread
     landclaims_dict = dict
 
-    actions = object
     players = object
     locations = object
     whitelist = object
@@ -87,6 +83,7 @@ class ChraniBot(Thread):
     permission = object
     settings = object
     telnet_observer = object
+    player_observer = object
     custodian = object
 
     observers_dict = dict
@@ -122,16 +119,12 @@ class ChraniBot(Thread):
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
-        self.actions = actions
-        self.actions_list = actions.actions_list
-
         self.observers_dict = observers.observers_dict
         self.observers_controller = observers.observers_controller
 
         self.schedulers_dict = schedulers.schedulers_dict
         self.schedulers_controller = schedulers.schedulers_controller
 
-        self.active_player_threads_dict = {}
         self.landclaims_dict = {}
 
         self.listplayers_interval = self.settings.get_setting_by_name(name='list_players_interval')
@@ -149,7 +142,6 @@ class ChraniBot(Thread):
         self.passwords = self.settings.get_setting_by_name(name='authentication_groups')
 
         self.permission_levels_list = self.passwords.keys()  # ['admin', 'mod', 'donator', 'authenticated']
-        self.permissions = Permissions(self.actions_list, self.permission_levels_list)
 
         self.chat_colors = self.settings.get_setting_by_name(name='chatbox_color_scheme', default={
             "standard": "afb0b2",
@@ -182,13 +174,13 @@ class ChraniBot(Thread):
         }
 
         self.match_types_system = {
-            'mem_status': r"^Time:\s(?P<time_in_minutes>.*)m\sFPS:\s(?P<server_fps>.*)\sHeap:\s(?P<heap>.*)MB\sMax:\s(?P<max>.*)MB\sChunks:\s(?P<chunks>.*)\sCGO:\s(?P<cgo>.*)\sPly:\s(?P<players>.*)\sZom:\s(?P<zombies>.*)\sEnt:\s(?P<entities>.*\s\(.*\))\sItems:\s(?P<items>.*)\sCO:\s(?P<co>.*)\sRSS:\s(?P<rss>.*)MB",
+            'mem_status': r"Time:\s(?P<time_in_minutes>.*)m\sFPS:\s(?P<server_fps>.*)\sHeap:\s(?P<heap>.*)MB\sMax:\s(?P<max>.*)MB\sChunks:\s(?P<chunks>.*)\sCGO:\s(?P<cgo>.*)\sPly:\s(?P<players>.*)\sZom:\s(?P<zombies>.*)\sEnt:\s(?P<entities>.*\s\(.*\))\sItems:\s(?P<items>.*)\sCO:\s(?P<co>.*)\sRSS:\s(?P<rss>.*)MB",
             # captures the response for telnet commands. used for example to capture teleport response
-            'telnet_commands': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
+            'telnet_commands': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
             # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
-            'telnet_events_playerspawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
+            'telnet_events_playerspawn': r"(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
             # isolates the disconnected log entry to get the total session time of a player easily
-            'telnet_player_playtime': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
+            'telnet_player_playtime': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
             # to parse the telnets listplayers response
             'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n",
             # to parse the telnets listlandprotection response
@@ -198,12 +190,12 @@ class ChraniBot(Thread):
             # to parse the telnets getgameprefs response
             'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
             # player joined / died messages
-            'telnet_events_player_gmsg': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
+            'telnet_events_player_gmsg': r"(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
             # pretty much the first usable line during a players login
-            'telnet_player_connected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
-            'telnet_player_disconnected': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'",
-            'screamer_spawn': r"^(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)",
-            'airdrop_spawn': r"^(?P<datetime>.+?)\s(?P<stardate>.+?)\sINF\sAIAirDrop:\sSpawned\ssupply\scrate\s@\s\(\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)\)"
+            'telnet_player_connected': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_id>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
+            'telnet_player_disconnected': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'",
+            'screamer_spawn': r"(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)",
+            'airdrop_spawn': r"(?P<datetime>.+?)\s(?P<stardate>.+?)\sINF\sAIAirDrop:\sSpawned\ssupply\scrate\s@\s\(\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)\)"
         }
 
         self.banned_countries_list = self.settings.get_setting_by_name(name='banned_countries')
@@ -219,20 +211,20 @@ class ChraniBot(Thread):
 
     def poll_lcb(self):
         lcb_dict = {}
-        test_str = self.tn.listlandprotection()
+        listlandprotection_result = self.telnet_observer.actions.actions_dict["llp"]["last_result"]
 
         # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
         # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
         # I've tried flags. Something was always up. This is the only way i got this working.
         try:
-            unicode(test_str, "ascii")
+            unicode(listlandprotection_result, "ascii")
         except UnicodeError:
-            test_str = unicode(test_str, "utf-8")
+            listlandprotection_result = unicode(listlandprotection_result, "utf-8")
         else:
             pass
 
         # horrible, horrible way. But it works for now!
-        for m in re.finditer(self.match_types_system["listlandprotection_result_regexp"], test_str):
+        for m in re.finditer(self.match_types_system["listlandprotection_result_regexp"], listlandprotection_result):
             keystones = re.findall(r"\((?P<pos_x>.\d{1,5}),\s(?P<pos_y>.\d{1,5}),\s(?P<pos_z>.\d{1,5})", m.group("keystones"))
             keystone_list = []
             for keystone in keystones:
@@ -241,6 +233,24 @@ class ChraniBot(Thread):
             lcb_dict.update({m.group("player_steamid"): keystone_list})
 
         return lcb_dict
+
+    def manage_landclaims(self):
+        # if polled_lcb != self.landclaims_dict:
+        #     lcb_owners_to_delete = {}
+        #     lcb_owners_to_update = {}
+        #     lcb_owners_to_update.update(polled_lcb)
+        #     for lcb_widget_owner in lcb_owners_to_update.keys():
+        #         try:
+        #             player_object = self.players.get_by_steamid(lcb_widget_owner)
+        #         except KeyError:
+        #             continue
+        #
+        #         self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+        #
+        #     self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
+        #     self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
+        #     self.landclaims_dict = self
+        pass
 
     def get_lcb_marker_json(self, lcb_dict):
         lcb_list_final = []
@@ -279,14 +289,21 @@ class ChraniBot(Thread):
         return lcb_list_final
 
     def get_game_preferences(self):
-        game_preferences = self.tn.get_game_preferences()
-        logger.debug(game_preferences)
+        self.telnet_observer.actions.trigger_action(self, "gg")
+
+        while len(self.telnet_observer.actions.actions_dict["gg"]["last_result"]) <= 0:
+            pass
 
         game_preferences_dict = {}
-        for key, value in game_preferences:
-            game_preferences_dict.update({
-                key: value
-            })
+        game_preferences = self.telnet_observer.actions.actions_dict["gg"]["last_result"].strip()
+        game_preferences_list = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", game_preferences)
+
+        if game_preferences:
+            logger.debug(game_preferences_list)
+            for key, value in game_preferences_list:
+                game_preferences_dict.update({
+                    key: value
+                })
 
         return game_preferences_dict
 
@@ -333,7 +350,7 @@ class ChraniBot(Thread):
                 villages = self.locations.find_by_type('village')
                 for village in villages:
                     if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
-                        self.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
+                        self.player_observer.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
         except KeyError:
             pass
 
@@ -343,7 +360,7 @@ class ChraniBot(Thread):
             pos_y = m.group("pos_y")
             pos_z = m.group("pos_z")
             player_object = self.players.get_by_steamid('system')
-            self.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
+            self.player_observer.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
         except KeyError:
             pass
 
@@ -371,16 +388,6 @@ class ChraniBot(Thread):
 
         return False
 
-    def start_player_thread(self, player_object):
-        player_observer_thread_stop_flag = Event()
-        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self, player_object.steamid)  # I'm passing the bot (self) into it to have easy access to it's variables
-        player_observer_thread.name = player_object.steamid  # nice to have for the logs
-        player_observer_thread.isDaemon()
-        player_observer_thread.start()
-        self.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-        self.socketio.emit('update_leaflet_markers', self.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-        self.active_player_threads_dict.update({player_object.steamid: {"event": player_observer_thread_stop_flag, "thread": player_observer_thread}})
-
     def start_custodian(self):
         custodian_thread_stop_flag = Event()
         custodian_thread = Custodian(custodian_thread_stop_flag, self)
@@ -389,13 +396,26 @@ class ChraniBot(Thread):
         self.custodian = custodian_thread
         self.custodian.start()
 
+    def start_player_observer(self):
+        player_observer_thread_stop_flag = Event()
+        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self)
+        player_observer_thread.name = "player observer"
+        player_observer_thread.isDaemon()
+        self.player_observer = player_observer_thread
+        self.player_observer.start()
+
     def run(self):
         self.start_custodian()
+        self.start_player_observer()
+
+        self.permissions = Permissions(self.player_observer.actions_list, self.permission_levels_list)
+
         self.load_from_db()
 
         self.telnet_lines_list = deque()
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
+
         next_cycle = 0
         last_schedule = 0
 
@@ -425,62 +445,11 @@ class ChraniBot(Thread):
                     last_schedule = profile_start
                     run_schedulers(self)
 
-                """ since telnet_lines can contain one or more actual telnet lines, we add them to a queue and pop one
-                (or more) lines at a time.
-                 I hope to minimize the risk of a clogged bot this way, it might result in laggy commands. I shall have to monitor that """
-                telnet_lines = self.telnet_observer.get_a_bunch_of_lines(10)
-
-                if telnet_lines and self.has_connection:
-                    for telnet_line in telnet_lines:
-                        m = re.search(self.match_types_system["telnet_commands"], telnet_line)
-                        if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:
-                            if telnet_line != '':
-                                logger.debug(telnet_line)
-
-                        m = re.search(self.match_types_system["mem_status"], telnet_line)
-                        if m:
-                            self.server_time_running = int(float(m.group("time_in_minutes")) * 60)
-
-                        # handle playerspawns
-                        m = re.search(self.match_types_system["telnet_player_connected"], telnet_line)
-                        if m:
-                            try:
-                                connecting_player = self.players.player_entered_telnet(m)
-                                connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
-                            except KeyError:
-                                pass
-
-                        m = re.search(self.match_types_system["telnet_events_playerspawn"], telnet_line)
-                        if m:
-                            try:
-                                spawning_player = self.players.player_entered_the_world(m)
-                                spawning_player["thread"].trigger_action(spawning_player["player_object"], "entered the world")
-                            except KeyError:
-                                pass
-
-                        # handle other spawns
-                        m = re.search(self.match_types_system["screamer_spawn"], telnet_line)
-                        if m:
-                            self.on_screamer_spawn(m)
-
-                        m = re.search(self.match_types_system["airdrop_spawn"], telnet_line)
-                        if m:
-                            self.on_airdrop_spawn(m)
-
-                        """ send telnet_line to player-thread
-                        check 'chat' telnet-line(s) for any known playername currently online
-                        """
-                        for player_steamid, player_object in self.players.players_dict.iteritems():
-                            if player_steamid in self.active_player_threads_dict and player_object.name not in self.settings.get_setting_by_name(name="restricted_names"):
-                                m = re.search(self.match_types['chat_commands'], telnet_line)
-                                if m:
-                                    player_name = m.group('player_name')
-                                    if player_name == player_object.name:
-                                        active_player_thread = self.active_player_threads_dict[player_steamid]
-                                        active_player_thread["thread"].trigger_action_by_telnet(telnet_line)
+                lines_processed = self.telnet_observer.execute_queue(10)
+                actions_executed = self.player_observer.execute_queue(10)
 
                 self.last_execution_time = time.time() - profile_start
-                next_cycle = (0.1 - self.last_execution_time)
+                next_cycle = (0.2 - self.last_execution_time)
 
             except IOError as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
@@ -493,26 +462,16 @@ class ChraniBot(Thread):
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
                     telnet_observer_thread_stop_flag = Event()
-                    telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, TelnetActions(self, tn))
+                    telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, tn.tn)
                     telnet_observer_thread.name = "telnet observer"
                     telnet_observer_thread.isDaemon()
                     self.telnet_observer = telnet_observer_thread
                     self.telnet_observer.start()
-                    time.sleep(0.5)
-
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
-                    self.tn = TelnetActions(self, tn)
-                    time.sleep(0.5)
-
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password'))
-                    self.poll_tn = TelnetActions(self, tn)
-
-                    self.message_tn = self.poll_tn
 
                     self.reboot_imminent = False
                     self.is_paused = False
                     self.server_settings_dict = self.get_game_preferences()
-                    self.tn.togglechatcommandhide("/")
+                    self.telnet_observer.actions.common.trigger_action(self, self.settings.get_setting_by_name(name='chatprefix_method', default='tcch'))
 
                 except IOError as e:
                     self.has_connection = False
@@ -533,12 +492,12 @@ class ChraniBot(Thread):
         self.shutdown()
 
     def clear_env(self):
-        for player_steamid in self.active_player_threads_dict:
+        for player_steamid in self.player_observer.active_player_threads_dict:
             """ kill them ALL! """
-            active_player_thread = self.active_player_threads_dict[player_steamid]
+            active_player_thread = self.player_observer.active_player_threads_dict[player_steamid]
             active_player_thread["thread"].stopped.set()
 
-        self.active_player_threads_dict.clear()
+        self.player_observer.active_player_threads_dict.clear()
         self.telnet_lines_list = deque()
         self.is_paused = True
         try:

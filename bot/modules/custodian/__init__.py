@@ -12,26 +12,30 @@ class Custodian(Thread):
         "main_loop": bool,
         "telnet_observer": bool,
         "webinterface": bool,
-        "player_observers": bool,
+        "player_observer": bool,
     }
 
     def __init__(self, event, chrani_bot):
         self.bot = chrani_bot
 
-        self.run_observer_interval = 5
+        self.run_observer_interval = 2
         self.last_execution_time = 0.0
 
-        self.clear_env()
-        self.stopped = event
-        Thread.__init__(self)
-
-    def clear_env(self):
         self.health_dict = {
             "main_loop": False,
             "telnet_observer": False,
             "webinterface": False,
-            "player_observers": False,
+            "player_observer": False,
         }
+
+        self.stopped = event
+        Thread.__init__(self)
+
+    def clear_status(self):
+        self.health_dict["main_loop"] = False
+        self.health_dict["telnet_observer"] = False
+        self.health_dict["webinterface"] = False
+        self.health_dict["player_observer"] = False
 
     def check_in(self, observed_entity, status):
         self.health_dict[observed_entity] = status

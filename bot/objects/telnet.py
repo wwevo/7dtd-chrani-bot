@@ -73,3 +73,11 @@ class Telnet:
         logger.debug("telnet connection established: " + str(connection))
         return connection
 
+    def read_very_eager(self):
+        try:
+            return self.tn.read_very_eager()
+        except Exception as e:
+            log_message = 'trying to read_very_eager from telnet connection failed: {} / {}'.format(e, type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+

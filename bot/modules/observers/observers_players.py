@@ -48,15 +48,15 @@ common.observers_controller["update_player_region"] = {
 }
 
 
-def poll_playerfriends(chrani_bot, player_observer):
-    if timeout_occurred(chrani_bot.players.poll_listplayerfriends_interval, player_observer.player_object.poll_listplayerfriends_lastpoll):
+def poll_playerfriends(chrani_bot, player_thread):
+    if timeout_occurred(chrani_bot.players.poll_listplayerfriends_interval, player_thread.player_object.poll_listplayerfriends_lastpoll):
         try:
-            player_observer.player_object.playerfriends_list = chrani_bot.tn.listplayerfriends(player_observer.player_object)
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "lpf", player_thread.player_object)
         except IOError:
             return False
 
-        player_observer.player_object.poll_listplayerfriends_lastpoll = time()
-        player_observer.player_object.update()
+        player_thread.player_object.poll_listplayerfriends_lastpoll = time()
+        player_thread.player_object.update()
 
 
 common.observers_dict["poll_playerfriends"] = {
@@ -74,15 +74,19 @@ common.observers_controller["poll_playerfriends"] = {
 
 def mute_unauthenticated_players(chrani_bot, player_observer):
     if chrani_bot.settings.get_setting_by_name(name="mute_unauthenticated"):
-        if not player_observer.player_object.authenticated and not player_observer.player_object.is_muted:
-            if chrani_bot.tn.muteplayerchat(player_observer.player_object, True):
-                chrani_bot.tn.send_message_to_player(player_observer.player_object, "Your chat has been disabled!", color=chrani_bot.chat_colors['warning'])
-        elif player_observer.player_object.authenticated and player_observer.player_object.is_muted:
-            if chrani_bot.tn.muteplayerchat(player_observer.player_object, False):
-                chrani_bot.tn.send_message_to_player(player_observer.player_object, "Your chat has been enabled", color=chrani_bot.chat_colors['success'])
-    elif player_observer.player_object.is_muted:
-        if chrani_bot.tn.muteplayerchat(player_observer.player_object, False):
-            chrani_bot.tn.send_message_to_player(player_observer.player_object, "Your chat has been enabled", color=chrani_bot.chat_colors['success'])
+        if player_observer.player_object.has_been_muted is None:
+            if not player_observer.player_object.authenticated and not player_observer.player_object.is_muted:
+                player_observer.player_object.has_been_muted = True
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_action"), player_observer.player_object, True)
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been disabled!", chrani_bot.chat_colors['warning'])
+            elif player_observer.player_object.authenticated and player_observer.player_object.is_muted:
+                player_observer.player_object.has_been_muted = False
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_action"), player_observer.player_object, False)
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled!", chrani_bot.chat_colors['warning'])
+    elif player_observer.player_object.is_muted and player_observer.player_object.has_been_muted is None:
+        player_observer.player_object.has_been_muted = False
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_action"), player_observer.player_object, False)
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled", chrani_bot.chat_colors['success'])
 
 
 common.observers_dict["mute_unauthenticated_players"] = {

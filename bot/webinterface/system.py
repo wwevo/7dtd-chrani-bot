@@ -6,7 +6,7 @@ def get_system_health_widget():
     chrani_bot = __main__.chrani_bot
 
     result = chrani_bot.flask.Markup(chrani_bot.flask.render_template('static/widgets/system_health_widget/system_health_widget.html', health_dict=chrani_bot.custodian.health_dict, bot=chrani_bot))
-    chrani_bot.custodian.clear_env()
+    chrani_bot.custodian.clear_status()
 
     return result
 
@@ -98,7 +98,7 @@ def pause_bot():
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "pause bot")
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "pause bot")
 
 
 common.actions_list.append({
@@ -118,7 +118,7 @@ def resume_bot():
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "resume bot")
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "resume bot")
 
 
 common.actions_list.append({
@@ -138,7 +138,7 @@ def shutdown():
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "shut down the matrix")
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "shut down the matrix")
 
 
 common.actions_list.append({
@@ -158,7 +158,7 @@ def reinitialize():
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "reinitialize")
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "reinitialize")
 
 
 common.actions_list.append({
@@ -178,7 +178,7 @@ def shutdown_server():
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "shut down the world")
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "shut down the world")
 
 
 common.actions_list.append({
@@ -198,7 +198,7 @@ def skip_bloodmoon():
         return chrani_bot.flask.redirect("/")
 
     player_object = chrani_bot.players.get_by_steamid(source_player_steamid)
-    return chrani_bot.actions.common.trigger_action(chrani_bot, player_object, player_object, "skip bloodmoon")
+    return chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "skip bloodmoon")
 
 
 common.actions_list.append({

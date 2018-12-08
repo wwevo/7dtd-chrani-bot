@@ -14,7 +14,7 @@ def player_entered_teleport(chrani_bot, player_observer):
             if player_status == "has entered core" or player_status == "is inside core":
                 if location_object.teleport_active is True and location_object.teleport_target is not None:
                     target_location_object = chrani_bot.locations.get('system', location_object.teleport_target)
-                    chrani_bot.tn.teleportplayer(player_object, coord_tuple=target_location_object.get_teleport_coords_tuple())
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object, coord_tuple=target_location_object.get_teleport_coords_tuple())
 
         chrani_bot.locations.upsert(location_object)
 

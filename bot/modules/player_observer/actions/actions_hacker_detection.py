@@ -4,7 +4,7 @@ import common
 from bot.assorted_functions import ResponseMessage
 
 
-def oversized_stack(bot, source_player, target_player, command):
+def oversized_stack(chrani_bot, source_player, target_player, command):
     """Reloads config and location files from storage
 
     Keyword arguments:
@@ -22,13 +22,13 @@ def oversized_stack(bot, source_player, target_player, command):
             response_messages = ResponseMessage()
             message = "Found item-stack of {} that's way too big for player {}".format(p.group("item_quantity"), target_player.name)
             logger.info(message)
-            bot.tn.say(message, color=bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
             response_messages.add_message(message, True)
-            if bot.tn.kick(target_player, message):
+            if chrani_bot.tn.kick(target_player, message):
                 target_player.blacklisted = True
                 message = "kicked player {} for {}".format(target_player.name, message)
                 logger.info(message)
-                bot.tn.say(message, color=bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
             return response_messages
         else:
             raise ValueError("action does not fully match the trigger-string")

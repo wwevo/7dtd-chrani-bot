@@ -5,18 +5,18 @@ import common
 import random
 
 
-def rolling_announcements(bot):
+def rolling_announcements(chrani_bot):
     try:
-        if len(bot.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
+        if len(chrani_bot.player_observer.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             return True
 
-        if timeout_occurred(float(bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(
+        if timeout_occurred(float(chrani_bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(
                 common.schedulers_dict["rolling_announcements"]["last_executed"])):
-            message, interval = random.choice(list(bot.settings.get_setting_by_name(name='rolling_announcements').items()))
+            message, interval = random.choice(list(chrani_bot.settings.get_setting_by_name(name='rolling_announcements').items()))
             if interval == "all":
-                bot.tn.say(message, color=bot.chat_colors['standard'])
-            if interval == "day7" and bot.is_it_horde_day(int(bot.current_gametime["day"])):
-                bot.tn.say(message, color=bot.chat_colors['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
+            if interval == "day7" and chrani_bot.is_it_horde_day(int(chrani_bot.current_gametime["day"])):
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
             common.schedulers_dict["rolling_announcements"]["last_executed"] = time.time()
 
             return True

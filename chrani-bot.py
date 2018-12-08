@@ -25,7 +25,6 @@ template_dir = os.path.join(os.getcwd(), 'templates')
 static_dir = os.path.join(template_dir, 'static')
 
 from bot.chrani_bot import ChraniBot
-import bot.modules.actions
 from bot.webinterface.settings import get_settings_general_widget
 from bot.webinterface.settings import get_settings_scheduler_widget
 from bot.webinterface.settings import get_settings_player_observer_widget
@@ -38,6 +37,8 @@ from bot.webinterface.system import get_system_health_widget
 from bot.webinterface.whitelist import get_whitelist_widget
 from bot.webinterface.system import get_banned_players_widget
 from bot.webinterface.system import get_map_widget
+from bot.webinterface import actions_list
+
 from bot.objects.player import Player
 
 if __name__ == '__main__':
@@ -226,7 +227,7 @@ if __name__ == '__main__':
 
 
     """ collecting all defined webinterface-actions and creating routes for them """
-    for actions_list_entry in bot.webinterface.actions_list:
+    for actions_list_entry in actions_list:
         if actions_list_entry['authenticated'] is True:
             action = actions_list_entry['action']
             wrapped_action = flask_login.login_required(action)

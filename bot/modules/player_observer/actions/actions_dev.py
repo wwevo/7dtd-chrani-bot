@@ -4,7 +4,7 @@ from bot.modules.logger import logger
 import common
 
 
-def fix_players_legs(bot, source_player, target_player, command):
+def fix_players_legs(chrani_bot, source_player, target_player, command):
     """Fixes the legs of the player issuing this action
 
     Keyword arguments:
@@ -21,10 +21,10 @@ def fix_players_legs(bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        bot.tn.debuffplayer(target_player, "brokenLeg")
-        bot.tn.debuffplayer(target_player, "sprainedLeg")
+        chrani_bot.tn.debuffplayer(target_player, "brokenLeg")
+        chrani_bot.tn.debuffplayer(target_player, "sprainedLeg")
         message = "your legs have been taken care of ^^"
-        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -47,7 +47,7 @@ common.actions_list.append({
 })
 
 
-def stop_the_bleeding(bot, source_player, target_player, command):
+def stop_the_bleeding(chrani_bot, source_player, target_player, command):
     """Removes the 'bleeding' buff from the player issuing this action
 
     Keyword arguments:
@@ -64,9 +64,9 @@ def stop_the_bleeding(bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        bot.tn.debuffplayer(target_player, "bleeding")
+        chrani_bot.tn.debuffplayer(target_player, "bleeding")
         message = "your wounds have been bandaided ^^"
-        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -89,7 +89,7 @@ common.actions_list.append({
 })
 
 
-def apply_first_aid(bot, source_player, target_player, command):
+def apply_first_aid(chrani_bot, source_player, target_player, command):
     """Applies the 'firstAidLarge' buff to the player issuing this action
 
     Keyword arguments:
@@ -106,9 +106,9 @@ def apply_first_aid(bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        bot.tn.buffplayer(target_player, "firstAidLarge")
+        chrani_bot.tn.buffplayer(target_player, "firstAidLarge")
         message = "feel the power flowing through you!! ^^"
-        bot.message_tn.send_message_to_player(target_player, message, color=bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
 
         return response_messages
@@ -131,13 +131,13 @@ common.actions_list.append({
 })
 
 
-def remove_entity(bot, source_player, target_player, command):
+def remove_entity(chrani_bot, source_player, target_player, command):
     try:
         p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
         if p:
             response_messages = ResponseMessage()
             entity_id = p.group("entity_id")
-            if bot.tn.remove_entity(entity_id):
+            if chrani_bot.tn.remove_entity(entity_id):
                 message = "shunned screamer ({}) from village ^^".format(entity_id)
                 response_messages.add_message(message, True)
             else:
@@ -145,7 +145,7 @@ def remove_entity(bot, source_player, target_player, command):
                 response_messages.add_message(message, False)
 
             logger.info(message)
-            bot.tn.say(message, color=bot.chat_colors['standard'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
 
             return response_messages
 
@@ -170,7 +170,7 @@ common.actions_list.append({
 })
 
 
-def supply_crate_spawned(bot, source_player, target_player, command):
+def supply_crate_spawned(chrani_bot, source_player, target_player, command):
     try:
         p = re.search(r"an\sairdrop\shas\sarrived\s@\s\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)$", command)
         if p:
@@ -181,10 +181,10 @@ def supply_crate_spawned(bot, source_player, target_player, command):
             message = "supply crate at position ([ffffff]{pos_x}[-] [ffffff]{pos_y}[-] [ffffff]{pos_z}[-])".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z)
 
             logger.info(message)
-            online_players = bot.players.get_all_players(get_online_only=True)
+            online_players = chrani_bot.players.get_all_players(get_online_only=True)
             for player in online_players:
                 if any(x in ["donator", "mod", "admin"] for x in player.permission_levels):
-                    bot.message_tn.send_message_to_player(player, message, color=bot.chat_colors['success'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player, message, chrani_bot.chat_colors['success'])
 
             return response_messages
 
@@ -209,18 +209,18 @@ common.actions_list.append({
 })
 
 
-def skip_bloodmoon(bot, source_player, target_player, command):
+def skip_bloodmoon(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        if bot.current_gametime is not None and bot.ongoing_bloodmoon():
+        if chrani_bot.current_gametime is not None and chrani_bot.ongoing_bloodmoon():
             day_after_horde = None
-            if bot.is_it_horde_day(bot.current_gametime["day"]):
-                day_after_horde = int(bot.current_gametime["day"]) + 1
-            elif bot.is_it_horde_day(int(bot.current_gametime["day"]) -1):
-                day_after_horde = int(bot.current_gametime["day"])
+            if chrani_bot.is_it_horde_day(chrani_bot.current_gametime["day"]):
+                day_after_horde = int(chrani_bot.current_gametime["day"]) + 1
+            elif chrani_bot.is_it_horde_day(int(chrani_bot.current_gametime["day"]) - 1):
+                day_after_horde = int(chrani_bot.current_gametime["day"])
 
             if day_after_horde is not None:
-                bot.tn.settime("{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
+                chrani_bot.tn.settime("{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
                 message = "bloodmoon got skipped by {}".format(source_player.name)
                 response_messages.add_message(message, True)
             else:
@@ -228,7 +228,7 @@ def skip_bloodmoon(bot, source_player, target_player, command):
                 response_messages.add_message(message, False)
 
             logger.info(message)
-            bot.tn.say(message, color=bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
         return response_messages
 
     except Exception as e:

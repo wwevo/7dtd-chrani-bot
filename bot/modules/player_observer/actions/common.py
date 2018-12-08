@@ -21,15 +21,15 @@ def find_action_help(key, value):
     return None
 
 
-def trigger_action(bot, source_player, target_player, command_parameters):
+def trigger_action(chrani_bot, source_player, target_player, command_parameters):
     command_queue = []
-    if bot.actions_list is not None:
+    if chrani_bot.actions_list is not None:
         denied = False
-        for player_action in bot.actions_list:
+        for player_action in chrani_bot.player_observer.actions_list:
             function_category = player_action["group"]
             function_name = getattr(player_action["action"], 'func_name')
             if (player_action["match_mode"] == "isequal" and player_action["command"]["trigger"] == command_parameters) or (player_action["match_mode"] == "startswith" and command_parameters.startswith(player_action["command"]["trigger"])):
-                has_permission = bot.permissions.player_has_permission(source_player, function_name, function_category)
+                has_permission = chrani_bot.permissions.player_has_permission(source_player, function_name, function_category)
                 if (isinstance(has_permission, bool) and has_permission is True) or (player_action["essential"] is True):
                     function_object = player_action["action"]
                     command_queue.append({
@@ -49,12 +49,12 @@ def trigger_action(bot, source_player, target_player, command_parameters):
         if denied is True:
             message = "Access to this command is denied!"
             response_messages.add_message(message, False)
-            bot.message_tn.send_message_to_player(source_player, message, color=bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.chat_colors['warning'])
 
         for command in command_queue:
             try:
                 logger.debug("Player {} is about to execute {}:{} with '/{}'".format(source_player.name, command["group"], command["func_name"], command["command_parameters"]))
-                response = command["action"](bot, source_player, target_player, command["command_parameters"])
+                response = command["action"](chrani_bot, source_player, target_player, command["command_parameters"])
                 if response is not False:
                     if response is not None:
                         response_messages.add_message(command["func_name"], response.get_message_dict())
@@ -65,6 +65,6 @@ def trigger_action(bot, source_player, target_player, command_parameters):
             except Exception as e:
                 logger.exception(e)
 
-            bot.socketio.emit('command_log', {"steamid": source_player.steamid, "name": source_player.name, "command": "{}:{} = /{}".format(command["group"], command["func_name"],command["command_parameters"])}, namespace='/chrani-bot/public')
+            chrani_bot.socketio.emit('command_log', {"steamid": source_player.steamid, "name": source_player.name, "command": "{}:{} = /{}".format(command["group"], command["func_name"],command["command_parameters"])}, namespace='/chrani-bot/public')
 
         return response_messages
