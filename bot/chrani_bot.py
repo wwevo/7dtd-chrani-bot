@@ -292,7 +292,7 @@ class ChraniBot(Thread):
         self.telnet_observer.actions.trigger_action(self, "gg")
 
         while len(self.telnet_observer.actions.actions_dict["gg"]["last_result"]) <= 0:
-            pass
+            print self.telnet_observer.telnet_buffer
 
         game_preferences_dict = {}
         game_preferences = self.telnet_observer.actions.actions_dict["gg"]["last_result"].strip()
