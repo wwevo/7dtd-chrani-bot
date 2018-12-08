@@ -176,7 +176,7 @@ def gg_callback_thread():
     common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(10, common.actions_dict[command]["last_executed"]):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -187,6 +187,7 @@ def gg_callback_thread():
 
         match = False
         for match in re.finditer(r"Executing command \'gg\' by Telnet from (.*)([\s\S]+?)GamePref.ZombiesRun = (\d{1,2})\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            time.sleep(0.5)
             poll_is_finished = True
             pass
 
