@@ -186,6 +186,7 @@ def gg_callback_thread():
             continue
 
         match = False
+        print chrani_bot.telnet_observer.telnet_buffer
         for match in re.finditer(r"Executing command \'gg\' by Telnet from (.*)([\s\S]+?)GamePref.ZombiesRun = (\d{1,2})\r\n", chrani_bot.telnet_observer.telnet_buffer):
             time.sleep(0.5)
             poll_is_finished = True
