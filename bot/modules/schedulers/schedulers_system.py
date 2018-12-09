@@ -215,7 +215,7 @@ def reboot(chrani_bot):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.chat_colors['warning'])
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
-                chrani_bot.tn.shutdown()
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
                 return True
 
     try:

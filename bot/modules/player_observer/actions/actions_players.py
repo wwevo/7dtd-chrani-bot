@@ -619,7 +619,7 @@ def ban_player(chrani_bot, source_player, target_player, command):
                 player_dict = {'steamid': steamid_to_ban, "name": 'unknown offline player'}
                 player_object_to_ban = Player(**player_dict)
 
-            if not player_object_to_ban.is_banned and chrani_bot.tn.ban(player_object_to_ban, "{} banned {} for {}".format(target_player.name, player_object_to_ban.name, reason_for_ban)):
+            if not player_object_to_ban.is_banned and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "ban", player_object_to_ban, reason_for_ban, 24 * 365):
                 player_object_to_ban.is_banned = True
                 chrani_bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_ban, "you have been banned by {}".format(source_player.name), chrani_bot.chat_colors['warning'])

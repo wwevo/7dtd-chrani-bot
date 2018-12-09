@@ -275,15 +275,15 @@ common.actions_dict["tcch"] = {
 }
 
 
-def bc_chatprefix():
+def shutdown():
     chrani_bot = __main__.chrani_bot
-    command = "bc-chatprefix"
+    command = "shutdown"
     if not common.actions_dict[command]["is_available"]:
         time.sleep(1)
         return
 
     try:
-        chrani_bot.telnet_observer.tn.write("{command} \"/\"{line_end}".format(command=command, line_end=b"\r\n"))
+        chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
     except Exception as e:
         log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
         logger.error(log_message)
@@ -301,9 +301,9 @@ def bc_chatprefix():
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
 
-def bc_chatprefix_callback_thread():
+def shutdown_callback_thread():
     chrani_bot = __main__.chrani_bot
-    command = "bc-chatprefix"
+    command = "shutdown"
     common.active_actions_dict[command] = True
     common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
@@ -331,11 +331,11 @@ def bc_chatprefix_callback_thread():
     return
 
 
-common.actions_dict["bc-chatprefix"] = {
-    "telnet_command": "bc-chatprefix",
+common.actions_dict["shutdown"] = {
+    "telnet_command": "shutdown",
     "last_executed": "0",
     "last_result": "",
-    "action": bc_chatprefix,
-    "action_callback": bc_chatprefix_callback_thread,
+    "action": shutdown,
+    "action_callback": shutdown_callback_thread,
     "is_available": True
 }

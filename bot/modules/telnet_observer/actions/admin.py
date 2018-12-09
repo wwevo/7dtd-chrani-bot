@@ -159,7 +159,7 @@ def kick(player_object, reason):
             "reason": reason,
             "line_end": b"\r\n"
         }
-        chrani_bot.telnet_observer.tn.write('{command} {steamid} "{reason}" {line_end}'.format(format_dict))
+        chrani_bot.telnet_observer.tn.write('{command} {steamid} "{reason}" {line_end}'.format(**format_dict))
     except Exception as e:
         log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
         logger.error(log_message)
@@ -234,7 +234,7 @@ def ban(player_object, reason, duration_in_hours=None):
             "reason": reason,
             "line_end": b"\r\n"
         }
-        chrani_bot.telnet_observer.tn.write('{command} {steamid} {duration} hours "{reason}" {line_end}'.format(format_dict))
+        chrani_bot.telnet_observer.tn.write('{command} {steamid} {duration} hours "{reason}" {line_end}'.format(**format_dict))
     except Exception as e:
         log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
         logger.error(log_message)
@@ -307,7 +307,7 @@ def unban(player_object):
             "steamid": player_object.steamid,
             "line_end": b"\r\n"
         }
-        chrani_bot.telnet_observer.tn.write('{command} remove {steamid} {line_end}'.format(format_dict))
+        chrani_bot.telnet_observer.tn.write('{command} remove {steamid} {line_end}'.format(**format_dict))
     except Exception as e:
         log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
         logger.error(log_message)
@@ -344,7 +344,7 @@ def unban_callback_thread(player_object, dummy):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + " " + str(player_object.steamid) + " \"" + reason + "\"\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + " " + str(player_object.steamid) + "\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 

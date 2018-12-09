@@ -207,7 +207,7 @@ def shutdown_server(chrani_bot, source_player, target_player, command):
                 message = "The server is about to shut down..."
                 response_messages.add_message(message, True)
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
-                chrani_bot.tn.shutdown()
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
             except Exception as e:
                 logger.debug(e)
 
