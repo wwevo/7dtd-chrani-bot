@@ -11,6 +11,12 @@ from bot.assorted_functions import timeout_occurred
 def teleportplayer(player_object, location_object=None, coord_tuple=None):
     chrani_bot = __main__.chrani_bot
     command = "teleportplayer"
+
+    try:
+        is_active = common.active_actions_dict[command]
+    except KeyError:
+        is_active = False
+
     if not common.actions_dict[command]["is_available"]:
         time.sleep(1)
         return False
@@ -18,39 +24,36 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None):
     if not player_object.is_online:
         return False
 
-    if location_object is not None:
-        try:
-            coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
-        except:
-            coord_tuple = (int(math.ceil(float(location_object.pos_x))), int(math.ceil(float(location_object.pos_y))), int(math.ceil(float(location_object.pos_z))))
-    else:
-        try:
-            coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
-        except:
+    if not is_active:
+        common.active_actions_dict[command] = True
+
+        if location_object is not None:
+            try:
+                coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
+            except:
+                coord_tuple = (int(math.ceil(float(location_object.pos_x))), int(math.ceil(float(location_object.pos_y))), int(math.ceil(float(location_object.pos_z))))
+        else:
+            try:
+                coord_tuple = (int(math.ceil(float(coord_tuple[0]))), int(math.ceil(float(coord_tuple[1]))), int(math.ceil(float(coord_tuple[2]))))
+            except:
+                return False
+
+        if not player_object.is_responsive():
             return False
 
-    if not player_object.is_responsive():
-        return False
+        player_object.set_last_teleport()
+        player_object.pos_x = coord_tuple[0]
+        player_object.pos_y = coord_tuple[1]
+        player_object.pos_z = coord_tuple[2]
+        chrani_bot.players.upsert(player_object)
 
-    player_object.set_last_teleport()
-    player_object.pos_x = coord_tuple[0]
-    player_object.pos_y = coord_tuple[1]
-    player_object.pos_z = coord_tuple[2]
-    chrani_bot.players.upsert(player_object)
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {pos_x} {pos_y} {pos_z} {line_end}".format(command=command, player_steamid=player_object.steamid, pos_x=coord_tuple[0], pos_y=coord_tuple[1], pos_z=coord_tuple[2], line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {pos_x} {pos_y} {pos_z} {line_end}".format(command=command, player_steamid=player_object.steamid, pos_x=coord_tuple[0], pos_y=coord_tuple[1], pos_z=coord_tuple[2], line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
-    if not is_active:
         logger.debug("starting 'teleportplayer'")
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, location_object, coord_tuple))
         return True
@@ -61,7 +64,6 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None):
 def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
     chrani_bot = __main__.chrani_bot
     command = "teleportplayer"
-    common.active_actions_dict[command] = True
     common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
     time.sleep(0.5)

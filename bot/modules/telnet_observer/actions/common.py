@@ -18,5 +18,7 @@ def trigger_action(bot, action, *args, **kwargs):
             return actions_dict[action]["action"]()
         elif len(args) >= 1:
             return actions_dict[action]["action"](*args, **kwargs)
-    except:
+    except IOError:
+        raise
+    except KeyError:
         pass

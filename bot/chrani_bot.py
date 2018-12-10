@@ -54,9 +54,6 @@ class ChraniBot(Thread):
     match_types_generic = dict
     match_types_system = dict
 
-    tn = object  # telnet connection to use for everything except player-actions and player-poll
-    poll_tn = object
-    message_tn = object
     telnet_lines_list = deque
 
     last_execution_time = float
@@ -375,7 +372,7 @@ class ChraniBot(Thread):
 
     def ongoing_bloodmoon(self):
         if self.current_gametime is None:
-            return True
+            return False
 
         bloodmoon = False
         if self.is_it_horde_day(int(self.current_gametime["day"])) and int(self.current_gametime["hour"]) >= 21:

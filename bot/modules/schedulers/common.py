@@ -25,7 +25,7 @@ def run_schedulers(chrani_bot):
             })
 
     for command in command_queue:
-        if command["is_active"]:
+        if command["is_active"] and chrani_bot.has_connection:
             try:
                 result = command["scheduler"](chrani_bot)
             except TypeError as error:

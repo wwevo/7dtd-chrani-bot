@@ -196,7 +196,7 @@ def reboot(chrani_bot):
     def reboot_worker():
         restart_timer = chrani_bot.settings.get_setting_by_name(name='restart_warning')
         message = "server will restart in {} seconds".format(restart_timer)
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.chat_colors['warning'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
         chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
         common.schedulers_dict["reboot"]["current_countdown"] = 0
         while True:
@@ -216,6 +216,7 @@ def reboot(chrani_bot):
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
+                chrani_bot.has_connection = False
                 return True
 
     try:
