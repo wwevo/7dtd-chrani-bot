@@ -288,13 +288,11 @@ class ChraniBot(Thread):
     def get_game_preferences(self):
         self.telnet_observer.actions.trigger_action(self, "gg")
 
-        while len(self.telnet_observer.actions.actions_dict["gg"]["last_result"]) <= 0:
+        while self.telnet_observer.actions.common.get_active_action_result("system", "gg") is None:
             time.sleep(1)
-            if len(self.telnet_observer.telnet_buffer) >= 0:
-                print self.telnet_observer.telnet_buffer
 
         game_preferences_dict = {}
-        game_preferences = self.telnet_observer.actions.actions_dict["gg"]["last_result"].strip()
+        game_preferences = self.telnet_observer.actions.common.get_active_action_result("system", "gg").strip()
         game_preferences_list = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", game_preferences)
 
         if game_preferences:

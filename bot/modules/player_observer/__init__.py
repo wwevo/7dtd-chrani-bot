@@ -56,7 +56,7 @@ class PlayerObserver(Thread):
     def manage_online_players(self, chrani_bot):
         def poll_players():
             online_players_dict = {}
-            listplayers_result = chrani_bot.telnet_observer.actions.common.actions_dict["lp"]["last_result"]
+            listplayers_result = chrani_bot.telnet_observer.actions.common.get_active_action_result("system", "lp")
             for m in re.finditer(chrani_bot.match_types_system["listplayers_result_regexp"], listplayers_result):
                 online_players_dict.update({m.group(16): {
                     "entityid":         m.group(1),

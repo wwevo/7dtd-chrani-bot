@@ -14,20 +14,17 @@ def mem():
         time.sleep(1)
         return
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status('system', command)
     if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
@@ -36,11 +33,9 @@ def mem():
 def mem_callback_thread():
     chrani_bot = __main__.chrani_bot
     command = "mem"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -55,18 +50,16 @@ def mem_callback_thread():
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result('system', command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["mem"] = {
     "telnet_command": "mem",
-    "last_executed": "0",
-    "last_result": "",
     "action": mem,
     "action_callback": mem_callback_thread,
     "is_available": True
@@ -80,20 +73,17 @@ def gt():
         time.sleep(1)
         return
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status('system', command)
     if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting 'gt'")
+        common.set_active_action_status('system', command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
     else:
         logger.debug("command 'gt' is active and waiting for a response!")
@@ -102,11 +92,9 @@ def gt():
 def gt_callback_thread():
     chrani_bot = __main__.chrani_bot
     command = "gt"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -121,18 +109,16 @@ def gt_callback_thread():
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result('system', command, match.group(0))
         time.sleep(0.5)
 
-    logger.debug("finished 'gt'")
-    common.active_actions_dict[command] = False
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["gt"] = {
     "telnet_command": "gt",
-    "last_executed": "0",
-    "last_result": "",
     "action": gt,
     "action_callback": gt_callback_thread,
     "is_available": True
@@ -146,24 +132,18 @@ def gg():
         time.sleep(1)
         return
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status('system', command)
     if not is_active:
-        logger.debug("starting 'gg'")
         try:
-            thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
         except Exception as e:
-            print(type(e))
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting 'gg'")
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
     else:
         logger.debug("command 'gg' is active and waiting for a response!")
 
@@ -171,12 +151,9 @@ def gg():
 def gg_callback_thread():
     chrani_bot = __main__.chrani_bot
     command = "gg"
-
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(10, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(10, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -191,18 +168,16 @@ def gg_callback_thread():
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(2)
+            common.set_active_action_result('system', command, match.group(2))
         time.sleep(0.5)
 
-    logger.debug("finished 'gg'")
-    common.active_actions_dict[command] = False
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["gg"] = {
     "telnet_command": "gg",
-    "last_executed": "0",
-    "last_result": "",
     "action": gg,
     "action_callback": gg_callback_thread,
     "is_available": True
@@ -216,20 +191,17 @@ def tcch():
         time.sleep(1)
         return
 
-    try:
-        chrani_bot.telnet_observer.tn.write('{command} \"/\" {line_end}'.format(command=command, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status('system', command)
     if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write('{command} \"/\" {line_end}'.format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
@@ -238,11 +210,9 @@ def tcch():
 def tcch_callback_thread():
     chrani_bot = __main__.chrani_bot
     command = "tcch"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -257,18 +227,16 @@ def tcch_callback_thread():
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result('system', command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["tcch"] = {
     "telnet_command": "tcch",
-    "last_executed": "0",
-    "last_result": "",
     "action": tcch,
     "action_callback": tcch_callback_thread,
     "is_available": True
@@ -282,20 +250,17 @@ def shutdown():
         time.sleep(1)
         return
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status('system', command)
     if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
@@ -304,11 +269,9 @@ def shutdown():
 def shutdown_callback_thread():
     chrani_bot = __main__.chrani_bot
     command = "shutdown"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -323,19 +286,326 @@ def shutdown_callback_thread():
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result('system', command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["shutdown"] = {
     "telnet_command": "shutdown",
-    "last_executed": "0",
-    "last_result": "",
     "action": shutdown,
     "action_callback": shutdown_callback_thread,
     "is_available": True
 }
+
+
+def lp():
+    chrani_bot = __main__.chrani_bot
+    command = "lp"
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
+    else:
+        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+
+
+def lp_callback_thread():
+    chrani_bot = __main__.chrani_bot
+    command = "lp"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'" + command + "\' by Telnet from (.*)([\s\S]+?)Total of (\d{1,2}) in the game", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+            pass
+
+        if match:
+            common.set_active_action_result('system', command, match.group(2))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
+
+
+common.actions_dict["lp"] = {
+    "telnet_command": "lp",
+    "action": lp,
+    "action_callback": lp_callback_thread,
+    "is_available": True
+}
+
+
+def llp():
+    chrani_bot = __main__.chrani_bot
+    command = "llp"
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting 'llp'")
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
+    else:
+        logger.debug("command 'llp' is active and waiting for a response!")
+
+
+def llp_callback_thread():
+    chrani_bot = __main__.chrani_bot
+    command = "llp"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'llp\' by Telnet from (.*)([\s\S]+?)Total of (\d{1,3}) keystones in the game", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+            pass
+
+        if match:
+            common.set_active_action_result('system', command, match.group(2))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
+
+
+common.actions_dict["llp"] = {
+    "telnet_command": "llp",
+    "action": llp,
+    "action_callback": llp_callback_thread,
+    "is_available": True
+}
+
+
+def say(message, color=None):
+    chrani_bot = __main__.chrani_bot
+    command = "say"
+
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    silent_mode = chrani_bot.settings.get_setting_by_name(name='silent_mode')
+    if silent_mode:
+        return True
+
+    if color is None:
+        color = chrani_bot.chat_colors['standard']
+
+    try:
+        chrani_bot.telnet_observer.tn.write("{command} \"[{color}]{message}[-]\"{line_end}".format(command=command, color=color, message=message, line_end=b"\r\n"))
+    except Exception as e:
+        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+        logger.error(log_message)
+        raise IOError(log_message)
+
+    logger.debug("starting 'say'")
+    common.set_active_action_status('system', command, True)
+    thread.start_new_thread(common.actions_dict[command]["action_callback"], (message, color))
+
+
+def say_callback_thread(message, color):
+    chrani_bot = __main__.chrani_bot
+    command = "say"
+    poll_is_finished = False
+
+    execution_time = time.time()
+    while not poll_is_finished and not timeout_occurred(3, execution_time):
+        logger.debug("waiting for response of 'say'")
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'say\' \"[{color}]" + message + "[-]\" by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+            pass
+
+        if match:
+            common.set_active_action_result('system', command, match.group(0))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
+
+
+common.actions_dict["say"] = {
+    "telnet_command": "say",
+    "action": say,
+    "action_callback": say_callback_thread,
+    "is_available": True
+}
+
+
+def saveworld():
+    chrani_bot = __main__.chrani_bot
+    command = "saveworld"
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {line_end}".format(command=command, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
+    else:
+        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+
+
+def saveworld_callback_thread():
+    chrani_bot = __main__.chrani_bot
+    command = "saveworld"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'saveworld\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+            pass
+
+        if match:
+            common.set_active_action_result('system', command, match.group(0))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
+
+
+common.actions_dict["saveworld"] = {
+    "telnet_command": "saveworld",
+    "action": saveworld,
+    "action_callback": saveworld_callback_thread,
+    "is_available": True
+}
+
+
+def settime(timestring):
+    chrani_bot = __main__.chrani_bot
+    command = "settime"
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {timestring} {line_end}".format(command=command, timestring=timestring, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], (timestring, None))
+    else:
+        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+
+
+def settime_callback_thread(timestring, dummy):
+    chrani_bot = __main__.chrani_bot
+    command = "settime"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'" + str(command) + " " + str(timestring) + "\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+            pass
+
+        if match:
+            common.set_active_action_result('system', command, match.group(0))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
+
+
+common.actions_dict["settime"] = {
+    "telnet_command": "settime",
+    "action": settime,
+    "action_callback": settime_callback_thread,
+    "is_available": True
+}
+
+
+
+
+"""
+
+
+
+"""

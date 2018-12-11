@@ -220,7 +220,7 @@ def skip_bloodmoon(chrani_bot, source_player, target_player, command):
                 day_after_horde = int(chrani_bot.current_gametime["day"])
 
             if day_after_horde is not None:
-                chrani_bot.tn.settime("{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "settime", "{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
                 message = "bloodmoon got skipped by {}".format(source_player.name)
                 response_messages.add_message(message, True)
             else:

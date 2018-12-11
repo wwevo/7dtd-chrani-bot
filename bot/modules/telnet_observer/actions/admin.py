@@ -16,22 +16,18 @@ def mpc(player_object, status):
         time.sleep(1)
         return False
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {steamid} {status} {line_end}".format(command=command, steamid=player_object.steamid, status=status, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {steamid} {status} {line_end}".format(command=command, steamid=player_object.steamid, status=status, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, status))
-        return True
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
@@ -39,11 +35,9 @@ def mpc(player_object, status):
 def mpc_callback_thread(player_object, status):
     chrani_bot = __main__.chrani_bot
     command = "mpc"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -58,18 +52,16 @@ def mpc_callback_thread(player_object, status):
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["mpc"] = {
     "telnet_command": "mpc",
-    "last_executed": "0",
-    "last_result": "",
     "action": mpc,
     "action_callback": mpc_callback_thread,
     "is_available": True
@@ -83,22 +75,18 @@ def bc_mute(player_object, status):
         time.sleep(1)
         return False
 
-    try:
-        chrani_bot.telnet_observer.tn.write("{command} {steamid} {status} {line_end}".format(command=command, steamid=player_object.steamid, status=status, line_end=b"\r\n"))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {steamid} {status} {line_end}".format(command=command, steamid=player_object.steamid, status=status, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, status))
-        return True
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
@@ -125,24 +113,20 @@ def bc_mute_callback_thread(player_object, status):
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["bc-mute"] = {
     "telnet_command": "bc-mute",
-    "last_executed": "0",
-    "last_result": "",
     "action": bc_mute,
     "action_callback": bc_mute_callback_thread,
     "is_available": True
 }
-
-""" kicking and banning """
 
 
 def kick(player_object, reason):
@@ -152,28 +136,24 @@ def kick(player_object, reason):
         time.sleep(1)
         return False
 
-    try:
-        format_dict = {
-            "command": command,
-            "steamid": player_object.steamid,
-            "reason": reason,
-            "line_end": b"\r\n"
-        }
-        chrani_bot.telnet_observer.tn.write('{command} {steamid} "{reason}" {line_end}'.format(**format_dict))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
+        try:
+            format_dict = {
+                "command": command,
+                "steamid": player_object.steamid,
+                "reason": reason,
+                "line_end": b"\r\n"
+            }
+            chrani_bot.telnet_observer.tn.write('{command} {steamid} "{reason}" {line_end}'.format(**format_dict))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, reason))
-        return True
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
@@ -201,18 +181,16 @@ def kick_callback_thread(player_object, reason):
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["kick"] = {
     "telnet_command": "kick",
-    "last_executed": "0",
-    "last_result": "",
     "action": kick,
     "action_callback": kick_callback_thread,
     "is_available": True
@@ -226,29 +204,25 @@ def ban(player_object, reason, duration_in_hours=None):
         time.sleep(1)
         return False
 
-    try:
-        format_dict = {
-            "command": command,
-            "steamid": player_object.steamid,
-            "duration": duration_in_hours,
-            "reason": reason,
-            "line_end": b"\r\n"
-        }
-        chrani_bot.telnet_observer.tn.write('{command} {steamid} {duration} hours "{reason}" {line_end}'.format(**format_dict))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
+        try:
+            format_dict = {
+                "command": command,
+                "steamid": player_object.steamid,
+                "duration": duration_in_hours,
+                "reason": reason,
+                "line_end": b"\r\n"
+            }
+            chrani_bot.telnet_observer.tn.write('{command} {steamid} {duration} hours "{reason}" {line_end}'.format(**format_dict))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, reason, duration_in_hours))
-        return True
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
@@ -276,18 +250,16 @@ def ban_callback_thread(player_object, reason, duration_in_hours):
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["ban"] = {
     "telnet_command": "ban",
-    "last_executed": "0",
-    "last_result": "",
     "action": ban,
     "action_callback": ban_callback_thread,
     "is_available": True
@@ -301,27 +273,23 @@ def unban(player_object):
         time.sleep(1)
         return False
 
-    try:
-        format_dict = {
-            "command": command,
-            "steamid": player_object.steamid,
-            "line_end": b"\r\n"
-        }
-        chrani_bot.telnet_observer.tn.write('{command} remove {steamid} {line_end}'.format(**format_dict))
-    except Exception as e:
-        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-        logger.error(log_message)
-        raise IOError(log_message)
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
+    is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
+        try:
+            format_dict = {
+                "command": command,
+                "steamid": player_object.steamid,
+                "line_end": b"\r\n"
+            }
+            chrani_bot.telnet_observer.tn.write('{command} remove {steamid} {line_end}'.format(**format_dict))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
         logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, None))
-        return True
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
@@ -349,43 +317,17 @@ def unban_callback_thread(player_object, dummy):
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(0)
+            common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.active_actions_dict[command] = False
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["unban"] = {
     "telnet_command": "unban",
-    "last_executed": "0",
-    "last_result": "",
     "action": unban,
     "action_callback": unban_callback_thread,
     "is_available": True
 }
-
-"""
-
-    def ban(self, player_object, reason='does there always need to be a reason?'):
-        command = "ban add " + str(player_object.steamid) + " 1 year \"" + reason.rstrip() + b"\"\r\n"
-        try:
-            connection = self.tn
-            connection.write(command)
-            return True
-        except Exception:
-            return False
-
-    def unban(self, player_object):
-        command = "ban remove " + str(player_object.steamid) + b"\r\n"
-        try:
-            connection = self.tn
-            connection.write(command)
-            return True
-        except Exception:
-            return False
-
-
-
-"""

@@ -75,10 +75,11 @@ common.schedulers_controller["poll_players"] = {
 
 def get_gametime(chrani_bot):
     try:
-        if timeout_occurred(2.5, float(common.schedulers_dict["get_gametime"]["last_executed"])):
+        if timeout_occurred(10, float(common.schedulers_dict["get_gametime"]["last_executed"])):
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "gt")
             common.schedulers_dict["get_gametime"]["last_executed"] = time.time()
-            p = re.search(r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2})", chrani_bot.telnet_observer.actions.common.actions_dict["gt"]["last_result"])
+
+            p = re.search(r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2})", chrani_bot.telnet_observer.actions.common.get_active_action_result("system", "gt"))
             if p:
                 chrani_bot.current_gametime = {
                     "day": p.group("day"),

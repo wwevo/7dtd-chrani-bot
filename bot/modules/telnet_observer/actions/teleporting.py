@@ -11,20 +11,15 @@ from bot.assorted_functions import timeout_occurred
 def teleportplayer(player_object, location_object=None, coord_tuple=None):
     chrani_bot = __main__.chrani_bot
     command = "teleportplayer"
-
-    try:
-        is_active = common.active_actions_dict[command]
-    except KeyError:
-        is_active = False
-
     if not common.actions_dict[command]["is_available"]:
         time.sleep(1)
         return False
 
-    if not player_object.is_online:
-        return False
-
+    is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
+        if not player_object.is_online:
+            return False
+
         common.active_actions_dict[command] = True
 
         if location_object is not None:
@@ -55,8 +50,8 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None):
             raise IOError(log_message)
 
         logger.debug("starting 'teleportplayer'")
+        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, location_object, coord_tuple))
-        return True
     else:
         logger.debug("command 'teleportplayer' is active and waiting for a response!")
 
@@ -64,11 +59,9 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None):
 def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
     chrani_bot = __main__.chrani_bot
     command = "teleportplayer"
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
-    time.sleep(0.5)
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of 'teleportplayer'")
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -83,18 +76,16 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
             pass
 
         if match:
-            common.actions_dict[command]["last_result"] = match.group(2)
+            common.set_active_action_result(player_object.steamid, command, match.group(2))
         time.sleep(0.5)
 
-    logger.debug("finished 'llp'")
-    common.active_actions_dict[command] = False
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
     return
 
 
 common.actions_dict["teleportplayer"] = {
     "telnet_command": "teleportplayer",
-    "last_executed": "0",
-    "last_result": "",
     "action": teleportplayer,
     "action_callback": teleportplayer_callback_thread,
     "is_available": True
