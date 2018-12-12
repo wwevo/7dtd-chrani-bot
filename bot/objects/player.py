@@ -39,12 +39,18 @@ class Player(flask_login.UserMixin):
     country_code = str
     blacklisted = bool
     authenticated = bool
+
     is_muted = bool
     is_online = bool
     is_banned = bool
+    is_about_to_be_kicked = bool
+
     is_to_be_obliterated = bool
+
     is_logging_in = bool
+
     has_been_muted = bool
+
     last_teleport = int
     last_responsive = float
     last_seen = float
@@ -65,6 +71,7 @@ class Player(flask_login.UserMixin):
         self.has_been_muted = None
         self.is_online = False
         self.is_banned = False
+        self.is_about_to_be_kicked = False
         self.is_logging_in = False
         self.permission_levels = []
         self.last_responsive = time()

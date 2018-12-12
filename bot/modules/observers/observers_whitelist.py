@@ -11,10 +11,12 @@ def check_if_player_is_on_whitelist(chrani_bot, player_observer):
         return
 
     if player_object.is_online and chrani_bot.whitelist.is_active() is True:
-        if not chrani_bot.whitelist.player_is_allowed(player_object):
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_player_unknown_kick_msg', default="You are not on our whitelist. Visit http://chrani.net to find out what that means and if / what options are available to you!"))
+        if not chrani_bot.whitelist.player_is_allowed(player_object) and not player_object.is_about_to_be_kicked:
+            kick_message = chrani_bot.settings.get_setting_by_name(name='whitelist_player_unknown_kick_msg', default="You are not on our whitelist. Visit http://chrani.net to find out what that means and if / what options are available to you!")
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, kick_message)
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. This is VIP Only!".format(player_object.name), chrani_bot.chat_colors['warning'])
             logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
+            player_object.is_about_to_be_kicked = False
 
 
 common.observers_dict["check_if_player_is_on_whitelist"] ={
@@ -36,7 +38,7 @@ def check_if_player_has_url_name(chrani_bot, player_observer):
     except KeyError:
         return False
 
-    if player_object.is_online and not chrani_bot.whitelist.player_is_allowed(player_object):
+    if player_object.is_online and not player_object.is_about_to_be_kicked and not chrani_bot.whitelist.player_is_allowed(player_object):
         p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
         if p:
             logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
@@ -85,7 +87,7 @@ def check_ip_country(chrani_bot, player_observer):
         except Exception as e:
             logger.exception(e)
 
-        if player_object.is_online:
+        if player_object.is_online and not player_object.is_about_to_be_kicked:
             if users_country in chrani_bot.banned_countries_list and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_blocked_ip_kick_msg', default="Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")):
                 player_object.blacklisted = True
                 logger.info("kicked player {} for being from {}".format(player_object.name, users_country))

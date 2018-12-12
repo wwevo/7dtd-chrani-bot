@@ -56,7 +56,7 @@ def mpc_callback_thread(player_object, status):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
+    common.set_active_action_status(player_object.steamid, command, False)
     return
 
 
@@ -94,11 +94,9 @@ def bc_mute(player_object, status):
 def bc_mute_callback_thread(player_object, status):
     chrani_bot = __main__.chrani_bot
     command = "bc-mute"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -117,7 +115,7 @@ def bc_mute_callback_thread(player_object, status):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
+    common.set_active_action_status(player_object.steamid, command, False)
     return
 
 
@@ -161,12 +159,10 @@ def kick(player_object, reason):
 def kick_callback_thread(player_object, reason):
     chrani_bot = __main__.chrani_bot
     command = "kick"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
     time.sleep(0.5)
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -176,7 +172,7 @@ def kick_callback_thread(player_object, reason):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + " " + str(player_object.steamid) + " \"" + reason + "\"\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + " " + str(player_object.steamid) + " \"(.*)\"\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
@@ -185,7 +181,8 @@ def kick_callback_thread(player_object, reason):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
+    player_object.is_about_to_be_kicked = False
+    common.set_active_action_status(player_object.steamid, command, False)
     return
 
 
@@ -230,12 +227,10 @@ def ban(player_object, reason, duration_in_hours=None):
 def ban_callback_thread(player_object, reason, duration_in_hours):
     chrani_bot = __main__.chrani_bot
     command = "ban"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
     time.sleep(0.5)
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -254,7 +249,7 @@ def ban_callback_thread(player_object, reason, duration_in_hours):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
+    common.set_active_action_status(player_object.steamid, command, False)
     return
 
 
@@ -297,12 +292,10 @@ def unban(player_object):
 def unban_callback_thread(player_object, dummy):
     chrani_bot = __main__.chrani_bot
     command = "unban"
-    common.active_actions_dict[command] = True
-    common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
     time.sleep(0.5)
 
-    while not poll_is_finished and not timeout_occurred(3, common.actions_dict[command]["last_executed"]):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -321,7 +314,7 @@ def unban_callback_thread(player_object, dummy):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
+    common.set_active_action_status(player_object.steamid, command, False)
     return
 
 

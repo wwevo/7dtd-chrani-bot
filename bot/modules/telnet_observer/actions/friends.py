@@ -54,7 +54,7 @@ def lpf_callback_thread(player_object, dummy):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
+    common.set_active_action_status(player_object.steamid, command, False)
     return
 
 

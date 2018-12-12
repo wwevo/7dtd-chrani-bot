@@ -141,11 +141,13 @@ class TelnetObserver(Thread):
                             self.recent_telnet_response = component
                             # logger.debug("{error_message}/{telnet_line}".format(error_message="found incomplete line, storing for next run: ", telnet_line=component.rstrip(b"\r\n")))
                         else:
-                            logger.debug("{error_message}/{telnet_line}".format(error_message="does not seem to be usable: ", telnet_line=component.rstrip(b"\r\n")))
+                            # logger.debug("{error_message}/{telnet_line}".format(error_message="does not seem to be usable: ", telnet_line=component.rstrip(b"\r\n")))
+                            pass
 
                     else:
                         # not a complete line right in the middle. We don't need this!!
-                        logger.debug("{error_message}/{telnet_line}".format(error_message="found incomplete line smack in the middle: ", telnet_line=component.rstrip(b"\r\n")))
+                        # logger.debug("{error_message}/{telnet_line}".format(error_message="found incomplete line smack in the middle: ", telnet_line=component.rstrip(b"\r\n")))
+                        pass
 
                 response_count += 1
 

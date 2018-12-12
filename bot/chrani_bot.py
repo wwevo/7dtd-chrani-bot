@@ -208,7 +208,7 @@ class ChraniBot(Thread):
 
     def poll_lcb(self):
         lcb_dict = {}
-        listlandprotection_result = self.telnet_observer.actions.actions_dict["llp"]["last_result"]
+        listlandprotection_result = self.telnet_observer.actions.get_active_action_result('system', "llp")
 
         # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
         # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
@@ -232,21 +232,22 @@ class ChraniBot(Thread):
         return lcb_dict
 
     def manage_landclaims(self):
-        # if polled_lcb != self.landclaims_dict:
-        #     lcb_owners_to_delete = {}
-        #     lcb_owners_to_update = {}
-        #     lcb_owners_to_update.update(polled_lcb)
-        #     for lcb_widget_owner in lcb_owners_to_update.keys():
-        #         try:
-        #             player_object = self.players.get_by_steamid(lcb_widget_owner)
-        #         except KeyError:
-        #             continue
-        #
-        #         self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-        #
-        #     self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
-        #     self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
-        #     self.landclaims_dict = self
+        polled_lcb = self.poll_lcb()
+        if polled_lcb != self.landclaims_dict:
+            lcb_owners_to_delete = {}
+            lcb_owners_to_update = {}
+            lcb_owners_to_update.update(polled_lcb)
+            for lcb_widget_owner in lcb_owners_to_update.keys():
+                try:
+                    player_object = self.players.get_by_steamid(lcb_widget_owner)
+                except KeyError:
+                    continue
+
+                self.socketio.emit('refresh_player_lcb_widget', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+
+            self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
+            self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
+            self.landclaims_dict = self
         pass
 
     def get_lcb_marker_json(self, lcb_dict):
