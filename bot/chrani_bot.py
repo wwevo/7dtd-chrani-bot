@@ -421,13 +421,16 @@ class ChraniBot(Thread):
                 if not self.has_connection:
                     raise IOError
 
+                has_required_environment = self.has_required_environment()
+
                 if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
                     """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
                     """
                     last_schedule = profile_start
-                    run_schedulers(self)
+                    only_essential = not has_required_environment
+                    run_schedulers(self, only_essential=only_essential)
 
-                if not self.has_required_environment() or self.is_paused is not False:
+                if not has_required_environment or self.is_paused is not False:
                     time.sleep(self.listplayers_interval)
                     continue
 

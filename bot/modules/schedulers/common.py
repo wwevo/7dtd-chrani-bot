@@ -13,7 +13,7 @@ for module in os.listdir(os.path.dirname(__file__)):
     del module
 
 
-def run_schedulers(chrani_bot):
+def run_schedulers(chrani_bot, only_essential=False):
     command_queue = []
     for name, scheduler in chrani_bot.schedulers_dict.iteritems():
         if scheduler["type"] == 'schedule':  # we only want the monitors here, the player is active, no triggers needed
@@ -21,13 +21,19 @@ def run_schedulers(chrani_bot):
             command_queue.append({
                 "name": name,
                 "scheduler": scheduler_function_name,
-                "is_active": chrani_bot.schedulers_controller[name]["is_active"]
+                "is_active": chrani_bot.schedulers_controller[name]["is_active"],
+                "is_essential": chrani_bot.schedulers_controller[name]["essential"]
+
             })
 
     for command in command_queue:
         if command["is_active"] and chrani_bot.has_connection:
             try:
-                result = command["scheduler"](chrani_bot)
+                if only_essential:
+                    if command["is_essential"]:
+                        result = command["scheduler"](chrani_bot)
+                else:
+                    result = command["scheduler"](chrani_bot)
             except TypeError as error:
                 logger.debug("{} had a type error ({})".format(command["scheduler"], error.message))
                 pass

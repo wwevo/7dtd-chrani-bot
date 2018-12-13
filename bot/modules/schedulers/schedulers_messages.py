@@ -10,8 +10,7 @@ def rolling_announcements(chrani_bot):
         if len(chrani_bot.player_observer.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
             return True
 
-        if timeout_occurred(float(chrani_bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(
-                common.schedulers_dict["rolling_announcements"]["last_executed"])):
+        if timeout_occurred(float(chrani_bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(common.schedulers_dict["rolling_announcements"]["last_executed"])):
             message, interval = random.choice(list(chrani_bot.settings.get_setting_by_name(name='rolling_announcements').items()))
             if interval == "all":
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
@@ -32,10 +31,10 @@ common.schedulers_dict["rolling_announcements"] = {
     "last_executed": time.time(),
     "action": rolling_announcements,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["rolling_announcements"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": False
 }

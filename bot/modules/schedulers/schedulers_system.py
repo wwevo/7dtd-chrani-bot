@@ -25,13 +25,13 @@ common.schedulers_dict["set_chat_prefix"] = {
     "trigger": "interval",
     "last_executed": "0",
     "action": set_chat_prefix,
-    "env": "(self)",
-    "essential": True,
+    "env": "(self)"
 }
 
 
 common.schedulers_controller["set_chat_prefix"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": True
 }
 
 
@@ -53,12 +53,12 @@ common.schedulers_dict["get_game_preferences"] = {
     "last_executed": "0",
     "action": get_game_preferences,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["get_game_preferences"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": True
 }
 
 
@@ -81,12 +81,12 @@ common.schedulers_dict["get_mem_status"] = {
     "last_executed": "0",
     "action": get_mem_status,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["get_mem_status"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": False
 }
 
 
@@ -119,12 +119,12 @@ common.schedulers_dict["poll_players"] = {
     "last_executed": "0",
     "action": poll_players,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["poll_players"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": True
 }
 
 
@@ -156,12 +156,12 @@ common.schedulers_dict["get_gametime"] = {
     "last_executed": "0",
     "action": get_gametime,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["get_gametime"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": False
 }
 
 
@@ -200,13 +200,13 @@ common.schedulers_dict["update_system_status"] = {
     "trigger": "interval",  # "interval, gametime, gameday"
     "last_executed": "0",
     "action": update_system_status,
-    "env": "(self)",
-    "essential": True,
+    "env": "(self)"
 }
 
 
 common.schedulers_controller["update_system_status"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": False
 }
 
 
@@ -238,12 +238,12 @@ common.schedulers_dict["list_landprotection"] = {
     "last_executed": "0",
     "action": list_landprotection,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["list_landprotection"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": False
 }
 
 
@@ -305,10 +305,10 @@ common.schedulers_dict["reboot"] = {
     "last_executed": time.time(),
     "action": reboot,
     "env": "(self)",
-    "essential": True,
 }
 
 
 common.schedulers_controller["reboot"] = {
-    "is_active": True
+    "is_active": True,
+    "essential": True
 }

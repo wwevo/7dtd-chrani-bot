@@ -16,15 +16,12 @@ class Players(object):
 
     players_dict = dict
 
-    poll_listplayerfriends_interval = float
-
     def __init__(self):
         self.root = 'data/players'
         self.prefix = args_dict['Database-file']
         self.extension = "json"
 
         self.players_dict = {}
-        self.poll_listplayerfriends_interval = 30
 
     def player_entered_telnet(self, m):
         bot = __main__.chrani_bot
