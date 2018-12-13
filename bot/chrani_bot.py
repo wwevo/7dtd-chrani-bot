@@ -58,6 +58,7 @@ class ChraniBot(Thread):
 
     telnet_lines_list = deque
 
+    first_run = bool
     last_execution_time = float
     listlandprotection_interval = int
     listplayers_interval = int
@@ -110,6 +111,7 @@ class ChraniBot(Thread):
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
+        self.first_run = True
         self.last_execution_time = 0.0
         self.telnet_queue = 0
         self.ready_for_action = False
@@ -182,8 +184,6 @@ class ChraniBot(Thread):
             'telnet_events_playerspawn': r"(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
             # isolates the disconnected log entry to get the total session time of a player easily
             'telnet_player_playtime': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
-            # to parse the telnets listplayers response
-            'listplayers_result_regexp': r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n",
             # to parse the telnets listlandprotection response
             'listlandprotection_result_regexp': r"Player \"(?:.+)\((?P<player_steamid>\d+)\)\" owns \d+ keystones \(.+\)\s(?P<keystones>(\s+\(.+\)\s){1,})",
             # to parse the telnets listlandplayerfriends response
@@ -386,9 +386,17 @@ class ChraniBot(Thread):
         self.player_observer = player_observer_thread
         self.player_observer.start()
 
+    def start_telnet_observer(self):
+        tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password', show_log_init=True))
+        telnet_observer_thread_stop_flag = Event()
+        telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, tn.tn)
+        telnet_observer_thread.name = "telnet observer"
+        telnet_observer_thread.isDaemon()
+        self.telnet_observer = telnet_observer_thread
+        self.telnet_observer.start()
+
     def has_required_environment(self):
         """ check if needed server-config is available"""
-        we_got_us_some_settings = False
         try:
             server_settings_dict = self.telnet_observer.actions.common.get_active_action_result("system", "gg")
         except Exception as e:
@@ -403,7 +411,6 @@ class ChraniBot(Thread):
             we_got_us_some_settings = False
         """ check if required telnet commands are available"""
 
-        have_found_a_sweet_prefix = False
         try:
             prefix_found = self.telnet_observer.actions.common.get_active_action_result("system", self.settings.get_setting_by_name(name='chatprefix_method'))
         except Exception as e:
@@ -424,14 +431,6 @@ class ChraniBot(Thread):
         return result
 
     def run(self):
-        self.start_custodian()
-        self.start_player_observer()
-
-        self.permissions = Permissions(self.player_observer.actions_list, self.permission_levels_list)
-
-        self.load_from_db()
-
-        self.telnet_lines_list = deque()
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
@@ -441,13 +440,13 @@ class ChraniBot(Thread):
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
                 profile_start = time.time()
+                if not isinstance(self.telnet_observer, TelnetObserver):
+                    raise IOError
+
                 self.custodian.check_in('main_loop', True)
                 self.time_running = int(time.time() - self.time_launched)
 
                 if not self.has_connection:
-                    raise IOError
-
-                if not isinstance(self.telnet_observer, TelnetObserver):
                     raise IOError
 
                 if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
@@ -461,12 +460,14 @@ class ChraniBot(Thread):
                     continue
 
                 if self.initiate_shutdown is True and self.has_connection:
+                    time.sleep(self.listplayers_interval)
                     self.is_active = False
                     continue
 
                 lines_processed = self.telnet_observer.execute_queue(10)
                 actions_executed = self.player_observer.execute_queue(10)
 
+                self.first_run = False
                 self.last_execution_time = time.time() - profile_start
                 next_cycle = (0.2 - self.last_execution_time)
 
@@ -476,22 +477,24 @@ class ChraniBot(Thread):
                 self.server_time_running = None
 
                 try:
-                    tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password', show_log_init=True))
+                    self.start_custodian()
+                    self.start_telnet_observer()
                     self.has_connection = True
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
-                    telnet_observer_thread_stop_flag = Event()
-                    telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, tn.tn)
-                    telnet_observer_thread.name = "telnet observer"
-                    telnet_observer_thread.isDaemon()
-                    self.telnet_observer = telnet_observer_thread
-                    self.telnet_observer.start()
+                    self.start_player_observer()
+                    self.permissions = Permissions(self.player_observer.actions_list, self.permission_levels_list)
+
+                    self.load_from_db()
+
+                    self.telnet_lines_list = deque()
 
                     self.reboot_imminent = False
                     self.is_paused = False
 
                 except IOError as e:
                     self.has_connection = False
+                    self.first_run = True
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
 
                     self.clear_env()
@@ -501,6 +504,7 @@ class ChraniBot(Thread):
                     self.restart_delay = 20
 
             except (NameError, AttributeError) as error:
+                traceback.print_exc()
                 logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except Exception as error:
                 traceback.print_exc()

@@ -357,7 +357,33 @@ def lp_callback_thread():
             pass
 
         if match:
-            common.set_active_action_result('system', command, match.group(2))
+            online_players_raw = match.group(2).lstrip()
+            online_players_dict = {}
+            for m in re.finditer(r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n", online_players_raw):
+                online_players_dict.update({m.group(16): {
+                    "entityid":         m.group(1),
+                    "name":             str(m.group(2)),
+                    "pos_x":            float(m.group(3)),
+                    "pos_y":            float(m.group(4)),
+                    "pos_z":            float(m.group(5)),
+                    "rot_x":            float(m.group(6)),
+                    "rot_y":            float(m.group(7)),
+                    "rot_z":            float(m.group(8)),
+                    "remote":           bool(m.group(9)),
+                    "health":           int(m.group(10)),
+                    "deaths":           int(m.group(11)),
+                    "zombies":          int(m.group(12)),
+                    "players":          int(m.group(13)),
+                    "score":            m.group(14),
+                    "level":            m.group(15),
+                    "steamid":          m.group(16),
+                    "ip":               str(m.group(17)),
+                    "ping":             int(m.group(18)),
+                    "is_online":        True,
+                    "is_logging_in":    False
+                }})
+
+            common.set_active_action_result('system', command, online_players_dict)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
