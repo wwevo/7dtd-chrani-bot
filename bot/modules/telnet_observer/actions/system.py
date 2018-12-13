@@ -155,6 +155,7 @@ def gg_callback_thread():
 
     while not poll_is_finished and not timeout_occurred(10, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
+        logger.error(chrani_bot.telnet_observer.telnet_buffer)
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
             logger.debug("command not recognized: {command}".format(command=command))
@@ -168,7 +169,7 @@ def gg_callback_thread():
             pass
 
         if match:
-            game_preferences_raw = match.group(2)
+            game_preferences_raw = match.group(0)
             game_preferences_dict = {}
             if game_preferences_raw != "":
                 game_preferences = game_preferences_raw.strip()
