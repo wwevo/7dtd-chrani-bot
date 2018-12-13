@@ -450,8 +450,8 @@ class ChraniBot(Thread):
 
                 try:
                     self.start_custodian()
-                    self.start_telnet_observer()
                     self.has_connection = True
+                    self.start_telnet_observer()
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
                     self.start_player_observer()
