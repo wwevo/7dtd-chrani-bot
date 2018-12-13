@@ -1,3 +1,4 @@
+import traceback
 import re
 from time import time, sleep
 import math
@@ -128,19 +129,24 @@ class PlayerThread(Thread):
                             command["observer"](self.bot, self)
                         except TypeError as error:
                             logger.debug("{} had a type error ({})".format(command["observer"], error.message))
+                            traceback.print_exc()
                             pass
                         except AttributeError as error:
                             logger.debug("{} had an attribute error! ({})".format(command["observer"], error.message))
+                            traceback.print_exc()
                             pass
                         except IOError as error:
                             logger.debug("{} had an input/output error! ({})".format(command["observer"], error.message))
+                            traceback.print_exc()
                             self.bot.has_connection = False
                             pass
                         except TimeoutError as error:
                             logger.debug("{} had a timeout! ({})".format(command["observer"], error.message))
+                            traceback.print_exc()
                             pass
                         except Exception as error:
                             logger.error("{} had an unknown error! ({})".format(command["observer"], type(error)))
+                            traceback.print_exc()
                             pass
 
             self.last_execution_time = time() - profile_start

@@ -7,6 +7,7 @@ class Player(flask_login.UserMixin):
     id = long
     name = str
     permission_levels = list
+    is_allowed_to_chat = str
 
     pos_x = float
     pos_y = float
@@ -40,7 +41,6 @@ class Player(flask_login.UserMixin):
     blacklisted = bool
     authenticated = bool
 
-    is_muted = bool
     is_online = bool
     is_banned = bool
     is_about_to_be_kicked = bool
@@ -48,8 +48,6 @@ class Player(flask_login.UserMixin):
     is_to_be_obliterated = bool
 
     is_logging_in = bool
-
-    has_been_muted = bool
 
     last_teleport = int
     last_responsive = float
@@ -67,10 +65,12 @@ class Player(flask_login.UserMixin):
         self.health = 0
         self.last_teleport = 0
         self.last_seen = 0
-        self.is_muted = False
-        self.has_been_muted = None
+
         self.is_online = False
         self.is_banned = False
+        self.is_manually_muted = False  # if the player got manually muted!
+        self.is_allowed_to_chat = "None"  # if the player is allowed to chat
+
         self.is_about_to_be_kicked = False
         self.is_logging_in = False
         self.permission_levels = []
@@ -86,6 +86,9 @@ class Player(flask_login.UserMixin):
         self.blacklisted = False
         self.is_to_be_obliterated = False
         self.active_teleport_thread = False
+        self.pos_x = 0.0
+        self.pos_y = 0.0
+        self.pos_z = 0.0
 
         self.playerfriends_list = []
         self.poll_listplayerfriends_lastpoll = 0
@@ -173,9 +176,6 @@ class Player(flask_login.UserMixin):
             return True
         else:
             return False
-
-    def set_muted(self, flag):
-        self.is_muted = flag
 
     def get_last_seen(self):
         if self.last_seen == 0:

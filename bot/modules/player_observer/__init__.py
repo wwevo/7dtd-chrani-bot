@@ -68,10 +68,13 @@ class PlayerObserver(Thread):
             try:
                 player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
                 # player is already online and needs updating
+                player_object.is_online = True
                 player_object.update(**player_dict)
                 self.chrani_bot.players.upsert(player_object)
             except KeyError:  # player is completely new
                 player_object = Player(**player_dict)
+                player_object.is_online = True
+                player_object.update(**player_dict)
                 self.chrani_bot.players.upsert(player_object, save=True)
             # there should be a valid object state here now ^^
 

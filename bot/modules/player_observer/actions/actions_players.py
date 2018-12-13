@@ -96,7 +96,7 @@ def on_player_leave(chrani_bot, source_player, target_player, command):
         response_messages = ResponseMessage()
 
         target_player.is_online = False
-        target_player.update()
+        # target_player.update()
         chrani_bot.players.upsert(target_player, save=True)
         chrani_bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         message = "Player {} left the game".format(target_player.name)
@@ -523,7 +523,7 @@ def obliterate_player(chrani_bot, source_player, target_player, command):
 
             target_player.is_online = False
             response_messages.add_message("player {} is set to offlilne ^^".format(target_player.name), True)
-            target_player.update()
+            # target_player.update()
 
             return response_messages
         else:
