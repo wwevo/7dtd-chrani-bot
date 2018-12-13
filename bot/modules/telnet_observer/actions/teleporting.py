@@ -61,7 +61,7 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
     command = "teleportplayer"
     poll_is_finished = False
 
-    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed(player_object.steamid, command)):
+    while not poll_is_finished and not timeout_occurred(5, common.get_active_action_last_executed(player_object.steamid, command)):
         logger.debug("waiting for response of 'teleportplayer'")
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
@@ -71,7 +71,7 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'teleportplayer\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'teleportplayer " + player_object.steamid + " (.*)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
