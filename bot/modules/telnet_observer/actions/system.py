@@ -168,7 +168,7 @@ def gg_callback_thread():
             pass
 
         if match:
-            game_preferences_raw = match.group(2)
+            game_preferences_raw = match.group(0)
             game_preferences_dict = {}
             if game_preferences_raw != "":
                 game_preferences = game_preferences_raw.strip()
@@ -181,6 +181,7 @@ def gg_callback_thread():
                             key: value
                         })
             common.set_active_action_result('system', command, game_preferences_dict)
+        print(chrani_bot.telnet_observer.telnet_buffer)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
