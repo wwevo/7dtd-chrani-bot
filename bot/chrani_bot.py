@@ -184,8 +184,6 @@ class ChraniBot(Thread):
             'telnet_events_playerspawn': r"(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_id>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
             # isolates the disconnected log entry to get the total session time of a player easily
             'telnet_player_playtime': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
-            # to parse the telnets listlandprotection response
-            'listlandprotection_result_regexp': r"Player \"(?:.+)\((?P<player_steamid>\d+)\)\" owns \d+ keystones \(.+\)\s(?P<keystones>(\s+\(.+\)\s){1,})",
             # to parse the telnets listlandplayerfriends response
             'listplayerfriends_result_regexp': r"FriendsOf id=(?P<player_steamid>([0-9]{17})), friends=(?P<friendslist>([0-9,]{17,}))",
             # to parse the telnets getgameprefs response
@@ -210,37 +208,13 @@ class ChraniBot(Thread):
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all()  # get the permissions or create new permissions-file
 
-    def poll_lcb(self):
-        lcb_dict = {}
-        listlandprotection_result = self.telnet_observer.actions.get_active_action_result('system', "llp")
-
-        # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
-        # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
-        # I've tried flags. Something was always up. This is the only way i got this working.
-        try:
-            unicode(listlandprotection_result, "ascii")
-        except UnicodeError:
-            listlandprotection_result = unicode(listlandprotection_result, "utf-8")
-        else:
-            pass
-
-        # horrible, horrible way. But it works for now!
-        for m in re.finditer(self.match_types_system["listlandprotection_result_regexp"], listlandprotection_result):
-            keystones = re.findall(r"\((?P<pos_x>.\d{1,5}),\s(?P<pos_y>.\d{1,5}),\s(?P<pos_z>.\d{1,5})", m.group("keystones"))
-            keystone_list = []
-            for keystone in keystones:
-                keystone_list.append(keystone)
-
-            lcb_dict.update({m.group("player_steamid"): keystone_list})
-
-        return lcb_dict
-
     def manage_landclaims(self):
-        polled_lcb = self.poll_lcb()
+        polled_lcb = self.telnet_observer.actions.get_active_action_result('system', "llp")
         if polled_lcb != self.landclaims_dict:
+            self.landclaims_dict = polled_lcb
             lcb_owners_to_delete = {}
             lcb_owners_to_update = {}
-            lcb_owners_to_update.update(polled_lcb)
+            lcb_owners_to_update.update(self.landclaims_dict)
             for lcb_widget_owner in lcb_owners_to_update.keys():
                 try:
                     player_object = self.players.get_by_steamid(lcb_widget_owner)
@@ -251,8 +225,6 @@ class ChraniBot(Thread):
 
             self.socketio.emit('update_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_update), namespace='/chrani-bot/public')
             self.socketio.emit('remove_leaflet_markers', self.get_lcb_marker_json(lcb_owners_to_delete), namespace='/chrani-bot/public')
-            self.landclaims_dict = self
-        pass
 
     def get_lcb_marker_json(self, lcb_dict):
         lcb_list_final = []

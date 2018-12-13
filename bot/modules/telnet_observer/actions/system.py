@@ -442,7 +442,29 @@ def llp_callback_thread():
             pass
 
         if match:
-            common.set_active_action_result('system', command, match.group(2))
+            lanclaims_raw = match.group(2)
+
+            # I can't believe what a bitch this thing was. I tried no less than eight hours to find this crappy solution
+            # re could not find a match whenever any form of unicode was present.  I've tried converting, i've tried string declarations,
+            # I've tried flags. Something was always up. This is the only way i got this working.
+            try:
+                unicode(lanclaims_raw, "ascii")
+            except UnicodeError:
+                lanclaims_raw = unicode(lanclaims_raw, "utf-8")
+            else:
+                pass
+
+            lcb_dict = {}
+            # horrible, horrible way. But it works for now!
+            for m in re.finditer(r"Player \"(?:.+)\((?P<player_steamid>\d+)\)\" owns \d+ keystones \(.+\)\s(?P<keystones>(\s+\(.+\)\s)+)", lanclaims_raw):
+                keystones = re.findall(r"\((?P<pos_x>.\d{1,5}),\s(?P<pos_y>.\d{1,5}),\s(?P<pos_z>.\d{1,5})", m.group("keystones"))
+                keystone_list = []
+                for keystone in keystones:
+                    keystone_list.append(keystone)
+
+                lcb_dict.update({m.group("player_steamid"): keystone_list})
+
+            common.set_active_action_result('system', command, lcb_dict)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
