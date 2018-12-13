@@ -155,7 +155,6 @@ def gg_callback_thread():
 
     while not poll_is_finished and not timeout_occurred(10, common.get_active_action_last_executed('system', command)):
         logger.debug("waiting for response of '{command}'".format(command=command))
-        logger.error(chrani_bot.telnet_observer.telnet_buffer)
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
             logger.debug("command not recognized: {command}".format(command=command))
@@ -182,7 +181,6 @@ def gg_callback_thread():
                             key: value
                         })
             common.set_active_action_result('system', command, game_preferences_dict)
-        print(chrani_bot.telnet_observer.telnet_buffer)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
