@@ -465,6 +465,7 @@ class ChraniBot(Thread):
                     self.is_paused = False
 
                 except IOError as e:
+                    traceback.print_exc()
                     self.has_connection = False
                     self.first_run = True
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
