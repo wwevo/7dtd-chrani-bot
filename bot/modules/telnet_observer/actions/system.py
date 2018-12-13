@@ -182,6 +182,7 @@ def gg_callback_thread():
                             key: value
                         })
             common.set_active_action_result('system', command, game_preferences_dict)
+        print(chrani_bot.telnet_observer.telnet_buffer)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))

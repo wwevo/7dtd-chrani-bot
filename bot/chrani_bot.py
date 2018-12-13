@@ -491,7 +491,6 @@ class ChraniBot(Thread):
             active_player_thread = self.player_observer.active_player_threads_dict[player_steamid]
             active_player_thread["thread"].stopped.set()
 
-        self.player_observer.active_player_threads_dict.clear()
         self.telnet_lines_list = deque()
         self.is_paused = True
         try:
