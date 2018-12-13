@@ -1,4 +1,5 @@
 import re
+import traceback
 from time import time, sleep
 from threading import *
 from collections import deque
@@ -212,6 +213,7 @@ class TelnetObserver(Thread):
             self.bot.custodian.check_in('telnet_observer', True)
 
             if not self.bot.has_connection:
+                traceback.print_exc()
                 raise IOError("{source}/{error_message}".format(source="telnet observer", error_message="lost telnet connection :("))
 
             if self.bot.is_paused is not False:
