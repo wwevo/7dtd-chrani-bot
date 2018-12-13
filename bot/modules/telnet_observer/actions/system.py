@@ -723,5 +723,30 @@ common.actions_dict["bc-chatprefix"] = {
 }
 
 
+def none():
+    chrani_bot = __main__.chrani_bot
+    command = "none"
+
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        common.set_active_action_result('system', command, "")
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
 
 
+common.actions_dict["none"] = {
+    "telnet_command": "none",
+    "action": none,
+    "action_callback": None,
+    "is_available": True
+}
