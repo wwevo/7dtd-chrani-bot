@@ -704,7 +704,7 @@ def bc_chatprefix_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + "\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + " \"/\"\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
