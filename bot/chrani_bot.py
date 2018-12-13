@@ -1,3 +1,4 @@
+import traceback
 from threading import *
 import re
 import time
@@ -45,6 +46,7 @@ class ChraniBot(Thread):
     uptime = str
     restart_in = int
     current_gametime = dict
+    ready_for_action = bool
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
     has_connection = bool  # used to pause all processing without shutting down the bot
@@ -110,6 +112,8 @@ class ChraniBot(Thread):
         self.restart_delay = 0
         self.last_execution_time = 0.0
         self.telnet_queue = 0
+        self.ready_for_action = False
+        self.server_settings_dict = {}
 
         self.name = self.settings.get_setting_by_name(name='bot_name')
         logger.info("{} started".format(self.name))
@@ -252,9 +256,8 @@ class ChraniBot(Thread):
 
     def get_lcb_marker_json(self, lcb_dict):
         lcb_list_final = []
-        server_settings = self.server_settings_dict
         try:
-            land_claim_size = int(server_settings["LandClaimSize"])
+            land_claim_size = int(self.server_settings_dict["LandClaimSize"])
         except TypeError:
             return lcb_list_final
 
@@ -285,25 +288,6 @@ class ChraniBot(Thread):
                 })
 
         return lcb_list_final
-
-    def get_game_preferences(self):
-        self.telnet_observer.actions.trigger_action(self, "gg")
-
-        while self.telnet_observer.actions.common.get_active_action_result("system", "gg") is None:
-            time.sleep(1)
-
-        game_preferences_dict = {}
-        game_preferences = self.telnet_observer.actions.common.get_active_action_result("system", "gg").strip()
-        game_preferences_list = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", game_preferences)
-
-        if game_preferences:
-            logger.debug(game_preferences_list)
-            for key, value in game_preferences_list:
-                game_preferences_dict.update({
-                    key: value
-                })
-
-        return game_preferences_dict
 
     def landclaims_find_by_distance(self, start_coords, distance_in_blocks):
         landclaims_in_reach_list = []
@@ -402,6 +386,43 @@ class ChraniBot(Thread):
         self.player_observer = player_observer_thread
         self.player_observer.start()
 
+    def has_required_environment(self):
+        """ check if needed server-config is available"""
+        we_got_us_some_settings = False
+        try:
+            server_settings_dict = self.telnet_observer.actions.common.get_active_action_result("system", "gg")
+        except Exception as e:
+            print("{type}".format(type=type(e)))
+
+        if len(server_settings_dict) > 0:
+            we_got_us_some_settings = True
+            self.server_settings_dict = server_settings_dict
+            # disable polling of the settings, only need 'em once
+            self.schedulers_controller["get_game_preferences"]["is_active"] = False
+        else:
+            we_got_us_some_settings = False
+        """ check if required telnet commands are available"""
+
+        have_found_a_sweet_prefix = False
+        try:
+            prefix_found = self.telnet_observer.actions.common.get_active_action_result("system", self.settings.get_setting_by_name(name='chatprefix_method'))
+        except Exception as e:
+            print("{type}".format(type=type(e)))
+
+        if len(prefix_found) > 0:
+            have_found_a_sweet_prefix = True
+            # disable polling of the settings, only need 'em once
+            self.schedulers_controller["set_chat_prefix"]["is_active"] = False
+        else:
+            have_found_a_sweet_prefix = False
+
+        if we_got_us_some_settings and have_found_a_sweet_prefix:
+            result = True
+        else:
+            result = False
+
+        return result
+
     def run(self):
         self.start_custodian()
         self.start_player_observer()
@@ -429,19 +450,19 @@ class ChraniBot(Thread):
                 if not isinstance(self.telnet_observer, TelnetObserver):
                     raise IOError
 
-                if self.is_paused is not False:
+                if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
+                    """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
+                    """
+                    last_schedule = profile_start
+                    run_schedulers(self)
+
+                if not self.has_required_environment() or self.is_paused is not False:
                     time.sleep(self.listplayers_interval)
                     continue
 
                 if self.initiate_shutdown is True and self.has_connection:
                     self.is_active = False
                     continue
-
-                if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
-                    """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
-                    """
-                    last_schedule = profile_start
-                    run_schedulers(self)
 
                 lines_processed = self.telnet_observer.execute_queue(10)
                 actions_executed = self.player_observer.execute_queue(10)
@@ -468,8 +489,6 @@ class ChraniBot(Thread):
 
                     self.reboot_imminent = False
                     self.is_paused = False
-                    self.server_settings_dict = self.get_game_preferences()
-                    self.telnet_observer.actions.common.trigger_action(self, self.settings.get_setting_by_name(name='chatprefix_method', default='tcch'))
 
                 except IOError as e:
                     self.has_connection = False
@@ -484,6 +503,7 @@ class ChraniBot(Thread):
             except (NameError, AttributeError) as error:
                 logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except Exception as error:
+                traceback.print_exc()
                 logger.error("unknown error: {} ({})".format(error.message, type(error)))
 
         logger.debug("the bots main loop has ended")

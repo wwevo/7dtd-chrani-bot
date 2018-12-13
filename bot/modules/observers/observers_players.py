@@ -77,15 +77,15 @@ def mute_unauthenticated_players(chrani_bot, player_observer):
         if player_observer.player_object.has_been_muted is None:
             if not player_observer.player_object.authenticated and not player_observer.player_object.is_muted:
                 player_observer.player_object.has_been_muted = True
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_action"), player_observer.player_object, True)
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_observer.player_object, True)
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been disabled!", chrani_bot.chat_colors['warning'])
             elif player_observer.player_object.authenticated and player_observer.player_object.is_muted:
                 player_observer.player_object.has_been_muted = False
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_action"), player_observer.player_object, False)
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_observer.player_object, False)
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled!", chrani_bot.chat_colors['warning'])
     elif player_observer.player_object.is_muted and player_observer.player_object.has_been_muted is None:
         player_observer.player_object.has_been_muted = False
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_action"), player_observer.player_object, False)
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_observer.player_object, False)
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled", chrani_bot.chat_colors['success'])
 
 

@@ -7,6 +7,60 @@ from bot.assorted_functions import timepassed_occurred
 import common
 
 
+def set_chat_prefix(chrani_bot):
+    try:
+        if timeout_occurred(2, float(common.schedulers_dict["set_chat_prefix"]["last_executed"])):
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name='chatprefix_method'))
+            common.schedulers_dict["set_chat_prefix"]["last_executed"] = time.time()
+            return True
+    except Exception as e:
+        logger.debug("{source}/{error_message}".format(source="set_chat_prefix", error_message=e.message))
+        raise
+
+
+common.schedulers_dict["set_chat_prefix"] = {
+    "type": "schedule",
+    "title": "set chat prefix",
+    "trigger": "interval",
+    "last_executed": "0",
+    "action": set_chat_prefix,
+    "env": "(self)",
+    "essential": True,
+}
+
+
+common.schedulers_controller["set_chat_prefix"] = {
+    "is_active": True
+}
+
+
+def get_game_preferences(chrani_bot):
+    try:
+        if timeout_occurred(5, float(common.schedulers_dict["get_game_preferences"]["last_executed"])):
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "gg")
+            common.schedulers_dict["get_game_preferences"]["last_executed"] = time.time()
+            return True
+    except Exception as e:
+        logger.debug("{source}/{error_message}".format(source="get_game_preferences", error_message=e.message))
+        raise
+
+
+common.schedulers_dict["get_game_preferences"] = {
+    "type": "schedule",
+    "title": "get game preferences",
+    "trigger": "interval",
+    "last_executed": "0",
+    "action": get_game_preferences,
+    "env": "(self)",
+    "essential": True,
+}
+
+
+common.schedulers_controller["get_game_preferences"] = {
+    "is_active": True
+}
+
+
 def get_mem_status(chrani_bot):
     try:
         if timeout_occurred(0.25 * 60, float(common.schedulers_dict["get_mem_status"]["last_executed"])):

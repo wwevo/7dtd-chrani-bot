@@ -47,7 +47,7 @@ def mpc_callback_thread(player_object, status):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + "\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + " " + str(player_object.steamid) + " (True|False)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 

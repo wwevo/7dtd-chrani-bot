@@ -168,7 +168,19 @@ def gg_callback_thread():
             pass
 
         if match:
-            common.set_active_action_result('system', command, match.group(2))
+            game_preferences_raw = match.group(2)
+            game_preferences_dict = {}
+            if game_preferences_raw != "":
+                game_preferences = game_preferences_raw.strip()
+                game_preferences_list = re.findall(r"GamePref\.(?P<key>.*)\s=\s(?P<value>.*)\r\n", game_preferences)
+
+                if game_preferences:
+                    logger.debug(game_preferences_list)
+                    for key, value in game_preferences_list:
+                        game_preferences_dict.update({
+                            key: value
+                        })
+            common.set_active_action_result('system', command, game_preferences_dict)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
@@ -222,12 +234,12 @@ def tcch_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + "\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + " \"(.)\"\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
         if match:
-            common.set_active_action_result('system', command, match.group(0))
+            common.set_active_action_result('system', command, match.group(1))
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))

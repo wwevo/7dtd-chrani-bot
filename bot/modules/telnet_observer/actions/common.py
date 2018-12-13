@@ -79,3 +79,5 @@ def trigger_action(bot, action, *args, **kwargs):
         raise
     except KeyError:
         pass
+    except TypeError:
+        pass
