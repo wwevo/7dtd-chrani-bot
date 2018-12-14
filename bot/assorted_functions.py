@@ -23,7 +23,8 @@ def timeout_occurred(timeout_in_seconds, timeout_start):
 
 
 def timepassed_occurred(timeout_in_seconds, threshold):
-    if threshold == 0:
+    # checking for False here to account for negative starting numbers
+    if threshold == 0 or threshold is False:
         return True
     if threshold is None:
         return None
