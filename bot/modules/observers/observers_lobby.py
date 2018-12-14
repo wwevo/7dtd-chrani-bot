@@ -45,11 +45,11 @@ def player_is_outside_lobby_boundary(chrani_bot, player_observer):
 common.observers_dict["player_is_outside_lobby_boundary"] = {
     "type": "monitor",
     "title": "player left lobby",
-    "action": player_is_outside_lobby_boundary,
-    "essential": True
+    "action": player_is_outside_lobby_boundary
 }
 
 
 common.observers_controller["player_is_outside_lobby_boundary"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }

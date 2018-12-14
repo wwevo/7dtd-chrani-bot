@@ -23,10 +23,10 @@ common.observers_dict["player_entered_teleport"] = {
     "type": "monitor",
     "title": "player crossed teleport boundary",
     "action": player_entered_teleport,
-    "essential": True
 }
 
 
 common.observers_controller["player_entered_teleport"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }

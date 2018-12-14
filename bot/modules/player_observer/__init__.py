@@ -57,6 +57,8 @@ class PlayerObserver(Thread):
         # get all currently online players and store them in a dictionary
         listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", "lp")
         if len(listplayers_dict) <= 0:
+            for player in self.chrani_bot.players.players_dict:
+                self.chrani_bot.players.players_dict[player].is_online = False
             return listplayers_dict
 
         # prune players not online anymore

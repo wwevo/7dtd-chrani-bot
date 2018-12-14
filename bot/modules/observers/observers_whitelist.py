@@ -23,12 +23,12 @@ common.observers_dict["check_if_player_is_on_whitelist"] ={
     "type": "monitor",
     "title": "check_if_player_is_on_whitelist",
     "action": check_if_player_is_on_whitelist,
-    "essential": True
 }
 
 
 common.observers_controller["check_if_player_is_on_whitelist"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }
 
 
@@ -50,12 +50,12 @@ common.observers_dict["check_if_player_has_url_name"] = {
     "type": "monitor",
     "title": "check_if_player_has_url_name",
     "action": check_if_player_has_url_name,
-    "essential": True
 }
 
 
 common.observers_controller["check_if_player_has_url_name"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }
 
 
@@ -102,9 +102,9 @@ common.observers_dict["check_ip_country"] = {
     "type": "monitor",
     "title": "check_ip_country",
     "action": check_ip_country,
-    "essential": True
 }
 
 common.observers_controller["check_ip_country"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }

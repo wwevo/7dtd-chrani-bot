@@ -16,13 +16,13 @@ def record_time_of_last_activity(chrani_bot, player_observer):
 common.observers_dict["record_time_of_last_activity"] = {
     "type": "monitor",
     "title": "player is active",
-    "action": record_time_of_last_activity,
-    "essential": True
+    "action": record_time_of_last_activity
 }
 
 
 common.observers_controller["record_time_of_last_activity"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }
 
 
@@ -39,12 +39,12 @@ common.observers_dict["update_player_region"] = {
     "type": "monitor",
     "title": "player changed region",
     "action": update_player_region,
-    "essential": True
 }
 
 
 common.observers_controller["update_player_region"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }
 
 
@@ -63,12 +63,12 @@ common.observers_dict["poll_playerfriends"] = {
     "type": "monitor",
     "title": "poll playerfriends",
     "action": poll_playerfriends,
-    "essential": True
 }
 
 
 common.observers_controller["poll_playerfriends"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }
 
 
@@ -113,12 +113,12 @@ common.observers_dict["mute_unauthenticated_players"] = {
     "type": "monitor",
     "title": "mute unauthenticated players",
     "action": mute_unauthenticated_players,
-    "essential": True
 }
 
 
 common.observers_controller["mute_unauthenticated_players"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": True
 }
 
 
@@ -157,10 +157,10 @@ common.observers_dict["unmute_authenticated_players"] = {
     "type": "monitor",
     "title": "unmute authenticated players",
     "action": unmute_authenticated_players,
-    "essential": True
 }
 
 
 common.observers_controller["unmute_authenticated_players"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": True
 }

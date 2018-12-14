@@ -70,10 +70,10 @@ def player_crossed_location_boundary(chrani_bot, player_observer):
 common.observers_dict["player_crossed_location_boundary"] = {
     "type": "monitor",
     "title": "player crossed location boundary",
-    "action": player_crossed_location_boundary,
-    "essential": True
+    "action": player_crossed_location_boundary
 }
 
 common.observers_controller["player_crossed_location_boundary"] = {
-    "is_active": True
+    "is_active": True,
+    "is_essential": False
 }

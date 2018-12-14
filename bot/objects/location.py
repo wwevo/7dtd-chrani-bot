@@ -317,7 +317,12 @@ class Location(object):
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
-        return self.position_is_inside_boundary((player_object.pos_x, player_object.pos_y, player_object.pos_z))
+        try:
+            is_it_inside = self.position_is_inside_boundary((player_object.pos_x, player_object.pos_y, player_object.pos_z))
+        except TypeError:
+            is_it_inside = None
+
+        return is_it_inside
 
     def player_is_inside_core(self, player_object):
         if player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:

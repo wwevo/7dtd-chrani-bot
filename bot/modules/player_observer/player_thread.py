@@ -120,13 +120,15 @@ class PlayerThread(Thread):
                         observer_function_name = observer["action"]
                         command_queue.append({
                             "observer": observer_function_name,
-                            "is_active": self.bot.observers_controller[name]["is_active"]
+                            "is_active": self.bot.observers_controller[name]["is_active"],
+                            "is_essential":  self.bot.observers_controller[name]["is_essential"],
                         })
 
                 for command in command_queue:
                     if command["is_active"]:
                         try:
-                            command["observer"](self.bot, self)
+                            if self.player_object.initialized or command["is_essential"]:
+                                command["observer"](self.bot, self)
                         except TypeError as error:
                             logger.debug("{} had a type error ({})".format(command["observer"], error.message))
                             traceback.print_exc()
