@@ -1,11 +1,8 @@
 import traceback
-import re
 from time import time, sleep
 import math
 from threading import *
-from collections import deque
 
-import bot.modules.player_observer.actions
 from bot.modules.logger import logger
 from bot.assorted_functions import TimeoutError
 
