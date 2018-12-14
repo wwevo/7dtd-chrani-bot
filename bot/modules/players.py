@@ -26,29 +26,40 @@ class Players(object):
     def player_entered_telnet(self, m):
         bot = __main__.chrani_bot
         command = m.group("command")
-        player_id = m.group("player_id")
+        player_steamid = m.group("player_steamid")
         player_name = m.group("player_name")
-        entity_id = m.group("entity_id")
-        player_ip = m.group("player_ip")
-        if command == "connected":
+        entity_id = ""
+        try:
+            entity_id = m.group("entity_id")
+        except Exception as e:
+            print type(e)
+
+        player_ip = ""
+        try:
+            player_ip = m.group("player_ip")
+        except Exception as e:
+            print type(e)
+
+        if command in ["connected", "Authenticating"]:
             player_found = False
             try:
-                player_object = self.get_by_steamid(player_id)
+                player_object = self.get_by_steamid(player_steamid)
                 player_found = True
             except KeyError:
                 pass
 
             try:
-                connecting_player = bot.player_observer.active_player_threads_dict[player_id]
+                connecting_player = bot.player_observer.active_player_threads_dict[player_steamid]
+
             except KeyError:
                 if not player_found:
                     player_dict = {
                         "entityid": entity_id,
                         "name": player_name,
-                        "steamid": player_id,
+                        "steamid": player_steamid,
                         "ip": player_ip,
                         "is_logging_in": True,
-                        "is_online": True,
+                        "is_online": False,
                     }
 
                     player_object = Player(**player_dict)
@@ -56,7 +67,7 @@ class Players(object):
 
                 bot.player_observer.start_player_thread(player_object)
                 connecting_player = {
-                    "thread": bot.player_observer.active_player_threads_dict[player_id]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
                     "player_object": player_object
                 }
 
@@ -65,13 +76,13 @@ class Players(object):
     def player_entered_the_world(self, m):
         bot = __main__.chrani_bot
         try:
-            player_id = m.group("player_id")
+            player_steamid = m.group("player_steamid")
             command = m.group("command")
-            player_object = self.get_by_steamid(player_id)
+            player_object = self.get_by_steamid(player_steamid)
 
             if command != "Teleport":
                 spawning_player = {
-                    "thread": bot.player_observer.active_player_threads_dict[player_id]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
                     "player_object": player_object
                 }
 
@@ -85,12 +96,12 @@ class Players(object):
     def player_left_the_world(self, m):
         bot = __main__.chrani_bot
         try:
-            player_id = m.group("player_id")
+            player_steamid = m.group("player_steamid")
             command = m.group("command")
             if command != "Teleport":
-                player_object = self.get_by_steamid(player_id)
+                player_object = self.get_by_steamid(player_steamid)
                 spawning_player = {
-                    "thread": bot.player_observer.active_player_threads_dict[player_id]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
                     "player_object": player_object
                 }
 

@@ -168,6 +168,14 @@ class TelnetObserver(Thread):
                 self.bot.server_time_running = int(float(m.group("time_in_minutes")) * 60)
 
             # handle playerspawns
+            m = re.search(self.bot.match_types_system["telnet_player_connecting"], telnet_line)
+            if m:
+                try:
+                    connecting_player = self.bot.players.player_entered_telnet(m)
+                    connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
+                except KeyError:
+                    pass
+
             m = re.search(self.bot.match_types_system["telnet_player_connected"], telnet_line)
             if m:
                 try:
