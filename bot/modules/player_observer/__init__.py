@@ -40,7 +40,7 @@ class PlayerObserver(Thread):
     def start_player_thread(self, player_object):
         player_thread_stop_flag = Event()
         player_thread = PlayerThread(player_thread_stop_flag, self.chrani_bot, player_object.steamid)  # I'm passing the bot into it to have easy access to it's variables
-        player_thread.name = player_object.steamid  # nice to have for the logs
+        player_thread.name = player_object.steamid
         player_thread.isDaemon()
         player_thread.start()
         self.chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
@@ -49,9 +49,11 @@ class PlayerObserver(Thread):
         return player_thread
 
     def stop_player_thread(self, player_object):
+        active_player_thread = self.chrani_bot.player_observer.active_player_threads_dict[player_object.steamid]
+        stop_flag = active_player_thread["thread"]
+        stop_flag.stopped.set()
         self.chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
         self.chrani_bot.socketio.emit('update_leaflet_markers', self.chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-        pass
 
     def manage_online_players(self):
         # get all currently online players and store them in a dictionary
@@ -59,26 +61,35 @@ class PlayerObserver(Thread):
         if len(listplayers_dict) <= 0:
             for player in self.chrani_bot.players.players_dict:
                 self.chrani_bot.players.players_dict[player].is_online = False
-            return listplayers_dict
 
         # prune players not online anymore
-        for player in set(self.chrani_bot.players.players_dict) - set(listplayers_dict.keys()):
-            self.chrani_bot.players.players_dict[player].is_online = False
+        try:
+            for player in set(self.chrani_bot.players.players_dict) - set(listplayers_dict.keys()):
+                player_object = self.chrani_bot.players.players_dict[player]
+                if player_object.is_online:
+                    player_object.is_online = False
+                    self.chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                    self.chrani_bot.socketio.emit('update_leaflet_markers', self.chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
+        except AttributeError as e:
+            print(e.message)
 
         # create new player entries / update existing ones
-        for player_steamid, player_dict in listplayers_dict.iteritems():
-            try:
-                player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
-                # player is already online and needs updating
-                player_object.is_online = True
-                player_object.update(**player_dict)
-                self.chrani_bot.players.upsert(player_object)
-            except KeyError:  # player is completely new
-                player_object = Player(**player_dict)
-                player_object.is_online = True
-                player_object.update(**player_dict)
-                self.chrani_bot.players.upsert(player_object, save=True)
-            # there should be a valid object state here now ^^
+        try:
+            for player_steamid, player_dict in listplayers_dict.iteritems():
+                try:
+                    player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
+                    # player is already online and needs updating
+                    player_object.is_online = True
+                    player_object.update(**player_dict)
+                    self.chrani_bot.players.upsert(player_object)
+                except KeyError:  # player is completely new
+                    player_object = Player(**player_dict)
+                    player_object.is_online = True
+                    player_object.update(**player_dict)
+                    self.chrani_bot.players.upsert(player_object, save=True)
+                # there should be a valid object state here now ^^
+        except AttributeError as e:
+            print(e.message)
 
         """ handle player-threads """
         for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
@@ -86,18 +97,14 @@ class PlayerObserver(Thread):
             if player_object.steamid not in self.chrani_bot.player_observer.active_player_threads_dict and player_object.is_online:
                 player_thread = self.chrani_bot.player_observer.start_player_thread(player_object)
                 player_thread.trigger_action(player_object, "found in the world")
+                player_object.is_online = True
+                player_object.update()
 
         players_to_obliterate = []
         for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
             if player_steamid in self.chrani_bot.player_observer.active_player_threads_dict and not player_object.is_online:
                 """ prune all active_player_threads from players no longer online """
-                self.chrani_bot.player_observer.stop_player_thread(player_object)
-                active_player_thread = self.chrani_bot.player_observer.active_player_threads_dict[player_steamid]
-                stop_flag = active_player_thread["thread"]
-                stop_flag.stopped.set()
-                self.chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-                self.chrani_bot.socketio.emit('update_leaflet_markers', self.chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-
+                self.stop_player_thread(player_object)
                 del self.chrani_bot.player_observer.active_player_threads_dict[player_steamid]
             if player_object.is_to_be_obliterated is True:
                 player_object.is_online = False
