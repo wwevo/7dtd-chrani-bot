@@ -81,6 +81,9 @@ function removeGeometricMarker(obj) {
 
 // Function for setting/updating markers
 function setMarkers(data) {
+    if (Cookies.get("page") != "map")  {
+        return
+    }
     var color;
     var standard_location_color = { area: 'Blue', inner: 'DarkBlue', inner_protected: 'Red', fill: true };
     var village_color = { area: 'Beige', inner: 'BurlyWood', inner_protected: 'Chocolate', fill: false };
@@ -162,6 +165,9 @@ function setMarkers(data) {
 }
 
 function removeMarkers(data) {
+    if (Cookies.get("page") != "map")  {
+        return
+    }
     data.forEach(function (obj) {
         // Check if there is already a marker with that id in the markers object
         if (markers.hasOwnProperty(obj.id)) {

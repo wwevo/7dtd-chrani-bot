@@ -93,12 +93,14 @@ $(document).ready(
             $("main #settings_scheduler_widget").addClass("wide");
             $("main #settings_player_observer_widget").addClass("wide");
             $("main #system_log_widget").addClass("wide");
+            $("main #location_radar_widget").addClass("shamed");
         } else {
             $("main .widget").removeClass("wide").addClass("shamed");
             $("main #player_table_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
             $("main #system_log_widget").addClass("wide").removeClass("shamed");
             $("main #whitelist_widget").removeClass("shamed");
             $("main #banned_players_widget").removeClass("shamed");
+            $("main #location_radar_widget").addClass("shamed");
         }
     }
 );

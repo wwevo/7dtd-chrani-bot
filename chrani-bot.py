@@ -62,7 +62,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.341"
+    chrani_bot_thread.bot_version = "0.7.342"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -195,6 +195,7 @@ if __name__ == '__main__':
                 "settings_player_observer_widget": flask.Markup(get_settings_player_observer_widget()),
                 "system_log_widget": flask.Markup(get_command_log_widget()),
                 "system_health_widget": flask.Markup(get_system_health_widget()),
+                "location_radar_widget": get_map_widget(),
             }
         else:
             widgets_dict = {
@@ -202,6 +203,7 @@ if __name__ == '__main__':
                 "whitelist_widget": get_whitelist_widget(),
                 "banned_players_widget": get_banned_players_widget(),
                 "system_log_widget": flask.Markup(get_status_log_widget()),
+                "location_radar_widget": get_map_widget(),
             }
 
         response = flask.make_response(flask.render_template(
