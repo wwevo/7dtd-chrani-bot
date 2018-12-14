@@ -723,6 +723,65 @@ common.actions_dict["bc-chatprefix"] = {
 }
 
 
+def removeentity(entity_id):
+    chrani_bot = __main__.chrani_bot
+    command = "removeentity"
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {timestring} {line_end}".format(command=command, timestring=entity_id, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], (entity_id, None))
+    else:
+        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+
+
+def removeentity_callback_thread(entity_id, dummy):
+    chrani_bot = __main__.chrani_bot
+    command = "removeentity"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'" + str(command) + " " + str(entity_id) + "\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+            pass
+
+        if match:
+            common.set_active_action_result('system', command, match.group(0))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return
+
+
+common.actions_dict["removeentity"] = {
+    "telnet_command": "removeentity",
+    "action": removeentity,
+    "action_callback": removeentity_callback_thread,
+    "is_available": True
+}
+
+
 def none():
     chrani_bot = __main__.chrani_bot
     command = "none"

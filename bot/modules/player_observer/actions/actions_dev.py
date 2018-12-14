@@ -137,7 +137,7 @@ def remove_entity(chrani_bot, source_player, target_player, command):
         if p:
             response_messages = ResponseMessage()
             entity_id = p.group("entity_id")
-            if chrani_bot.tn.remove_entity(entity_id):
+            if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "removeentity", entity_id):
                 message = "shunned screamer ({}) from village ^^".format(entity_id)
                 response_messages.add_message(message, True)
             else:
