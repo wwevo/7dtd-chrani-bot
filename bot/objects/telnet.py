@@ -13,7 +13,7 @@ class Telnet:
             connection = telnetlib.Telnet(ip, port, timeout=3)
         except Exception as e:
             log_message = 'trying to establish telnet connection failed: {}'.format(e)
-            logger.error(log_message)
+            # logger.error(log_message)
             raise IOError(log_message)
 
         self.show_log_init = show_log_init
@@ -67,7 +67,7 @@ class Telnet:
 
         except Exception as e:
             log_message = 'trying to authenticate telnet connection failed: {}'.format(e)
-            logger.error(log_message)
+            # logger.error(log_message)
             raise IOError(log_message)
 
         logger.debug("telnet connection established: " + str(connection))
@@ -78,6 +78,6 @@ class Telnet:
             return self.tn.read_very_eager()
         except Exception as e:
             log_message = 'trying to read_very_eager from telnet connection failed: {} / {}'.format(e, type(e))
-            logger.error(log_message)
+            # logger.error(log_message)
             raise IOError(log_message)
 
