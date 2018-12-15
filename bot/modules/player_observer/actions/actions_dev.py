@@ -21,8 +21,8 @@ def fix_players_legs(chrani_bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        chrani_bot.tn.debuffplayer(target_player, "brokenLeg")
-        chrani_bot.tn.debuffplayer(target_player, "sprainedLeg")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "brokenLeg")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "sprainedLeg")
         message = "your legs have been taken care of ^^"
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
@@ -64,7 +64,7 @@ def stop_the_bleeding(chrani_bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        chrani_bot.tn.debuffplayer(target_player, "bleeding")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "bleeding")
         message = "your wounds have been bandaided ^^"
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
@@ -106,7 +106,7 @@ def apply_first_aid(chrani_bot, source_player, target_player, command):
     """
     try:
         response_messages = ResponseMessage()
-        chrani_bot.tn.buffplayer(target_player, "firstAidLarge")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "buffplayer", target_player, "firstAidLarge")
         message = "feel the power flowing through you!! ^^"
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
@@ -131,7 +131,7 @@ common.actions_list.append({
 })
 
 
-def remove_entity(chrani_bot, source_player, target_player, command):
+def removeentity(chrani_bot, source_player, target_player, command):
     try:
         p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
         if p:
@@ -163,7 +163,7 @@ common.actions_list.append({
         "trigger": "remove entity",
         "usage": None
     },
-    "action": remove_entity,
+    "action": removeentity,
     "env": "(self)",
     "group": "testing",
     "essential": False

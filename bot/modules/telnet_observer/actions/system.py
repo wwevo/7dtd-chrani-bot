@@ -439,7 +439,6 @@ def llp_callback_thread():
         match = False
         for match in re.finditer(r"Executing command \'llp\' by Telnet from (.*)([\s\S]+?)Total of (\d{1,3}) keystones in the game", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             lanclaims_raw = match.group(2)
@@ -525,7 +524,6 @@ def say_callback_thread(message, color):
         match = False
         for match in re.finditer(r"Executing command \'say\' \"[{color}]" + message + "[-]\" by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
@@ -584,7 +582,6 @@ def saveworld_callback_thread():
         match = False
         for match in re.finditer(r"Executing command \'saveworld\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
@@ -643,7 +640,6 @@ def settime_callback_thread(timestring, dummy):
         match = False
         for match in re.finditer(r"Executing command \'" + str(command) + " " + str(timestring) + "\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
@@ -704,7 +700,6 @@ def bc_chatprefix_callback_thread():
         match = False
         for match in re.finditer(r"Executing command \'" + command + " \"/\"\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
@@ -733,7 +728,7 @@ def removeentity(entity_id):
     is_active = common.get_active_action_status('system', command)
     if not is_active:
         try:
-            chrani_bot.telnet_observer.tn.write("{command} {timestring} {line_end}".format(command=command, timestring=entity_id, line_end=b"\r\n"))
+            chrani_bot.telnet_observer.tn.write("{command} {entitiy_id} {line_end}".format(command=command, entity_id=entity_id, line_end=b"\r\n"))
         except Exception as e:
             log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
@@ -763,7 +758,6 @@ def removeentity_callback_thread(entity_id, dummy):
         match = False
         for match in re.finditer(r"Executing command \'" + str(command) + " " + str(entity_id) + "\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
@@ -771,7 +765,7 @@ def removeentity_callback_thread(entity_id, dummy):
 
     logger.debug("finished '{command}'".format(command=command))
     common.set_active_action_status('system', command, False)
-    return
+    return poll_is_finished
 
 
 common.actions_dict["removeentity"] = {
@@ -780,6 +774,156 @@ common.actions_dict["removeentity"] = {
     "action_callback": removeentity_callback_thread,
     "is_available": True
 }
+
+
+def debuffplayer(player_object, buff):
+    chrani_bot = __main__.chrani_bot
+    command = "debuffplayer"
+
+    buff_list = [
+        "bleeding",
+        "foodPoisoning",
+        "brokenLeg",
+        "sprainedLeg"
+    ]
+    if buff not in buff_list:
+        return False
+
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {buff} {line_end}".format(command=command, player_steamid=player_object.steamid, buff=buff, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, buff))
+    else:
+        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+
+
+def debuffplayer_callback_thread(player_object, buff):
+    chrani_bot = __main__.chrani_bot
+    command = "debuffplayer"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'" + str(command) + " " + str(player_object.steamid) + " " + str(buff) + "\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+
+        if match:
+            common.set_active_action_result('system', command, match.group(0))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return poll_is_finished
+
+
+common.actions_dict["debuffplayer"] = {
+    "telnet_command": "debuffplayer",
+    "action": debuffplayer,
+    "action_callback": debuffplayer_callback_thread,
+    "is_available": True
+}
+
+
+def buffplayer(player_object, buff):
+    chrani_bot = __main__.chrani_bot
+    command = "buffplayer"
+
+    buff_list = [
+        "firstAidLarge"
+    ]
+    if buff not in buff_list:
+        return False
+
+    if not common.actions_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    is_active = common.get_active_action_status('system', command)
+    if not is_active:
+        try:
+            chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {buff} {line_end}".format(command=command, player_steamid=player_object.steamid, buff=buff, line_end=b"\r\n"))
+        except Exception as e:
+            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+            logger.error(log_message)
+            raise IOError(log_message)
+
+        logger.debug("starting '{command}'".format(command=command))
+        common.set_active_action_status('system', command, True)
+        thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, buff))
+    else:
+        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+
+
+def buffplayer_callback_thread(player_object, buff):
+    chrani_bot = __main__.chrani_bot
+    command = "buffplayer"
+    poll_is_finished = False
+
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
+        logger.debug("waiting for response of '{command}'".format(command=command))
+        m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
+        if m:
+            logger.debug("command not recognized: {command}".format(command=command))
+            common.actions_dict[command]["is_available"] = False
+            poll_is_finished = True
+            continue
+
+        match = False
+        for match in re.finditer(r"Executing command \'" + str(command) + " " + str(player_object.steamid) + " " + str(buff) + "\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+            poll_is_finished = True
+
+        if match:
+            common.set_active_action_result('system', command, match.group(0))
+        time.sleep(0.5)
+
+    logger.debug("finished '{command}'".format(command=command))
+    common.set_active_action_status('system', command, False)
+    return poll_is_finished
+
+
+common.actions_dict["buffplayer"] = {
+    "telnet_command": "buffplayer",
+    "action": buffplayer,
+    "action_callback": buffplayer_callback_thread,
+    "is_available": True
+}
+
+
+"""
+def set_admin_level(self, player_object, level):
+    allowed_levels = [
+        "2", "4"
+    ]
+    if level not in allowed_levels:
+        return False
+    try:
+        connection = self.tn
+        command = "admin add " + player_object.steamid + " " + str(level) + "\r\n"
+        logger.info(command)
+        connection.write(command)
+    except Exception:
+        return False
+"""
 
 
 def none():
