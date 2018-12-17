@@ -17,8 +17,8 @@ from bot.modules.player_observer import PlayerObserver
 from bot.modules.logger import logger
 
 import bot.modules.global_observer as global_observer
-import bot.modules.schedulers as schedulers
-from bot.modules.schedulers import run_schedulers
+import bot.modules.global_scheduler as global_scheduler
+from bot.modules.global_scheduler import run_schedulers
 
 from bot.objects.player import Player
 from bot.objects.telnet import Telnet
@@ -125,8 +125,8 @@ class ChraniBot(Thread):
         self.observers_dict = global_observer.observers_dict
         self.observers_controller = global_observer.observers_controller
 
-        self.schedulers_dict = schedulers.schedulers_dict
-        self.schedulers_controller = schedulers.schedulers_controller
+        self.schedulers_dict = global_scheduler.schedulers_dict
+        self.schedulers_controller = global_scheduler.schedulers_controller
 
         self.landclaims_dict = {}
 
