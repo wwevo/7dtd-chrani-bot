@@ -78,9 +78,9 @@ class Players(object):
         try:
             player_steamid = m.group("player_steamid")
             command = m.group("command")
-            player_object = self.get_by_steamid(player_steamid)
 
             if command != "Teleport":
+                player_object = self.get_by_steamid(player_steamid)
                 spawning_player = {
                     "thread": bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
                     "player_object": player_object

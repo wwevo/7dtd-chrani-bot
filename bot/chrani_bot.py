@@ -54,7 +54,6 @@ class ChraniBot(Thread):
 
     match_types = dict
     match_types_generic = dict
-    match_types_system = dict
 
     telnet_lines_list = deque
 
@@ -176,28 +175,6 @@ class ChraniBot(Thread):
             ]
         }
 
-        self.match_types_system = {
-            'mem_status': r"Time:\s(?P<time_in_minutes>.*)m\sFPS:\s(?P<server_fps>.*)\sHeap:\s(?P<heap>.*)MB\sMax:\s(?P<max>.*)MB\sChunks:\s(?P<chunks>.*)\sCGO:\s(?P<cgo>.*)\sPly:\s(?P<players>.*)\sZom:\s(?P<zombies>.*)\sEnt:\s(?P<entities>.*\s\(.*\))\sItems:\s(?P<items>.*)\sCO:\s(?P<co>.*)\sRSS:\s(?P<rss>.*)MB",
-            # captures the response for telnet commands. used for example to capture teleport response
-            'telnet_commands': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))",
-            # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
-            'telnet_events_playerspawn': r"(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_steamid>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
-            # isolates the disconnected log entry to get the total session time of a player easily
-            'telnet_player_playtime': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
-            # to parse the telnets listlandplayerfriends response
-            'listplayerfriends_result_regexp': r"FriendsOf id=(?P<player_steamid>([0-9]{17})), friends=(?P<friendslist>([0-9,]{17,}))",
-            # to parse the telnets getgameprefs response
-            'getgameprefs_result_regexp': r"GamePref\.ConnectToServerIP = (?P<server_ip>.*)\nGamePref\.ConnectToServerPort = (?P<server_port>.*)\n",
-            # player joined / died messages
-            'telnet_events_player_gmsg': r"(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG: Player '(?P<player_name>.*)' (?P<command>.*)",
-            # pretty much the first usable line during a players login
-            'telnet_player_connecting': r"(?P<datetime>.+?) (?P<stardate>.+?) INF \[Steamworks.NET\]\s(?P<command>.*)\splayer:\s(?P<player_name>.*)\sSteamId:\s(?P<player_steamid>\d+)\s(.*)",
-            'telnet_player_connected': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_steamid>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)",
-            'telnet_player_disconnected': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_steamid>.*)', OwnerID='(?P<owner_id>.*)', PlayerName='(?P<player_name>.*)'",
-            'screamer_spawn': r"(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)",
-            'airdrop_spawn': r"(?P<datetime>.+?)\s(?P<stardate>.+?)\sINF\sAIAirDrop:\sSpawned\ssupply\scrate\s@\s\(\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)\)"
-        }
-
         self.banned_countries_list = self.settings.get_setting_by_name(name='banned_countries')
         self.stopped = event
         Thread.__init__(self)
@@ -292,33 +269,6 @@ class ChraniBot(Thread):
 
         return clean_bases_near_list, clean_landclaims_near_list
 
-    def on_screamer_spawn(self, m):
-        try:
-            entity_id = m.group("entity_id")
-            pos_x = m.group("pos_x")
-            pos_y = m.group("pos_y")
-            pos_z = m.group("pos_z")
-            command = m.group("command")
-            zombie_name = m.group("zombie_name")
-            player_object = self.players.get_by_steamid('system')
-            if command == "Spawned" and zombie_name == "zombieScreamer":
-                villages = self.locations.find_by_type('village')
-                for village in villages:
-                    if village.position_is_inside_boundary((pos_x,pos_y, pos_z)):
-                        self.player_observer.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
-        except KeyError:
-            pass
-
-    def on_airdrop_spawn(self, m):
-        try:
-            pos_x = m.group("pos_x")
-            pos_y = m.group("pos_y")
-            pos_z = m.group("pos_z")
-            player_object = self.players.get_by_steamid('system')
-            self.player_observer.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
-        except KeyError:
-            pass
-
     def is_it_horde_day(self, current_day):
         horde_day = False
         if multiple(current_day, 7):
@@ -373,6 +323,7 @@ class ChraniBot(Thread):
         try:
             server_settings_dict = self.telnet_observer.actions.common.get_active_action_result("system", "gg")
         except Exception as e:
+            server_settings_dict = {}
             print("{type}".format(type=type(e)))
 
         if len(server_settings_dict) > 0:
@@ -387,9 +338,10 @@ class ChraniBot(Thread):
         try:
             prefix_found = self.telnet_observer.actions.common.get_active_action_result("system", self.settings.get_setting_by_name(name='chatprefix_method'))
         except Exception as e:
+            prefix_found = ""
             print("{type}".format(type=type(e)))
 
-        if len(prefix_found) > 0:
+        if len(prefix_found) != "":
             have_found_a_sweet_prefix = True
             # disable polling of the settings, only need 'em once
             self.schedulers_controller["set_chat_prefix"]["is_active"] = False

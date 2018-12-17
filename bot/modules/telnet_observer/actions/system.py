@@ -45,12 +45,13 @@ def mem_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(chrani_bot.match_types_system["mem_status"], chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Time:\s(?P<time_in_minutes>.*)m\sFPS:\s(?P<server_fps>.*)\sHeap:\s(?P<heap>.*)MB\sMax:\s(?P<max>.*)MB\sChunks:\s(?P<chunks>.*)\sCGO:\s(?P<cgo>.*)\sPly:\s(?P<players>.*)\sZom:\s(?P<zombies>.*)\sEnt:\s(?P<entities>.*\s\(.*\))\sItems:\s(?P<items>.*)\sCO:\s(?P<co>.*)\sRSS:\s(?P<rss>.*)MB", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
+            chrani_bot.server_time_running = int(float(match.group("time_in_minutes")) * 60)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
