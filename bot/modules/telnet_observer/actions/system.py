@@ -728,7 +728,7 @@ def removeentity(entity_id):
     is_active = common.get_active_action_status('system', command)
     if not is_active:
         try:
-            chrani_bot.telnet_observer.tn.write("{command} {entitiy_id} {line_end}".format(command=command, entity_id=entity_id, line_end=b"\r\n"))
+            chrani_bot.telnet_observer.tn.write("{command} {entity_id} {line_end}".format(command=command, entity_id=entity_id, line_end=b"\r\n"))
         except Exception as e:
             log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
