@@ -16,7 +16,7 @@ from bot.modules.telnet_observer import TelnetObserver
 from bot.modules.player_observer import PlayerObserver
 from bot.modules.logger import logger
 
-import bot.modules.observers as observers
+import bot.modules.global_observer as global_observer
 import bot.modules.schedulers as schedulers
 from bot.modules.schedulers import run_schedulers
 
@@ -122,8 +122,8 @@ class ChraniBot(Thread):
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
-        self.observers_dict = observers.observers_dict
-        self.observers_controller = observers.observers_controller
+        self.observers_dict = global_observer.observers_dict
+        self.observers_controller = global_observer.observers_controller
 
         self.schedulers_dict = schedulers.schedulers_dict
         self.schedulers_controller = schedulers.schedulers_controller
