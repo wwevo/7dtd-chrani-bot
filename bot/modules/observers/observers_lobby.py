@@ -4,7 +4,7 @@ import common
 import threading
 
 
-# the only lobby specific observer. since it is a location, generic observers can be found in aobservers_locations
+# the only lobby specific observer. since it is a location, generic observers can be found in observers_locations
 def player_is_outside_lobby_boundary(chrani_bot, player_observer):
     try:
         player_object = chrani_bot.players.get_by_steamid(player_observer.player_steamid)
