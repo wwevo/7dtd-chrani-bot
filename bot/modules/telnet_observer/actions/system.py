@@ -523,7 +523,7 @@ def say_callback_thread(message, color):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'say\' \"[{color}]" + message + "[-]\" by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'say \"\[" + color + "\]" + message + "\[-\]\"\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
 
         if match:

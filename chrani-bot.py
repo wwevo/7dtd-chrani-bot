@@ -62,7 +62,7 @@ if __name__ == '__main__':
     chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
     chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
     chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.352"
+    chrani_bot_thread.bot_version = "0.7.353"
     chrani_bot = chrani_bot_thread
 
     chrani_bot.start()
@@ -139,10 +139,18 @@ if __name__ == '__main__':
                 steamid = p.group("steamid")
                 try:
                     player_object = chrani_bot.players.get_by_steamid(steamid)
-                    flask_login.login_user(player_object, remember=True)
-                    return flask.redirect("/protected")
                 except:
-                    pass
+                   player_dict = {
+                        "steamid": steamid,
+                        "name": "system",
+                   }
+
+                   player_object = Player(**player_dict)
+                   chrani_bot.players.upsert(player_object)
+                   player_object.add_permission_level("admin")
+
+                flask_login.login_user(player_object, remember=True)
+                return flask.redirect("/protected")
 
         return flask.redirect("/")
 

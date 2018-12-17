@@ -158,7 +158,7 @@ class TelnetObserver(Thread):
             return True
 
         for telnet_line in telnet_lines:
-            m = re.search(r"(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s((?P<source>by Telnet|from client))\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))", telnet_line)
+            m = re.search(r"(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command\s'(?P<telnet_command>.*)'\s(?P<source>by Telnet|from client)\s(?(source)from(?P<ip>.*):(?P<port>.*)|(?P<player_steamid>.*))", telnet_line)
             if not m or m and m.group('telnet_command').split(None, 1)[0] not in ['mem', 'gt', 'lp', 'llp', 'llp2', 'lpf']:
                 if telnet_line != '':
                     logger.debug(telnet_line)

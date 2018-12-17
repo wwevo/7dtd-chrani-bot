@@ -53,9 +53,8 @@ def pm_callback_thread(player_object, message, color):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'pm\' " + str(player_object.steamid) + " \"[{color}]" + message + "[-]\" by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'pm " + str(player_object.steamid) + " \"[" + color + "]" + re.escape(message) + "[-]\"\' by Telnet from (.*)\r\n", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result(player_object.steamid, command, match.group(0))
