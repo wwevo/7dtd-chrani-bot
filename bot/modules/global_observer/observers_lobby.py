@@ -22,8 +22,8 @@ def player_is_outside_lobby_boundary(chrani_bot, player_observer):
     if location_object.enabled is True and not location_object.player_is_inside_boundary(player_object) and player_object.initialized:
         def teleport_worker():
             seconds = 2
-            message = "You will be ported to the lobby in {seconds} seconds!".format(seconds=seconds), chrani_bot.chat_colors['warning']
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message)
+            message = "You will be ported to the lobby in {seconds} seconds!".format(seconds=seconds)
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.chat_colors['warning'])
             time.sleep(seconds)
 
             if not location_object.player_is_inside_boundary(player_object) and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object, location_object=location_object):
