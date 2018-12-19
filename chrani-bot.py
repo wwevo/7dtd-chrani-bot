@@ -59,12 +59,9 @@ if __name__ == '__main__':
         socketio = flask_socketio.SocketIO(app, async_mode='threading')
 
     chrani_bot_thread_stop_flag = Event()
-    chrani_bot_thread = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
-    chrani_bot_thread.name = "chrani_bot"  # nice to have for the logs
-    chrani_bot_thread.app_root = root_dir
-    chrani_bot_thread.bot_version = "0.7.353"
-    chrani_bot = chrani_bot_thread
-
+    chrani_bot = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
+    chrani_bot.app_root = root_dir
+    chrani_bot.dom['bot_version'] = "0.7.354"
     chrani_bot.start()
 
     @login_manager.user_loader
@@ -161,7 +158,7 @@ if __name__ == '__main__':
         output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
         output += '<a href="/">home</a><br /><br />'
         markup = flask.Markup(output)
-        return flask.render_template('index.html', bot=chrani_bot, content=markup)
+        return flask.render_template('index.html', chrani_bot=chrani_bot, content=markup)
 
 
     @app.errorhandler(404)
@@ -169,7 +166,7 @@ if __name__ == '__main__':
         output = 'Page not found :(<br />'
         output += '<a href="/">home</a><br /><br />'
         markup = flask.Markup(output)
-        return flask.render_template('index.html', bot=chrani_bot, content=markup), 404
+        return flask.render_template('index.html', chrani_bot=chrani_bot, content=markup), 404
 
 
     @app.route('/')
@@ -178,12 +175,12 @@ if __name__ == '__main__':
             return flask.redirect("/protected")
 
         output = '<div class="widget wide">'
-        output += "Welcome to the <strong>{}</strong><br />".format(chrani_bot.name)
+        output += "Welcome to the <strong>{}</strong><br />".format(chrani_bot.dom['bot_name'])
         output += "</div>"
 
         markup = flask.Markup(output)
         system_status_widget = get_system_status()
-        return flask.render_template('index.html', bot=chrani_bot, content=markup, system_status_widget=system_status_widget)
+        return flask.render_template('index.html', chrani_bot=chrani_bot, content=markup, system_status_widget=system_status_widget)
 
 
     @app.route('/protected')
@@ -216,11 +213,11 @@ if __name__ == '__main__':
 
         response = flask.make_response(flask.render_template(
             'index.html',
-            title="{} {} - webinterface".format(chrani_bot.name,  chrani_bot.bot_version),
+            title="{} {} - webinterface".format(chrani_bot.dom['bot_name'], chrani_bot.dom['bot_version']),
             webmap_ip=chrani_bot.settings.get_setting_by_name(name="webmap_ip"),
             webmap_port=chrani_bot.settings.get_setting_by_name(name="webmap_port"),
             system_status=get_system_status(),
-            bot=chrani_bot,
+            chrani_bot=chrani_bot,
             widgets=widgets_dict
         ))
         return response

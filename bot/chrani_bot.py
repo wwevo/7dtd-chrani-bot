@@ -1,6 +1,5 @@
 import traceback
 from threading import *
-import re
 import time
 import math
 import os
@@ -29,8 +28,7 @@ from bot.modules.whitelist import Whitelist
 
 
 class ChraniBot(Thread):
-    app_root = str
-    name = str
+    dom = dict
     bot_version = str
 
     app = object
@@ -49,7 +47,7 @@ class ChraniBot(Thread):
     ready_for_action = bool
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
-    has_connection = bool  # used to pause all processing without shutting down the bot
+    has_connection = bool
     initiate_shutdown = bool
 
     match_types = dict
@@ -59,15 +57,12 @@ class ChraniBot(Thread):
 
     first_run = bool
     last_execution_time = float
-    listlandprotection_interval = int
-    listplayers_interval = int
     restart_delay = int
     reboot_imminent = bool
     telnet_queue = int
 
     chat_colors = dict
     passwords = dict
-    api_key = str
     banned_countries_list = list
 
     settings_dict = dict
@@ -96,10 +91,15 @@ class ChraniBot(Thread):
         self.flask = flask
         self.flask_login = flask_login
         self.socketio = socketio
+
+        self.settings = Settings()
+        self.dom = {
+            "bot_name": self.settings.get_setting_by_name(name='bot_name')
+        }
+
         self.reboot_thread = None
         self.is_paused = False
         self.has_connection = False
-        self.settings = Settings()
         self.time_launched = time.time()
         self.current_gametime = None
         self.time_running = None
@@ -116,8 +116,7 @@ class ChraniBot(Thread):
         self.ready_for_action = False
         self.server_settings_dict = {}
 
-        self.name = self.settings.get_setting_by_name(name='bot_name')
-        logger.info("{} started".format(self.name))
+        logger.info("{} started".format(self.dom['bot_name']))
 
         self.players = Players()  # players will be loaded on a need-to-load basis
 
@@ -128,12 +127,6 @@ class ChraniBot(Thread):
         self.schedulers_controller = global_scheduler.schedulers_controller
 
         self.landclaims_dict = {}
-
-        self.listplayers_interval = self.settings.get_setting_by_name(name='list_players_interval')
-        self.listplayers_interval_idle = self.settings.get_setting_by_name(name='list_players_interval_idle')
-
-        self.listlandprotection_interval = self.settings.get_setting_by_name(name='list_landprotection_interval')
-        self.listlandprotection_interval_idle = self.settings.get_setting_by_name(name='list_landprotection_interval_idle')
 
         self.whitelist = Whitelist()
         if self.settings.get_setting_by_name(name='whitelist_active') is not False:
@@ -384,11 +377,11 @@ class ChraniBot(Thread):
                     run_schedulers(self, only_essential=only_essential)
 
                 if not has_required_environment or self.is_paused is not False:
-                    time.sleep(self.listplayers_interval)
+                    time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
                     continue
 
                 if self.initiate_shutdown is True and self.has_connection:
-                    time.sleep(self.listplayers_interval)
+                    time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
                     self.is_active = False
                     continue
 
