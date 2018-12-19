@@ -29,7 +29,7 @@ def on_enter_gameworld(chrani_bot, source_player, target_player, command):
             # response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
 
         if command == "entered the world" or command == "found in the world":
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "chrani-bot [{}]v{}[-]".format(chrani_bot.chat_colors['standard'], chrani_bot.bot_version), chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "chrani-bot [{}]v{}[-]".format(chrani_bot.chat_colors['standard'], chrani_bot.dom['bot_version']), chrani_bot.chat_colors['warning'])
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "List your available chat-actions with [{}]{}[-]".format(chrani_bot.chat_colors['standard'], common.find_action_help("players", "list actions")), chrani_bot.chat_colors['warning'])
 
         return response_messages

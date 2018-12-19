@@ -60,8 +60,6 @@ if __name__ == '__main__':
 
     chrani_bot_thread_stop_flag = Event()
     chrani_bot = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
-    chrani_bot.app_root = root_dir
-    chrani_bot.dom['bot_version'] = "0.7.354"
     chrani_bot.start()
 
     @login_manager.user_loader
