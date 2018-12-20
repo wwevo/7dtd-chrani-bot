@@ -4,6 +4,7 @@ from time import time, sleep
 from threading import *
 from collections import deque
 import actions
+import triggers
 
 from bot.modules.logger import logger
 
@@ -163,64 +164,11 @@ class TelnetObserver(Thread):
                 if telnet_line != '':
                     logger.debug(telnet_line)
 
-            # # isolates the disconnected log entry to get the total session time of a player easily
-            # 'telnet_player_playtime': r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<player_name>.*) (?P<command>.*) after (?P<time>.*) minutes",
-
-            # handle playerspawns
-            m = re.search(r"(?P<datetime>.+?) (?P<stardate>.+?) INF \[Steamworks.NET\]\s(?P<command>.*)\splayer:\s(?P<player_name>.*)\sSteamId:\s(?P<player_steamid>\d+)\s(.*)", telnet_line)
-            if m:
-                try:
-                    connecting_player = self.chrani_bot.players.player_entered_telnet(m)
-                    connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
-                except KeyError:
-                    pass
-
-            m = re.search(r"(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*), entityid=(?P<entity_id>.*), name=(?P<player_name>.*), steamid=(?P<player_steamid>.*), steamOwner=(?P<owner_id>.*), ip=(?P<player_ip>.*)", telnet_line)
-            if m:
-                try:
-                    connecting_player = self.chrani_bot.players.player_entered_telnet(m)
-                    connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
-                except KeyError:
-                    pass
-
-            # the game logs several player-events with additional information (for now i only capture the one i need, but there are several more useful ones
-            m = re.search(r"(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_steamid>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'", telnet_line)
-            if m:
-                try:
-                    spawning_player = self.chrani_bot.players.player_entered_the_world(m)
-                    spawning_player["thread"].trigger_action(spawning_player["player_object"], "entered the world")
-                except KeyError:
-                    pass
-
-            # handle other spawns
-            m = re.search(r"(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)", telnet_line)
-            if m:
-                try:
-                    entity_id = m.group("entity_id")
-                    pos_x = m.group("pos_x")
-                    pos_y = m.group("pos_y")
-                    pos_z = m.group("pos_z")
-                    command = m.group("command")
-                    zombie_name = m.group("zombie_name")
-                    player_object = self.chrani_bot.players.get_by_steamid('system')
-                    if command == "Spawned" and zombie_name == "zombieScreamer":
-                        villages = self.chrani_bot.locations.find_by_type('village')
-                        for village in villages:
-                            if village.position_is_inside_boundary((pos_x, pos_y, pos_z)):
-                                self.chrani_bot.player_observer.actions.common.trigger_action(self, player_object, player_object, "remove entity {}".format(entity_id))
-                except KeyError:
-                    pass
-
-            m = re.search(r"(?P<datetime>.+?)\s(?P<stardate>.+?)\sINF\sAIAirDrop:\sSpawned\ssupply\scrate\s@\s\(\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)\)", telnet_line)
-            if m:
-                try:
-                    pos_x = m.group("pos_x")
-                    pos_y = m.group("pos_y")
-                    pos_z = m.group("pos_z")
-                    player_object = self.chrani_bot.players.get_by_steamid('system')
-                    self.chrani_bot.player_observer.actions.common.trigger_action(self, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format( pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
-                except KeyError:
-                    pass
+            for trigger_name, telnet_trigger in triggers.triggers_dict.iteritems():
+                for regex in telnet_trigger["regex"]:
+                    regex_results = re.search(regex, telnet_line)
+                    if regex_results and telnet_trigger["is_available"]:
+                        telnet_trigger["action"](regex_results)
 
             """ send telnet_line to player-thread
             check 'chat' telnet-line(s) for any known playername currently online
