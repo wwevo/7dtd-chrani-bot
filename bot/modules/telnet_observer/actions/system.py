@@ -794,20 +794,16 @@ def debuffplayer(player_object, buff):
         time.sleep(1)
         return
 
-    is_active = common.get_active_action_status('system', command)
-    if not is_active:
-        try:
-            chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {buff} {line_end}".format(command=command, player_steamid=player_object.steamid, buff=buff, line_end=b"\r\n"))
-        except Exception as e:
-            log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
-            logger.error(log_message)
-            raise IOError(log_message)
+    try:
+        chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {buff} {line_end}".format(command=command, player_steamid=player_object.steamid, buff=buff, line_end=b"\r\n"))
+    except Exception as e:
+        log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
+        logger.error(log_message)
+        raise IOError(log_message)
 
-        logger.debug("starting '{command}'".format(command=command))
-        common.set_active_action_status('system', command, True)
-        thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, buff))
-    else:
-        logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
+    logger.debug("starting '{command}'".format(command=command))
+    common.set_active_action_status('system', command, True)
+    thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, buff))
 
 
 def debuffplayer_callback_thread(player_object, buff):
@@ -833,7 +829,6 @@ def debuffplayer_callback_thread(player_object, buff):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    common.set_active_action_status('system', command, False)
     return poll_is_finished
 
 
