@@ -41,7 +41,6 @@ common.actions_list.append({
         "usage": "/fix my legs please"
     },
     "action": fix_players_legs,
-    "env": "(self)",
     "group": "testing",
     "essential": False
 })
@@ -83,7 +82,6 @@ common.actions_list.append({
         "usage": "/make me stop leaking"
     },
     "action": stop_the_bleeding,
-    "env": "(self)",
     "group": "testing",
     "essential": False
 })
@@ -125,7 +123,6 @@ common.actions_list.append({
         "usage": "/heal me up scotty"
     },
     "action": apply_first_aid,
-    "env": "(self)",
     "group": "testing",
     "essential": False
 })
@@ -164,7 +161,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": removeentity,
-    "env": "(self)",
     "group": "testing",
     "essential": False
 })
@@ -172,7 +168,7 @@ common.actions_list.append({
 
 def supply_crate_spawned(chrani_bot, source_player, target_player, command):
     try:
-        p = re.search(r"an\sairdrop\shas\sarrived\s@\s\((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\)$", command)
+        p = re.search(r"an\sairdrop\shas\sarrived\s@\s\((?P<pos_x>.*)\s(?P<pos_y>.*)\s(?P<pos_z>.*)\)", command)
         if p:
             response_messages = ResponseMessage()
             pos_x = p.group("pos_x")
@@ -203,7 +199,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": supply_crate_spawned,
-    "env": "(self)",
     "group": "testing",
     "essential": False
 })
@@ -243,7 +238,6 @@ common.actions_list.append({
         "usage": "/skip bloodmoon"
     },
     "action": skip_bloodmoon,
-    "env": "(self)",
     "group": "testing",
     "essential": False
 })

@@ -30,8 +30,7 @@ common.schedulers_dict["rolling_announcements"] = {
     "trigger": "interval",  # "interval, gametime, gameday"
     "last_executed": time.time(),
     "action": rolling_announcements,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["rolling_announcements"] = {

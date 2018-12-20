@@ -331,7 +331,6 @@ common.actions_list.append({
         "usage": "/remove player <steamid/entityid> from group <group name>"
     },
     "action": remove_player_from_permission_group,
-    "env": "(self, command)",
     "group": "authentication",
     "essential": False
 })

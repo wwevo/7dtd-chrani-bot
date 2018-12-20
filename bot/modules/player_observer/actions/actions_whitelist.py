@@ -59,7 +59,6 @@ common.actions_list.append({
         "usage": "/add player <steamid/entityid> to whitelist"
     },
     "action": add_player_to_whitelist,
-    "env": "(self, command)",
     "group": "whitelist",
     "essential": False
 })
@@ -121,7 +120,6 @@ common.actions_list.append({
         "usage": "/remove player <steamid/entityid> from whitelist"
     },
     "action": remove_player_from_whitelist,
-    "env": "(self, command)",
     "group": "whitelist",
     "essential": False
 })
@@ -150,7 +148,6 @@ common.actions_list.append({
         "usage": "/activate whitelist"
     },
     "action": activate_whitelist,
-    "env": "(self)",
     "group": "whitelist",
     "essential": False
 })
@@ -179,7 +176,6 @@ common.actions_list.append({
         "usage": "/deactivate whitelist"
     },
     "action": deactivate_whitelist,
-    "env": "(self)",
     "group": "whitelist",
     "essential": False
 })

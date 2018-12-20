@@ -86,7 +86,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_enter_gameworld,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -98,7 +97,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_enter_gameworld,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -129,7 +127,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_leave,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -142,7 +139,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_leave,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -170,7 +166,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_death,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -198,7 +193,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_kill,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -249,7 +243,6 @@ common.actions_list.append({
         "usage": "/send player <steamid/entityid> to <coords>"
     },
     "action": teleport_player_to_coords,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })
@@ -306,7 +299,6 @@ common.actions_list.append({
         "usage": "/goto player <steamid/entityid>"
     },
     "action": teleport_self_to_player,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })
@@ -363,7 +355,6 @@ common.actions_list.append({
         "usage": "/summon player <steamid/entityid>"
     },
     "action": teleport_player_to_self,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })
@@ -413,7 +404,6 @@ common.actions_list.append({
         "usage": "/online players"
     },
     "action": list_online_players,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -470,7 +460,6 @@ common.actions_list.append({
         "usage": "/list actions"
     },
     "action": list_available_player_actions,
-    "env": "(self)",
     "group": "players",
     "essential": True
 })
@@ -554,7 +543,6 @@ common.actions_list.append({
         "usage": "/obliterate player <steamid/entityid>"
     },
     "action": obliterate_player,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })
@@ -591,7 +579,6 @@ common.actions_list.append({
         "usage": "/obliterate me"
     },
     "action": obliterate_me,
-    "env": "(self)",
     "group": "players",
     "essential": False
 })
@@ -660,7 +647,6 @@ common.actions_list.append({
         "usage": "/ban player <steamid/entityid> for <reason>"
     },
     "action": ban_player,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })
@@ -717,7 +703,6 @@ common.actions_list.append({
         "usage": "/unban player <steamid/entityid>"
     },
     "action": unban_player,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })
@@ -774,7 +759,6 @@ common.actions_list.append({
         "usage": "/kick player <steamid/entityid> for <reason>"
     },
     "action": kick_player,
-    "env": "(self, command)",
     "group": "players",
     "essential": False
 })

@@ -48,7 +48,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_join,
-    "env": "(self)",
     "group": "spawn",
     "essential": True
 })
@@ -61,7 +60,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_join,
-    "env": "(self)",
     "group": "spawn",
     "essential": True
 })
@@ -94,7 +92,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_death,
-    "env": "(self)",
     "group": "spawn",
     "essential": True
 })

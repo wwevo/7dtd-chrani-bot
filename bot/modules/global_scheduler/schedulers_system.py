@@ -52,8 +52,7 @@ common.schedulers_dict["get_game_preferences"] = {
     "trigger": "interval",
     "last_executed": "0",
     "action": get_game_preferences,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["get_game_preferences"] = {
@@ -80,8 +79,7 @@ common.schedulers_dict["get_mem_status"] = {
     "trigger": "interval",
     "last_executed": "0",
     "action": get_mem_status,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["get_mem_status"] = {
@@ -118,8 +116,7 @@ common.schedulers_dict["poll_players"] = {
     "trigger": "interval",  # "interval, gametime, gameday"
     "last_executed": "0",
     "action": poll_players,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["poll_players"] = {
@@ -155,8 +152,7 @@ common.schedulers_dict["get_gametime"] = {
     "trigger": "interval",
     "last_executed": "0",
     "action": get_gametime,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["get_gametime"] = {
@@ -237,8 +233,7 @@ common.schedulers_dict["list_landprotection"] = {
     "trigger": "interval",  # "interval, timepassed, gametime, gameday"
     "last_executed": "0",
     "action": list_landprotection,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["list_landprotection"] = {
@@ -304,8 +299,7 @@ common.schedulers_dict["reboot"] = {
     "trigger": "timepassed",  # "interval, gametime, gameday"
     "last_executed": time.time(),
     "action": reboot,
-    "env": "(self)",
-}
+    }
 
 
 common.schedulers_controller["reboot"] = {

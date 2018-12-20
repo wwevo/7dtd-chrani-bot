@@ -45,7 +45,6 @@ common.actions_list.append({
         "usage": "/reinitialize"
     },
     "action": reload_from_db,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -96,7 +95,6 @@ common.actions_list.append({
         "usage": "/shut down the matrix"
     },
     "action": shutdown_bot,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -144,7 +142,6 @@ common.actions_list.append({
         "usage": "/pause bot"
     },
     "action": pause_bot,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -192,7 +189,6 @@ common.actions_list.append({
         "usage": "/resume bot"
     },
     "action": resume_bot,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -227,7 +223,6 @@ common.actions_list.append({
         "usage": "/shut down the world"
     },
     "action": shutdown_server,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -258,7 +253,6 @@ common.actions_list.append({
         "usage": "/disable scheduler <name>"
     },
     "action": disable_scheduler,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -290,7 +284,6 @@ common.actions_list.append({
         "usage": "/enable scheduler <name>"
     },
     "action": enable_scheduler,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -321,7 +314,6 @@ common.actions_list.append({
         "usage": "/disable player_observer <name>"
     },
     "action": disable_player_observer,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })
@@ -353,7 +345,6 @@ common.actions_list.append({
         "usage": "/enable player_observer <name>"
     },
     "action": enable_player_observer,
-    "env": "(self)",
     "group": "system",
     "essential": False
 })

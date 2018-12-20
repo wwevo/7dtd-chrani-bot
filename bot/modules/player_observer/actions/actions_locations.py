@@ -86,7 +86,6 @@ common.actions_list.append({
         "usage": "/add location <location name>"
     },
     "action": set_up_location,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -126,7 +125,6 @@ common.actions_list.append({
         "usage": "/edit location teleport <location_identifier>"
     },
     "action": set_up_location_teleport,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -174,7 +172,6 @@ common.actions_list.append({
         "usage": "/edit location name <location_identifier> = <location name>"
     },
     "action": set_up_location_name,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -214,7 +211,6 @@ common.actions_list.append({
         "usage": "/make location <location_identifier> <'public' or 'private'>"
     },
     "action": change_location_visibility,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -267,7 +263,6 @@ common.actions_list.append({
         "usage": "/edit location outer perimeter <location_identifier>"
     },
     "action": set_up_location_outer_perimeter,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -313,7 +308,6 @@ common.actions_list.append({
         "usage": "/edit location inner perimeter <location_identifier>"
     },
     "action": set_up_location_inner_perimeter,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -351,7 +345,6 @@ common.actions_list.append({
         "usage": "/available locations"
     },
     "action": list_locations,
-    "env": "(self)",
     "group": "locations",
     "essential": False
 })
@@ -392,7 +385,6 @@ common.actions_list.append({
         "usage": "/goto location <location_identifier>"
     },
     "action": goto_location,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -449,7 +441,6 @@ common.actions_list.append({
         "usage": "/remove location <location_identifier>"
     },
     "action": remove_location,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -490,7 +481,6 @@ common.actions_list.append({
         "usage": "/enable location protection <location_identifier>"
     },
     "action": protect_inner_core,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -531,7 +521,6 @@ common.actions_list.append({
         "usage": "/disable location protection <location_identifier>"
     },
     "action": unprotect_inner_core,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -578,7 +567,6 @@ common.actions_list.append({
         "usage": "/make location <location_identifier> <'warn on outer' or 'warn on both' or 'never warn'>"
     },
     "action": change_perimeter_warning,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -624,7 +612,6 @@ common.actions_list.append({
         "usage": "/make location <location_identifier> <'a sphere' or 'a cube' or 'a round area' or 'a square area'>"
     },
     "action": change_location_shape,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })
@@ -668,7 +655,6 @@ common.actions_list.append({
         "usage": "/make location <location_identifier> <'a village' or 'a teleport' or 'a standard location'>"
     },
     "action": change_location_type,
-    "env": "(self, command)",
     "group": "locations",
     "essential": False
 })

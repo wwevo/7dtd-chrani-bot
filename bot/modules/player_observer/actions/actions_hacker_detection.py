@@ -45,7 +45,6 @@ common.actions_list.append({
         "usage": None
     },
     "action": oversized_stack,
-    "env": "(self)",
     "group": "hacker",
     "essential": True
 })

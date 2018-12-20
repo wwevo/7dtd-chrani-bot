@@ -57,7 +57,6 @@ common.actions_list.append({
         "usage": "/password <password>"
     },
     "action": password,
-    "env": "(self)",
     "group": "lobby",
     "essential": True
 })
@@ -112,7 +111,6 @@ common.actions_list.append({
         "usage": "/add lobby"
     },
     "action": set_up_lobby,
-    "env": "(self)",
     "group": "lobby",
     "essential": False
 })
@@ -164,7 +162,6 @@ common.actions_list.append({
         "usage": "/edit lobby outer perimeter"
     },
     "action": set_up_lobby_outer_perimeter,
-    "env": "(self)",
     "group": "lobby",
     "essential": False
 })
@@ -209,7 +206,6 @@ common.actions_list.append({
         "usage": "/edit lobby inner perimeter"
     },
     "action": set_up_lobby_inner_perimeter,
-    "env": "(self)",
     "group": "lobby",
     "essential": False
 })
@@ -236,7 +232,6 @@ common.actions_list.append({
         "usage": "/goto lobby"
     },
     "action": goto_lobby,
-    "env": "(self)",
     "group": "lobby",
     "essential": False
 })
@@ -272,7 +267,6 @@ common.actions_list.append({
         "usage": "/remove lobby"
     },
     "action": remove_lobby,
-    "env": "(self)",
     "group": "lobby",
     "essential": False
 })
@@ -304,7 +298,6 @@ common.actions_list.append({
         "usage": "/edit lobby teleport"
     },
     "action": set_up_lobby_teleport,
-    "env": "(self)",
     "group": "lobby",
     "essential": False
 })

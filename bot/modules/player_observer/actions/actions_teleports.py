@@ -86,7 +86,6 @@ common.actions_list.append({
         "usage": "/add teleport <location name>"
     },
     "action": set_up_teleport_point,
-    "env": "(self, command)",
     "group": "teleports",
     "essential": False
 })
@@ -144,7 +143,6 @@ common.actions_list.append({
         "usage": "/connect teleport <source_location_identifier> with <target_location_identifier>"
     },
     "action": connect_teleport,
-    "env": "(self, command)",
     "group": "teleports",
     "essential": False
 })
@@ -199,7 +197,6 @@ common.actions_list.append({
         "usage": "/activate teleport <location_identifier>"
     },
     "action": activate_teleport,
-    "env": "(self, command)",
     "group": "teleports",
     "essential": False
 })
@@ -243,7 +240,6 @@ common.actions_list.append({
         "usage": "/deactivate teleport <location_identifier>"
     },
     "action": deactivate_teleport,
-    "env": "(self, command)",
     "group": "teleports",
     "essential": False
 })

@@ -51,8 +51,7 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_death,
-    "env": "(self)",
-    "group": "backpack",
+"group": "backpack",
     "essential": False
 })
 
@@ -73,8 +72,7 @@ common.actions_list.append({
         "usage": None
     },
     "action": on_player_kill,
-    "env": "(self)",
-    "group": "backpack",
+"group": "backpack",
     "essential": False
 })
 
@@ -129,7 +127,6 @@ common.actions_list.append({
         "usage": "/take me to my pack"
     },
     "action": take_me_to_my_backpack,
-    "env": "(self)",
     "group": "backpack",
     "essential": False
 })

@@ -33,7 +33,6 @@ common.actions_list.append({
         "usage": "/can i build here"
     },
     "action": check_building_site,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -97,7 +96,6 @@ common.actions_list.append({
         "usage": "/add home"
     },
     "action": set_up_home,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -140,7 +138,6 @@ common.actions_list.append({
         "usage": "/remove home"
     },
     "action": remove_home,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -183,7 +180,6 @@ common.actions_list.append({
         "usage": "/edit home teleport"
     },
     "action": set_up_home_teleport,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -226,7 +222,6 @@ common.actions_list.append({
         "usage": "/enable home protection"
     },
     "action": protect_inner_core,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -267,7 +262,6 @@ common.actions_list.append({
         "usage": "/disable home protection"
     },
     "action": unprotect_inner_core,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -328,7 +322,6 @@ common.actions_list.append({
         "usage": "/edit home name <name>"
     },
     "action": set_up_home_name,
-    "env": "(self, command)",
     "group": "home",
     "essential": False
 })
@@ -362,7 +355,6 @@ common.actions_list.append({
         "usage": "/take me home"
     },
     "action": take_me_home,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -403,7 +395,6 @@ common.actions_list.append({
         "usage": "/take me to player <steamid/entityid> home"
     },
     "action": goto_player_home,
-    "env": "(self, command)",
     "group": "home",
     "essential": False
 })
@@ -465,7 +456,6 @@ common.actions_list.append({
         "usage": "/edit home outer perimeter"
     },
     "action": set_up_home_outer_perimeter,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
@@ -517,7 +507,6 @@ common.actions_list.append({
         "usage": "/edit home inner perimeter"
     },
     "action": set_up_home_inner_perimeter,
-    "env": "(self)",
     "group": "home",
     "essential": False
 })
