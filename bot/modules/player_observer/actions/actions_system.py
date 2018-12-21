@@ -377,6 +377,45 @@ common.actions_list.append({
         "usage": None
     },
     "action": removeentity,
-    "group": "testing",
+    "group": "system",
+    "essential": False
+})
+
+
+def skip_bloodmoon(chrani_bot, source_player, target_player, command):
+    try:
+        response_messages = ResponseMessage()
+        if chrani_bot.current_gametime is not None and chrani_bot.ongoing_bloodmoon():
+            day_after_horde = None
+            if chrani_bot.is_it_horde_day(chrani_bot.current_gametime["day"]):
+                day_after_horde = int(chrani_bot.current_gametime["day"]) + 1
+            elif chrani_bot.is_it_horde_day(int(chrani_bot.current_gametime["day"]) - 1):
+                day_after_horde = int(chrani_bot.current_gametime["day"])
+
+            if day_after_horde is not None:
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "settime", "{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
+                message = "bloodmoon got skipped by {}".format(source_player.name)
+                response_messages.add_message(message, True)
+            else:
+                message = "skipping bloodmoon failed :(".format(source_player.name)
+                response_messages.add_message(message, False)
+
+            logger.info(message)
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+        return response_messages
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "isequal",
+    "command": {
+        "trigger": "skip bloodmoon",
+        "usage": "/skip bloodmoon"
+    },
+    "action": skip_bloodmoon,
+    "group": "system",
     "essential": False
 })

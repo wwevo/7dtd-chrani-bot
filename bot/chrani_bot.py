@@ -95,7 +95,7 @@ class ChraniBot(Thread):
         self.settings = Settings()
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name'),
-            "bot_version": "0.7.366"
+            "bot_version": "0.7.367"
         }
 
         self.reboot_thread = None
