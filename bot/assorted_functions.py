@@ -52,24 +52,13 @@ def is_alpha(word):
         return False
 
 
-def round_to_region_grid(number):
-    return int(math.floor(number / 512))
-
-
-def get_region_grid(pos_x, pos_z):
-    grid_x = round_to_region_grid(pos_x)
-    grid_z = round_to_region_grid(pos_z)
-
-    return grid_x, grid_z
-
-
 def get_region_string(pos_x, pos_z):
-    grid_x, grid_z = get_region_grid(pos_x, pos_z)
-
     try:
+        grid_x = math.floor(int(pos_x) / 512)
+        grid_z = math.floor(int(pos_z) / 512)
         region_string = str(grid_x) + "." + str(grid_z) + ".7rg"
     except TypeError:
-        raise TypeError
+        region_string = None
 
     return region_string
 

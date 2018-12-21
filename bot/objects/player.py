@@ -160,7 +160,7 @@ class Player(flask_login.UserMixin):
         return True
 
     def is_responsive(self):
-        if self.is_to_be_obliterated is False and self.is_dead() is False:
+        if self.is_to_be_obliterated is False and self.is_dead() is False and self.is_online is True:
             return True
         else:
             return False
