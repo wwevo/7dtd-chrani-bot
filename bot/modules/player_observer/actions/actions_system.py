@@ -349,3 +349,34 @@ common.actions_list.append({
     "essential": False
 })
 
+
+def removeentity(chrani_bot, source_player, target_player, command):
+    try:
+        p = re.search(r"remove\sentity\s(?P<entity_id>[0-9]+)$", command)
+        if p:
+            response_messages = ResponseMessage()
+            entity_id = p.group("entity_id")
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "removeentity", entity_id)
+            message = "trying to remove entitiy #{} ^^".format(entity_id)
+            response_messages.add_message(message, True)
+
+            logger.info(message)
+            return response_messages
+        else:
+            raise ValueError("action does not fully match the trigger-string")
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "remove entity",
+        "usage": None
+    },
+    "action": removeentity,
+    "group": "testing",
+    "essential": False
+})

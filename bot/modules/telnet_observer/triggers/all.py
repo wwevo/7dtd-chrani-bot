@@ -2,6 +2,7 @@ import __main__
 import common
 import time
 from bot.objects.player import Player
+from bot.modules.logger import logger
 
 
 def entered_telnet(regex_results):
@@ -103,9 +104,9 @@ common.triggers_dict["entered_the_world"] = {
 }
 
 
-def screamer_spawned(regex_results):
+def remove_screamer_from_village(regex_results):
     chrani_bot = __main__.chrani_bot
-    command = "screamer_spawned"
+    command = "remove_screamer_from_village"
 
     if not common.triggers_dict[command]["is_available"]:
         time.sleep(1)
@@ -122,14 +123,15 @@ def screamer_spawned(regex_results):
         villages = chrani_bot.locations.find_by_type('village')
         for village in villages:
             if village.position_is_inside_boundary((pos_x, pos_y, pos_z)):
+                message = "screamer removed (from [ffffff]{}[-])".format(village.name)
                 chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "remove entity {}".format(entity_id))
 
 
-common.triggers_dict["screamer_spawned"] = {
+common.triggers_dict["remove_screamer_from_village"] = {
     "regex": [
         r"(?P<datetime>.+?) (?P<stardate>.+?) INF (?P<command>.+?) \[type=(.*), name=(?P<zombie_name>.+?), id=(?P<entity_id>.*)\] at \((?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\) Day=(\d.*) TotalInWave=(\d.*) CurrentWave=(\d.*)",
     ],
-    "action": screamer_spawned,
+    "action": remove_screamer_from_village,
     "is_available": True
 }
 
@@ -145,8 +147,13 @@ def airdrop_spawned(regex_results):
     pos_x = regex_results.group("pos_x")
     pos_y = regex_results.group("pos_y")
     pos_z = regex_results.group("pos_z")
-    player_object = chrani_bot.players.get_by_steamid('system')
-    chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "an airdrop has arrived @ ({pos_x} {pos_y} {pos_z})".format( pos_x=pos_x, pos_y=pos_y, pos_z=pos_z))
+    message = "supply crate at position ([ffffff]{pos_x}[-] [ffffff]{pos_y}[-] [ffffff]{pos_z}[-])".format(pos_x=pos_x, pos_y=pos_y, pos_z=pos_z)
+
+    logger.info(message)
+    online_players = chrani_bot.players.get_all_players(get_online_only=True)
+    for player in online_players:
+        if any(x in ["donator", "mod", "admin"] for x in player.permission_levels):
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player, message, chrani_bot.chat_colors['success'])
 
 
 common.triggers_dict["airdrop_spawned"] = {
