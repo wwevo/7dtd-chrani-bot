@@ -5,21 +5,22 @@ import os
 import math
 from bot.modules.logger import logger
 from bot.objects.location import Location
-import __main__  # my ide throws a warning here, but it works oO
+import pathlib2
 
 
 class Locations(object):
 
+    chrani_bot = object
+
     root = str
-    prefix = str
     extension = str
 
     all_locations_dict = dict
     locations_dict = dict
 
-    def __init__(self):
-        self.root = 'data/locations'
-        self.prefix = args_dict['Database-file']
+    def __init__(self, chrani_bot):
+        self.chrani_bot = chrani_bot
+        self.root = "data/{db}/locations".format(db=args_dict['Database-file'])
         self.extension = "json"
 
         self.load_all()
@@ -29,7 +30,7 @@ class Locations(object):
         for root, dirs, files in os.walk(self.root):
             files_to_remove_list = []
             for filename in files:
-                if filename.startswith(self.prefix) and filename.endswith(".{ext}".format(ext=self.extension)):
+                if filename.endswith(".{ext}".format(ext=self.extension)):
                     with open("{root}/{filename}".format(root=self.root, filename=filename)) as file_to_read:
                         try:
                             location_dict = byteify(json.load(file_to_read))
@@ -101,7 +102,7 @@ class Locations(object):
         return locations_found
 
     def get_leaflet_marker_json(self, location_objects):
-        bot = __main__.chrani_bot
+        bot = self.chrani_bot
         location_list = []
         for location in location_objects:
             try:
@@ -142,7 +143,7 @@ class Locations(object):
     def remove(self, location_owner, location_identifier):
         try:
             location_object = self.locations_dict[location_owner][location_identifier]
-            filename = "{root}/{prefix}_{object_owner}_{object_identifier}.{ext}".format(root=self.root, prefix=self.prefix, object_owner=location_object.owner, object_identifier=location_object.identifier, ext=self.extension)
+            filename = "{root}/{object_owner}_{object_identifier}.{ext}".format(root=self.root, object_owner=location_object.owner, object_identifier=location_object.identifier, ext=self.extension)
             if os.path.exists(filename):
                 try:
                     os.remove(filename)
@@ -189,7 +190,8 @@ class Locations(object):
         }
 
         try:
-            with open("{root}/{prefix}_{object_owner}_{object_identifier}.{ext}".format(root=self.root, prefix=self.prefix, object_owner=location_object.owner, object_identifier=location_object.identifier, ext=self.extension), 'w+') as file_to_write:
+            pathlib2.Path(self.root).mkdir(parents=True, exist_ok=True)
+            with open("{root}/{object_owner}_{object_identifier}.{ext}".format(root=self.root, object_owner=location_object.owner, object_identifier=location_object.identifier, ext=self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
             logger.debug("Saved location-record {object_identifier} for player {object_owner}.".format(object_identifier=location_object.identifier, object_owner=location_object.owner))
         except Exception as e:

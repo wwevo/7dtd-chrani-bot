@@ -1,24 +1,25 @@
-import __main__
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.modules.logger import logger
 import json
 import os
+import pathlib2
 
 
 class Whitelist(object):
 
+    chrani_bot = object
+
     root = str
-    prefix = str
     extension = str
 
     whitelisted_players_dict = dict
 
     whitelist_active = bool
 
-    def __init__(self):
-        self.root = 'data/whitelist'
-        self.prefix = args_dict['Database-file']
+    def __init__(self, chrani_bot):
+        self.chrani_bot = chrani_bot
+        self.root = "data/{db}/whitelist".format(db=args_dict['Database-file'])
         self.extension = "json"
 
         self.whitelisted_players_dict = {}
@@ -27,7 +28,7 @@ class Whitelist(object):
     def load_all(self):
         for root, dirs, files in os.walk(self.root):
             for filename in files:
-                if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
+                if filename.endswith(".{}".format(self.extension)):
                     with open("{}/{}".format(self.root, filename)) as file_to_read:
                         try:
                             whitelisted_player = byteify(json.load(file_to_read))
@@ -61,7 +62,7 @@ class Whitelist(object):
 
     def remove(self, player_object_to_dewhitelist):
         try:
-            filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object_to_dewhitelist.steamid, self.extension)
+            filename = "{}/{}.{}".format(self.root, player_object_to_dewhitelist.steamid, self.extension)
             if os.path.exists(filename):
                 try:
                     os.remove(filename)
@@ -88,11 +89,11 @@ class Whitelist(object):
         self -- the bot
         player_object -- player to check
         """
-        bot = __main__.chrani_bot
-        if player_object.steamid in bot.settings.get_setting_by_name(name="webinterface_admins", ):
+        chrani_bot = self.chrani_bot
+        if player_object.steamid in chrani_bot.settings.get_setting_by_name(name="webinterface_admins"):
             return True
 
-        authentication_groups = bot.settings.get_setting_by_name(name="authentication_groups")
+        authentication_groups = chrani_bot.settings.get_setting_by_name(name="authentication_groups")
         try:
             is_in_dict = self.whitelisted_players_dict[player_object.steamid]
             return True
@@ -122,7 +123,8 @@ class Whitelist(object):
 
     def save(self, dict_to_save):
         try:
-            with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:
+            pathlib2.Path(self.root).mkdir(parents=True, exist_ok=True)
+            with open("{}/{}.{}".format(self.root, dict_to_save["steamid"], self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
             logger.debug("Saved player-record {} for whitelisting.".format(dict_to_save["steamid"]))
         except Exception:

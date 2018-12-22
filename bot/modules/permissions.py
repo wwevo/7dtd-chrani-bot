@@ -4,13 +4,14 @@ from bot.modules.logger import logger
 
 from bot.command_line_args import args_dict
 from bot.objects.player import Player
-import __main__  # my ide throws a warning here, but it works oO
+import pathlib2
 
 
 class Permissions(object):
 
+    chrani_bot = object
+
     root = str
-    prefix = str
     extension = str
 
     player_actions_list = list
@@ -19,9 +20,9 @@ class Permissions(object):
 
     available_actions_dict = dict
 
-    def __init__(self, player_actions_list, permission_levels_list):
-        self.root = 'data/permissions'
-        self.prefix = args_dict['Database-file']
+    def __init__(self, chrani_bot, player_actions_list, permission_levels_list):
+        self.chrani_bot = chrani_bot
+        self.root = "data/{db}".format(db=args_dict['Database-file'])
         self.extension = "json"
 
         self.permission_levels_list = permission_levels_list
@@ -32,7 +33,7 @@ class Permissions(object):
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if player_object.steamid == 'system':
             return True
-        if player_object.steamid in __main__.chrani_bot.settings.get_setting_by_name(name='webinterface_admins'):
+        if player_object.steamid in self.chrani_bot.settings.get_setting_by_name(name='webinterface_admins'):
             return True
         if action_group is None:
             for group in self.action_permissions_dict.iteritems():
@@ -48,14 +49,14 @@ class Permissions(object):
                 return True  # as in no permission required
 
     def load_all(self):
-        filename = "{}/{}_permissions.{}".format(self.root, self.prefix, self.extension)
+        filename = "{}/permissions.{}".format(self.root, self.extension)
         try:
             with open(filename) as file_to_read:
                 self.action_permissions_dict = byteify(json.load(file_to_read))
         except IOError:  # no permissions file available
             pass
 
-        bot = __main__.chrani_bot
+        bot = self.chrani_bot
         player_dict = {
             "entityid": "0",
             "name": "system",
@@ -72,7 +73,7 @@ class Permissions(object):
         self.update_permissions_file()
 
     def update_permissions_file(self):
-        filename = '{}/{}_permissions.{}'.format(self.root, self.prefix, self.extension)
+        filename = '{}/permissions.{}'.format(self.root, self.extension)
 
         available_actions_dict = {}
         for player_action in self.player_actions_list:
@@ -98,8 +99,9 @@ class Permissions(object):
 
     def save(self, available_actions_dict):
         dict_to_save = available_actions_dict
-        filename = '{}/{}_permissions.{}'.format(self.root, self.prefix, self.extension)
+        filename = '{}/permissions.{}'.format(self.root, self.extension)
         try:
+            pathlib2.Path(self.root).mkdir(parents=True, exist_ok=True)
             with open(filename, 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
             logger.debug("Updated permissions file.")

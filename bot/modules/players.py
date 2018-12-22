@@ -1,30 +1,31 @@
-import __main__  # my ide throws a warning here, but it works oO
 from bot.command_line_args import args_dict
 from bot.assorted_functions import byteify
 from bot.modules.logger import logger
 import json
 import os
+import pathlib2
 
 from bot.objects.player import Player
 
 
 class Players(object):
 
+    chrani_bot = object
+
     root = str
-    prefix = str
     extension = str
 
     players_dict = dict
 
-    def __init__(self):
-        self.root = 'data/players'
-        self.prefix = args_dict['Database-file']
+    def __init__(self, chrani_bot):
+        self.chrani_bot = chrani_bot
+        self.root = "data/{db}/players".format(db=args_dict['Database-file'])
         self.extension = "json"
 
         self.players_dict = {}
 
     def player_left_the_world(self, m):
-        bot = __main__.chrani_bot
+        bot = self.chrani_bot
         try:
             player_steamid = m.group("player_steamid")
             command = m.group("command")
@@ -44,7 +45,7 @@ class Players(object):
 
     def load(self, steamid):
         try:
-            with open("{}/{}_{}.{}".format(self.root, self.prefix, str(steamid), self.extension)) as file_to_read:
+            with open("{}/{}.{}".format(self.root, str(steamid), self.extension)) as file_to_read:
                 player_dict = byteify(json.load(file_to_read))
                 player_object = Player(**player_dict)
                 return player_object
@@ -57,7 +58,7 @@ class Players(object):
         players_dict = {}
         for root, dirs, files in os.walk(self.root):
             for filename in files:
-                if filename.startswith(self.prefix) and filename.endswith(".{}".format(self.extension)):
+                if filename.endswith(".{}".format(self.extension)):
                     with open("{}/{}".format(self.root, filename)) as file_to_read:
                         try:
                             player_dict = byteify(json.load(file_to_read))
@@ -139,7 +140,7 @@ class Players(object):
         return player_list
 
     def remove(self, player_object):
-        filename = "{}/{}_{}.{}".format(self.root, self.prefix, player_object.steamid, self.extension)
+        filename = "{}/{}.{}".format(self.root, player_object.steamid, self.extension)
         if os.path.isfile(filename):
             try:
                 os.remove(filename)
@@ -173,7 +174,8 @@ class Players(object):
             logger.debug("Preparing player-record for player {} failed: {}".format(player_object.steamid, e.message))
             dict_to_save = {}  # this will fail the next
         try:
-            with open("{}/{}_{}.{}".format(self.root, self.prefix, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
+            pathlib2.Path(self.root).mkdir(parents=True, exist_ok=True)
+            with open("{}/{}.{}".format(self.root, dict_to_save['steamid'], self.extension), 'w+') as file_to_write:
                 json.dump(dict_to_save, file_to_write, indent=4, sort_keys=True)
             logger.debug("Saved player-record for player {}.".format(player_object.steamid))
         except Exception as e:

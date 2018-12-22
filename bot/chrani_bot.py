@@ -92,10 +92,10 @@ class ChraniBot(Thread):
         self.flask_login = flask_login
         self.socketio = socketio
 
-        self.settings = Settings()
+        self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name'),
-            "bot_version": "0.7.371"
+            "bot_version": "0.7.372"
         }
 
         self.reboot_thread = None
@@ -119,7 +119,7 @@ class ChraniBot(Thread):
 
         logger.info("{} started".format(self.dom['bot_name']))
 
-        self.players = Players()  # players will be loaded on a need-to-load basis
+        self.players = Players(self)  # players will be loaded on a need-to-load basis
 
         self.observers_dict = global_observer.observers_dict
         self.observers_controller = global_observer.observers_controller
@@ -129,11 +129,11 @@ class ChraniBot(Thread):
 
         self.landclaims_dict = {}
 
-        self.whitelist = Whitelist()
+        self.whitelist = Whitelist(self)
         if self.settings.get_setting_by_name(name='whitelist_active') is not False:
             self.whitelist.activate()
 
-        self.locations = Locations()
+        self.locations = Locations(self)
 
         self.passwords = self.settings.get_setting_by_name(name='authentication_groups')
 
@@ -405,7 +405,7 @@ class ChraniBot(Thread):
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
                     self.start_player_observer()
-                    self.permissions = Permissions(self.player_observer.actions_list, self.permission_levels_list)
+                    self.permissions = Permissions(self, self.player_observer.actions_list, self.permission_levels_list)
 
                     self.load_from_db()
 
