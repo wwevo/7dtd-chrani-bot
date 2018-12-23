@@ -41,15 +41,15 @@ common.actions_list.append({
 def set_up_home(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        bases_near_list, landclaims_near_list = chrani_bot.check_for_homes(target_player)
+        #bases_near_list, landclaims_near_list = chrani_bot.check_for_homes(target_player)
 
         can_i_build_here = False
-        if not bases_near_list and not landclaims_near_list:
-            can_i_build_here = True
-        else:
-            message = "Can not set up a home here. Other bases are too close!"
-            response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['error'])
+        # if not bases_near_list and not landclaims_near_list:
+        #     can_i_build_here = True
+        # else:
+        #     message = "Can not set up a home here. Other bases are too close!"
+        #     response_messages.add_message(message, False)
+        #     chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['error'])
 
         location_object = Location()
         location_object.set_owner(target_player.steamid)
