@@ -301,3 +301,48 @@ common.actions_list.append({
     "group": "lobby",
     "essential": False
 })
+
+
+def change_lobby_shape(chrani_bot, source_player, target_player, command):
+    try:
+        p = re.search(r"make\slobby\sa\s(?P<shape>(sphere|cube|round\sarea|square\sarea))$", command)
+        if p:
+            response_messages = ResponseMessage()
+            shape_to_set = p.group("shape")
+            try:
+                location_object = chrani_bot.locations.get("system", "lobby")
+                if shape_to_set == "sphere":
+                    location_object.set_shape("sphere")
+                elif shape_to_set == "cube":
+                    location_object.set_shape("cube")
+                elif shape_to_set == "round area":
+                    location_object.set_shape("circle")
+                else:
+                    location_object.set_shape("square")
+
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "The {} is now {}".format(location_object.name, shape_to_set), chrani_bot.chat_colors['standard'])
+                chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+                chrani_bot.locations.upsert(location_object, save=True)
+            except KeyError:
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "There doesn't seem to be a lobby oO", chrani_bot.chat_colors['warning'])
+
+            return response_messages
+        else:
+            raise ValueError("action does not fully match the trigger-string")
+
+    except Exception as e:
+        logger.debug(e)
+        raise
+
+
+common.actions_list.append({
+    "match_mode": "startswith",
+    "command": {
+        "trigger": "make lobby",
+        "usage": "/make lobby <location_identifier> <'a sphere' or 'a cube' or 'a round area' or 'a square area'>"
+    },
+    "action": change_lobby_shape,
+    "group": "locations",
+    "essential": False
+})
+
