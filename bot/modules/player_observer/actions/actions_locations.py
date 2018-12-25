@@ -359,15 +359,13 @@ def goto_location(chrani_bot, source_player, target_player, command):
             try:
                 locations_dict = chrani_bot.locations.get_available_locations(target_player)
                 try:
-                    if locations_dict[location_identifier].enabled is True and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=locations_dict[location_identifier]):
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have ported to the location {}".format(location_identifier), chrani_bot.chat_colors['success'])
-                    else:
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Teleporting to location {} failed :(".format(location_identifier), chrani_bot.chat_colors['error'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=locations_dict[location_identifier])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have ported to the location {}".format(location_identifier), chrani_bot.chat_colors['success'])
                 except IndexError:
                     raise KeyError
 
             except KeyError:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You do not have access to that location with this command.".format(location_identifier), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "The location {} is not available to you :(".format(location_identifier), chrani_bot.chat_colors['error'])
 
             return response_messages
         else:
