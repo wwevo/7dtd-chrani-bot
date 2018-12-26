@@ -313,7 +313,7 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
-        if player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
+        if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
@@ -325,7 +325,7 @@ class Location(object):
         return is_it_inside
 
     def player_is_inside_core(self, player_object):
-        if player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
+        if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 

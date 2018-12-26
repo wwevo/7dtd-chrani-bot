@@ -56,7 +56,7 @@ def get_region_string(pos_x, pos_z):
     try:
         grid_x = math.floor(int(pos_x) / 512)
         grid_z = math.floor(int(pos_z) / 512)
-        region_string = str(grid_x) + "." + str(grid_z) + ".7rg"
+        region_string = str(int(grid_x)) + "." + str(int(grid_z)) + ".7rg"
     except TypeError:
         region_string = None
 
