@@ -17,18 +17,13 @@ def on_enter_gameworld(chrani_bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         response_messages.add_message("Player {} has been seen in the logs".format(target_player.name), True)
 
-        target_player.is_online = True
-        target_player.is_logging_in = False
-        chrani_bot.players.upsert(target_player, save=True)
-
         if not target_player.has_permission_level("authenticated"):
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "read the rules on {}".format(chrani_bot.settings.get_setting_by_name(name='rules_url')), chrani_bot.chat_colors['warning'])
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "this is a development server. you can play here, but there's no support or anything really.", chrani_bot.chat_colors['info'])
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Enjoy!", chrani_bot.chat_colors['info'])
             chrani_bot.players.upsert(target_player)
-            # response_messages.add_message("Player {} is now initialized".format(target_player.name), True)
 
-        if command == "entered the world" or command == "found in the world":
+        if command == "found in the world":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "chrani-bot [{}]v{}[-]".format(chrani_bot.chat_colors['standard'], chrani_bot.dom['bot_version']), chrani_bot.chat_colors['warning'])
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "List your available chat-actions with [{}]{}[-]".format(chrani_bot.chat_colors['standard'], common.find_action_help("players", "list actions")), chrani_bot.chat_colors['warning'])
 
@@ -42,43 +37,7 @@ def on_enter_gameworld(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "EnterMultiplayer",
-        "usage": None
-    },
-    "action": on_enter_gameworld,
-    "group": "authentication",
-    "essential": True
-})
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
         "trigger": "found in the world",
-        "usage": None
-    },
-    "action": on_enter_gameworld,
-    "group": "authentication",
-    "essential": True
-})
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "JoinMultiplayer",
-        "usage": None
-    },
-    "action": on_enter_gameworld,
-    "group": "authentication",
-    "essential": True
-})
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "entered the world",
         "usage": None
     },
     "action": on_enter_gameworld,

@@ -53,18 +53,6 @@ common.actions_list.append({
 })
 
 
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "Died",
-        "usage": None
-    },
-    "action": on_player_join,
-    "group": "spawn",
-    "essential": True
-})
-
-
 def on_player_death(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
@@ -88,7 +76,7 @@ def on_player_death(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "died",
+        "trigger": "on player death",
         "usage": None
     },
     "action": on_player_death,

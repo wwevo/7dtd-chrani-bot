@@ -29,7 +29,6 @@ from bot.modules.whitelist import Whitelist
 
 class ChraniBot(Thread):
     dom = dict
-    bot_version = str
 
     app = object
     flask = object
@@ -95,7 +94,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name'),
-            "bot_version": "0.7.376"
+            "bot_version": "0.7.404"
         }
 
         self.reboot_thread = None

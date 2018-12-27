@@ -353,7 +353,7 @@ def lp_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + "\' by Telnet from (.*)([\s\S]+?)Total of (\d{1,2}) in the game", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + r"\' by Telnet from (.*)([\s\S]+?)Total of (\d{1,2}) in the game", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 

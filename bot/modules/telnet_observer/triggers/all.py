@@ -29,36 +29,24 @@ def entered_telnet(regex_results):
         print type(e)
 
     if command in ["connected", "Authenticating"]:
-        player_found = False
         try:
             player_object = chrani_bot.players.get_by_steamid(player_steamid)
-            player_found = True
         except KeyError:
-            pass
-
-        try:
-            connecting_player = chrani_bot.player_observer.active_player_threads_dict[player_steamid]
-        except KeyError:
-            if not player_found:
-                player_dict = {
-                    "entityid": entity_id,
-                    "name": player_name,
-                    "steamid": player_steamid,
-                    "ip": player_ip,
-                    "is_logging_in": True,
-                    "is_online": False,
-                }
-
-                player_object = Player(**player_dict)
-                chrani_bot.players.upsert(player_object)
-
-            chrani_bot.player_observer.start_player_thread(player_object)
-            connecting_player = {
-                "thread": chrani_bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
-                "player_object": player_object
+            player_dict = {
+                "entityid": entity_id,
+                "name": player_name,
+                "steamid": player_steamid,
+                "ip": player_ip
             }
 
-            connecting_player["thread"].trigger_action(connecting_player["player_object"], "entered the stream")
+            player_object = Player(**player_dict)
+
+        player_object.is_logging_in = True
+        player_object.is_online = False
+        player_object.update()
+        chrani_bot.players.upsert(player_object)
+        player_thread = chrani_bot.player_observer.start_player_thread(player_object)
+        player_thread.trigger_action(player_object, "found in the stream")
 
 
 common.triggers_dict["entered_telnet"] = {
@@ -88,11 +76,16 @@ def entered_the_world(regex_results):
 
     command = regex_results.group("command")
     if command != "Teleport":
-        player_object.pos_x = regex_results.group("pos_x")
-        player_object.pos_y = regex_results.group("pos_y")
-        player_object.pos_z = regex_results.group("pos_z")
+        player_object.is_logging_in = False
+        player_object.is_online = True
 
-        chrani_bot.player_observer.active_player_threads_dict[player_steamid]["thread"].trigger_action(player_object, "entered the world")
+    player_object.pos_x = regex_results.group("pos_x")
+    player_object.pos_y = regex_results.group("pos_y")
+    player_object.pos_z = regex_results.group("pos_z")
+    player_object.update()
+    chrani_bot.players.upsert(player_object)
+        # player_thread = chrani_bot.player_observer.start_player_thread(player_object)
+        # player_thread.trigger_action(player_object, "found in the world")
 
 
 common.triggers_dict["entered_the_world"] = {
@@ -100,6 +93,74 @@ common.triggers_dict["entered_the_world"] = {
         r"(?P<datetime>.+?) (?P<stardate>.+?) INF PlayerSpawnedInWorld \(reason: (?P<command>.+?), position: (?P<pos_x>.*), (?P<pos_y>.*), (?P<pos_z>.*)\): EntityID=(?P<entity_id>.*), PlayerID='(?P<player_steamid>.*)', OwnerID='(?P<owner_steamid>.*)', PlayerName='(?P<player_name>.*)'",
     ],
     "action": entered_the_world,
+    "is_available": True
+}
+
+
+def left_telnet(regex_results):
+    chrani_bot = __main__.chrani_bot
+    command = "left_telnet"
+
+    if not common.triggers_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    command = regex_results.group("command")
+    player_steamid = regex_results.group("player_steamid")
+    player_name = regex_results.group("player_name")
+    entity_id = ""
+    try:
+        entity_id = regex_results.group("entity_id")
+    except Exception as e:
+        print type(e)
+
+    player_ip = ""
+    try:
+        player_ip = regex_results.group("player_ip")
+    except Exception as e:
+        print type(e)
+
+    if command in ["disconnected"]:
+        player_object = chrani_bot.players.get_by_steamid(player_steamid)
+        player_object.is_logging_in = False
+        player_object.is_online = False
+        chrani_bot.players.upsert(player_object)
+
+
+common.triggers_dict["left_telnet"] = {
+    "regex": [
+        r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Player (?P<command>.*): EntityID=(?P<entity_id>.*), PlayerID=\'(?P<player_steamid>.*)\', OwnerID=\'(?P<owner_id>.*)\', PlayerName='(?P<player_name>.*)\'$"
+    ],
+    "action": left_telnet,
+    "is_available": True
+}
+
+
+def died(regex_results):
+    chrani_bot = __main__.chrani_bot
+    command = "died"
+
+    if not common.triggers_dict[command]["is_available"]:
+        time.sleep(1)
+        return
+
+    player_name = regex_results.group("player_name")
+    player_steamid = chrani_bot.players.name_to_steamid(player_name)
+    if player_steamid is not False:
+        try:
+            player_object = chrani_bot.players.get_by_steamid(player_steamid)
+        except KeyError:
+            return
+
+        player_thread = chrani_bot.player_observer.active_player_threads_dict[player_steamid]['thread']
+        player_thread.trigger_action(player_object, "on player death")
+
+
+common.triggers_dict["died"] = {
+    "regex": [
+        r"(?P<datetime>.+?) (?P<stardate>.+?) INF GMSG:\sPlayer\s\'(?P<player_name>.*)\'\sdied",
+    ],
+    "action": died,
     "is_available": True
 }
 

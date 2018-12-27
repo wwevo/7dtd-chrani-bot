@@ -85,8 +85,6 @@ class PlayerThread(Thread):
 
     def run(self):
         self.player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.player_object.is_online = False
-        self.player_object.is_logging_in = True
         self.player_object.is_about_to_be_kicked = False
         next_cycle = 0
         while not self.stopped.wait(next_cycle):

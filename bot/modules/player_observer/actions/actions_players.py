@@ -17,15 +17,6 @@ def on_enter_telnet(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         response_messages.add_message("Player {} has been seen in the stream".format(target_player.name), True)
-        target_player.is_logging_in = True
-        target_player.is_online = False
-        target_player.pos_x = 0.0
-        target_player.pos_y = 0.0
-        target_player.pos_z = 0.0
-        target_player.old_pos_x = 0.0
-        target_player.old_pos_y = 0.0
-        target_player.old_pos_z = 0.0
-        chrani_bot.players.upsert(target_player, save=True)
 
         chrani_bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
 
@@ -39,19 +30,7 @@ def on_enter_telnet(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "entered the stream",
-        "usage": None
-    },
-    "action": on_enter_telnet,
-    "group": "players",
-    "essential": True
-})
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "found in the world",
+        "trigger": "found in the stream",
         "usage": None
     },
     "action": on_enter_telnet,
@@ -82,18 +61,7 @@ def on_enter_gameworld(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "entered the world",
-        "usage": None
-    },
-    "action": on_enter_gameworld,
-    "group": "players",
-    "essential": True
-})
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "Died",
+        "trigger": "found in the world",
         "usage": None
     },
     "action": on_enter_gameworld,
@@ -106,8 +74,6 @@ def on_player_leave(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
 
-        target_player.is_online = False
-        # target_player.update()
         chrani_bot.players.upsert(target_player, save=True)
         chrani_bot.socketio.emit('update_player_table_row', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         message = "Player {} left the game".format(target_player.name)
@@ -124,18 +90,6 @@ common.actions_list.append({
     "match_mode": "isequal",
     "command": {
         "trigger": "left the game",
-        "usage": None
-    },
-    "action": on_player_leave,
-    "group": "players",
-    "essential": True
-})
-
-
-common.actions_list.append({
-    "match_mode": "isequal",
-    "command": {
-        "trigger": "disconnected",
         "usage": None
     },
     "action": on_player_leave,
@@ -162,7 +116,7 @@ def on_player_death(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "died",
+        "trigger": "on player death",
         "usage": None
     },
     "action": on_player_death,
@@ -189,7 +143,7 @@ def on_player_kill(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "startswith",
     "command": {
-        "trigger": "killed by",
+        "trigger": "on player killed",
         "usage": None
     },
     "action": on_player_kill,

@@ -47,7 +47,7 @@ def on_player_death(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "isequal",
     "command": {
-        "trigger": "died",
+        "trigger": "on player death",
         "usage": None
     },
     "action": on_player_death,
@@ -68,7 +68,7 @@ def on_player_kill(chrani_bot, source_player, target_player, command):
 common.actions_list.append({
     "match_mode": "startswith",
     "command": {
-        "trigger": "killed by",
+        "trigger": "on player killed",
         "usage": None
     },
     "action": on_player_kill,

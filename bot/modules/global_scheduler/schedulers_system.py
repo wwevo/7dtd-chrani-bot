@@ -90,7 +90,7 @@ common.schedulers_controller["get_mem_status"] = {
 
 def poll_players(chrani_bot):
     try:
-        if len(chrani_bot.player_observer.active_player_threads_dict) == 0 and not chrani_bot.first_run:  # adjust poll frequency when the server is empty
+        if len(chrani_bot.player_observer.active_player_threads_dict) == 0 and not chrani_bot.first_run and chrani_bot.time_running >= 30:  # adjust poll frequency when the server is empty
             try:
                 listplayers_interval = float(chrani_bot.settings.get_setting_by_name(name='list_players_interval_idle'))
             except TypeError:

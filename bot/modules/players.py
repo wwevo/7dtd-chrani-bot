@@ -77,6 +77,13 @@ class Players(object):
 
         return False
 
+    def name_to_steamid(self, name):
+        for steamid, player_object in self.players_dict.iteritems():
+            if player_object.name == name:
+                return steamid
+
+        return False
+
     def get_by_steamid(self, steamid):
         try:
             return self.players_dict[steamid]
