@@ -185,6 +185,7 @@ def remove_screamer_from_village(regex_results):
         for village in villages:
             if village.position_is_inside_boundary((pos_x, pos_y, pos_z)):
                 message = "screamer removed (from [ffffff]{}[-])".format(village.name)
+                logger.info(message)
                 chrani_bot.player_observer.actions.common.trigger_action(chrani_bot, player_object, player_object, "remove entity {}".format(entity_id))
 
 

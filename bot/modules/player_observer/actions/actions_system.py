@@ -356,7 +356,7 @@ def removeentity(chrani_bot, source_player, target_player, command):
         if p:
             response_messages = ResponseMessage()
             entity_id = p.group("entity_id")
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "removeentity", entity_id)
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kill", entity_id)
             message = "trying to remove entitiy #{} ^^".format(entity_id)
             response_messages.add_message(message, True)
 

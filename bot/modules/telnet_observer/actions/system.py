@@ -722,9 +722,9 @@ common.actions_dict["bc-chatprefix"] = {
 }
 
 
-def removeentity(entity_id):
+def kill(entity_id):
     chrani_bot = __main__.chrani_bot
-    command = "removeentity"
+    command = "kill"
     if not common.actions_dict[command]["is_available"]:
         time.sleep(1)
         return
@@ -747,7 +747,7 @@ def removeentity(entity_id):
 
 def removeentity_callback_thread(entity_id, dummy):
     chrani_bot = __main__.chrani_bot
-    command = "removeentity"
+    command = "kill"
     poll_is_finished = False
 
     while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
@@ -772,9 +772,9 @@ def removeentity_callback_thread(entity_id, dummy):
     return poll_is_finished
 
 
-common.actions_dict["removeentity"] = {
-    "telnet_command": "removeentity",
-    "action": removeentity,
+common.actions_dict["kill"] = {
+    "telnet_command": "kill",
+    "action": kill,
     "action_callback": removeentity_callback_thread,
     "is_available": True
 }

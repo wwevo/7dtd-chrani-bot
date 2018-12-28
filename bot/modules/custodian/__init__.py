@@ -49,4 +49,4 @@ class Custodian(Thread):
             self.bot.socketio.emit('refresh_health', '', namespace='/chrani-bot/public')
 
             self.last_execution_time = time.time() - profile_start
-            next_cycle = self.run_observer_interval
+            next_cycle = self.run_observer_interval - self.last_execution_time

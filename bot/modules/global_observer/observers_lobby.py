@@ -31,9 +31,9 @@ def player_is_outside_lobby_boundary(chrani_bot, player_object):
                 player_object.set_coordinates(location_object)
                 message = "{} has been ported to the lobby!".format(player_object.name)
                 logger.info(message)
-                time.sleep(seconds * 3)
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "You have been ported to the lobby! Authenticate with /password <password>", chrani_bot.chat_colors['warning'])
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, chrani_bot.settings.get_setting_by_name(name="basic_server_info", default="see https://chrani.net for more information!"), chrani_bot.chat_colors['warning'])
+                time.sleep(seconds * 2)
                 player_object.active_teleport_thread = False
 
                 player_object.update()

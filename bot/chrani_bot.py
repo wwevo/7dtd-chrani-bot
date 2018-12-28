@@ -94,7 +94,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name'),
-            "bot_version": "0.7.404"
+            "bot_version": "0.7.410"
         }
 
         self.reboot_thread = None
@@ -351,6 +351,7 @@ class ChraniBot(Thread):
     def run(self):
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
+        self.start_custodian()
 
         next_cycle = 0
         last_schedule = 0
@@ -398,7 +399,6 @@ class ChraniBot(Thread):
                 self.server_time_running = None
 
                 try:
-                    self.start_custodian()
                     self.has_connection = True
                     self.start_telnet_observer()
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
@@ -436,19 +436,26 @@ class ChraniBot(Thread):
         self.shutdown()
 
     def clear_env(self):
-        for player_steamid in self.player_observer.active_player_threads_dict:
-            """ kill them ALL! """
-            active_player_thread = self.player_observer.active_player_threads_dict[player_steamid]
-            active_player_thread["thread"].stopped.set()
+        try:
+            for player_steamid in self.player_observer.active_player_threads_dict:
+                """ kill them ALL! """
+                active_player_thread = self.player_observer.active_player_threads_dict[player_steamid]
+                active_player_thread["thread"].stopped.set()
+        except AttributeError:
+            pass
+
+        self.players.players_dict = {}
 
         self.telnet_lines_list = deque()
         self.is_paused = True
         try:
             self.telnet_observer.stopped.set()
+            self.player_observer.stopped.set()
         except AttributeError:
             pass
 
         self.telnet_observer = object
+        self.player_observer = object
 
     def shutdown(self):
         time.sleep(5)
