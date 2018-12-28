@@ -23,6 +23,8 @@ def fix_players_legs(chrani_bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "brokenLeg")
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "sprainedLeg")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "buffLegBroken")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "buffLegSprained")
         message = "your legs have been taken care of ^^"
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)
@@ -64,6 +66,8 @@ def stop_the_bleeding(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "bleeding")
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "buffInternalBleeding")
+
         message = "your wounds have been bandaided ^^"
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
         response_messages.add_message(message, True)

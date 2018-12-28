@@ -786,9 +786,12 @@ def debuffplayer(player_object, buff):
 
     buff_list = [
         "bleeding",
+        "buffInternalBleeding",
         "foodPoisoning",
         "brokenLeg",
-        "sprainedLeg"
+        "sprainedLeg",
+        "buffLegBroken",
+        "buffLegSprained"
     ]
     if buff not in buff_list:
         return False
