@@ -1,3 +1,4 @@
+import __main__
 import math
 import random
 from bot.assorted_functions import get_region_string
@@ -313,12 +314,18 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
+        chrani_bot = __main__.chrani_bot
         if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
         try:
-            is_it_inside = self.position_is_inside_boundary((player_object.pos_x, player_object.pos_y, player_object.pos_z))
+
+            is_it_inside = self.position_is_inside_boundary((
+                chrani_bot.dom["player_data"][player_object.steamid]["pos_x"],
+                chrani_bot.dom["player_data"][player_object.steamid]["pos_y"],
+                chrani_bot.dom["player_data"][player_object.steamid]["pos_z"],
+            ))
         except TypeError:
             is_it_inside = None
 

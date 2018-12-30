@@ -26,9 +26,10 @@ class TelnetObserver(Thread):
     valid_telnet_lines = deque
     action_queue = deque
 
-    def __init__(self, event, chrani_bot, tn):
-        self.tn = tn
+    def __init__(self, chrani_bot, tn):
         self.chrani_bot = chrani_bot
+        self.tn = tn
+
         self.actions = actions
 
         self.run_observer_interval = 0.5
@@ -42,8 +43,19 @@ class TelnetObserver(Thread):
 
         self.last_execution_time = 0.0
 
-        self.stopped = event
         Thread.__init__(self)
+
+    def setup(self):
+        self.stopped = Event()
+        self.name = 'telnet observer'
+        self.isDaemon()
+
+        return self
+
+    def start(self):
+        logger.info("chrani custodian started")
+        Thread.start(self)
+        return self
 
     def is_a_valid_line(self, telnet_line):
         telnet_response_is_a_valid_line = False
@@ -184,7 +196,7 @@ class TelnetObserver(Thread):
         return len(telnet_lines)
 
     def run(self):
-        logger.info("telnet observer thread started")
+        self.chrani_bot.has_connection = True
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             self.chrani_bot.custodian.check_in('telnet_observer', True)

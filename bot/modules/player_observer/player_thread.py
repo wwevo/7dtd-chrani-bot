@@ -17,17 +17,25 @@ class PlayerThread(Thread):
     run_observers_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
 
-    def __init__(self, event, chrani_bot, player_steamid):
+    def __init__(self, chrani_bot, player_steamid):
         self.player_steamid = str(player_steamid)
-
-        logger.info("thread started for player " + self.player_steamid)
 
         self.bot = chrani_bot
         self.run_observers_interval = 1
         self.last_execution_time = 0.0
 
-        self.stopped = event
         Thread.__init__(self)
+
+    def setup(self):
+        self.stopped = Event()
+        self.name = 'player thread {}'.format(self.player_steamid)
+        self.isDaemon()
+        return self
+
+    def start(self):
+        logger.info("thread started for player " + self.player_steamid)
+        Thread.start(self)
+        return self
 
     def trigger_action(self, target_player, command):
         self.bot.player_observer.action_queue.append({"source_player": self.player_object, "target_player": target_player, "command": command})

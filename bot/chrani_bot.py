@@ -52,7 +52,7 @@ class ChraniBot(Thread):
     match_types = dict
     match_types_generic = dict
 
-    telnet_lines_list = deque
+    # telnet_lines_list = deque
 
     first_run = bool
     last_execution_time = float
@@ -94,7 +94,8 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name'),
-            "bot_version": "0.7.411"
+            "bot_version": "0.7.422",
+            "player_data": {}
         }
 
         self.reboot_thread = None
@@ -170,18 +171,19 @@ class ChraniBot(Thread):
 
         self.banned_countries_list = self.settings.get_setting_by_name(name='banned_countries')
         self.stopped = event
+        self.permissions = Permissions(self, self.permission_levels_list)
         Thread.__init__(self)
 
-    def load_from_db(self):
+    def reload_local_files(self):
         self.settings.load_all()
         self.players.load_all()
         self.locations.load_all()  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
-        self.permissions.load_all()  # get the permissions or create new permissions-file
+        self.permissions.load_all(self.player_observer.actions_list)  # get the permissions or create new permissions-file
 
     def manage_landclaims(self):
         polled_lcb = self.telnet_observer.actions.get_active_action_result('system', "llp")
-        if polled_lcb != self.landclaims_dict:
+        if len(polled_lcb) >= 1 and polled_lcb != self.landclaims_dict:
             self.landclaims_dict = polled_lcb
             lcb_owners_to_delete = {}
             lcb_owners_to_update = {}
@@ -204,31 +206,34 @@ class ChraniBot(Thread):
         except TypeError:
             return lcb_list_final
 
-        for lcb_owner_steamid, lcb_list in lcb_dict.iteritems():
-            try:
-                player_object = self.players.get_by_steamid(lcb_owner_steamid)
-            except KeyError:
-                player_dict = {
-                        "name": "unknown player",
-                        "steamid": lcb_owner_steamid,
-                    }
-                player_object = Player(**player_dict)
+        try:
+            for lcb_owner_steamid, lcb_list in lcb_dict.iteritems():
+                try:
+                    player_object = self.players.get_by_steamid(lcb_owner_steamid)
+                except KeyError:
+                    player_dict = {
+                            "name": "unknown player",
+                            "steamid": lcb_owner_steamid,
+                        }
+                    player_object = Player(**player_dict)
 
-            for lcb in lcb_list:
-                lcb_list_final.append({
-                    "id": "{}_lcb_{}{}{}".format(str(player_object.steamid), str(lcb[0]), str(lcb[1]), str(lcb[2])),
-                    "owner": str(player_object.steamid),
-                    "identifier": "{}_lcb_{}{}{}".format(str(player_object.steamid), str(lcb[0]), str(lcb[1]), str(lcb[2])),
-                    "name": str(player_object.name),
-                    "radius": int((land_claim_size - 1) / 2),
-                    "inner_radius": 3,
-                    "pos_x": int(lcb[0]),
-                    "pos_y": int(lcb[1]),
-                    "pos_z": int(lcb[2]),
-                    "shape": "square",
-                    "type": "standard marker",
-                    "layerGroup": "landclaims"
-                })
+                for lcb in lcb_list:
+                    lcb_list_final.append({
+                        "id": "{}_lcb_{}{}{}".format(str(player_object.steamid), str(lcb[0]), str(lcb[1]), str(lcb[2])),
+                        "owner": str(player_object.steamid),
+                        "identifier": "{}_lcb_{}{}{}".format(str(player_object.steamid), str(lcb[0]), str(lcb[1]), str(lcb[2])),
+                        "name": str(player_object.name),
+                        "radius": int((land_claim_size - 1) / 2),
+                        "inner_radius": 3,
+                        "pos_x": int(lcb[0]),
+                        "pos_y": int(lcb[1]),
+                        "pos_z": int(lcb[2]),
+                        "shape": "square",
+                        "type": "standard marker",
+                        "layerGroup": "landclaims"
+                    })
+        except AttributeError as e:
+            pass
 
         return lcb_list_final
 
@@ -286,31 +291,6 @@ class ChraniBot(Thread):
 
         return False
 
-    def start_custodian(self):
-        custodian_thread_stop_flag = Event()
-        custodian_thread = Custodian(custodian_thread_stop_flag, self)
-        custodian_thread.name = "custodian"
-        custodian_thread.isDaemon()
-        self.custodian = custodian_thread
-        self.custodian.start()
-
-    def start_player_observer(self):
-        player_observer_thread_stop_flag = Event()
-        player_observer_thread = PlayerObserver(player_observer_thread_stop_flag, self)
-        player_observer_thread.name = "player observer"
-        player_observer_thread.isDaemon()
-        self.player_observer = player_observer_thread
-        self.player_observer.start()
-
-    def start_telnet_observer(self):
-        tn = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password', show_log_init=True))
-        telnet_observer_thread_stop_flag = Event()
-        telnet_observer_thread = TelnetObserver(telnet_observer_thread_stop_flag, self, tn.tn)
-        telnet_observer_thread.name = "telnet observer"
-        telnet_observer_thread.isDaemon()
-        self.telnet_observer = telnet_observer_thread
-        self.telnet_observer.start()
-
     def has_required_environment(self):
         """ check if needed server-config is available"""
         try:
@@ -326,8 +306,8 @@ class ChraniBot(Thread):
             self.schedulers_controller["get_game_preferences"]["is_active"] = False
         else:
             we_got_us_some_settings = False
-        """ check if required telnet commands are available"""
 
+        """ check if required telnet commands are available"""
         try:
             prefix_found = self.telnet_observer.actions.common.get_active_action_result("system", self.settings.get_setting_by_name(name='chatprefix_method'))
         except Exception as e:
@@ -351,7 +331,7 @@ class ChraniBot(Thread):
     def run(self):
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
-        self.start_custodian()
+        self.custodian = Custodian(self).setup().start()
 
         next_cycle = 0
         last_schedule = 0
@@ -393,41 +373,36 @@ class ChraniBot(Thread):
                 self.last_execution_time = time.time() - profile_start
                 next_cycle = (0.2 - self.last_execution_time)
 
+            except (NameError, AttributeError) as error:
+                traceback.print_exc()
+                logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except IOError as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
-                log_message = "no telnet-connection - trying to connect..."
                 self.server_time_running = None
 
                 try:
-                    self.has_connection = True
-                    self.start_telnet_observer()
+                    telnet = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password', show_log_init=True))
+                    self.telnet_observer = TelnetObserver(self, telnet.authenticated_connection).setup().start()
+                    self.player_observer = PlayerObserver(self).setup().start()
+                    self.reload_local_files()
+
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
-                    self.start_player_observer()
-                    self.permissions = Permissions(self, self.player_observer.actions_list, self.permission_levels_list)
-
-                    self.load_from_db()
-
-                    self.telnet_lines_list = deque()
+                    # self.telnet_lines_list = deque()
 
                     self.reboot_imminent = False
                     self.is_paused = False
 
                 except IOError as e:
                     traceback.print_exc()
-                    self.has_connection = False
-                    self.first_run = True
                     self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
 
                     self.clear_env()
-                    log_message = "{} - will try again in {} seconds ({} / {})".format(log_message, str(self.restart_delay), error, e)
+                    log_message = "no telnet-connection - trying to connect... - will try again in {} seconds ({} / {})".format(str(self.restart_delay), error, e)
                     logger.info(log_message)
                     time.sleep(self.restart_delay)
                     self.restart_delay = 20
 
-            except (NameError, AttributeError) as error:
-                traceback.print_exc()
-                logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except Exception as error:
                 traceback.print_exc()
                 logger.error("unknown error: {} ({})".format(error.message, type(error)))
@@ -436,29 +411,33 @@ class ChraniBot(Thread):
         self.shutdown()
 
     def clear_env(self):
+        self.has_connection = False
+        self.first_run = True
+        self.is_paused = True
         try:
             for player_steamid in self.player_observer.active_player_threads_dict:
                 """ kill them ALL! """
                 active_player_thread = self.player_observer.active_player_threads_dict[player_steamid]
-                active_player_thread["thread"].stopped.set()
+                active_player_thread.stopped.set()
         except AttributeError:
             pass
 
-        self.players.players_dict = {}
+        # self.players.players_dict = {}
 
-        self.telnet_lines_list = deque()
-        self.is_paused = True
+        # self.telnet_lines_list = deque()
         try:
             self.telnet_observer.stopped.set()
+        except AttributeError:
+            pass
+
+        try:
             self.player_observer.stopped.set()
         except AttributeError:
             pass
 
-        self.telnet_observer = object
-        self.player_observer = object
-
     def shutdown(self):
         time.sleep(5)
+        self.custodian.stopped.set()
         self.is_active = False
         self.clear_env()
         self.stopped.set()

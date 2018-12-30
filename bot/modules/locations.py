@@ -46,6 +46,7 @@ class Locations(object):
             for file_to_remove in files_to_remove_list:
                 try:
                     os.remove(file_to_remove)
+                    logger.debug("removed invalid location file: {}".format(file_to_remove))
                 except OSError, e:
                     logger.exception(e)
 

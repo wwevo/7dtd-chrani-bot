@@ -8,8 +8,8 @@ def get_player_status(target_player_steamid):
     chrani_bot = __main__.chrani_bot
     player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     player_status = {
-        "is_online": player_object.is_online,
-        "is_logging_in": player_object.is_logging_in
+        "is_online": chrani_bot.dom["player_data"][player_object.steamid]["is_online"],
+        "is_logging_in": chrani_bot.dom["player_data"][player_object.steamid]["is_logging_in"]
     }
     return chrani_bot.app.response_class(
         response=chrani_bot.flask.json.dumps(player_status),

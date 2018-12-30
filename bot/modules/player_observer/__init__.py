@@ -12,10 +12,10 @@ from bot.objects.player import Player
 
 
 class PlayerObserver(Thread):
+    stopped = object
+
     chrani_bot = object
     actions = object
-
-    stopped = object
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
@@ -23,7 +23,7 @@ class PlayerObserver(Thread):
 
     action_queue = deque
 
-    def __init__(self, event, chrani_bot):
+    def __init__(self, chrani_bot):
         self.chrani_bot = chrani_bot
 
         self.action_queue = deque()
@@ -35,38 +35,40 @@ class PlayerObserver(Thread):
         self.actions = actions
         self.actions_list = actions.actions_list
 
-        self.stopped = event
         Thread.__init__(self)
+
+    def setup(self):
+        self.stopped = Event()
+        self.name = 'player observer'
+        self.isDaemon()
+        return self
+
+    def start(self):
+        logger.info("player observer thread started")
+        Thread.start(self)
+        return self
 
     def start_player_thread(self, player_object):
         if player_object.steamid in self.active_player_threads_dict:
             # already being observed
-            return
+            return self.active_player_threads_dict[player_object.steamid]
 
-        player_thread_stop_flag = Event()
-        player_thread = PlayerThread(player_thread_stop_flag, self.chrani_bot, player_object.steamid)  # I'm passing the bot into it to have easy access to it's variables
-        player_thread.name = player_object.steamid
-        player_thread.isDaemon()
-        player_thread.start()
-        self.chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-        self.chrani_bot.socketio.emit('update_leaflet_markers', self.chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-        self.active_player_threads_dict.update({player_object.steamid: {"event": player_thread_stop_flag, "thread": player_thread}})
+        player_thread = PlayerThread(self.chrani_bot, player_object.steamid).setup().start()  # I'm passing the bot into it to have easy access to it's variables
+        self.active_player_threads_dict[player_object.steamid] = player_thread
         return player_thread
 
     def stop_player_thread(self, player_object):
         active_player_thread = self.active_player_threads_dict[player_object.steamid]
-        stop_flag = active_player_thread["thread"]
-        stop_flag.stopped.set()
+        active_player_thread.stopped.set()
+        del self.active_player_threads_dict[player_object.steamid]
+
         player_object.is_online = False
         player_object.is_logging_in = False
         player_object.update()
-        self.chrani_bot.socketio.emit('update_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-        self.chrani_bot.socketio.emit('update_leaflet_markers', self.chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
-        del self.active_player_threads_dict[player_object.steamid]
 
     def manage_online_players(self):
         # get all currently online players and store them in a dictionary
-        listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", "lp")
+        listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'))
         if len(listplayers_dict) <= 0:
             listplayers_dict = {}
 
@@ -79,20 +81,21 @@ class PlayerObserver(Thread):
                 player_object = Player(**player_dict)
                 save_to_player_file = True
 
-            player_object.is_online = True
-            player_object.is_logging_in = False
+            player_dict["is_online"] = True
+            player_dict["is_logging_in"] = False
             player_object.update(**player_dict)
             self.chrani_bot.players.upsert(player_object, save=save_to_player_file)
+            self.chrani_bot.dom["player_data"][player_steamid] = player_dict
 
         """ handle player-threads """
         for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
             """ start player_observer_thread for each player not already being observed """
-            if player_object.steamid not in self.active_player_threads_dict:
+            if player_object.steamid not in self.active_player_threads_dict and player_steamid != "system":
                 # manually trigger actions for players found through lp response
-                if player_object.is_logging_in is True:
+                if self.chrani_bot.dom["player_data"][player_steamid]["is_logging_in"] is True:
                     player_thread = self.start_player_thread(player_object)
                     player_thread.trigger_action(player_object, "found in the stream")
-                if player_object.is_online is True:
+                if self.chrani_bot.dom["player_data"][player_steamid]["is_online"] is True:
                     player_thread = self.start_player_thread(player_object)
                     player_thread.trigger_action(player_object, "found in the world")
 
@@ -101,18 +104,14 @@ class PlayerObserver(Thread):
             if player_object.is_to_be_obliterated is True:
                 player_object.is_online = False
                 player_object.is_logging_in = False
+                self.chrani_bot.dom["player_data"][player_steamid]["is_online"] = False
+                self.chrani_bot.dom["player_data"][player_steamid]["is_logging_in"] = False
                 players_to_obliterate.append(player_object)
 
         for player_object in players_to_obliterate:
             self.chrani_bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
             self.chrani_bot.socketio.emit('remove_leaflet_markers', self.chrani_bot.players.get_leaflet_marker_json([player_object]), namespace='/chrani-bot/public')
             self.chrani_bot.players.remove(player_object)
-
-        # prune players not online anymore
-        for steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-            if steamid != 'system' and steamid in self.active_player_threads_dict.keys() and steamid not in listplayers_dict.keys() and (not player_object.is_logging_in or not player_object.is_online):
-                self.active_player_threads_dict[player_object.steamid]['thread'].trigger_action(player_object, "left the game")
-                self.stop_player_thread(player_object)
 
         return listplayers_dict
 
@@ -174,7 +173,6 @@ class PlayerObserver(Thread):
         return len(actions)
 
     def run(self):
-        logger.info("player observer thread started")
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             """ so far there is nothing to do here, just signalling readiness to our custodian """

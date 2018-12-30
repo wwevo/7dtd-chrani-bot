@@ -19,7 +19,7 @@ def reload_from_db(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
         try:
-            chrani_bot.load_from_db()
+            chrani_bot.reload_local_files()
             message = "loaded all data from storage."
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
             response_messages.add_message(message, True)

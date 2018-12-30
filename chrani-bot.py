@@ -227,6 +227,7 @@ if __name__ == '__main__':
         location_list = chrani_bot.locations.get_leaflet_marker_json(location_objects)
         player_objects = chrani_bot.players.get_all_players()
         player_list = chrani_bot.players.get_leaflet_marker_json(player_objects)
+
         lcb_list = chrani_bot.get_lcb_marker_json(chrani_bot.landclaims_dict)
         socketio.emit('update_leaflet_markers', player_list + location_list + lcb_list, namespace='/chrani-bot/public')
 

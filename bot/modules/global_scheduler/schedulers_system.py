@@ -177,9 +177,9 @@ def update_system_status(bot):
             bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             execution_time = 0.0
             count = 0
-            for player_steamid, player_dict in bot.player_observer.active_player_threads_dict.iteritems():
+            for player_steamid, player_thread in bot.player_observer.active_player_threads_dict.iteritems():
                 count = count + 1
-                execution_time += player_dict["thread"].last_execution_time
+                execution_time += player_thread.last_execution_time
             if count > 0:
                 bot.oberservers_execution_time = execution_time / count
             common.schedulers_dict["update_system_status"]["last_executed"] = time.time()

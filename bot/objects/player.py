@@ -1,9 +1,11 @@
-from time import time
+import time
 import datetime
 import flask_login
 
 
 class Player(flask_login.UserMixin):
+    data_timestamp = float
+
     id = long
     name = str
     permission_levels = list
@@ -62,6 +64,7 @@ class Player(flask_login.UserMixin):
         return unicode(self.steamid)
 
     def __init__(self, **kwargs):
+        self.data_timestamp = 0
         self.health = 0
         self.last_teleport = 0
         self.last_seen = 0
@@ -74,7 +77,7 @@ class Player(flask_login.UserMixin):
         self.is_about_to_be_kicked = False
         self.is_logging_in = False
         self.permission_levels = []
-        self.last_responsive = time()
+        self.last_responsive = time.time()
         self.entityid = None
         self.authenticated = False
         self.initialized = False
@@ -150,13 +153,31 @@ class Player(flask_login.UserMixin):
             if len(self.permission_levels) == 0 or level == "authenticated":
                 self.set_authenticated(False)
 
-    def set_last_teleport(self):
-        self.last_teleport = time()
+    def set_last_teleport(self, coord_tuple):
+        self.pos_x = coord_tuple[0]
+        self.pos_y = coord_tuple[1]
+        self.pos_z = coord_tuple[2]
+        self.last_teleport = time.time()
+        self.update()
 
-    def set_coordinates(self, location_object):
-        self.pos_x = location_object.tele_x
-        self.pos_y = location_object.tele_y
-        self.pos_z = location_object.tele_z
+    def set_coordinates(self, object_with_coordinates):
+        try:
+            self.pos_x = object_with_coordinates.tele_x
+        except Exception as e:
+            print(type(e))
+            self.pos_x = object_with_coordinates.pos_x
+
+        try:
+            self.pos_y = object_with_coordinates.tele_y
+        except Exception as e:
+            self.pos_y = object_with_coordinates.pos_y
+
+        try:
+            self.pos_z = object_with_coordinates.tele_z
+        except Exception as e:
+            self.pos_z = object_with_coordinates.pos_z
+
+        self.update()
         return True
 
     def is_responsive(self):

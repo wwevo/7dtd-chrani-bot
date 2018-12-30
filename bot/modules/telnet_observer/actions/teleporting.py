@@ -8,7 +8,7 @@ from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
 
 
-def teleportplayer(player_object, location_object=None, coord_tuple=None):
+def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=None):
     chrani_bot = __main__.chrani_bot
     command = "teleportplayer"
     if not common.actions_dict[command]["is_available"]:
@@ -36,12 +36,27 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None):
         if not player_object.is_responsive():
             return False
 
-        player_object.set_last_teleport()
-        player_object.pos_x = coord_tuple[0]
-        player_object.pos_y = coord_tuple[1]
-        player_object.pos_z = coord_tuple[2]
-        chrani_bot.players.upsert(player_object)
+        player_object.set_last_teleport(coord_tuple)
+        chrani_bot.dom["player_data"][player_object.steamid]["data_timestamp"] = time.time()
+        if coord_tuple[0] == int(math.ceil(chrani_bot.dom["player_data"][player_object.steamid]["pos_x"])) and  coord_tuple[2] == int(math.ceil(chrani_bot.dom["player_data"][player_object.steamid]["pos_z"])):
+            print("already there, you just don't know it yet")
+            return False
+        else:
+            try:
+                if delay is not None:
+                    message = "You will be ported to {location_name} in {seconds} seconds".format(location_name=location_object.name, seconds=delay)
+                else:
+                    delay = 0
+                    message = "You will be ported to {location_name}".format(location_name=location_object.name)
+            except Exception:
+                delay = 0
+                message = "You will be ported to some coordinates ({pos_x} {pos_y} {pos_z})".format(pos_x=coord_tuple[0], pos_y=coord_tuple[1], pos_z=coord_tuple[2])
+                pass
 
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.chat_colors['warning'])
+            time.sleep(delay)
+
+        chrani_bot.players.upsert(player_object)
         try:
             chrani_bot.telnet_observer.tn.write("{command} {player_steamid} {pos_x} {pos_y} {pos_z} {line_end}".format(command=command, player_steamid=player_object.steamid, pos_x=coord_tuple[0], pos_y=coord_tuple[1], pos_z=coord_tuple[2], line_end=b"\r\n"))
         except Exception as e:
@@ -72,6 +87,10 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
 
         match = False
         for match in re.finditer(r"Executing command \'teleportplayer " + player_object.steamid + " (.*)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+            chrani_bot.dom["player_data"][player_object.steamid]["pos_x"] = coord_tuple[0]
+            chrani_bot.dom["player_data"][player_object.steamid]["pos_y"] = coord_tuple[1]
+            chrani_bot.dom["player_data"][player_object.steamid]["pos_z"] = coord_tuple[2]
+            chrani_bot.dom["player_data"][player_object.steamid]["data_timestamp"] = time.time()
             poll_is_finished = True
             pass
 

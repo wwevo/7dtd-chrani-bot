@@ -32,7 +32,7 @@ class Players(object):
             if command != "Teleport":
                 player_object = self.get_by_steamid(player_steamid)
                 spawning_player = {
-                    "thread": bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
+                    "thread": bot.player_observer.active_player_threads_dict[player_steamid],
                     "player_object": player_object
                 }
 
@@ -66,7 +66,10 @@ class Players(object):
                             continue
 
                         player_dict['health'] = 0
+                        player_dict['is_online'] = False
+                        player_dict['is_logging_in'] = False
                         players_dict[player_dict['steamid']] = Player(**player_dict)
+                        self.chrani_bot.dom["player_data"][player_dict['steamid']] = player_dict
 
         self.players_dict = players_dict
 
@@ -124,21 +127,21 @@ class Players(object):
 
     def get_leaflet_marker_json(self, player_objects):
         player_list = []
-        for player in player_objects:
+        for player_object in player_objects:
 
-            if not isinstance(player.pos_x, float) or not isinstance(player.pos_y, float) or not isinstance(player.pos_z, float):
+            if not isinstance(player_object.pos_x, float) or not isinstance(player_object.pos_y, float) or not isinstance(player_object.pos_z, float):
                 continue
 
             player_list.append({
-                "id": "{}".format(player.steamid),
-                "owner": player.steamid,
-                "identifier": player.name,
-                "name": player.name,
+                "id": "{}".format(player_object.steamid),
+                "owner": player_object.steamid,
+                "identifier": player_object.name,
+                "name": player_object.name,
                 "radius": 3,
-                "pos_x": player.pos_x,
-                "pos_y": player.pos_y,
-                "pos_z": player.pos_z,
-                "online": player.is_online,
+                "pos_x": player_object.pos_x,
+                "pos_y": player_object.pos_y,
+                "pos_z": player_object.pos_z,
+                "online": player_object.is_online,
                 "shape": "icon",
                 "type": "icon",
                 "layerGroup": "players"
