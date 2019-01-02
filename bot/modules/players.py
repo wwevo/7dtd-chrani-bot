@@ -69,7 +69,7 @@ class Players(object):
                         player_dict['is_online'] = False
                         player_dict['is_logging_in'] = False
                         players_dict[player_dict['steamid']] = Player(**player_dict)
-                        self.chrani_bot.dom["player_data"][player_dict['steamid']] = player_dict
+                        self.chrani_bot.dom["bot_data"]["player_data"][player_dict['steamid']] = player_dict
 
         self.players_dict = players_dict
 
@@ -124,30 +124,6 @@ class Players(object):
             logger.exception(e)
 
         return False
-
-    def get_leaflet_marker_json(self, player_objects):
-        player_list = []
-        for player_object in player_objects:
-
-            if not isinstance(player_object.pos_x, float) or not isinstance(player_object.pos_y, float) or not isinstance(player_object.pos_z, float):
-                continue
-
-            player_list.append({
-                "id": "{}".format(player_object.steamid),
-                "owner": player_object.steamid,
-                "identifier": player_object.name,
-                "name": player_object.name,
-                "radius": 3,
-                "pos_x": player_object.pos_x,
-                "pos_y": player_object.pos_y,
-                "pos_z": player_object.pos_z,
-                "online": player_object.is_online,
-                "shape": "icon",
-                "type": "icon",
-                "layerGroup": "players"
-            })
-
-        return player_list
 
     def remove(self, player_object):
         filename = "{}/{}.{}".format(self.root, player_object.steamid, self.extension)

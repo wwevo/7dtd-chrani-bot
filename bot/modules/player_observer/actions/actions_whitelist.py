@@ -36,11 +36,11 @@ def add_player_to_whitelist(chrani_bot, source_player, target_player, command):
             if chrani_bot.whitelist.add(source_player, player_dict_to_whitelist, save=True):
                 chrani_bot.socketio.emit('refresh_player_whitelist', {"steamid": player_dict_to_whitelist["steamid"], "entityid": None}, namespace='/chrani-bot/public')
                 message = "you have whitelisted {}".format(player_dict_to_whitelist["name"])
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
                 response_messages.add_message(message, True)
             else:
                 message = "could not find a player with steamid {}".format(steamid_to_whitelist)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
 
             return response_messages
@@ -90,16 +90,16 @@ def remove_player_from_whitelist(chrani_bot, source_player, target_player, comma
 
             if chrani_bot.whitelist.remove(player_object_to_dewhitelist):
                 message = "you have been de-whitelisted by {}".format(target_player.name)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_dewhitelist, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_dewhitelist, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, True)
 
                 message = "you have de-whitelisted {}".format(player_object_to_dewhitelist.name)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
                 chrani_bot.socketio.emit('refresh_player_whitelist', {"steamid": player_object_to_dewhitelist.steamid, "entityid": player_object_to_dewhitelist.entityid}, namespace='/chrani-bot/public')
             else:
                 message = "could not find a player with steamid '{}' on the whitelist".format(steamid_to_dewhitelist)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
 
             chrani_bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
@@ -132,7 +132,7 @@ def activate_whitelist(chrani_bot, source_player, target_player, command):
         chrani_bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
         chrani_bot.socketio.emit('refresh_player_table', '', namespace='/chrani-bot/public')
         message = "Whitelist is in effect! Feeling safer already :)"
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
         response_messages.add_message(message, True)
         return response_messages
 
@@ -160,7 +160,7 @@ def deactivate_whitelist(chrani_bot, source_player, target_player, command):
         chrani_bot.socketio.emit('refresh_whitelist', '', namespace='/chrani-bot/public')
         chrani_bot.socketio.emit('refresh_player_table', '', namespace='/chrani-bot/public')
         message = "Whitelist has been disabled. We are feeling adventureous :)"
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
         response_messages.add_message(message, True)
         return response_messages
 

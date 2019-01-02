@@ -18,14 +18,14 @@ def on_enter_gameworld(chrani_bot, source_player, target_player, command):
         response_messages.add_message("Player {} has been seen in the logs".format(target_player.name), True)
 
         if not target_player.has_permission_level("authenticated"):
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "read the rules on {}".format(chrani_bot.settings.get_setting_by_name(name='rules_url')), chrani_bot.chat_colors['warning'])
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "this is a development server. you can play here, but there's no support or anything really.", chrani_bot.chat_colors['info'])
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Enjoy!", chrani_bot.chat_colors['info'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "read the rules on {}".format(chrani_bot.settings.get_setting_by_name(name='rules_url')), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "this is a development server. you can play here, but there's no support or anything really.", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['info'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Enjoy!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['info'])
             chrani_bot.players.upsert(target_player)
 
         if command == "found in the world":
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "chrani-bot [{}]v{}[-]".format(chrani_bot.chat_colors['standard'], chrani_bot.dom['bot_version']), chrani_bot.chat_colors['warning'])
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "List your available chat-actions with [{}]{}[-]".format(chrani_bot.chat_colors['standard'], common.find_action_help("players", "list actions")), chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "chrani-bot [{}]v{}[-]".format(chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'], chrani_bot.dom['bot_version']), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "List your available chat-actions with [{}]{}[-]".format(chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'], common.find_action_help("players", "list actions")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
 
@@ -70,11 +70,11 @@ def password(chrani_bot, source_player, target_player, command):
             pwd = p.group("password")
             if not pwd:
                 message = "No password provided"
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have entered no password. Use {}".format(common.find_action_help("authentication", "password")), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have entered no password. Use {}".format(common.find_action_help("authentication", "password")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
             elif pwd not in chrani_bot.passwords.values() and not target_player.authenticated:
                 message = "Entered a wrong / unknown password"
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have entered a wrong password!", chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have entered a wrong password!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
             elif pwd not in chrani_bot.passwords.values() and target_player.authenticated:
                 target_player.set_authenticated(False)
@@ -84,7 +84,7 @@ def password(chrani_bot, source_player, target_player, command):
                 # target_player.update()
                 message = "You have lost your authentication!"
                 response_messages.add_message(message, False)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method", default="mpc"), target_player, True)
                 chrani_bot.players.upsert(target_player, save=True)
                 chrani_bot.socketio.emit('refresh_permissions', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
@@ -93,7 +93,7 @@ def password(chrani_bot, source_player, target_player, command):
                 if not target_player.authenticated:
                     message = "{} joined the ranks of literate people. Welcome!".format(target_player.name)
                     response_messages.add_message(message, True)
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
 
                 target_player.add_permission_level("authenticated")
                 message = "You were added to the group authenticated"
@@ -106,19 +106,19 @@ def password(chrani_bot, source_player, target_player, command):
                     # target_player.update()
                     message = "you are an Admin"
                     response_messages.add_message(message, True)
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
                 elif pwd == chrani_bot.passwords['mod']:
                     target_player.add_permission_level("mod")
                     # target_player.update()
                     message = "you are a Moderator"
                     response_messages.add_message(message, True)
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
                 elif pwd == chrani_bot.passwords['donator']:
                     target_player.add_permission_level("donator")
                     # target_player.update()
                     message = "you are a Donator. Thank you <3"
                     response_messages.add_message(message, True)
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
                 chrani_bot.socketio.emit('refresh_permissions', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
                 chrani_bot.players.upsert(target_player, save=True)
@@ -179,7 +179,7 @@ def add_player_to_permission_group(chrani_bot, source_player, target_player, com
                 else:
                     message = "could not find a player to match steamid {}".format(steamid_to_modify)
                     response_messages.add_message(message, False)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
             group_exists = False
             group = str(p.group("group_name"))
@@ -188,13 +188,13 @@ def add_player_to_permission_group(chrani_bot, source_player, target_player, com
             else:
                 message = "the group {} does not exist!".format(group)
                 response_messages.add_message(message, False)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
             if player_exists and group_exists:
                 player_object_to_modify.add_permission_level(group)
                 message = "{} has been added to the group {}".format(player_object_to_modify.name, group)
                 response_messages.add_message(message, True)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
                 chrani_bot.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
                 chrani_bot.players.upsert(player_object_to_modify, save=True)
 
@@ -255,7 +255,7 @@ def remove_player_from_permission_group(chrani_bot, source_player, target_player
                 else:
                     message = "could not find a player with steamid {}".format(steamid_to_modify)
                     response_messages.add_message(message, False)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
             group_exists = False
             group = str(p.group("group_name"))
@@ -264,13 +264,13 @@ def remove_player_from_permission_group(chrani_bot, source_player, target_player
             else:
                 message = "the group {} does not exist!".format(group)
                 response_messages.add_message(message, False)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
             if player_exists and group_exists:
                 player_object_to_modify.remove_permission_level(group)
                 message = "{} has been removed from the group {}".format(player_object_to_modify.name, group)
                 response_messages.add_message(message, True)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
                 chrani_bot.socketio.emit('refresh_permissions', {"steamid": player_object_to_modify.steamid, "entityid": player_object_to_modify.entityid}, namespace='/chrani-bot/public')
                 chrani_bot.players.upsert(player_object_to_modify, save=True)
 

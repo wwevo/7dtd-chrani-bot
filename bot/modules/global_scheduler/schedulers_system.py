@@ -90,7 +90,7 @@ common.schedulers_controller["get_mem_status"] = {
 
 def poll_players(chrani_bot):
     try:
-        if len(chrani_bot.player_observer.active_player_threads_dict) == 0 and not chrani_bot.first_run and chrani_bot.time_running >= 30:  # adjust poll frequency when the server is empty
+        if len(chrani_bot.player_observer.active_player_threads_dict) == 0 and not chrani_bot.first_run and chrani_bot.dom["bot_data"]["time_running"] >= 30:  # adjust poll frequency when the server is empty
             try:
                 listplayers_interval = float(chrani_bot.settings.get_setting_by_name(name='list_players_interval_idle'))
             except TypeError:
@@ -133,13 +133,13 @@ def get_gametime(chrani_bot):
 
             p = re.search(r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2})", chrani_bot.telnet_observer.actions.common.get_active_action_result("system", "gt"))
             if p:
-                chrani_bot.current_gametime = {
+                chrani_bot.dom["game_data"]["gametime"] = {
                     "day": p.group("day"),
                     "hour": p.group("hour"),
                     "minute": p.group("minute")
                 }
             else:
-                chrani_bot.current_gametime = None
+                chrani_bot.dom["game_data"]["gametime"] = None
             return True
     except Exception as e:
         logger.debug("{source}/{error_message}".format(source="get_gametime", error_message=e.message))
@@ -247,7 +247,7 @@ def reboot(chrani_bot):
     def reboot_worker():
         restart_timer = chrani_bot.settings.get_setting_by_name(name='restart_warning')
         message = "server will restart in {} seconds".format(restart_timer)
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
         chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
         common.schedulers_dict["reboot"]["current_countdown"] = 0
         while True:
@@ -255,15 +255,15 @@ def reboot(chrani_bot):
             common.schedulers_dict["reboot"]["current_countdown"] += 1
             if common.schedulers_dict["reboot"]["current_countdown"] == int(restart_timer / 2):
                 message = "server will restart in {} seconds".format(int(restart_timer / 2))
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
             if common.schedulers_dict["reboot"]["current_countdown"] == restart_timer - 60:
                 message = "server will restart in {} seconds".format(60)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
-            if common.schedulers_dict["reboot"]["current_countdown"] == restart_timer - 15:
+            if common.schedulers_dict["reboot"]["current_countdown"] <= restart_timer - 15:
                 message = "server will restart NOW!"
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
@@ -284,7 +284,7 @@ def reboot(chrani_bot):
             chrani_bot.reboot_thread.start()
 
             message = "server restart procedures initiated..."
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
 
             return True

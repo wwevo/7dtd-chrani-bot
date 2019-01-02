@@ -49,7 +49,7 @@ def trigger_action(chrani_bot, source_player, target_player, command_parameters)
         if denied is True:
             message = "Access to this command is denied!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         for command in command_queue:
             try:

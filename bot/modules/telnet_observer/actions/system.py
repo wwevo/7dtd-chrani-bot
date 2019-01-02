@@ -362,14 +362,14 @@ def lp_callback_thread():
         if match:
             online_players_raw = match.group("players").lstrip()
             online_players_dict = {}
-            data_timestamp = time.mktime(datetime.datetime.strptime(match.group("datetime"), "%Y-%m-%dT%H:%M:%S").timetuple())
+            positional_data_timestamp = time.mktime(datetime.datetime.strptime(match.group("datetime"), "%Y-%m-%dT%H:%M:%S").timetuple())
             for m in re.finditer(r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n", online_players_raw):
                 try:
-                    old_data_timestamp = chrani_bot.dom["player_data"][m.group(16)]['data_timestamp']
+                    old_data_timestamp = chrani_bot.dom["bot_data"]["player_data"][m.group(16)]['positional_data_timestamp']
                 except KeyError:
                     old_data_timestamp = 0
 
-                if old_data_timestamp < data_timestamp:
+                if old_data_timestamp < positional_data_timestamp:
                     player_dict = {
                         "entityid":         m.group(1),
                         "name":             str(m.group(2)),
@@ -391,9 +391,9 @@ def lp_callback_thread():
                         "ping":             int(m.group(18)),
                         "is_online":        True,
                         "is_logging_in":    False,
-                        "data_timestamp":   data_timestamp
+                        "positional_data_timestamp":   positional_data_timestamp
                     }
-                    chrani_bot.dom["player_data"][m.group(16)] = player_dict
+                    chrani_bot.dom["bot_data"]["player_data"][m.group(16)] = player_dict
                     online_players_dict[m.group(16)] = player_dict
 
             common.set_active_action_result('system', command, online_players_dict)
@@ -422,7 +422,7 @@ def bc_lp():
     is_active = common.get_active_action_status('system', command)
     if not is_active:
         try:
-            chrani_bot.telnet_observer.tn.write("{command} /online /1l {line_end}".format(command=command, line_end=b"\r\n"))
+            chrani_bot.telnet_observer.tn.write("{command} /online /1l /filter=EntityId,Name,Position,Rotation,Remote,Health,Deaths,Score,Level,SteamId,IP,Ping,Friends,OnGround{line_end}".format(command=command, line_end=b"\r\n"))
         except Exception as e:
             log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
@@ -450,22 +450,22 @@ def bc_lp_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'bc-lp /online /1l\' by Telnet from (.*)\s(?P<players>\[.*\])", chrani_bot.telnet_observer.telnet_buffer, re.MULTILINE):
+        for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'{command} /online /1l /filter=EntityId,Name,Position,Rotation,Remote,Health,Deaths,Score,Level,SteamId,IP,Ping,Friends,OnGround\' by Telnet from (.*)\s(?P<players>\[.*\])".format(command=command), chrani_bot.telnet_observer.telnet_buffer, re.MULTILINE):
             poll_is_finished = True
             pass
 
         if match:
             online_players_raw = match.group("players").lstrip()
-            data_timestamp = time.mktime(datetime.datetime.strptime(match.group("datetime"), "%Y-%m-%dT%H:%M:%S").timetuple())
+            positional_data_timestamp = time.mktime(datetime.datetime.strptime(match.group("datetime"), "%Y-%m-%dT%H:%M:%S").timetuple())
             online_players_list = json.loads(online_players_raw)
             online_players_dict = {}
             for player_dict_raw in online_players_list:
                 try:
-                    old_data_timestamp = chrani_bot.dom["player_data"][player_dict_raw["SteamId"]]['data_timestamp']
+                    old_data_timestamp = chrani_bot.dom["bot_data"]["player_data"][player_dict_raw["SteamId"]]['positional_data_timestamp']
                 except KeyError:
                     old_data_timestamp = 0
 
-                if old_data_timestamp < data_timestamp:
+                if old_data_timestamp < positional_data_timestamp:
                     player_dict = {
                         "entityid":         player_dict_raw["EntityId"],
                         "name":             str(player_dict_raw["Name"]),
@@ -478,8 +478,9 @@ def bc_lp_callback_thread():
                         "remote":           bool(player_dict_raw["Remote"]),
                         "health":           int(player_dict_raw["Health"]),
                         "deaths":           int(player_dict_raw["Deaths"]),
-                        "zombies":          int(player_dict_raw["KilledZombies"]),
-                        "players":          player_dict_raw["KilledPlayers"],
+                        "friends":          player_dict_raw["Friends"],
+                        #"zombies":          int(player_dict_raw["KilledZombies"]),
+                        #"players":          player_dict_raw["KilledPlayers"],
                         "score":            player_dict_raw["Score"],
                         "level":            player_dict_raw["Level"],
                         "steamid":          player_dict_raw["SteamId"],
@@ -487,9 +488,9 @@ def bc_lp_callback_thread():
                         "ping":             int(player_dict_raw["Ping"]),
                         "is_online":        True if player_dict_raw["OnGround"] is not None else False,
                         "is_logging_in":    True if (player_dict_raw["OnGround"] is None and player_dict_raw["Ping"] != "Offline") else False,
-                        "data_timestamp":   data_timestamp
+                        "positional_data_timestamp":   positional_data_timestamp
                     }
-                    chrani_bot.dom["player_data"][player_dict_raw["SteamId"]] = player_dict
+                    chrani_bot.dom["bot_data"]["player_data"][player_dict_raw["SteamId"]] = player_dict
                     online_players_dict[player_dict_raw["SteamId"]] = player_dict
 
             common.set_active_action_result('system', command, online_players_dict)
@@ -601,7 +602,7 @@ def say(message, color=None):
         return True
 
     if color is None:
-        color = chrani_bot.chat_colors['standard']
+        color = chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard']
 
     try:
         chrani_bot.telnet_observer.tn.write("{command} \"[{color}]{message}[-]\"{line_end}".format(command=command, color=color, message=message, line_end=b"\r\n"))

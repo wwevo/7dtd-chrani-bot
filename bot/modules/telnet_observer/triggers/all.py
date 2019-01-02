@@ -46,8 +46,8 @@ def entered_telnet(regex_results):
 
             player_object = Player(**player_dict)
 
-        chrani_bot.dom["player_data"][player_object.steamid]["is_logging_in"] = True
-        chrani_bot.dom["player_data"][player_object.steamid]["is_online"] = False
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"] = True
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] = False
         player_object.is_logging_in = True
         player_object.is_online = False
         player_object.update()
@@ -87,8 +87,8 @@ def entered_the_world(regex_results):
         player_thread.trigger_action(player_object, "found in the world")
         player_object.is_logging_in = False
         player_object.is_online = True
-        chrani_bot.dom["player_data"][player_object.steamid]["is_logging_in"] = False
-        chrani_bot.dom["player_data"][player_object.steamid]["is_online"] = True
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"] = False
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] = True
 
     player_object.pos_x = regex_results.group("pos_x")
     player_object.pos_y = regex_results.group("pos_y")
@@ -96,18 +96,18 @@ def entered_the_world(regex_results):
     player_object.update()
     chrani_bot.players.upsert(player_object)
 
-    chrani_bot.dom["player_data"][player_object.steamid]["pos_x"] = regex_results.group("pos_x")
-    chrani_bot.dom["player_data"][player_object.steamid]["pos_y"] = regex_results.group("pos_y")
-    chrani_bot.dom["player_data"][player_object.steamid]["pos_z"] = regex_results.group("pos_z")
-    data_timestamp = time.mktime(datetime.datetime.strptime(regex_results.group("datetime"), "%Y-%m-%dT%H:%M:%S").timetuple())
+    chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] = regex_results.group("pos_x")
+    chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] = regex_results.group("pos_y")
+    chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] = regex_results.group("pos_z")
+    positional_data_timestamp = time.mktime(datetime.datetime.strptime(regex_results.group("datetime"), "%Y-%m-%dT%H:%M:%S").timetuple())
     try:
-        old_data_timestamp = chrani_bot.dom["player_data"][player_object.steamid]['data_timestamp']
+        old_data_timestamp = chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]['positional_data_timestamp']
     except KeyError:
         old_data_timestamp = 0
 
-    # print("{} : {}".format(old_data_timestamp, data_timestamp))
-    if old_data_timestamp < data_timestamp:
-        chrani_bot.dom["player_data"][player_object.steamid]["data_timestamp"] = data_timestamp
+    # print("{} : {}".format(old_data_timestamp, positional_data_timestamp))
+    if old_data_timestamp < positional_data_timestamp:
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = positional_data_timestamp
 
 
 common.triggers_dict["entered_the_world"] = {
@@ -134,8 +134,8 @@ def left_telnet(regex_results):
         player_object = chrani_bot.players.get_by_steamid(player_steamid)
         player_object.is_logging_in = False
         player_object.is_online = False
-        chrani_bot.dom["player_data"][player_object.steamid]["is_logging_in"] = False
-        chrani_bot.dom["player_data"][player_object.steamid]["is_online"] = False
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"] = False
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] = False
 
         chrani_bot.players.upsert(player_object)
         chrani_bot.player_observer.active_player_threads_dict[player_object.steamid].trigger_action(player_object, "left the game")
@@ -230,7 +230,7 @@ def airdrop_spawned(regex_results):
     online_players = chrani_bot.players.get_all_players(get_online_only=True)
     for player in online_players:
         if any(x in ["donator", "mod", "admin"] for x in player.permission_levels):
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
 
 common.triggers_dict["airdrop_spawned"] = {

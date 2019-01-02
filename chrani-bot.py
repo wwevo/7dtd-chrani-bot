@@ -135,14 +135,14 @@ if __name__ == '__main__':
                 try:
                     player_object = chrani_bot.players.get_by_steamid(steamid)
                 except:
-                   player_dict = {
+                    player_dict = {
                         "steamid": steamid,
                         "name": "system",
-                   }
+                    }
 
-                   player_object = Player(**player_dict)
-                   chrani_bot.players.upsert(player_object)
-                   player_object.add_permission_level("admin")
+                    player_object = Player(**player_dict)
+                    chrani_bot.players.upsert(player_object)
+                    player_object.add_permission_level("admin")
 
                 flask_login.login_user(player_object, remember=True)
                 return flask.redirect("/protected")
@@ -212,8 +212,8 @@ if __name__ == '__main__':
         response = flask.make_response(flask.render_template(
             'index.html',
             title="{} {} - webinterface".format(chrani_bot.dom['bot_name'], chrani_bot.dom['bot_version']),
-            webmap_ip=chrani_bot.settings.get_setting_by_name(name="webmap_ip"),
-            webmap_port=chrani_bot.settings.get_setting_by_name(name="webmap_port"),
+            webmap_ip=chrani_bot.settings.get_setting_by_name(name="webmap_ip", default="195.201.59.180"),
+            webmap_port=chrani_bot.settings.get_setting_by_name(name="webmap_port", default="26953"),
             system_status=get_system_status(),
             chrani_bot=chrani_bot,
             widgets=widgets_dict
@@ -224,11 +224,19 @@ if __name__ == '__main__':
     @socketio.on('initiate_leaflet', namespace='/chrani-bot/public')
     def init_leaflet(message):
         location_objects = chrani_bot.locations.find_by_distance((0,0,0), 10000)
-        location_list = chrani_bot.locations.get_leaflet_marker_json(location_objects)
-        player_objects = chrani_bot.players.get_all_players()
-        player_list = chrani_bot.players.get_leaflet_marker_json(player_objects)
+        location_list = []
+        for location_object in location_objects:
+            location_list.append(location_object.get_leaflet_marker_json())
 
-        lcb_list = chrani_bot.get_lcb_marker_json(chrani_bot.landclaims_dict)
+        player_objects = chrani_bot.players.get_all_players()
+        player_list = []
+        for play_object in player_objects:
+            player_list.append(play_object.get_leaflet_marker_json())
+
+        # location_objects = chrani_bot.landclaims.get_all_landclaims()
+        # lcb_list = []
+        # for location_object in location_objects:
+        lcb_list = chrani_bot.get_lcb_marker_json(chrani_bot.dom["game_data"]["landclaim_data"])
         socketio.emit('update_leaflet_markers', player_list + location_list + lcb_list, namespace='/chrani-bot/public')
 
 
@@ -242,4 +250,9 @@ if __name__ == '__main__':
             action = actions_list_entry['action']
             app.add_url_rule(actions_list_entry['route'], view_func=action, methods=['GET', 'POST'])
 
-    socketio.run(app, host='0.0.0.0', port=chrani_bot.settings.get_setting_by_name(name='bot_port'), debug=False)
+    socketio.run(
+        app,
+        host=chrani_bot.settings.get_setting_by_name(name='bot_ip', default="0.0.0.0"),
+        port=chrani_bot.settings.get_setting_by_name(name='bot_port', default="26955"),
+        debug=False
+    )

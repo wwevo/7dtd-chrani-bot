@@ -322,9 +322,9 @@ class Location(object):
         try:
 
             is_it_inside = self.position_is_inside_boundary((
-                chrani_bot.dom["player_data"][player_object.steamid]["pos_x"],
-                chrani_bot.dom["player_data"][player_object.steamid]["pos_y"],
-                chrani_bot.dom["player_data"][player_object.steamid]["pos_z"],
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"],
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"],
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"],
             ))
         except TypeError:
             is_it_inside = None
@@ -405,3 +405,29 @@ class Location(object):
                 response_message.add_message(player_status)
 
         return response_message.get_message_dict()
+
+    def get_leaflet_marker_json(self):
+        bot = __main__.chrani_bot
+        location_list = []
+        try:
+            location_list = {
+                "id": "{}_{}".format(self.owner, self.identifier),
+                "owner": self.owner,
+                "identifier": self.identifier,
+                "name": self.name,
+                "owner_name": bot.players.get_by_steamid(self.owner).name,
+                "radius": self.radius,
+                "inner_radius": self.warning_boundary,
+                "protected": self.protected_core,
+                "pos_x": self.pos_x,
+                "pos_y": self.pos_y,
+                "pos_z": self.pos_z,
+                "shape": self.shape,
+                "type": self.type,
+                "layerGroup": self.owner if self.owner == "system" else "locations" if (self.identifier not in bot.settings.get_setting_by_name(name="restricted_names")) else self.identifier
+            }
+        except KeyError:
+            pass
+
+        return location_list
+

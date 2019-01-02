@@ -16,7 +16,7 @@ def set_up_teleport_point(chrani_bot, source_player, target_player, command):
             location_name_is_not_reserved = False
             if name in chrani_bot.settings.get_setting_by_name(name="restricted_names"):
                 message = "{} is a reserved name!".format(name)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
             else:
                 location_name_is_not_reserved = True
@@ -24,7 +24,7 @@ def set_up_teleport_point(chrani_bot, source_player, target_player, command):
             location_name_is_valid = False
             if len(name) >= 19:
                 message = "{} is too long. Keep it shorter than 19 letters ^^".format(name)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
             else:
                 location_name_is_valid = True
@@ -37,7 +37,7 @@ def set_up_teleport_point(chrani_bot, source_player, target_player, command):
             try:
                 location_object = location_object = chrani_bot.locations.get('system', identifier)
                 message = "a location with the identifier {} already exists, moving it!".format(identifier)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
             except KeyError:
                 location_name_not_in_use = True
@@ -65,8 +65,8 @@ def set_up_teleport_point(chrani_bot, source_player, target_player, command):
 
                 # bot.socketio.emit('refresh_teleports', '', namespace='/chrani-bot/public')
 
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have created a teleport point, it is stored as {}.".format(identifier, chrani_bot.chat_colors['success']))
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "use '{}' to access it with commands like /connect teleport {} with {}2".format(identifier, identifier, identifier), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have created a teleport point, it is stored as {}.".format(identifier, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success']))
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "use '{}' to access it with commands like /connect teleport {} with {}2".format(identifier, identifier, identifier), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
             else:
                 response_messages.add_message("Location {} could not be created :(".format(identifier), False)
 
@@ -105,7 +105,7 @@ def connect_teleport(chrani_bot, source_player, target_player, command):
                 source_location_exists = True
             except KeyError:
                 message = "The source location does not exist :("
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
 
             target_location_identifier = p.group("target_location_identifier")
@@ -116,12 +116,12 @@ def connect_teleport(chrani_bot, source_player, target_player, command):
                 target_location_exists = True
             except KeyError:
                 message = "your target location does not exist :("
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
 
             if source_location_exists and target_location_exists:
                 message = "You have connected teleport point {} with {}".format(source_location_object.identifier, target_location_object.identifier)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
                 response_messages.add_message(message, True)
 
                 source_location_object.teleport_target = target_location_object.identifier
@@ -160,7 +160,7 @@ def activate_teleport(chrani_bot, source_player, target_player, command):
                 source_location_exists = True
             except KeyError:
                 message = "that location does not exist :("
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
 
             if source_location_exists:
@@ -171,13 +171,13 @@ def activate_teleport(chrani_bot, source_player, target_player, command):
                     target_location_exists = True
                 except KeyError:
                     message = "your target location does not exist :("
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                     response_messages.add_message(message, False)
 
                 if target_location_exists:
                     source_location_object.teleport_active = True
                     message = "Your teleport has been activated"
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                     response_messages.add_message(message, True)
                     chrani_bot.locations.upsert(source_location_object, save=True)
 
@@ -214,13 +214,13 @@ def deactivate_teleport(chrani_bot, source_player, target_player, command):
                 source_location_exists = True
             except KeyError:
                 message = "that location does not exist :("
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, False)
 
             if source_location_exists:
                 source_location_object.teleport_active = False
                 message = "Your teleport has been deactivated"
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 response_messages.add_message(message, True)
                 chrani_bot.locations.upsert(source_location_object, save=True)
 

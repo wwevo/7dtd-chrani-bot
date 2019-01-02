@@ -80,32 +80,28 @@ def mute_unauthenticated_players(chrani_bot, player_observer):
             # nothing to mute
             return
         if player_object.is_manually_muted and player_object.is_allowed_to_chat == "None":
-            # player has been manually muted and the chat starus has not been set yet
+            # player has been manually muted and the chat status has not been set yet
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             player_object.is_allowed_to_chat = "False"
             player_object.update()
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been disabled!", chrani_bot.chat_colors['warning'])
             return
         if player_object.is_manually_muted and player_object.is_allowed_to_chat == "True":
-            # player has been manually muted and the chat starus is set to enabled
+            # player has been manually muted and the chat status is set to enabled
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             player_object.is_allowed_to_chat = "False"
             player_object.update()
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been disabled!", chrani_bot.chat_colors['warning'])
             return
         if not player_object.authenticated and player_object.is_allowed_to_chat == "None":
-            # player is not authenticated and the chat starus has not been set yet
+            # player is not authenticated and the chat status has not been set yet
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             player_object.is_allowed_to_chat = "False"
             player_object.update()
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been disabled!", chrani_bot.chat_colors['warning'])
             return
         if not player_object.authenticated and player_object.is_allowed_to_chat == "True":
-            # player is not authenticated and the chat starus has been set to enabled
+            # player is not authenticated and the chat status has been set to enabled
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             player_object.is_allowed_to_chat = "False"
             player_object.update()
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been disabled!", chrani_bot.chat_colors['warning'])
             return
 
 
@@ -128,26 +124,22 @@ def unmute_authenticated_players(chrani_bot, player_observer):
         # we don't mute unauthenticated players. so we unmute every player that's not manually muted
         if not player_object.is_manually_muted and player_object.is_allowed_to_chat == "None":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled!", chrani_bot.chat_colors['warning'])
             player_object.is_allowed_to_chat = "True"
             player_object.update()
             return
         if not player_object.is_manually_muted and player_object.is_allowed_to_chat == "False":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled!", chrani_bot.chat_colors['warning'])
             player_object.is_allowed_to_chat = "True"
             player_object.update()
             return
     else:
         if player_object.authenticated and not player_object.is_manually_muted and player_object.is_allowed_to_chat == "None":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled!", chrani_bot.chat_colors['warning'])
             player_object.is_allowed_to_chat = "True"
             player_object.update()
             return
         if player_object.authenticated and not player_object.is_manually_muted and player_object.is_allowed_to_chat == "False":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_observer.player_object, "Your chat has been enabled!", chrani_bot.chat_colors['warning'])
             player_object.is_allowed_to_chat = "True"
             player_object.update()
             return

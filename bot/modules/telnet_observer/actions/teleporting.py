@@ -37,8 +37,8 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
             return False
 
         player_object.set_last_teleport(coord_tuple)
-        chrani_bot.dom["player_data"][player_object.steamid]["data_timestamp"] = time.time()
-        if coord_tuple[0] == int(math.ceil(chrani_bot.dom["player_data"][player_object.steamid]["pos_x"])) and  coord_tuple[2] == int(math.ceil(chrani_bot.dom["player_data"][player_object.steamid]["pos_z"])):
+        chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = time.time()
+        if coord_tuple[0] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) and  coord_tuple[2] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])):
             print("already there, you just don't know it yet")
             return False
         else:
@@ -53,7 +53,7 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
                 message = "You will be ported to some coordinates ({pos_x} {pos_y} {pos_z})".format(pos_x=coord_tuple[0], pos_y=coord_tuple[1], pos_z=coord_tuple[2])
                 pass
 
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             time.sleep(delay)
 
         chrani_bot.players.upsert(player_object)
@@ -87,16 +87,15 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
 
         match = False
         for match in re.finditer(r"Executing command \'teleportplayer " + player_object.steamid + " (.*)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
-            chrani_bot.dom["player_data"][player_object.steamid]["pos_x"] = coord_tuple[0]
-            chrani_bot.dom["player_data"][player_object.steamid]["pos_y"] = coord_tuple[1]
-            chrani_bot.dom["player_data"][player_object.steamid]["pos_z"] = coord_tuple[2]
-            chrani_bot.dom["player_data"][player_object.steamid]["data_timestamp"] = time.time()
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] = coord_tuple[0]
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] = coord_tuple[1]
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] = coord_tuple[2]
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = time.time()
             poll_is_finished = True
-            pass
 
         if match:
             common.set_active_action_result(player_object.steamid, command, match.group(2))
-        time.sleep(0.5)
+            time.sleep(1.5)
 
     logger.debug("finished '{command}'".format(command=command))
     common.set_active_action_status(player_object.steamid, command, False)

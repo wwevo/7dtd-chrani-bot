@@ -4,9 +4,6 @@ import time
 import math
 import os
 
-from collections import deque
-from threading import Event
-
 from bot.assorted_functions import multiple, timeout_occurred
 from bot.modules.settings import Settings
 
@@ -42,7 +39,6 @@ class ChraniBot(Thread):
     oberservers_execution_time = float
     uptime = str
     restart_in = int
-    current_gametime = dict
     ready_for_action = bool
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
@@ -60,14 +56,11 @@ class ChraniBot(Thread):
     reboot_imminent = bool
     telnet_queue = int
 
-    chat_colors = dict
     passwords = dict
     banned_countries_list = list
 
     settings_dict = dict
     server_settings_dict = dict
-
-    landclaims_dict = dict
 
     players = object
     locations = object
@@ -93,21 +86,43 @@ class ChraniBot(Thread):
 
         self.settings = Settings(self)
         self.dom = {
-            "bot_name": self.settings.get_setting_by_name(name='bot_name'),
-            "bot_version": "0.7.422",
-            "player_data": {}
+            "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.665'),
+            "bot_data": {
+                "time_launched": None,
+                "time_running": None,
+                "settings": {
+                    "color_scheme": self.settings.get_setting_by_name(name='chatbox_color_scheme', default={
+                        "standard": "afb0b2",
+                        "highlight": "b3b8bc",
+                        "header": "e57255",
+                        "warning": "e5c453",
+                        "success": "52d273",
+                        "error": "e95065",
+                        "info": "46bddf"
+                    })
+                },
+                "player_data": {
+                    "system": {
+                        "name": "system",
+                        "steamid": -1,
+                    }
+                },
+                "location_data": {}
+            },
+            "game_data": {
+                "settings": {},
+                "gametime": {},
+                "landclaim_data": {}
+            },
         }
 
         self.reboot_thread = None
         self.is_paused = False
         self.has_connection = False
-        self.time_launched = time.time()
-        self.current_gametime = None
-        self.time_running = None
         self.reboot_imminent = False
         self.restart_in = 0
         self.server_time_running = None
-        self.uptime = "not available"
         self.initiate_shutdown = False
         self.oberservers_execution_time = 0.0
         self.restart_delay = 0
@@ -127,27 +142,20 @@ class ChraniBot(Thread):
         self.schedulers_dict = global_scheduler.schedulers_dict
         self.schedulers_controller = global_scheduler.schedulers_controller
 
-        self.landclaims_dict = {}
-
         self.whitelist = Whitelist(self)
         if self.settings.get_setting_by_name(name='whitelist_active') is not False:
             self.whitelist.activate()
 
         self.locations = Locations(self)
 
-        self.passwords = self.settings.get_setting_by_name(name='authentication_groups')
+        self.passwords = self.settings.get_setting_by_name(name='authentication_groups', default={
+            "admin": "changeme",
+            "mod": "changeme",
+            "donator": "changeme",
+            "authenticated": "changeme"
+        })
 
         self.permission_levels_list = self.passwords.keys()  # ['admin', 'mod', 'donator', 'authenticated']
-
-        self.chat_colors = self.settings.get_setting_by_name(name='chatbox_color_scheme', default={
-            "standard": "afb0b2",
-            "highlight": "b3b8bc",
-            "header": "e57255",
-            "warning": "e5c453",
-            "success": "52d273",
-            "error": "e95065",
-            "info": "46bddf"
-        })
 
         self.match_types = {
             # matches any command a player issues in game-chat
@@ -182,12 +190,12 @@ class ChraniBot(Thread):
         self.permissions.load_all(self.player_observer.actions_list)  # get the permissions or create new permissions-file
 
     def manage_landclaims(self):
-        polled_lcb = self.telnet_observer.actions.get_active_action_result('system', "llp")
-        if len(polled_lcb) >= 1 and polled_lcb != self.landclaims_dict:
-            self.landclaims_dict = polled_lcb
+        polled_lcb = self.telnet_observer.actions.get_active_action_result('system', self.settings.get_setting_by_name(name='listlandprotection_method', default='llp'))
+        if len(polled_lcb) >= 1 and polled_lcb != self.dom["game_data"]["landclaim_data"]:
+            self.dom["game_data"]["landclaim_data"] = polled_lcb
             lcb_owners_to_delete = {}
             lcb_owners_to_update = {}
-            lcb_owners_to_update.update(self.landclaims_dict)
+            lcb_owners_to_update.update(self.dom["game_data"]["landclaim_data"])
             for lcb_widget_owner in lcb_owners_to_update.keys():
                 try:
                     player_object = self.players.get_by_steamid(lcb_widget_owner)
@@ -239,7 +247,7 @@ class ChraniBot(Thread):
 
     def landclaims_find_by_distance(self, start_coords, distance_in_blocks):
         landclaims_in_reach_list = []
-        landclaims_dict = self.landclaims_dict
+        landclaims_dict = self.dom["game_data"]["landclaim_data"]
         for player_steamid, landclaims in landclaims_dict.iteritems():
             for landclaim in landclaims:
                 distance = math.sqrt((float(landclaim[0]) - float(start_coords[0]))**2 + (float(landclaim[1]) - float(start_coords[1]))**2 + (float(landclaim[2]) - float(start_coords[2]))**2)
@@ -275,15 +283,15 @@ class ChraniBot(Thread):
         return horde_day
 
     def ongoing_bloodmoon(self):
-        if self.current_gametime is None:
+        if self.dom["game_data"]["gametime"] is None or len(self.dom["game_data"]["gametime"]) <= 0:
             return False
 
         bloodmoon = False
-        if self.is_it_horde_day(int(self.current_gametime["day"])) and int(self.current_gametime["hour"]) >= 21:
+        if self.is_it_horde_day(int(self.dom["game_data"]["gametime"]["day"])) and int(self.dom["game_data"]["gametime"]["hour"]) >= 21:
             bloodmoon = True
 
         day_after_bloodmoon = False
-        if self.is_it_horde_day(int(self.current_gametime["day"]) - 1) and int(self.current_gametime["hour"]) < 4:
+        if self.is_it_horde_day(int(self.dom["game_data"]["gametime"]["day"]) - 1) and int(self.dom["game_data"]["gametime"]["hour"]) < 4:
             day_after_bloodmoon = True
 
         if bloodmoon or day_after_bloodmoon:
@@ -329,6 +337,7 @@ class ChraniBot(Thread):
         return result
 
     def run(self):
+        self.dom["bot_data"]["time_launched"] = time.time()
         self.is_active = True  # this is set so the main loop can be started / stopped
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
         self.custodian = Custodian(self).setup().start()
@@ -339,24 +348,26 @@ class ChraniBot(Thread):
         while not self.stopped.wait(next_cycle) and self.is_active:
             try:
                 profile_start = time.time()
+                self.dom["bot_data"]["time_running"] = int(time.time() - self.dom["bot_data"]["time_launched"])
+
                 if not isinstance(self.telnet_observer, TelnetObserver):
                     raise IOError
 
                 self.custodian.check_in('main_loop', True)
-                self.time_running = int(time.time() - self.time_launched)
 
                 if not self.has_connection:
                     raise IOError
 
                 has_required_environment = self.has_required_environment()
 
+                """ everything that needs to be checked periodically and is not directly player-related should be done in schedulers
+                """
                 if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
-                    """ Everything that needs to be checked periodically and is not directly player-related should be done in schedulers
-                    """
                     last_schedule = profile_start
                     only_essential = not has_required_environment
                     run_schedulers(self, only_essential=only_essential)
 
+                """ this check has to be after schedulers are run, since those actually initialize the environment """
                 if not has_required_environment or self.is_paused is not False:
                     time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
                     continue
@@ -366,8 +377,10 @@ class ChraniBot(Thread):
                     self.is_active = False
                     continue
 
-                lines_processed = self.telnet_observer.execute_queue(10)
-                actions_executed = self.player_observer.execute_queue(10)
+                """" for now i'm doing 20 at a time to preven clogging, don't have the data yet to actually show that it would otherwise
+                """
+                lines_processed = self.telnet_observer.execute_queue(20)
+                actions_executed = self.player_observer.execute_queue(20)
 
                 self.first_run = False
                 self.last_execution_time = time.time() - profile_start
@@ -381,14 +394,17 @@ class ChraniBot(Thread):
                 self.server_time_running = None
 
                 try:
-                    telnet = Telnet(self.settings.get_setting_by_name(name='telnet_ip'), self.settings.get_setting_by_name(name='telnet_port'), self.settings.get_setting_by_name(name='telnet_password', show_log_init=True))
+                    telnet = Telnet(
+                        self.settings.get_setting_by_name(name='telnet_ip', default="127.0.0.1"),
+                        self.settings.get_setting_by_name(name='telnet_port', default="8082"),
+                        self.settings.get_setting_by_name(name='telnet_password', default="setmeinconfigfile",
+                                                          show_log_init=True)
+                    )
                     self.telnet_observer = TelnetObserver(self, telnet.authenticated_connection).setup().start()
                     self.player_observer = PlayerObserver(self).setup().start()
                     self.reload_local_files()
 
                     self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
-
-                    # self.telnet_lines_list = deque()
 
                     self.reboot_imminent = False
                     self.is_paused = False

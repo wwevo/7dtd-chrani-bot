@@ -21,12 +21,12 @@ def reload_from_db(chrani_bot, source_player, target_player, command):
         try:
             chrani_bot.reload_local_files()
             message = "loaded all data from storage."
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
             response_messages.add_message(message, True)
             chrani_bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         except Exception as e:
             message = "loading data from storage failed."
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             response_messages.add_message(message, False)
             logger.debug(e)
             pass
@@ -73,7 +73,7 @@ def shutdown_bot(chrani_bot, source_player, target_player, command):
             try:
                 message = "The bot is about to shut down..."
                 response_messages.add_message(message, True)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
                 chrani_bot.initiate_shutdown = True
             except Exception as e:
                 logger.debug(e)
@@ -120,11 +120,11 @@ def pause_bot(chrani_bot, source_player, target_player, command):
             chrani_bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             message = "The bot operations have been suspended"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
         except Exception as e:
             message = "Pausing of the bot failed."
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             logger.debug(e)
             pass
 
@@ -167,11 +167,11 @@ def resume_bot(chrani_bot, source_player, target_player, command):
             chrani_bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             message = "The bots operations have been resumed"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
         except Exception as e:
             message = "Resuming of the bot failed."
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             logger.debug(e)
             pass
 
@@ -202,7 +202,7 @@ def shutdown_server(chrani_bot, source_player, target_player, command):
             try:
                 message = "The server is about to shut down..."
                 response_messages.add_message(message, True)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
             except Exception as e:
                 logger.debug(e)
@@ -385,12 +385,12 @@ common.actions_list.append({
 def skip_bloodmoon(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        if chrani_bot.current_gametime is not None and chrani_bot.ongoing_bloodmoon():
+        if chrani_bot.dom["game_data"]["gametime"] is not None and chrani_bot.ongoing_bloodmoon():
             day_after_horde = None
-            if chrani_bot.is_it_horde_day(chrani_bot.current_gametime["day"]):
-                day_after_horde = int(chrani_bot.current_gametime["day"]) + 1
-            elif chrani_bot.is_it_horde_day(int(chrani_bot.current_gametime["day"]) - 1):
-                day_after_horde = int(chrani_bot.current_gametime["day"])
+            if chrani_bot.is_it_horde_day(chrani_bot.dom["game_data"]["gametime"]["day"]):
+                day_after_horde = int(chrani_bot.dom["game_data"]["gametime"]["day"]) + 1
+            elif chrani_bot.is_it_horde_day(int(chrani_bot.dom["game_data"]["gametime"]["day"]) - 1):
+                day_after_horde = int(chrani_bot.dom["game_data"]["gametime"]["day"])
 
             if day_after_horde is not None:
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "settime", "{day} {hour} {minute}".format(day=day_after_horde, hour=4, minute=0))
@@ -401,7 +401,7 @@ def skip_bloodmoon(chrani_bot, source_player, target_player, command):
                 response_messages.add_message(message, False)
 
             logger.info(message)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
         return response_messages
 
     except Exception as e:

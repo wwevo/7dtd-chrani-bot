@@ -4,7 +4,7 @@ import flask_login
 
 
 class Player(flask_login.UserMixin):
-    data_timestamp = float
+    positional_data_timestamp = float
 
     id = long
     name = str
@@ -64,7 +64,7 @@ class Player(flask_login.UserMixin):
         return unicode(self.steamid)
 
     def __init__(self, **kwargs):
-        self.data_timestamp = 0
+        self.positional_data_timestamp = 0
         self.health = 0
         self.last_teleport = 0
         self.last_seen = 0
@@ -205,3 +205,25 @@ class Player(flask_login.UserMixin):
             readable_last_seen = datetime.datetime.utcfromtimestamp(self.last_seen).strftime("%Y-%m-%d %H:%M:%S")
 
         return readable_last_seen
+
+    def get_leaflet_marker_json(self):
+        player_list = []
+        if not isinstance(self.pos_x, float) or not isinstance(self.pos_y, float) or not isinstance(self.pos_z, float):
+            return player_list
+
+        player_dict = {
+            "id": "{}".format(self.steamid),
+            "owner": self.steamid,
+            "identifier": self.name,
+            "name": self.name,
+            "radius": 3,
+            "pos_x": self.pos_x,
+            "pos_y": self.pos_y,
+            "pos_z": self.pos_z,
+            "online": self.is_online,
+            "shape": "icon",
+            "type": "icon",
+            "layerGroup": "players_online" if self.is_online else "players_offline"
+        }
+
+        return player_dict

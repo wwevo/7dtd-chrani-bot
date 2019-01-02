@@ -110,7 +110,7 @@ class PlayerThread(Thread):
             if player_is_responsive and player_moved:
                 if not self.player_object.initialized:
                     self.player_object.initialized = True
-                json = self.bot.players.get_leaflet_marker_json([self.player_object])
+                json = self.player_object.get_leaflet_marker_json()
                 self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
             if self.bot.observers_dict:

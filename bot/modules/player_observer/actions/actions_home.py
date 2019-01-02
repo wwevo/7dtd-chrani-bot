@@ -14,11 +14,11 @@ def check_building_site(chrani_bot, source_player, target_player, command):
         if not bases_near_list and not landclaims_near_list:
             message = "Nothing near or far. Feel free to build here"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
         else:
             message = "Bases near: {}, Landclaims near: {}".format(len(bases_near_list), len(landclaims_near_list))
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
     except Exception as e:
@@ -49,7 +49,7 @@ def set_up_home(chrani_bot, source_player, target_player, command):
         # else:
         #     message = "Can not set up a home here. Other bases are too close!"
         #     response_messages.add_message(message, False)
-        #     chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['error'])
+        #     chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['error'])
 
         location_object = Location()
         location_object.set_owner(target_player.steamid)
@@ -76,12 +76,12 @@ def set_up_home(chrani_bot, source_player, target_player, command):
         chrani_bot.locations.upsert(location_object, save=True)
 
         chrani_bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
-        chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
+        chrani_bot.socketio.emit('update_leaflet_markers', location_object.get_leaflet_marker_json(), namespace='/chrani-bot/public')
 
         message = "{} has decided to settle down!".format(target_player.name)
         response_messages.add_message(message, True)
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['standard'])
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Home is where your hat is!", chrani_bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Home is where your hat is!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
         return response_messages
     except Exception as e:
@@ -115,14 +115,14 @@ def remove_home(chrani_bot, source_player, target_player, command):
         if player_home_exists and chrani_bot.locations.remove(target_player.steamid, 'home'):
             message = "Your home has been removed!"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['standard'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
 
             chrani_bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
             chrani_bot.socketio.emit('remove_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             message = "I could not find your home. Did you set one up?"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
 
@@ -154,17 +154,17 @@ def set_up_home_teleport(chrani_bot, source_player, target_player, command):
         except KeyError:
             message = "coming from the wrong end... set up a home first!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         if player_home_exists and location_object.set_teleport_coordinates(target_player):
             chrani_bot.locations.upsert(location_object, save=True)
             message = "your teleport has been set up!"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
         else:
             message = "your position seems to be outside your home"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
 
@@ -196,18 +196,18 @@ def protect_inner_core(chrani_bot, source_player, target_player, command):
         except KeyError:
             message = "coming from the wrong end... set up a home first!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         if player_home_exists and location_object.set_protected_core(True):
             chrani_bot.locations.upsert(location_object, save=True)
             message = "your home is now protected!"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your home is now protected!", chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your home is now protected!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             message = "something went wrong :("
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
     except Exception as e:
@@ -238,16 +238,16 @@ def unprotect_inner_core(chrani_bot, source_player, target_player, command):
         except KeyError:
             message = "coming from the wrong end... set up a home first!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         if player_home_exists and location_object.set_protected_core(False):
             chrani_bot.locations.upsert(location_object, save=True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your home is now unprotected!", chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your home is now unprotected!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             message = "something went wrong :("
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
     except Exception as e:
@@ -278,7 +278,7 @@ def set_up_home_name(chrani_bot, source_player, target_player, command):
         except KeyError:
             message = "coming from the wrong end... set up a home first!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         description_found = False
         p = re.search(r"edit\shome\sname\s([\W\w\s]{1,19})$", command)
@@ -299,14 +299,14 @@ def set_up_home_name(chrani_bot, source_player, target_player, command):
 
             message = "Your home is called {} now \o/".format(location_object.description)
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['standard'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
 
             chrani_bot.socketio.emit('refresh_locations', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             message = "something went wrong :("
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
 
@@ -333,13 +333,13 @@ def take_me_home(chrani_bot, source_player, target_player, command):
         try:
             location_object = chrani_bot.locations.get(target_player.steamid, "home")
             if location_object.player_is_inside_boundary(target_player):
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "eh, you already ARE home oO".format(target_player.name), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "eh, you already ARE home oO".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             else:
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=location_object)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you have ported home!".format(target_player.name), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you have ported home!".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
         except KeyError:
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You seem to be homeless".format(target_player.name), chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You seem to be homeless".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
 
@@ -376,10 +376,10 @@ def goto_player_home(chrani_bot, source_player, target_player, command):
                 player_object_to_port_to = chrani_bot.players.load(player_steamid)
                 location_object = chrani_bot.locations.get(player_object_to_port_to.steamid, "home")
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=location_object)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You went to visit {}'s home".format(player_object_to_port_to.name), chrani_bot.chat_colors['standard'])
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_port_to, "{} went to visit your home!".format(target_player.name), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You went to visit {}'s home".format(player_object_to_port_to.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_port_to, "{} went to visit your home!".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             except KeyError:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Could not find {}'s home".format(player_steamid), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Could not find {}'s home".format(player_steamid), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 pass
 
         return response_messages
@@ -411,7 +411,7 @@ def set_up_home_outer_perimeter(chrani_bot, source_player, target_player, comman
         except KeyError:
             message = "coming from the wrong end... set up a home first!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         coords_are_valid = False
         if player_home_exists:
@@ -423,25 +423,25 @@ def set_up_home_outer_perimeter(chrani_bot, source_player, target_player, comman
             else:
                 message = "you given range ({}) seems to be invalid :(".format(int(location_object.radius * 2))
                 response_messages.add_message(message, False)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         if player_home_exists and coords_are_valid:
             message = "your estate ends here and spans {} meters ^^".format(int(location_object.radius * 2))
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
 
             if location_object.radius <= location_object.warning_boundary:
                 set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
                 if set_radius is True:
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "the inner core has been set to match the outer perimeter.", chrani_bot.chat_colors['warning'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "the inner core has been set to match the outer perimeter.", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
             chrani_bot.locations.upsert(location_object, save=True)
         else:
             message = "something went wrong :("
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
     except Exception as e:
@@ -472,7 +472,7 @@ def set_up_home_inner_perimeter(chrani_bot, source_player, target_player, comman
         except KeyError:
             message = "coming from the wrong end... set up a home first!"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         coords_are_valid = False
         if player_home_exists:
@@ -482,16 +482,16 @@ def set_up_home_inner_perimeter(chrani_bot, source_player, target_player, comman
             if set_radius is True:
                 coords_are_valid = True
             else:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you given range ({}) seems to be invalid. Are you inside your home area?".format(int(location_object.warning_boundary * 2)), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you given range ({}) seems to be invalid. Are you inside your home area?".format(int(location_object.warning_boundary * 2)), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         if player_home_exists and coords_are_valid:
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your private area ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your private area ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2)), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         else:
             message = "something went wrong :("
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
         return response_messages
 

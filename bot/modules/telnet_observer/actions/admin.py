@@ -19,7 +19,7 @@ def mpc(player_object, status):
     is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
         try:
-            chrani_bot.telnet_observer.tn.write("{command} {steamid} {status} {line_end}".format(command=command, steamid=player_object.steamid, status=status, line_end=b"\r\n"))
+            chrani_bot.telnet_observer.tn.write("{command} {steamid} {status}{line_end}".format(command=command, steamid=player_object.steamid, status=status, line_end=b"\r\n"))
         except Exception as e:
             log_message = 'trying to {command} on telnet connection failed: {error} / {error_type}'.format(command=command, error=e, error_type=type(e))
             logger.error(log_message)
@@ -47,11 +47,17 @@ def mpc_callback_thread(player_object, status):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + " " + str(player_object.steamid) + " (True|False)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + r" " + str(player_object.steamid) + r" (True|False)\' by Telnet from (.*)([\s\S]+?)" + str(player_object.name) + r"\s(?P<is_muted>(muted|unmuted))", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
         if match:
+            is_muted = True if match.group("is_muted") == "muted" else False
+            if is_muted is True:
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been disabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            else:
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been enabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_muted"] = is_muted
             common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
@@ -106,11 +112,17 @@ def bc_mute_callback_thread(player_object, status):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'" + command + "\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'" + command + r" " + str(player_object.steamid) + r" (True|False)\' by Telnet from (.*)([\s\S]+?)(?P<is_muted>(Un-){,1}([Mm])uting)\s" + player_object.name, chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
         if match:
+            is_muted = True if match.group("is_muted") == "Muting" else False
+            if is_muted is True:
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been disabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            else:
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been enabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_muted"] = is_muted
             common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
 
