@@ -70,7 +70,12 @@ class PlayerObserver(Thread):
         # get all currently online players and store them in a dictionary
         listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'))
         if len(listplayers_dict) <= 0:
+            # no players are online, so we can set them all to offline here
             listplayers_dict = {}
+            for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
+                self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
+                player_object.is_online = False
+                player_object.update()
 
         for player_steamid, player_dict in listplayers_dict.iteritems():
             # This only concerns players already in the games active list!
@@ -81,7 +86,7 @@ class PlayerObserver(Thread):
                 player_object = Player(**player_dict)
                 save_to_player_file = True
 
-            player_dict["is_online"] = True
+            # player_dict["is_online"] = True
             player_dict["is_logging_in"] = False
             player_object.update(**player_dict)
             self.chrani_bot.players.upsert(player_object, save=save_to_player_file)

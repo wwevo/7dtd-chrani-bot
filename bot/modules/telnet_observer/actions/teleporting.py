@@ -39,7 +39,7 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
         player_object.set_last_teleport(coord_tuple)
         chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = time.time()
         if coord_tuple[0] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) and  coord_tuple[2] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])):
-            print("already there, you just don't know it yet")
+            print("you are already there, you just don't know it yet")
             return False
         else:
             try:
@@ -54,7 +54,7 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
                 pass
 
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
-            time.sleep(delay)
+            time.sleep(delay + 1)
 
         chrani_bot.players.upsert(player_object)
         try:

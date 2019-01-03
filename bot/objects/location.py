@@ -315,12 +315,14 @@ class Location(object):
         got some math-skills? contact me :)
         """
         chrani_bot = __main__.chrani_bot
-        if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
+        if not player_object.is_online and\
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] <= 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
         try:
-
             is_it_inside = self.position_is_inside_boundary((
                 chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"],
                 chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"],
@@ -332,27 +334,32 @@ class Location(object):
         return is_it_inside
 
     def player_is_inside_core(self, player_object):
-        if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
+        chrani_bot = __main__.chrani_bot
+        if not player_object.is_online and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] <= 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
         player_is_inside_core = False
         if self.shape == "sphere":
             distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+                (float(self.pos_x) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) ** 2 + (
+                    float(self.pos_y) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"])) ** 2 + (
+                    float(self.pos_z) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])) ** 2))
             player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
         if self.shape == "cube":
-            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"]) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"]) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"]) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
         if self.shape == "circle":
             distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+                (float(self.pos_x) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) ** 2 + (
+                    float(self.pos_z) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])) ** 2))
             player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
         if self.shape == "square":
-            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"]) <= (float(self.pos_x) + float(self.warning_boundary)) and \
+                    (float(self.pos_z) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"]) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
 
         return player_is_inside_core
