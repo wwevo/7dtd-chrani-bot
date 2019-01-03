@@ -188,8 +188,8 @@ if __name__ == '__main__':
         if page == "map":
             widgets_dict = {
                 "player_table_widget": flask.Markup(get_player_table_widget()),
-                "location_radar_widget": get_map_widget(),
                 "system_log_widget": flask.Markup(get_status_log_widget()),
+                "location_radar_widget": get_map_widget(),
             }
         elif page == "settings":
             widgets_dict = {

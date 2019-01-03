@@ -14,13 +14,18 @@
     {% if current_user.is_authenticated %}
         {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
             {% if bot.is_paused == True %}
-            (<a href="/protected/system/resume" onclick="player_action(this); return false;">resume bot</a>)
+            (status: <a href="/protected/system/resume" onclick="player_action(this); return false;">paused</a>)
             {% else %}
-            (<a href="/protected/system/pause" onclick="player_action(this); return false;">pause bot</a>)
+            (status: <a href="/protected/system/pause" onclick="player_action(this); return false;">running</a>)
             {% endif %}
             (<a href="/protected/system/shutdown" onclick="player_action(this); return false;">shutdown bot</a>)
             (<a href="/protected/system/reinitialize" onclick="player_action(this); return false;">reinitialize</a>)
             (<a href="/protected/system/shutdown/server" onclick="player_action(this); return false;">shutdown server</a>)
+            {% if bot.whitelist.whitelist_active == True %}
+            (whitelist: <a href="/protected/whitelist/deactivate" onclick="player_action(this); return false;">active</a>)
+            {% else %}
+            (whitelist: <a href="/protected/whitelist/activate" onclick="player_action(this); return false;">deactivated</a>)
+            {% endif %}
         {% endif %}
     {% endif %}
 </div>
