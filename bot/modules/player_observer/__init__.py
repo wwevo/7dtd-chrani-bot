@@ -66,60 +66,6 @@ class PlayerObserver(Thread):
         player_object.is_logging_in = False
         player_object.update()
 
-    def manage_online_players(self):
-        # get all currently online players and store them in a dictionary
-        listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'))
-        if len(listplayers_dict) <= 0:
-            # no players are online, so we can set them all to offline here
-            listplayers_dict = {}
-            for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-                self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
-                player_object.is_online = False
-                player_object.update()
-
-        for player_steamid, player_dict in listplayers_dict.iteritems():
-            # This only concerns players already in the games active list!
-            save_to_player_file = False
-            try:  # player is already online and needs updating
-                player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
-            except KeyError:  # player is completely new and needs file creation
-                player_object = Player(**player_dict)
-                save_to_player_file = True
-
-            # player_dict["is_online"] = True
-            player_dict["is_logging_in"] = False
-            player_object.update(**player_dict)
-            self.chrani_bot.players.upsert(player_object, save=save_to_player_file)
-            self.chrani_bot.dom["bot_data"]["player_data"][player_steamid] = player_dict
-
-        """ handle player-threads """
-        for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-            """ start player_observer_thread for each player not already being observed """
-            if player_object.steamid not in self.active_player_threads_dict and player_steamid != "system":
-                # manually trigger actions for players found through lp response
-                if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_logging_in"] is True:
-                    player_thread = self.start_player_thread(player_object)
-                    player_thread.trigger_action(player_object, "found in the stream")
-                if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] is True:
-                    player_thread = self.start_player_thread(player_object)
-                    player_thread.trigger_action(player_object, "found in the world")
-
-        players_to_obliterate = []
-        for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-            if player_object.is_to_be_obliterated is True:
-                player_object.is_online = False
-                player_object.is_logging_in = False
-                self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
-                self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_logging_in"] = False
-                players_to_obliterate.append(player_object)
-
-        for player_object in players_to_obliterate:
-            self.chrani_bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
-            self.chrani_bot.socketio.emit('remove_leaflet_markers', player_object.get_leaflet_marker_json(), namespace='/chrani-bot/public')
-            self.chrani_bot.players.remove(player_object)
-
-        return listplayers_dict
-
     """ scans a given telnet-line for the players name and any possible commmand as defined in the match-types list, then fires that action """
     def trigger_action_by_telnet(self, telnet_line):
         for match_type in self.chrani_bot.match_types:
@@ -188,8 +134,59 @@ class PlayerObserver(Thread):
                 continue
 
             profile_start = time.time()
-            self.manage_online_players()
-            
+            # get all currently online players and store them in a dictionary
+            listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'))
+            if len(listplayers_dict) <= 0:
+                # no players are online, so we can set them all to offline here
+                listplayers_dict = {}
+                for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
+                    self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
+                    player_object.is_online = False
+                    player_object.update()
+
+            for player_steamid, player_dict in listplayers_dict.iteritems():
+                # This only concerns players already in the games active list!
+                save_to_player_file = False
+                try:  # player is already online and needs updating
+                    player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
+                except KeyError:  # player is completely new and needs file creation
+                    player_object = Player(**player_dict)
+                    save_to_player_file = True
+
+                if not player_dict["is_online"]:
+                    player_dict["is_logging_in"] = True
+
+                player_object.update(**player_dict)
+                self.chrani_bot.players.upsert(player_object, save=save_to_player_file)
+
+                self.chrani_bot.dom["bot_data"]["player_data"][player_steamid].update(**player_dict)
+
+            """ handle player-threads """
+            for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
+                """ start player_observer_thread for each player not already being observed """
+                if player_object.steamid not in self.active_player_threads_dict and player_steamid != "system":
+                    # manually trigger actions for players found through lp response
+                    if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_logging_in"] is True:
+                        player_thread = self.start_player_thread(player_object)
+                        player_thread.trigger_action(player_object, "found in the stream")
+                    if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] is True:
+                        player_thread = self.start_player_thread(player_object)
+                        player_thread.trigger_action(player_object, "found in the world")
+
+            players_to_obliterate = []
+            for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
+                if player_object.is_to_be_obliterated is True:
+                    player_object.is_online = False
+                    player_object.is_logging_in = False
+                    self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
+                    self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_logging_in"] = False
+                    players_to_obliterate.append(player_object)
+
+            for player_object in players_to_obliterate:
+                self.chrani_bot.socketio.emit('remove_player_table_row', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
+                self.chrani_bot.socketio.emit('remove_leaflet_markers', player_object.get_leaflet_marker_json(), namespace='/chrani-bot/public')
+                self.chrani_bot.players.remove(player_object)
+
             self.last_execution_time = time.time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 

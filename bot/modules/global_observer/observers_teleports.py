@@ -1,9 +1,9 @@
 import common
 
 
-def player_entered_teleport(chrani_bot, player_observer):
+def player_entered_teleport(chrani_bot, player_thread):
     try:
-        player_object = chrani_bot.players.get_by_steamid(player_observer.player_steamid)
+        player_object = chrani_bot.players.get_by_steamid(player_thread.player_steamid)
         locations_dict = dict((k, v) for k, v in chrani_bot.locations.get('system').iteritems() if v.teleport_active is True)
     except KeyError:
         return

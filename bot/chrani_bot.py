@@ -87,7 +87,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.669'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.759'),
             "bot_data": {
                 "time_launched": None,
                 "time_running": None,

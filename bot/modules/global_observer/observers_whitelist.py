@@ -4,19 +4,20 @@ from bot.modules.logger import logger
 import common
 
 
-def check_if_player_is_on_whitelist(chrani_bot, player_observer):
+def check_if_player_is_on_whitelist(chrani_bot, player_thread):
     try:
-        player_object = chrani_bot.players.get_by_steamid(player_observer.player_steamid)
+        player_object = chrani_bot.players.get_by_steamid(player_thread.player_steamid)
     except KeyError:
         return
 
-    if player_object.is_online and chrani_bot.whitelist.is_active() is True:
-        if not chrani_bot.whitelist.player_is_allowed(player_object) and not player_object.is_about_to_be_kicked:
-            kick_message = chrani_bot.settings.get_setting_by_name(name='whitelist_player_unknown_kick_msg', default="You are not on our whitelist. Visit http://chrani.net to find out what that means and if / what options are available to you!")
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, kick_message)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. This is VIP Only!".format(player_object.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
-            logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
-            player_object.is_about_to_be_kicked = False
+    if chrani_bot.whitelist.is_active() is True and not chrani_bot.whitelist.player_is_allowed(player_object):
+        if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"]:
+            if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"]:
+                kick_message = chrani_bot.settings.get_setting_by_name(name='whitelist_player_unknown_kick_msg', default="You are not on our whitelist. Visit http://chrani.net to find out what that means and if / what options are available to you!")
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, kick_message)
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. This is VIP Only!".format(player_object.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                logger.info("kicked player {} for not being on the whitelist".format(player_object.name))
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"] = False
 
 
 common.observers_dict["check_if_player_is_on_whitelist"] ={
@@ -28,22 +29,23 @@ common.observers_dict["check_if_player_is_on_whitelist"] ={
 
 common.observers_controller["check_if_player_is_on_whitelist"] = {
     "is_active": True,
-    "is_essential": False
+    "is_essential": True
 }
 
 
-def check_if_player_has_url_name(chrani_bot, player_observer):
+def check_if_player_has_url_name(chrani_bot, player_thread):
     try:
-        player_object = chrani_bot.players.get_by_steamid(player_observer.player_steamid)
+        player_object = chrani_bot.players.get_by_steamid(player_thread.player_steamid)
     except KeyError:
         return False
 
-    if player_object.is_online and not player_object.is_about_to_be_kicked and not chrani_bot.whitelist.player_is_allowed(player_object):
-        p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
-        if p:
-            logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. we do not allow url-names!".format(player_object.steamid), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_url_name_kick_msg', default="We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"))
+    if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"]:
+        if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"] and not chrani_bot.whitelist.player_is_allowed(player_object):
+            p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
+            if p:
+                logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. we do not allow url-names!".format(player_object.steamid), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_url_name_kick_msg', default="We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"))
 
 
 common.observers_dict["check_if_player_has_url_name"] = {
@@ -55,14 +57,14 @@ common.observers_dict["check_if_player_has_url_name"] = {
 
 common.observers_controller["check_if_player_has_url_name"] = {
     "is_active": True,
-    "is_essential": False
+    "is_essential": True
 }
 
 
-def check_ip_country(chrani_bot, player_observer):
+def check_ip_country(chrani_bot, player_thread):
     try:
         try:
-            player_object = chrani_bot.players.get_by_steamid(player_observer.player_steamid)
+            player_object = chrani_bot.players.get_by_steamid(player_thread.player_steamid)
         except KeyError:
             return False
 
@@ -87,11 +89,12 @@ def check_ip_country(chrani_bot, player_observer):
         except Exception as e:
             logger.exception(e)
 
-        if player_object.is_online and not player_object.is_about_to_be_kicked:
-            if users_country in chrani_bot.banned_countries_list and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_blocked_ip_kick_msg', default="Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")):
-                player_object.blacklisted = True
-                logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+        if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"]:
+            if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"]:
+                if users_country in chrani_bot.banned_countries_list and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_blocked_ip_kick_msg', default="Your IP seems to be from a blacklisted country. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!")):
+                    player_object.blacklisted = True
+                    logger.info("kicked player {} for being from {}".format(player_object.name, users_country))
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. Blacklisted Country ({})!".format(player_object.name, users_country), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
 
     except Exception as e:
         logger.exception(e)
@@ -106,5 +109,5 @@ common.observers_dict["check_ip_country"] = {
 
 common.observers_controller["check_ip_country"] = {
     "is_active": True,
-    "is_essential": False
+    "is_essential": True
 }

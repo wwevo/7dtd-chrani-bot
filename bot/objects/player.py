@@ -10,6 +10,17 @@ class Player(flask_login.UserMixin):
     name = str
     permission_levels = list
     is_allowed_to_chat = str
+    steamid = str
+    entityid = str
+    region = str
+    country_code = str
+    authenticated = bool
+    is_banned = bool
+    is_muted = bool
+    last_teleport = int
+    last_responsive = float
+    last_seen = float
+    playerfriends_list = list
 
     pos_x = float
     pos_y = float
@@ -34,29 +45,18 @@ class Player(flask_login.UserMixin):
     players = int
     score = int
     level = int
-    steamid = str
-    entityid = str
     ip = str
     ping = int
-    region = str
-    country_code = str
     blacklisted = bool
-    authenticated = bool
 
     is_online = bool
-    is_banned = bool
-    is_about_to_be_kicked = bool
 
     is_to_be_obliterated = bool
 
     is_logging_in = bool
 
-    last_teleport = int
-    last_responsive = float
-    last_seen = float
-    initialized = bool
+    is_initialized = bool
 
-    playerfriends_list = list
     poll_listplayerfriends_lastpoll = float
     active_teleport_thread = bool
 
@@ -71,16 +71,15 @@ class Player(flask_login.UserMixin):
 
         self.is_online = False
         self.is_banned = False
-        self.is_manually_muted = False  # if the player got manually muted!
+        self.is_muted = False  # if the player got manually muted!
         self.is_allowed_to_chat = "None"  # if the player is allowed to chat
 
-        self.is_about_to_be_kicked = False
         self.is_logging_in = False
         self.permission_levels = []
         self.last_responsive = time.time()
         self.entityid = None
         self.authenticated = False
-        self.initialized = False
+        self.is_initialized = False
         self.ip = None
         self.id = None
         self.ping = None
@@ -159,26 +158,6 @@ class Player(flask_login.UserMixin):
         self.pos_z = coord_tuple[2]
         self.last_teleport = time.time()
         self.update()
-
-    def set_coordinates(self, object_with_coordinates):
-        try:
-            self.pos_x = object_with_coordinates.tele_x
-        except Exception as e:
-            print(type(e))
-            self.pos_x = object_with_coordinates.pos_x
-
-        try:
-            self.pos_y = object_with_coordinates.tele_y
-        except Exception as e:
-            self.pos_y = object_with_coordinates.pos_y
-
-        try:
-            self.pos_z = object_with_coordinates.tele_z
-        except Exception as e:
-            self.pos_z = object_with_coordinates.pos_z
-
-        self.update()
-        return True
 
     def is_responsive(self):
         if self.is_to_be_obliterated is False and self.is_dead() is False and self.is_online is True:

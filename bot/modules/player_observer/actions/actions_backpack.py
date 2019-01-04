@@ -31,7 +31,7 @@ def on_player_death(chrani_bot, source_player, target_player, command):
         except:
             return False
 
-        target_player.initialized = False
+        target_player.is_initialized = False
         chrani_bot.players.upsert(target_player, save=True)
         message = "{}s place of death has been recorded ^^".format(target_player.name)
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])

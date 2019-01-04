@@ -101,7 +101,7 @@ common.actions_list.append({
 def on_player_death(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        target_player.initialized = False
+        target_player.is_initialized = False
         chrani_bot.players.upsert(target_player, save=True)
         message="player {} died".format(target_player.name)
         response_messages.add_message(message, False)
@@ -128,7 +128,7 @@ common.actions_list.append({
 def on_player_kill(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        target_player.initialized = False
+        target_player.is_initialized = False
         chrani_bot.players.upsert(target_player, save=True)
         message="player {} got killed :/".format(target_player.name)
         response_messages.add_message(message, False)

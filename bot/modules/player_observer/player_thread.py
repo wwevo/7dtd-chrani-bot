@@ -93,7 +93,7 @@ class PlayerThread(Thread):
 
     def run(self):
         self.player_object = self.bot.players.get_by_steamid(self.player_steamid)
-        self.player_object.is_about_to_be_kicked = False
+        self.bot.dom["bot_data"]["player_data"][self.player_steamid]["is_about_to_be_kicked"] = False
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             if not self.bot.has_connection:
@@ -108,8 +108,8 @@ class PlayerThread(Thread):
             player_is_responsive = self.player_object.is_responsive()
             player_moved = self.player_moved()
             if player_is_responsive and player_moved:
-                if not self.player_object.initialized:
-                    self.player_object.initialized = True
+                if not self.player_object.is_initialized:
+                    self.player_object.is_initialized = True
                 json = self.player_object.get_leaflet_marker_json()
                 self.bot.socketio.emit('update_leaflet_markers', json, namespace='/chrani-bot/public')
 
@@ -131,7 +131,7 @@ class PlayerThread(Thread):
                 for command in command_queue:
                     if command["is_active"]:
                         try:
-                            if self.player_object.initialized or command["is_essential"]:
+                            if self.player_object.is_initialized or command["is_essential"]:
                                 command["observer"](self.bot, self)
                         except TypeError as error:
                             logger.debug("{} had a type error ({})".format(command["observer"], error.message))

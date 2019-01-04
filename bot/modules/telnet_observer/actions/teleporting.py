@@ -17,7 +17,8 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
 
     is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
-        if not player_object.is_online:
+        common.set_active_action_status(player_object.steamid, command, True)
+        if not chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("is_online"):
             return False
 
         common.active_actions_dict[command] = True
@@ -38,7 +39,7 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
 
         player_object.set_last_teleport(coord_tuple)
         chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = time.time()
-        if coord_tuple[0] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) and  coord_tuple[2] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])):
+        if coord_tuple[0] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) and coord_tuple[2] == int(math.ceil(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])):
             print("you are already there, you just don't know it yet")
             return False
         else:
@@ -65,7 +66,6 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
             raise IOError(log_message)
 
         logger.debug("starting 'teleportplayer'")
-        common.set_active_action_status(player_object.steamid, command, True)
         thread.start_new_thread(common.actions_dict[command]["action_callback"], (player_object, location_object, coord_tuple))
     else:
         logger.debug("command 'teleportplayer' is active and waiting for a response!")
@@ -87,14 +87,14 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
 
         match = False
         for match in re.finditer(r"Executing command \'teleportplayer " + player_object.steamid + " (.*)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
-            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] = coord_tuple[0]
-            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] = coord_tuple[1]
-            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] = coord_tuple[2]
-            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = time.time()
             poll_is_finished = True
 
         if match:
             common.set_active_action_result(player_object.steamid, command, match.group(2))
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] = coord_tuple[0]
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] = coord_tuple[1]
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] = coord_tuple[2]
+            chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["positional_data_timestamp"] = time.time()
             time.sleep(1.5)
 
     logger.debug("finished '{command}'".format(command=command))

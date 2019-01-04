@@ -193,7 +193,7 @@ def kick_callback_thread(player_object, reason):
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))
-    player_object.is_about_to_be_kicked = False
+    chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"] = False
     common.set_active_action_status(player_object.steamid, command, False)
     return
 
