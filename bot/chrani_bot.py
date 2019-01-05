@@ -32,6 +32,8 @@ class ChraniBot(Thread):
     flask_login = object
     socketio = object
 
+    stopped = object
+
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
     has_connection = bool
@@ -69,7 +71,7 @@ class ChraniBot(Thread):
     schedulers_dict = dict
     schedulers_controller = dict
 
-    def __init__(self, event, app, flask, flask_login, socketio):
+    def __init__(self, app, flask, flask_login, socketio):
         self.app = app
         self.flask = flask
         self.flask_login = flask_login
@@ -78,7 +80,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.769'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.770'),
             "bot_data": {
                 "time_launched": None,
                 "time_running": None,
@@ -166,9 +168,18 @@ class ChraniBot(Thread):
         }
 
         self.banned_countries_list = self.settings.get_setting_by_name(name='banned_countries')
-        self.stopped = event
         self.permissions = Permissions(self, self.permission_levels_list)
         Thread.__init__(self)
+
+    def setup(self):
+        self.stopped = Event()
+        self.name = 'chrani-bot'
+        return self
+
+    def start(self):
+        logger.info("{} started".format(self.name))
+        Thread.start(self)
+        return self
 
     def reload_local_files(self):
         self.settings.load_all()

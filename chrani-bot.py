@@ -11,7 +11,6 @@ except ImportError:
 import re
 import requests
 from urllib import urlencode
-from threading import *
 
 if not debug:
     import eventlet
@@ -58,9 +57,7 @@ if __name__ == '__main__':
     else:
         socketio = flask_socketio.SocketIO(app, async_mode='threading')
 
-    chrani_bot_thread_stop_flag = Event()
-    chrani_bot = ChraniBot(chrani_bot_thread_stop_flag, app, flask, flask_login, socketio)
-    chrani_bot.start()
+    chrani_bot = ChraniBot(app, flask, flask_login, socketio).setup().start()
 
     @login_manager.user_loader
     def user_loader(steamid):
@@ -230,8 +227,8 @@ if __name__ == '__main__':
 
         player_objects = chrani_bot.players.get_all_players()
         player_list = []
-        for play_object in player_objects:
-            player_list.append(play_object.get_leaflet_marker_json())
+        for player_object in player_objects:
+            player_list.append(player_object.get_leaflet_marker_json())
 
         # location_objects = chrani_bot.landclaims.get_all_landclaims()
         # lcb_list = []
