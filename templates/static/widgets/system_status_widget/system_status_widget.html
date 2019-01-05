@@ -7,10 +7,10 @@
     (bot-uptime: {% if bot.dom["bot_data"]["time_running"] != None %}
         {{ bot.dom["bot_data"]["time_running"] }}s,
     {% else %}n/A,{% endif %}
-    server-uptime: {% if bot.server_time_running != None %}
-        {{ bot.server_time_running }}s,
+    server-uptime: {% if bot.dom["game_data"]["time_running"] != None %}
+        {{ bot.dom["game_data"]["time_running"] }}s,
     {% else %}n/A,{% endif %}
-    restart in: {{ bot.restart_in }}s)<br />
+    restart in: {{ bot.dom["game_data"]["restart_in"] }}s)<br />
     {% if current_user.is_authenticated %}
         {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
             {% if bot.is_paused == True %}

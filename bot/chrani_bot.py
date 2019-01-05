@@ -31,24 +31,16 @@ class ChraniBot(Thread):
     flask = object
     flask_login = object
     socketio = object
-    reboot_thread = object
 
-    time_launched = float
-    time_running = float
-    server_time_running = float
-    oberservers_execution_time = float
-    uptime = str
-    restart_in = int
-    ready_for_action = bool
     is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
     has_connection = bool
+
     initiate_shutdown = bool
+    reboot_thread = object
 
     match_types = dict
     match_types_generic = dict
-
-    # telnet_lines_list = deque
 
     first_run = bool
     last_execution_time = float
@@ -60,7 +52,6 @@ class ChraniBot(Thread):
     banned_countries_list = list
 
     settings_dict = dict
-    server_settings_dict = dict
 
     players = object
     locations = object
@@ -87,7 +78,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.759'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.769'),
             "bot_data": {
                 "time_launched": None,
                 "time_running": None,
@@ -113,6 +104,8 @@ class ChraniBot(Thread):
             "game_data": {
                 "settings": {},
                 "gametime": {},
+                "time_running": None,
+                "restart_in": None,
                 "landclaim_data": {}
             },
         }
@@ -121,20 +114,15 @@ class ChraniBot(Thread):
         self.is_paused = False
         self.has_connection = False
         self.reboot_imminent = False
-        self.restart_in = 0
-        self.server_time_running = None
         self.initiate_shutdown = False
-        self.oberservers_execution_time = 0.0
         self.restart_delay = 0
         self.first_run = True
         self.last_execution_time = 0.0
         self.telnet_queue = 0
-        self.ready_for_action = False
-        self.server_settings_dict = {}
 
         logger.info("{} started".format(self.dom['bot_name']))
 
-        self.players = Players(self)  # players will be loaded on a need-to-load basis
+        self.players = Players(self)
 
         self.observers_dict = global_observer.observers_dict
         self.observers_controller = global_observer.observers_controller
@@ -210,7 +198,7 @@ class ChraniBot(Thread):
     def get_lcb_marker_json(self, lcb_dict):
         lcb_list_final = []
         try:
-            land_claim_size = int(self.server_settings_dict["LandClaimSize"])
+            land_claim_size = int(self.dom["game_data"]["settings"]["LandClaimSize"])
         except TypeError:
             return lcb_list_final
 
@@ -257,7 +245,7 @@ class ChraniBot(Thread):
         return landclaims_in_reach_list
 
     def check_for_homes(self, player_object):
-        distance = math.floor(int(self.server_settings_dict['LandClaimSize']) / 2) + int(self.server_settings_dict['LandClaimDeadZone'])  # (landclaim size / 2) + Deadzone
+        distance = math.floor(int(self.dom["game_data"]["settings"]['LandClaimSize']) / 2) + int(self.dom["game_data"]["settings"]['LandClaimDeadZone'])  # (landclaim size / 2) + Deadzone
         start_coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
 
         bases_near_list = self.locations.find_by_distance(start_coords, distance, "home")
@@ -309,7 +297,7 @@ class ChraniBot(Thread):
 
         if len(server_settings_dict) > 0:
             we_got_us_some_settings = True
-            self.server_settings_dict = server_settings_dict
+            self.dom["game_data"]["settings"] = server_settings_dict
             # disable polling of the settings, only need 'em once
             self.schedulers_controller["get_game_preferences"]["is_active"] = False
         else:
@@ -391,8 +379,6 @@ class ChraniBot(Thread):
                 logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except IOError as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
-                self.server_time_running = None
-
                 try:
                     telnet = Telnet(
                         self.settings.get_setting_by_name(name='telnet_ip', default="127.0.0.1"),

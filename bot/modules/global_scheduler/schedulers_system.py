@@ -180,8 +180,6 @@ def update_system_status(bot):
             for player_steamid, player_thread in bot.player_observer.active_player_threads_dict.iteritems():
                 count = count + 1
                 execution_time += player_thread.last_execution_time
-            if count > 0:
-                bot.oberservers_execution_time = execution_time / count
             common.schedulers_dict["update_system_status"]["last_executed"] = time.time()
 
             return True
@@ -218,9 +216,8 @@ def list_landprotection(chrani_bot):
 
         if timeout_occurred(listlandprotection_interval, float(common.schedulers_dict["list_landprotection"]["last_executed"])):
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "llp")
-            chrani_bot.manage_landclaims()
             common.schedulers_dict["list_landprotection"]["last_executed"] = time.time()
-
+            chrani_bot.manage_landclaims()
             return True
     except Exception as e:
         logger.debug("{source}/{error_message}".format(source="list_landprotection", error_message=e.message))
@@ -271,15 +268,14 @@ def reboot(chrani_bot):
                 return True
 
     try:
-        if chrani_bot.server_time_running is not None:
-            chrani_bot.restart_in = chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.server_time_running
+        if chrani_bot.dom["game_data"]["time_running"] is not None:
+            chrani_bot.dom["game_data"]["restart_in"] = chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.dom["game_data"]["time_running"]
 
         if chrani_bot.ongoing_bloodmoon() or chrani_bot.reboot_imminent:
             return True
 
-        if chrani_bot.server_time_running is not None and timepassed_occurred(chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.settings.get_setting_by_name(name='restart_warning'), chrani_bot.server_time_running):
+        if chrani_bot.dom["game_data"]["time_running"] is not None and timepassed_occurred(chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.settings.get_setting_by_name(name='restart_warning'), chrani_bot.dom["game_data"]["time_running"]):
             chrani_bot.reboot_imminent = True
-            chrani_bot.server_time_running = None
             chrani_bot.reboot_thread = threading.Thread(target=reboot_worker)
             chrani_bot.reboot_thread.start()
 

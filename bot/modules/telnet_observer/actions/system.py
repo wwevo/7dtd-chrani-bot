@@ -53,7 +53,7 @@ def mem_callback_thread():
 
         if match:
             common.set_active_action_result('system', command, match.group(0))
-            chrani_bot.server_time_running = int(float(match.group("time_in_minutes")) * 60)
+            chrani_bot.dom["game_data"]["time_running"] = int(float(match.group("time_in_minutes")) * 60)
         time.sleep(0.5)
 
     logger.debug("finished '{command}'".format(command=command))

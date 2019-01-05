@@ -10,7 +10,7 @@ def check_if_player_is_on_whitelist(chrani_bot, player_thread):
     except KeyError:
         return
 
-    if chrani_bot.whitelist.is_active() is True and not chrani_bot.whitelist.player_is_allowed(player_object):
+    if chrani_bot.whitelist.is_active() is True and not chrani_bot.whitelist.player_is_on_whitelist(player_object.steamid):
         if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"]:
             if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"]:
                 kick_message = chrani_bot.settings.get_setting_by_name(name='whitelist_player_unknown_kick_msg', default="You are not on our whitelist. Visit http://chrani.net to find out what that means and if / what options are available to you!")
