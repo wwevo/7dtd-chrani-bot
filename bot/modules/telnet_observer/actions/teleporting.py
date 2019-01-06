@@ -21,8 +21,6 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
         if not chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("is_online"):
             return False
 
-        common.active_actions_dict[command] = True
-
         if location_object is not None:
             try:
                 coord_tuple = (int(math.ceil(float(location_object.tele_x))), int(math.ceil(float(location_object.tele_y))), int(math.ceil(float(location_object.tele_z))))
@@ -86,11 +84,11 @@ def teleportplayer_callback_thread(player_object, location_object, coord_tuple):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'teleportplayer " + player_object.steamid + " (.*)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'teleportplayer " + str(player_object.steamid) + " (.*)\' by Telnet from (.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
 
         if match:
-            common.set_active_action_result(player_object.steamid, command, match.group(2))
+            common.set_active_action_result(player_object.steamid, command, match.group(1))
             chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] = coord_tuple[0]
             chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] = coord_tuple[1]
             chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] = coord_tuple[2]

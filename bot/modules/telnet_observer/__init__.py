@@ -43,10 +43,10 @@ class TelnetObserver(Thread):
 
         self.last_execution_time = 0.0
 
+        self.stopped = Event()
         Thread.__init__(self)
 
     def setup(self):
-        self.stopped = Event()
         self.name = 'telnet observer'
         self.isDaemon()
 
@@ -196,14 +196,9 @@ class TelnetObserver(Thread):
         return len(telnet_lines)
 
     def run(self):
-        self.chrani_bot.has_connection = True
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             self.chrani_bot.custodian.check_in('telnet_observer', True)
-
-            if not self.chrani_bot.has_connection:
-                raise IOError("{source}/{error_message}".format(source="telnet observer", error_message="lost telnet connection :("))
-
             if self.chrani_bot.is_paused is not False:
                 sleep(1)
                 continue

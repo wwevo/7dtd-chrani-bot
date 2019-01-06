@@ -16,6 +16,7 @@ class PlayerObserver(Thread):
 
     chrani_bot = object
     actions = object
+    actions_list = list
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
@@ -26,6 +27,12 @@ class PlayerObserver(Thread):
     def __init__(self, chrani_bot):
         self.chrani_bot = chrani_bot
 
+        self.stopped = Event()
+        Thread.__init__(self)
+
+    def setup(self):
+        self.isDaemon()
+        self.name = 'player observer'
         self.action_queue = deque()
         self.active_player_threads_dict = {}
 
@@ -35,12 +42,6 @@ class PlayerObserver(Thread):
         self.actions = actions
         self.actions_list = actions.actions_list
 
-        Thread.__init__(self)
-
-    def setup(self):
-        self.stopped = Event()
-        self.name = 'player observer'
-        self.isDaemon()
         return self
 
     def start(self):
@@ -48,12 +49,22 @@ class PlayerObserver(Thread):
         Thread.start(self)
         return self
 
+    def cleanup(self):
+        try:
+            for player_steamid in self.active_player_threads_dict:
+                """ kill them ALL! """
+                active_player_thread = self.active_player_threads_dict[player_steamid]
+                active_player_thread.stopped.set()
+        except AttributeError:
+            pass
+
     def start_player_thread(self, player_object):
         if player_object.steamid in self.active_player_threads_dict:
             # already being observed
             return self.active_player_threads_dict[player_object.steamid]
 
         player_thread = PlayerThread(self.chrani_bot, player_object.steamid).setup().start()  # I'm passing the bot into it to have easy access to it's variables
+        player_thread.isDaemon()
         self.active_player_threads_dict[player_object.steamid] = player_thread
         return player_thread
 
@@ -125,7 +136,7 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
-        while not self.stopped.wait(next_cycle):
+        while not self.stopped.wait(next_cycle) or not self.chrani_bot.telnet_observer.stopped.isSet():
             """ so far there is nothing to do here, just signalling readiness to our custodian """
             self.chrani_bot.custodian.check_in('player_observer', True)
 
@@ -190,4 +201,5 @@ class PlayerObserver(Thread):
             self.last_execution_time = time.time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 
+        self.cleanup()
         logger.debug("player observer thread has stopped")

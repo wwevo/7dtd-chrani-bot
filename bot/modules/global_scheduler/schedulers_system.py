@@ -264,20 +264,20 @@ def reboot(chrani_bot):
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
                 common.schedulers_dict["reboot"]["current_countdown"] = 0
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
-                chrani_bot.has_connection = False
                 return True
 
     try:
-        if chrani_bot.dom["game_data"]["time_running"] is not None:
+        if chrani_bot.dom.get("game_data").get("time_running", False):
             chrani_bot.dom["game_data"]["restart_in"] = chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.dom["game_data"]["time_running"]
 
-        if chrani_bot.ongoing_bloodmoon() or chrani_bot.reboot_imminent:
+        if chrani_bot.ongoing_bloodmoon() or chrani_bot.dom.get("bot_data").get("active_threads").get("system").get("reboot", False):
             return True
 
         if chrani_bot.dom["game_data"]["time_running"] is not None and timepassed_occurred(chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.settings.get_setting_by_name(name='restart_warning'), chrani_bot.dom["game_data"]["time_running"]):
             chrani_bot.reboot_imminent = True
-            chrani_bot.reboot_thread = threading.Thread(target=reboot_worker)
-            chrani_bot.reboot_thread.start()
+            reboot_thread = threading.Thread(target=reboot_worker)
+            chrani_bot.dom["bot_data"]["active_threads"]["system"]["reboot"] = reboot_thread
+            reboot_thread.start()
 
             message = "server restart procedures initiated..."
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])

@@ -34,12 +34,9 @@ class ChraniBot(Thread):
 
     stopped = object
 
-    is_active = bool  # used for restarting the bot safely after connection loss
     is_paused = bool  # used to pause all processing without shutting down the bot
-    has_connection = bool
 
     initiate_shutdown = bool
-    reboot_thread = object
 
     match_types = dict
     match_types_generic = dict
@@ -59,7 +56,8 @@ class ChraniBot(Thread):
     locations = object
     whitelist = object
     webinterface = object
-    permission = object
+    permissions = object
+    permission_levels_list = list
     settings = object
     telnet_observer = object
     player_observer = object
@@ -77,11 +75,21 @@ class ChraniBot(Thread):
         self.flask_login = flask_login
         self.socketio = socketio
 
+        self.stopped = Event()
+        Thread.__init__(self)
+
+    def setup(self):
+        self.name = 'chrani-bot'
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.770'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.810'),
             "bot_data": {
+                "active_threads": {
+                    "system": {},
+                    "modules": {},
+                    "actions": {},
+                },
                 "time_launched": None,
                 "time_running": None,
                 "settings": {
@@ -112,9 +120,7 @@ class ChraniBot(Thread):
             },
         }
 
-        self.reboot_thread = None
         self.is_paused = False
-        self.has_connection = False
         self.reboot_imminent = False
         self.initiate_shutdown = False
         self.restart_delay = 0
@@ -169,15 +175,14 @@ class ChraniBot(Thread):
 
         self.banned_countries_list = self.settings.get_setting_by_name(name='banned_countries')
         self.permissions = Permissions(self, self.permission_levels_list)
-        Thread.__init__(self)
-
-    def setup(self):
-        self.stopped = Event()
-        self.name = 'chrani-bot'
         return self
 
     def start(self):
         logger.info("{} started".format(self.name))
+        self.dom["bot_data"]["time_launched"] = time.time()
+        self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
+        self.custodian = Custodian(self).setup().start()
+
         Thread.start(self)
         return self
 
@@ -336,32 +341,46 @@ class ChraniBot(Thread):
         return result
 
     def run(self):
-        self.dom["bot_data"]["time_launched"] = time.time()
-        self.is_active = True  # this is set so the main loop can be started / stopped
-        self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
-        self.custodian = Custodian(self).setup().start()
-
         next_cycle = 0
         last_schedule = 0
-
-        while not self.stopped.wait(next_cycle) and self.is_active:
+        while not self.stopped.wait(next_cycle):
             try:
                 profile_start = time.time()
                 self.dom["bot_data"]["time_running"] = int(time.time() - self.dom["bot_data"]["time_launched"])
-
-                if not isinstance(self.telnet_observer, TelnetObserver):
-                    raise IOError
-
                 self.custodian.check_in('main_loop', True)
 
-                if not self.has_connection:
-                    raise IOError
+                if not isinstance(self.telnet_observer, TelnetObserver) or self.telnet_observer.stopped.isSet():
+                    try:
+                        telnet = Telnet(
+                            self.settings.get_setting_by_name(name='telnet_ip', default="127.0.0.1"),
+                            self.settings.get_setting_by_name(name='telnet_port', default="8082"),
+                            self.settings.get_setting_by_name(name='telnet_password', default="setmeinconfigfile",
+                                                              show_log_init=True)
+                        )
+                        self.telnet_observer = TelnetObserver(self, telnet.authenticated_connection).setup().start()
+                        self.player_observer = PlayerObserver(self).setup().start()
+                        self.reload_local_files()
+
+                        self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
+
+                        self.reboot_imminent = False
+                        self.is_paused = False
+
+                    except IOError as e:
+                        traceback.print_exc()
+                        self.clear_env()
+                        self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
+                        log_message = "no telnet-connection - trying to connect... - will try again in {} seconds ({})".format(str(self.restart_delay), e)
+                        logger.info(log_message)
+                        time.sleep(self.restart_delay)
+                        self.restart_delay = 20
+                        continue
 
                 has_required_environment = self.has_required_environment()
 
                 """ everything that needs to be checked periodically and is not directly player-related should be done in schedulers
                 """
-                if self.schedulers_dict and self.has_connection and timeout_occurred(next_cycle * 10, last_schedule):
+                if self.schedulers_dict and timeout_occurred(next_cycle * 10, last_schedule):
                     last_schedule = profile_start
                     only_essential = not has_required_environment
                     run_schedulers(self, only_essential=only_essential)
@@ -371,9 +390,9 @@ class ChraniBot(Thread):
                     time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
                     continue
 
-                if self.initiate_shutdown is True and self.has_connection:
+                if self.initiate_shutdown is True:
                     time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
-                    self.is_active = False
+                    self.stopped.set()
                     continue
 
                 """" for now i'm doing 20 at a time to preven clogging, don't have the data yet to actually show that it would otherwise
@@ -390,32 +409,7 @@ class ChraniBot(Thread):
                 logger.error("some missing name or attribute error: {} ({})".format(error.message, type(error)))
             except IOError as error:
                 """ clean up bot to have a clean restart when a new connection can be established """
-                try:
-                    telnet = Telnet(
-                        self.settings.get_setting_by_name(name='telnet_ip', default="127.0.0.1"),
-                        self.settings.get_setting_by_name(name='telnet_port', default="8082"),
-                        self.settings.get_setting_by_name(name='telnet_password', default="setmeinconfigfile",
-                                                          show_log_init=True)
-                    )
-                    self.telnet_observer = TelnetObserver(self, telnet.authenticated_connection).setup().start()
-                    self.player_observer = PlayerObserver(self).setup().start()
-                    self.reload_local_files()
-
-                    self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
-
-                    self.reboot_imminent = False
-                    self.is_paused = False
-
-                except IOError as e:
-                    traceback.print_exc()
-                    self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
-
-                    self.clear_env()
-                    log_message = "no telnet-connection - trying to connect... - will try again in {} seconds ({} / {})".format(str(self.restart_delay), error, e)
-                    logger.info(log_message)
-                    time.sleep(self.restart_delay)
-                    self.restart_delay = 20
-
+                pass
             except Exception as error:
                 traceback.print_exc()
                 logger.error("unknown error: {} ({})".format(error.message, type(error)))
@@ -424,24 +418,8 @@ class ChraniBot(Thread):
         self.shutdown()
 
     def clear_env(self):
-        self.has_connection = False
         self.first_run = True
         self.is_paused = True
-        try:
-            for player_steamid in self.player_observer.active_player_threads_dict:
-                """ kill them ALL! """
-                active_player_thread = self.player_observer.active_player_threads_dict[player_steamid]
-                active_player_thread.stopped.set()
-        except AttributeError:
-            pass
-
-        # self.players.players_dict = {}
-
-        # self.telnet_lines_list = deque()
-        try:
-            self.telnet_observer.stopped.set()
-        except AttributeError:
-            pass
 
         try:
             self.player_observer.stopped.set()
@@ -451,7 +429,6 @@ class ChraniBot(Thread):
     def shutdown(self):
         time.sleep(5)
         self.custodian.stopped.set()
-        self.is_active = False
         self.clear_env()
         self.stopped.set()
         try:

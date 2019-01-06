@@ -10,6 +10,7 @@ from bot.assorted_functions import TimeoutError
 class PlayerThread(Thread):
     bot = object
     actions = object
+    stopped = object
 
     player_steamid = str
     player_object = object
@@ -24,10 +25,10 @@ class PlayerThread(Thread):
         self.run_observers_interval = 1
         self.last_execution_time = 0.0
 
+        self.stopped = Event()
         Thread.__init__(self)
 
     def setup(self):
-        self.stopped = Event()
         self.name = 'player thread {}'.format(self.player_steamid)
         self.isDaemon()
         return self
@@ -95,10 +96,7 @@ class PlayerThread(Thread):
         self.player_object = self.bot.players.get_by_steamid(self.player_steamid)
         self.bot.dom["bot_data"]["player_data"][self.player_steamid]["is_about_to_be_kicked"] = False
         next_cycle = 0
-        while not self.stopped.wait(next_cycle):
-            if not self.bot.has_connection:
-                raise IOError
-
+        while not self.stopped.wait(next_cycle) or not self.chrani_bot.telnet_observer.stopped.isSet():
             if self.bot.is_paused is not False:
                 sleep(1)
                 continue
@@ -144,7 +142,6 @@ class PlayerThread(Thread):
                         except IOError as error:
                             logger.debug("{} had an input/output error! ({})".format(command["observer"], error.message))
                             traceback.print_exc()
-                            self.bot.has_connection = False
                             pass
                         except TimeoutError as error:
                             logger.debug("{} had a timeout! ({})".format(command["observer"], error.message))
