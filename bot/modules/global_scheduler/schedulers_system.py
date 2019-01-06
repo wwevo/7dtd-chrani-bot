@@ -258,7 +258,7 @@ def reboot(chrani_bot):
                 message = "server will restart in {} seconds".format(60)
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
-            if common.schedulers_dict["reboot"]["current_countdown"] <= restart_timer - 15:
+            if common.schedulers_dict["reboot"]["current_countdown"] >= restart_timer - 15:
                 message = "server will restart NOW!"
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say",message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 chrani_bot.socketio.emit('status_log', {"steamid": "system", "name": "system", "command": "{}:{} = {}".format("scheduler", "reboot", message)}, namespace='/chrani-bot/public')
