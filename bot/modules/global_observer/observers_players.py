@@ -10,6 +10,8 @@ def record_time_of_last_activity(chrani_bot, player_thread):
         chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["last_responsive"] = current_time
 
     chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["last_seen"] = current_time
+    player_thread.player_object.last_seen = current_time
+    chrani_bot.players.upsert(player_thread.player_object, save=True)
 
 
 common.observers_dict["record_time_of_last_activity"] = {
@@ -26,11 +28,12 @@ common.observers_controller["record_time_of_last_activity"] = {
 
 
 def update_player_region(chrani_bot, player_thread):
-    if player_thread.player_object.is_responsive() is True and chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("is_initialized", None):
+    if player_thread.player_object.is_responsive() is True:
         current_region = get_region_string(chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["pos_x"], chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["pos_z"])
         if chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["region"] != current_region:
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["region"] = current_region
-            chrani_bot.socketio.emit('refresh_player_status', {"steamid": player_thread.player_object.steamid, "entityid": player_thread.player_object.entityid}, namespace='/chrani-bot/public')
+            player_thread.player_object.region = current_region
+            chrani_bot.players.upsert(player_thread.player_object, save=True)
 
 
 common.observers_dict["update_player_region"] = {

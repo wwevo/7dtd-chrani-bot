@@ -50,8 +50,7 @@ def entered_telnet(regex_results):
         chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] = False
         player_object.is_logging_in = True
         player_object.is_online = False
-        player_object.update()
-        chrani_bot.players.upsert(player_object)
+        chrani_bot.players.upsert(player_object, save=True)
         player_thread = chrani_bot.player_observer.start_player_thread(player_object)
         player_thread.trigger_action(player_object, "found in the stream")
 
@@ -93,8 +92,7 @@ def entered_the_world(regex_results):
     player_object.pos_x = regex_results.group("pos_x")
     player_object.pos_y = regex_results.group("pos_y")
     player_object.pos_z = regex_results.group("pos_z")
-    player_object.update()
-    chrani_bot.players.upsert(player_object)
+    chrani_bot.players.upsert(player_object, save=True)
 
     chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] = regex_results.group("pos_x")
     chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] = regex_results.group("pos_y")
@@ -137,7 +135,7 @@ def left_telnet(regex_results):
         chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"] = False
         chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] = False
 
-        chrani_bot.players.upsert(player_object)
+        chrani_bot.players.upsert(player_object, True)
         chrani_bot.player_observer.active_player_threads_dict[player_object.steamid].trigger_action(player_object, "left the game")
         chrani_bot.player_observer.stop_player_thread(player_object)
 

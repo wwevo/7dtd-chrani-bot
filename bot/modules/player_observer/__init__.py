@@ -102,6 +102,7 @@ class PlayerObserver(Thread):
                     for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
                         if player_object.name == player_name:
                             self.chrani_bot.player_observer.actions.common.trigger_action(self.chrani_bot, player_object, player_object, command)
+                            self.chrani_bot.players.upsert(player_object, save=True)
                             break
 
     def get_a_bunch_of_actions(self, this_many_actions):
@@ -160,6 +161,8 @@ class PlayerObserver(Thread):
                 save_to_player_file = False
                 try:  # player is already online and needs updating
                     player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
+                    player_object.update(**player_dict)
+                    self.chrani_bot.socketio.emit('refresh_player_status', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                 except KeyError:  # player is completely new and needs file creation
                     player_object = Player(**player_dict)
                     save_to_player_file = True
@@ -167,9 +170,7 @@ class PlayerObserver(Thread):
                 if not player_dict["is_online"]:
                     player_dict["is_logging_in"] = True
 
-                player_object.update(**player_dict)
                 self.chrani_bot.players.upsert(player_object, save=save_to_player_file)
-
                 self.chrani_bot.dom["bot_data"]["player_data"][player_steamid].update(**player_dict)
 
             """ handle player-threads """

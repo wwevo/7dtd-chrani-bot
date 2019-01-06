@@ -83,7 +83,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.810'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.812'),
             "bot_data": {
                 "active_threads": {
                     "system": {},

@@ -159,6 +159,10 @@ class Player(flask_login.UserMixin):
         self.last_teleport = time.time()
         self.update()
 
+    def get_position_string(self):
+        position_string = "{pos_x} {pos_y} {pos_z}".format(pos_x=int(self.pos_x), pos_y=int(self.pos_y), pos_z=int(self.pos_z))
+        return position_string
+
     def is_responsive(self):
         if self.is_to_be_obliterated is False and self.is_dead() is False and self.is_online is True:
             return True

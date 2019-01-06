@@ -488,7 +488,8 @@ def bc_lp_callback_thread():
                         "ping":             int(player_dict_raw["Ping"]),
                         "is_online":        True if player_dict_raw["OnGround"] is not None else False,
                         "is_logging_in":    True if (player_dict_raw["OnGround"] is None and player_dict_raw["Ping"] != "Offline") else False,
-                        "positional_data_timestamp":   positional_data_timestamp
+                        "positional_data_timestamp":   positional_data_timestamp,
+                        "last_seen":        time.time()
                     }
                     chrani_bot.dom["bot_data"]["player_data"][player_dict_raw["SteamId"]].update(**player_dict)
                     online_players_dict[player_dict_raw["SteamId"]] = player_dict
