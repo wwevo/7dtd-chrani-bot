@@ -19,7 +19,7 @@ def entered_telnet(regex_results):
     player_name = regex_results.group("player_name")
     entity_id = ""
 
-    if player_steamid in chrani_bot.player_observer.active_player_threads_dict:
+    if player_steamid in chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer"):
         return
 
     try:
@@ -136,7 +136,7 @@ def left_telnet(regex_results):
         chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] = False
 
         chrani_bot.players.upsert(player_object, True)
-        chrani_bot.player_observer.active_player_threads_dict[player_object.steamid].trigger_action(player_object, "left the game")
+        chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer").get(player_object.steamid).trigger_action(player_object, "left the game")
         chrani_bot.player_observer.stop_player_thread(player_object)
 
 
@@ -165,7 +165,7 @@ def died(regex_results):
         except KeyError:
             return
 
-        player_thread = chrani_bot.player_observer.active_player_threads_dict[player_steamid]
+        player_thread = chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer").get(player_steamid)
         player_thread.trigger_action(player_object, "on player death")
 
 

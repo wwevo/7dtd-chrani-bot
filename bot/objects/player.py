@@ -1,3 +1,4 @@
+import __main__  # my ide throws a warning here, but it works oO
 import time
 import datetime
 import flask_login
@@ -50,11 +51,8 @@ class Player(flask_login.UserMixin):
     blacklisted = bool
 
     is_online = bool
-
     is_to_be_obliterated = bool
-
     is_logging_in = bool
-
     is_initialized = bool
 
     poll_listplayerfriends_lastpoll = float
@@ -99,30 +97,35 @@ class Player(flask_login.UserMixin):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
 
-    def set_name(self, name):
-        self.name = name
-
-    def set_country_code(self, country_code):
-        self.country_code = country_code
-
-    def get_country_code(self):
-        if isinstance(self.country_code, basestring):
-            return str(self.country_code)
-        else:
-            return None
-
     def update(self, **kwargs):
         for (k, v) in kwargs.iteritems():
             setattr(self, k, v)
 
+    def set_name(self, name):
+        chrani_bot = __main__.chrani_bot
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["name"] = name
+
+    def set_country_code(self, country_code):
+        chrani_bot = __main__.chrani_bot
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["country_code"] = country_code
+
+    def get_country_code(self):
+        chrani_bot = __main__.chrani_bot
+        if isinstance(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("country_code"), basestring):
+            return str(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("country_code"))
+        else:
+            return None
+
     def set_authenticated(self, authenticated):
-        self.authenticated = authenticated
+        chrani_bot = __main__.chrani_bot
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["authenticated"] = authenticated
         return True
 
     def get_permission_levels_dict(self, permissions_list):
+        chrani_bot = __main__.chrani_bot
         permission_levels_dict = {}
         for permission_level in permissions_list:
-            if permission_level not in self.permission_levels:
+            if permission_level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
                 permission_levels_dict[permission_level] = False
             else:
                 permission_levels_dict[permission_level] = True
@@ -130,83 +133,106 @@ class Player(flask_login.UserMixin):
         return permission_levels_dict
 
     def set_permission_levels(self, level_list):
-        self.permission_levels = level_list
+        chrani_bot = __main__.chrani_bot
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["permission_levels"] = level_list
         if "authenticated" in level_list:
             self.set_authenticated(True)
         else:
             self.set_authenticated(False)
 
     def add_permission_level(self, level):
-        if level not in self.permission_levels:
-            self.permission_levels.append(level)
+        chrani_bot = __main__.chrani_bot
+        if level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
+            chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels").append(level)
             if level == "authenticated":
                 self.set_authenticated(True)
 
-    def has_permission_level(self, level):
-        if level in self.permission_levels:
+    def has_permission_level(self, level=None):
+        chrani_bot = __main__.chrani_bot
+        if level in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
             return True
 
     def remove_permission_level(self, level):
-        if level in self.permission_levels:
-            self.permission_levels.remove(level)
-            if len(self.permission_levels) == 0 or level == "authenticated":
+        chrani_bot = __main__.chrani_bot
+        if level in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
+            chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels").remove(level)
+            if len(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels")) == 0 or level == "authenticated":
                 self.set_authenticated(False)
 
     def set_last_teleport(self, coord_tuple):
-        self.pos_x = coord_tuple[0]
-        self.pos_y = coord_tuple[1]
-        self.pos_z = coord_tuple[2]
-        self.last_teleport = time.time()
-        self.update()
+        chrani_bot = __main__.chrani_bot
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["pos_x"] = coord_tuple[0]
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["pos_y"] = coord_tuple[1]
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["pos_z"] = coord_tuple[2]
+        chrani_bot.dom["bot_data"]["player_data"][self.steamid]["last_teleport"] = time.time()
+
+    def get_coord_tuple(self):
+        chrani_bot = __main__.chrani_bot
+        coord_tuple = (
+            chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_x", 0),
+            chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_y", 0),
+            chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_z", 0)
+        )
+        return coord_tuple
 
     def get_position_string(self):
-        position_string = "{pos_x} {pos_y} {pos_z}".format(pos_x=int(self.pos_x), pos_y=int(self.pos_y), pos_z=int(self.pos_z))
+        chrani_bot = __main__.chrani_bot
+        position_string = "{pos_x} {pos_y} {pos_z}".format(
+            pos_x=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_x", 0)),
+            pos_y=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_y", 0)),
+            pos_z=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_z", 0))
+        )
         return position_string
 
     def is_responsive(self):
-        if self.is_to_be_obliterated is False and self.is_dead() is False and self.is_online is True:
+        chrani_bot = __main__.chrani_bot
+        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("is_to_be_obliterated", False) is False and self.is_dead() is False and chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("is_online") is True:
             return True
         else:
             return False
 
     def is_blacklisted(self):
-        if self.blacklisted is True:
+        chrani_bot = __main__.chrani_bot
+        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("blacklisted") is True:
             return True
         else:
             return False
 
     def is_dead(self):
-        if self.health == 0:
+        chrani_bot = __main__.chrani_bot
+        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("health") == 0:
             return True
         else:
             return False
 
     def get_last_seen(self):
-        if self.last_seen == 0:
+        chrani_bot = __main__.chrani_bot
+        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("last_seen") == 0:
             readable_last_seen = "not available"
         else:
-            readable_last_seen = datetime.datetime.utcfromtimestamp(self.last_seen).strftime("%Y-%m-%d %H:%M:%S")
+            readable_last_seen = datetime.datetime.utcfromtimestamp(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("last_seen")).strftime("%Y-%m-%d %H:%M:%S")
 
         return readable_last_seen
 
     def get_leaflet_marker_json(self):
+        chrani_bot = __main__.chrani_bot
         player_list = []
-        if not isinstance(self.pos_x, float) or not isinstance(self.pos_y, float) or not isinstance(self.pos_z, float):
+        if not isinstance(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_x"), float) or not isinstance(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_y"), float) or not isinstance(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_z"), float):
             return player_list
 
         player_dict = {
             "id": "{}".format(self.steamid),
             "owner": self.steamid,
-            "identifier": self.name,
-            "name": self.name,
+            "identifier": chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("name"),
+            "name": chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("self.name"),
             "radius": 3,
-            "pos_x": self.pos_x,
-            "pos_y": self.pos_y,
-            "pos_z": self.pos_z,
-            "online": self.is_online,
+            "pos_x": chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_x"),
+            "pos_y": chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_y"),
+            "pos_z": chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_z"),
+            "online": chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("is_online"),
             "shape": "icon",
             "type": "icon",
-            "layerGroup": "players_online" if self.is_online else "players_offline"
+            "layerGroup": "players"
         }
 
         return player_dict

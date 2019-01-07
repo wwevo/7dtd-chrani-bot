@@ -228,7 +228,7 @@ def set_up_location_outer_perimeter(chrani_bot, source_player, target_player, co
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "I can not find a location called {}".format(identifier), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 return False
 
-            coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+            coord_tuple = target_player.get_coord_tuple()
             distance_to_location = location_object.get_distance(coords)
             set_radius, allowed_range = location_object.set_radius(distance_to_location)
             if set_radius is True:
@@ -280,7 +280,7 @@ def set_up_location_inner_perimeter(chrani_bot, source_player, target_player, co
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "I can not find a location called {}".format(identifier), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
                 return False
 
-            coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+            coord_tuple = target_player.get_coord_tuple()
             distance_to_location = location_object.get_distance(coords)
             warning_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location)
             if warning_boundary is True:

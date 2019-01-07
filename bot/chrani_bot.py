@@ -83,12 +83,16 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.813'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.825'),
+            "bot_flags": {
+                "bot_has_working_environment": False
+            },
             "bot_data": {
                 "active_threads": {
-                    "system": {},
+                    "schedulers_system": {},
                     "modules": {},
                     "actions": {},
+                    "player_observer": {}
                 },
                 "time_launched": None,
                 "time_running": None,
@@ -262,7 +266,7 @@ class ChraniBot(Thread):
 
     def check_for_homes(self, player_object):
         distance = math.floor(int(self.dom["game_data"]["settings"]['LandClaimSize']) / 2) + int(self.dom["game_data"]["settings"]['LandClaimDeadZone'])  # (landclaim size / 2) + Deadzone
-        start_coords = (player_object.pos_x, player_object.pos_y, player_object.pos_z)
+        start_coords = player_object.get_coord_tuple()
 
         bases_near_list = self.locations.find_by_distance(start_coords, distance, "home")
         landclaims_near_list = self.landclaims_find_by_distance(start_coords, distance)
@@ -376,17 +380,18 @@ class ChraniBot(Thread):
                         self.restart_delay = 20
                         continue
 
-                has_required_environment = self.has_required_environment()
+                if not self.dom.get("bot_flags").get("bot_has_working_environment", False):
+                    self.dom["bot_flags"]["bot_has_working_environment"] = self.has_required_environment()
 
                 """ everything that needs to be checked periodically and is not directly player-related should be done in schedulers
                 """
-                if self.schedulers_dict and timeout_occurred(next_cycle * 10, last_schedule):
+                if self.schedulers_dict and timeout_occurred(max(math.fabs(next_cycle * 10), 2), last_schedule):
                     last_schedule = profile_start
-                    only_essential = not has_required_environment
+                    only_essential = not self.dom.get("bot_flags").get("bot_has_working_environment")
                     run_schedulers(self, only_essential=only_essential)
 
                 """ this check has to be after schedulers are run, since those actually initialize the environment """
-                if not has_required_environment or self.is_paused is not False:
+                if not self.dom.get("bot_flags").get("bot_has_working_environment", False) or self.is_paused is not False:
                     time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
                     continue
 
@@ -420,7 +425,7 @@ class ChraniBot(Thread):
     def clear_env(self):
         self.first_run = True
         self.is_paused = True
-
+        self.dom["bot_data"]["bot_flags"] = {}
         try:
             self.player_observer.stopped.set()
         except AttributeError:

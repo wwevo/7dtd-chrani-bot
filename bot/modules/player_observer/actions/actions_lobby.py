@@ -126,7 +126,7 @@ def set_up_lobby_outer_perimeter(chrani_bot, source_player, target_player, comma
                 common.find_action_help("lobby", "set_up_lobby")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             return False
 
-        coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+        coords = target_player.get_coord_tuple()
         distance_to_location = location_object.get_distance(coords)
         set_radius, allowed_range = location_object.set_radius(distance_to_location)
         if set_radius is True:
@@ -178,7 +178,7 @@ def set_up_lobby_inner_perimeter(chrani_bot, source_player, target_player, comma
                 common.find_action_help("lobby", "set_up_lobby")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             return False
 
-        coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+        coords = target_player.get_coord_tuple()
         distance_to_location = location_object.get_distance(coords)
         set_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location)
         if set_boundary is True:

@@ -229,7 +229,7 @@ def teleport_self_to_player(chrani_bot, source_player, target_player, command):
             logger.debug(e)
             raise KeyError
 
-        coord_tuple = (player_object_to_teleport_to.pos_x, player_object_to_teleport_to.pos_y, player_object_to_teleport_to.pos_z)
+        coord_tuple = player_object_to_teleport_to.get_coord_tuple()
         if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, coord_tuple=coord_tuple):
             message = "You have been ported to {}'s last known location".format(player_object_to_teleport_to.name)
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
@@ -285,7 +285,7 @@ def teleport_player_to_self(chrani_bot, source_player, target_player, command):
             logger.debug(e)
             raise KeyError
 
-        coord_tuple = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+        coord_tuple = target_player.get_coord_tuple()
         if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object_to_teleport_to, coord_tuple=coord_tuple):
             message = "You have been summoned to {}'s location".format(target_player.name)
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
@@ -474,7 +474,7 @@ def obliterate_player(chrani_bot, source_player, target_player, command):
                 else:
                     response_messages.add_message("could not remove player {} from the whitelist :(".format(target_player.name), False)
 
-            target_player.is_to_be_obliterated = True
+            chrani_bot.dom["bot_data"]["player_data"][target_player.steamid]["is_to_be_obliterated"] = True
             response_messages.add_message("player {} is marked for removal ^^".format(target_player.name), True)
 
             target_player.is_online = False

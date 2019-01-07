@@ -7,7 +7,7 @@ import random
 
 def rolling_announcements(chrani_bot):
     try:
-        if len(chrani_bot.player_observer.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
+        if len(chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer")) == 0:  # adjust poll frequency when the server is empty
             return True
 
         if timeout_occurred(float(chrani_bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(common.schedulers_dict["rolling_announcements"]["last_executed"])):

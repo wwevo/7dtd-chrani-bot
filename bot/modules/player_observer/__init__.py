@@ -20,7 +20,6 @@ class PlayerObserver(Thread):
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
-    active_player_threads_dict = dict  # contains link to the players observer-thread
 
     action_queue = deque
 
@@ -31,10 +30,11 @@ class PlayerObserver(Thread):
         Thread.__init__(self)
 
     def setup(self):
-        self.isDaemon()
         self.name = 'player observer'
+        self.setDaemon(daemonic=True)
+
         self.action_queue = deque()
-        self.active_player_threads_dict = {}
+        self.chrani_bot.dom["bot_data"]["active_threads"]["player_observer"] = {}
 
         self.run_observer_interval = 1.0
         self.last_execution_time = 0.0
@@ -51,27 +51,29 @@ class PlayerObserver(Thread):
 
     def cleanup(self):
         try:
-            for player_steamid in self.active_player_threads_dict:
+            for player_steamid in self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer"):
                 """ kill them ALL! """
-                active_player_thread = self.active_player_threads_dict[player_steamid]
+                active_player_thread = self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer").get(player_steamid)
                 active_player_thread.stopped.set()
+
+            self.chrani_bot.dom["bot_data"]["active_threads"]["player_observer"] = {}
         except AttributeError:
             pass
 
     def start_player_thread(self, player_object):
-        if player_object.steamid in self.active_player_threads_dict:
+        if player_object.steamid in self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer"):
             # already being observed
-            return self.active_player_threads_dict[player_object.steamid]
+            return self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer").get(player_object.steamid)
 
         player_thread = PlayerThread(self.chrani_bot, player_object.steamid).setup().start()  # I'm passing the bot into it to have easy access to it's variables
         player_thread.isDaemon()
-        self.active_player_threads_dict[player_object.steamid] = player_thread
+        self.chrani_bot.dom["bot_data"]["active_threads"]["player_observer"][player_object.steamid] = player_thread
         return player_thread
 
     def stop_player_thread(self, player_object):
-        active_player_thread = self.active_player_threads_dict[player_object.steamid]
+        active_player_thread = self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer").get(player_object.steamid)
         active_player_thread.stopped.set()
-        del self.active_player_threads_dict[player_object.steamid]
+        del self.chrani_bot.dom["bot_data"]["active_threads"]["player_observer"][player_object.steamid]
 
         player_object.is_online = False
         player_object.is_logging_in = False
@@ -158,25 +160,24 @@ class PlayerObserver(Thread):
 
             for player_steamid, player_dict in listplayers_dict.iteritems():
                 # This only concerns players already in the games active list!
-                save_to_player_file = False
                 try:  # player is already online and needs updating
                     player_object = self.chrani_bot.players.get_by_steamid(player_steamid)
                     player_object.update(**player_dict)
                     self.chrani_bot.socketio.emit('refresh_player_status', {"steamid": player_object.steamid, "entityid": player_object.entityid}, namespace='/chrani-bot/public')
                 except KeyError:  # player is completely new and needs file creation
                     player_object = Player(**player_dict)
-                    save_to_player_file = True
+                    player_object.update(**self.chrani_bot.dom.get("bot_data").get("player_data").get(player_steamid, {}))
+                    self.chrani_bot.players.upsert(player_object, save=True)
 
                 if not player_dict["is_online"]:
                     player_dict["is_logging_in"] = True
 
-                self.chrani_bot.players.upsert(player_object, save=save_to_player_file)
                 self.chrani_bot.dom["bot_data"]["player_data"][player_steamid].update(**player_dict)
 
             """ handle player-threads """
             for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
                 """ start player_observer_thread for each player not already being observed """
-                if player_object.steamid not in self.active_player_threads_dict and player_steamid != "system":
+                if player_object.steamid not in self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer") and player_steamid != "system":
                     # manually trigger actions for players found through lp response
                     if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_logging_in"] is True:
                         player_thread = self.start_player_thread(player_object)
@@ -187,7 +188,7 @@ class PlayerObserver(Thread):
 
             players_to_obliterate = []
             for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-                if player_object.is_to_be_obliterated is True:
+                if self.chrani_bot.dom.get("bot_data").get("player_data").get(player_steamid).get("is_to_be_obliterated") is True:
                     player_object.is_online = False
                     player_object.is_logging_in = False
                     self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False

@@ -11,7 +11,7 @@ def player_is_outside_lobby_boundary(chrani_bot, player_object):
     except KeyError:
         return False
 
-    if player_object.authenticated is True:
+    if chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("authenticated", False):
         return
 
     try:
@@ -19,22 +19,8 @@ def player_is_outside_lobby_boundary(chrani_bot, player_object):
     except KeyError:
         return False
 
-    if location_object.enabled is True and not location_object.player_is_inside_boundary(player_object) and player_object.is_initialized:
-        def teleport_worker():
-            if not location_object.player_is_inside_boundary(player_object):
-                seconds = 2
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object, location_object=location_object, delay=seconds)
-                message = "{} has been ported to the lobby!".format(player_object.name)
-                logger.info(message)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "You have been ported to the lobby! Authenticate with /password <password>", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, chrani_bot.settings.get_setting_by_name(name="basic_server_info", default="see https://chrani.net for more information!"), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
-
-            return True
-
-        teleport_is_active = chrani_bot.telnet_observer.actions.common.get_active_action_status(player_object.steamid, "teleportplayer")
-        if teleport_is_active is False:
-            teleport_thread = threading.Thread(target=teleport_worker)
-            teleport_thread.start()
+    if location_object.enabled is True and not location_object.position_is_inside_boundary(player_object.get_coord_tuple()) and chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("is_initialized", False):
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object, location_object=location_object, delay=3)
 
 
 common.observers_dict["player_is_outside_lobby_boundary"] = {

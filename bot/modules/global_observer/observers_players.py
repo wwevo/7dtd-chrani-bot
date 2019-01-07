@@ -11,7 +11,7 @@ def record_time_of_last_activity(chrani_bot, player_thread):
 
     chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["last_seen"] = current_time
     player_thread.player_object.last_seen = current_time
-    chrani_bot.players.upsert(player_thread.player_object, save=True)
+    # chrani_bot.players.upsert(player_thread.player_object, save=True)
 
 
 common.observers_dict["record_time_of_last_activity"] = {

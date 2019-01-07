@@ -415,7 +415,7 @@ def set_up_home_outer_perimeter(chrani_bot, source_player, target_player, comman
 
         coords_are_valid = False
         if player_home_exists:
-            coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+            coords = target_player.get_coord_tuple()
             distance_to_location = location_object.get_distance(coords)
             set_radius, allowed_range = location_object.set_radius(distance_to_location)
             if set_radius is True:
@@ -476,7 +476,7 @@ def set_up_home_inner_perimeter(chrani_bot, source_player, target_player, comman
 
         coords_are_valid = False
         if player_home_exists:
-            coords = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+            coords = target_player.get_coord_tuple()
             distance_to_location = location_object.get_distance(coords)
             set_radius, allowed_range = location_object.set_warning_boundary(distance_to_location)
             if set_radius is True:

@@ -38,7 +38,7 @@ class Custodian(Thread):
     def setup(self):
         self.stopped = Event()
         self.name = 'custodian'
-        self.isDaemon()
+        self.setDaemon(daemonic=True)
         return self
 
     def start(self):

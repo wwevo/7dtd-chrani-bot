@@ -1,5 +1,6 @@
 import os
 import time
+import __main__
 
 actions_dict = {}
 active_actions_dict = {}

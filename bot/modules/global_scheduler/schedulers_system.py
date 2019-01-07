@@ -90,7 +90,7 @@ common.schedulers_controller["get_mem_status"] = {
 
 def poll_players(chrani_bot):
     try:
-        if len(chrani_bot.player_observer.active_player_threads_dict) == 0 and not chrani_bot.first_run and chrani_bot.dom["bot_data"]["time_running"] >= 30:  # adjust poll frequency when the server is empty
+        if len(chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer")) == 0 and not chrani_bot.first_run and chrani_bot.dom["bot_data"]["time_running"] >= 30:  # adjust poll frequency when the server is empty
             try:
                 listplayers_interval = float(chrani_bot.settings.get_setting_by_name(name='list_players_interval_idle'))
             except TypeError:
@@ -163,7 +163,7 @@ common.schedulers_controller["get_gametime"] = {
 
 def update_system_status(bot):
     try:
-        if len(bot.player_observer.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
+        if len(bot.dom.get("bot_data").get("active_threads").get("player_observer")) == 0:  # adjust poll frequency when the server is empty
             try:
                 update_status_interval = float(bot.settings.get_setting_by_name(name='list_status_interval_idle'))
             except TypeError:
@@ -177,7 +177,7 @@ def update_system_status(bot):
             bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             execution_time = 0.0
             count = 0
-            for player_steamid, player_thread in bot.player_observer.active_player_threads_dict.iteritems():
+            for player_steamid, player_thread in bot.dom.get("bot_data").get("active_threads").get("player_observer").iteritems():
                 count = count + 1
                 execution_time += player_thread.last_execution_time
             common.schedulers_dict["update_system_status"]["last_executed"] = time.time()
@@ -206,7 +206,7 @@ common.schedulers_controller["update_system_status"] = {
 
 def list_landprotection(chrani_bot):
     try:
-        if len(chrani_bot.player_observer.active_player_threads_dict) == 0:  # adjust poll frequency when the server is empty
+        if len(chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer")) == 0:  # adjust poll frequency when the server is empty
             try:
                 listlandprotection_interval = float(chrani_bot.settings.get_setting_by_name(name='list_landprotection_interval_idle'))
             except TypeError:
@@ -270,13 +270,13 @@ def reboot(chrani_bot):
         if chrani_bot.dom.get("game_data").get("time_running", False):
             chrani_bot.dom["game_data"]["restart_in"] = chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.dom["game_data"]["time_running"]
 
-        if chrani_bot.ongoing_bloodmoon() or chrani_bot.dom.get("bot_data").get("active_threads").get("system").get("reboot", False):
+        if chrani_bot.ongoing_bloodmoon() or chrani_bot.dom.get("bot_data").get("active_threads").get("schedulers_system").get("reboot", False):
             return True
 
         if chrani_bot.dom["game_data"]["time_running"] is not None and timepassed_occurred(chrani_bot.settings.get_setting_by_name(name='restart_timer') - chrani_bot.settings.get_setting_by_name(name='restart_warning'), chrani_bot.dom["game_data"]["time_running"]):
             chrani_bot.reboot_imminent = True
-            reboot_thread = threading.Thread(target=reboot_worker)
-            chrani_bot.dom["bot_data"]["active_threads"]["system"]["reboot"] = reboot_thread
+            reboot_thread = threading.Thread(target=reboot_worker, name="reboot")
+            chrani_bot.dom["bot_data"]["active_threads"]["schedulers_system"]["reboot"] = reboot_thread
             reboot_thread.start()
 
             message = "server restart procedures initiated..."

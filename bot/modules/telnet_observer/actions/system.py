@@ -798,7 +798,6 @@ def bc_chatprefix():
 def bc_chatprefix_callback_thread():
     chrani_bot = __main__.chrani_bot
     command = "bc-chatprefix"
-    common.active_actions_dict[command] = True
     common.actions_dict[command]["last_executed"] = time.time()
     poll_is_finished = False
 

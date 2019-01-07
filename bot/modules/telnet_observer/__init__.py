@@ -48,7 +48,7 @@ class TelnetObserver(Thread):
 
     def setup(self):
         self.name = 'telnet observer'
-        self.isDaemon()
+        self.setDaemon(daemonic=True)
 
         return self
 
@@ -186,7 +186,7 @@ class TelnetObserver(Thread):
             check 'chat' telnet-line(s) for any known playername currently online
             """
             for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-                if player_steamid in self.chrani_bot.player_observer.active_player_threads_dict and player_object.name not in self.chrani_bot.settings.get_setting_by_name(name="restricted_names"):
+                if player_steamid in self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer") and player_object.name not in self.chrani_bot.settings.get_setting_by_name(name="restricted_names"):
                     m = re.search(self.chrani_bot.match_types['chat_commands'], telnet_line)
                     if m:
                         player_name = m.group('player_name')

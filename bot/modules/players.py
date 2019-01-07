@@ -32,7 +32,7 @@ class Players(object):
             if command != "Teleport":
                 player_object = self.get_by_steamid(player_steamid)
                 spawning_player = {
-                    "thread": bot.player_observer.active_player_threads_dict[player_steamid],
+                    "thread": bot.dom["bot_data"]["active_threads"]["player_observer"][player_steamid],
                     "player_object": player_object
                 }
 
@@ -93,10 +93,6 @@ class Players(object):
         except KeyError:
             raise
 
-        # try:
-        #     return self.load(steamid)
-        # except KeyError:
-        #     raise
 
     def get_all_players(self, get_online_only=False):
         try:
@@ -142,7 +138,10 @@ class Players(object):
             dict_to_save = {
                 "id": player_object.id,
                 "name": player_object.name,
-                "permission_levels": player_object.permission_levels,
+                "permission_levels": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("permission_levels"),
+                "pos_x": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("pos_x", 0),
+                "pos_y": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("pos_y", 0),
+                "pos_z": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("pos_z", 0),
                 "steamid": player_object.steamid,
                 "entityid": player_object.entityid,
                 "region": player_object.region,
