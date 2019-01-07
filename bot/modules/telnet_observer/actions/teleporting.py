@@ -17,7 +17,6 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
 
     is_active = common.get_active_action_status(player_object.steamid, command)
     if not is_active:
-        common.set_active_action_status(player_object.steamid, command, True)
         if not chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("is_online"):
             return False
 
@@ -40,6 +39,7 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
             print("you are already there, you just don't know it yet")
             return False
         else:
+            common.set_active_action_status(player_object.steamid, command, True)
             try:
                 if delay is not None:
                     message = "You will be ported to {location_name} in {seconds} seconds".format(location_name=location_object.name, seconds=delay)

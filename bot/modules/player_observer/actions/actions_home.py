@@ -336,7 +336,6 @@ def take_me_home(chrani_bot, source_player, target_player, command):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "eh, you already ARE home oO".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
             else:
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=location_object)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you have ported home!".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
 
         except KeyError:
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You seem to be homeless".format(target_player.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])

@@ -125,7 +125,7 @@ class Player(flask_login.UserMixin):
         chrani_bot = __main__.chrani_bot
         permission_levels_dict = {}
         for permission_level in permissions_list:
-            if permission_level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
+            if permission_level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []):
                 permission_levels_dict[permission_level] = False
             else:
                 permission_levels_dict[permission_level] = True
@@ -142,14 +142,14 @@ class Player(flask_login.UserMixin):
 
     def add_permission_level(self, level):
         chrani_bot = __main__.chrani_bot
-        if level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
+        if level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []) and self.name != "system":
             chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels").append(level)
             if level == "authenticated":
                 self.set_authenticated(True)
 
     def has_permission_level(self, level=None):
         chrani_bot = __main__.chrani_bot
-        if level in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("permission_levels"):
+        if level in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []):
             return True
 
     def remove_permission_level(self, level):
@@ -178,9 +178,9 @@ class Player(flask_login.UserMixin):
     def get_position_string(self):
         chrani_bot = __main__.chrani_bot
         position_string = "{pos_x} {pos_y} {pos_z}".format(
-            pos_x=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_x", 0)),
-            pos_y=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_y", 0)),
-            pos_z=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("pos_z", 0))
+            pos_x=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("pos_x", 0)),
+            pos_y=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("pos_y", 0)),
+            pos_z=int(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("pos_z", 0))
         )
         return position_string
 
@@ -207,7 +207,7 @@ class Player(flask_login.UserMixin):
 
     def get_last_seen(self):
         chrani_bot = __main__.chrani_bot
-        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("last_seen") == 0:
+        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("last_seen", 0) == 0:
             readable_last_seen = "not available"
         else:
             readable_last_seen = datetime.datetime.utcfromtimestamp(chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid).get("last_seen")).strftime("%Y-%m-%d %H:%M:%S")

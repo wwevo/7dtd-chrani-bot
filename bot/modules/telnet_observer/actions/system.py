@@ -4,6 +4,7 @@ import re
 import time
 import datetime
 import thread
+import threading
 import json
 from bot.modules.logger import logger
 from bot.assorted_functions import timeout_occurred
@@ -429,8 +430,12 @@ def bc_lp():
             raise IOError(log_message)
 
         logger.debug("starting '{command}'".format(command=command))
+
+        worker_thread = threading.Thread(target=common.actions_dict[command]["action_callback"], name=command)
+        worker_thread.start()
+
         common.set_active_action_status('system', command, True)
-        thread.start_new_thread(common.actions_dict[command]["action_callback"], ())
+
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
