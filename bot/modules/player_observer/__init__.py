@@ -139,17 +139,16 @@ class PlayerObserver(Thread):
 
     def run(self):
         next_cycle = 0
+        old_list_players_timestamp = 0
         while not self.stopped.wait(next_cycle) or not self.chrani_bot.telnet_observer.stopped.isSet():
             """ so far there is nothing to do here, just signalling readiness to our custodian """
             self.chrani_bot.custodian.check_in('player_observer', True)
 
-            if self.chrani_bot.is_paused is not False:
-                time.sleep(1)
-                continue
-
             profile_start = time.time()
             # get all currently online players and store them in a dictionary
             listplayers_dict = self.chrani_bot.dom.get("bot_data").get("telnet_observer").get("system", {}).get(self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'), {}).get("result", "")
+            list_players_timestamp = self.chrani_bot.dom.get("bot_data").get("telnet_observer").get("system", {}).get(self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'), {}).get("last_executed", 0)
+
             if len(listplayers_dict) <= 0:
                 # no players are online, so we can set them all to offline here
                 listplayers_dict = {}
@@ -157,6 +156,12 @@ class PlayerObserver(Thread):
                     self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
                     player_object.is_online = False
                     player_object.update()
+
+            if old_list_players_timestamp == list_players_timestamp or self.chrani_bot.is_paused is not False:
+                time.sleep(1)
+                continue
+            else:
+                old_list_players_timestamp = list_players_timestamp
 
             for player_steamid, player_dict in listplayers_dict.iteritems():
                 # This only concerns players already in the games active list!

@@ -83,7 +83,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.828'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.831'),
             "bot_flags": {
                 "bot_has_working_environment": False,
                 "has_database_available": False
@@ -429,6 +429,9 @@ class ChraniBot(Thread):
         self.shutdown()
 
     def clear_env(self):
+        self.dom["game_data"]["gametime"] = None,
+        self.dom["game_data"]["time_running"] = None,
+        self.dom["game_data"]["restart_in"] = None,
         self.first_run = True
         self.is_paused = True
 
