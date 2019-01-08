@@ -161,6 +161,6 @@ class PlayerThread(Thread):
                             pass
 
             self.last_execution_time = time() - profile_start
-            next_cycle = self.run_observers_interval - self.last_execution_time
+            next_cycle = math.fabs(self.run_observers_interval - self.last_execution_time)
 
         logger.debug("thread has stopped")

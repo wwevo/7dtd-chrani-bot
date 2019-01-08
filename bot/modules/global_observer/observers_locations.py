@@ -36,7 +36,7 @@ def player_crossed_location_boundary(chrani_bot, player_thread):
                         else:
                             if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_thread.player_object, coord_tuple=location_object.get_ejection_coords_tuple()):
                                 location_object_owner = player_thread.players.get_by_steamid(location_object.owner)
-                                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object_owner.name), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, "you have been ejected from {}'s protected core owned by {}!".format(location_object.name, location_object_owner.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                                 chrani_bot.socketio.emit('status_log', {"steamid": player_thread.player_steamid, "command": "{} has been ejected from {}'s protected core owned by {}!".format(player_thread.player_object.name, location_object.name, location_object_owner.name)}, namespace='/chrani-bot/public')
 
                 update_table = False
@@ -44,23 +44,23 @@ def player_crossed_location_boundary(chrani_bot, player_thread):
                     chrani_bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["left_location"] is not None and location_object.show_messages is True and (location_object.owner in [player_thread.player_steamid, "system"] or (location_object.is_public or location_object.protected_core)):
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["left_location"], chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["left_location"], chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
                 if player_status == "has left core":
                     update_table = True
                     if location_object.messages_dict["left_locations_core"] is not None and location_object.show_warning_messages is True and (location_object.owner == player_thread.player_steamid or location_object.is_public):
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["left_locations_core"], chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["left_locations_core"], chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
                 if player_status == "has entered":
                     chrani_bot.locations.upsert(location_object, save=True)
                     update_table = True
                     if location_object.messages_dict["entered_location"] is not None and location_object.show_messages is True and (location_object.owner in [player_thread.player_steamid, "system"] or (location_object.is_public or location_object.protected_core)):
                         if location_object.protected_core:
-                            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, "{} ({})".format(location_object.messages_dict["entered_location"], "protected"), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['error'])
+                            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, "{} ({})".format(location_object.messages_dict["entered_location"], "protected"), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("error"))
                         else:
-                            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["entered_location"], chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["entered_location"], chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                 if player_status == "has entered core":
                     update_table = True
                     if location_object.messages_dict["entered_locations_core"] is not None and (location_object.show_warning_messages is True or location_object.protected_core) and (location_object.owner == player_thread.player_steamid or location_object.is_public):
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["entered_locations_core"], chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_thread.player_object, location_object.messages_dict["entered_locations_core"], chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
                 if update_table:
                     chrani_bot.locations.upsert(location_object)

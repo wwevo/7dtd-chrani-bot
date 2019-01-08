@@ -496,7 +496,11 @@ def bc_lp_callback_thread():
                         "positional_data_timestamp":   positional_data_timestamp,
                         "last_seen":        time.time()
                     }
-                    chrani_bot.dom["bot_data"]["player_data"][player_dict_raw["SteamId"]].update(**player_dict)
+                    try:
+                        chrani_bot.dom["bot_data"]["player_data"][player_dict_raw["SteamId"]].update(**player_dict)
+                    except KeyError as error:
+                        chrani_bot.dom["bot_data"]["player_data"][player_dict_raw["SteamId"]] = player_dict
+
                     online_players_dict[player_dict_raw["SteamId"]] = player_dict
 
             common.set_active_action_result('system', command, online_players_dict)
@@ -608,7 +612,7 @@ def say(message, color=None):
         return True
 
     if color is None:
-        color = chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard']
+        color = chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard")
 
     try:
         chrani_bot.telnet_observer.tn.write("{command} \"[{color}]{message}[-]\"{line_end}".format(command=command, color=color, message=message, line_end=b"\r\n"))

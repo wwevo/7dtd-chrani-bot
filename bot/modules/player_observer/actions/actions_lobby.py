@@ -32,13 +32,13 @@ def password(chrani_bot, source_player, target_player, command):
                 # if the spawn is enabled, do port the player and disable it.
                 if spawn_exists and location_object.enabled and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=location_object):
                     message = "You have been ported back to your original spawn!"
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                     response_messages.add_message(message, True)
                     location_object.enabled = False
                     chrani_bot.locations.upsert(location_object, save=True)
                 else:
                     message = "Taking you to your original spawn failed oO!"
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                     response_messages.add_message(message, False)
 
             return response_messages
@@ -91,11 +91,11 @@ def set_up_lobby(chrani_bot, source_player, target_player, command):
         chrani_bot.locations.upsert(location_object, save=True)
 
         message = "You have set up a lobby"
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         response_messages.add_message(message, True)
         chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "Set up the perimeter with {}, while standing on the edge of it.".format(
-            common.find_action_help("lobby", "edit lobby outer perimeter")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            common.find_action_help("lobby", "edit lobby outer perimeter")), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
         return response_messages
 
@@ -123,7 +123,7 @@ def set_up_lobby_outer_perimeter(chrani_bot, source_player, target_player, comma
             location_object = chrani_bot.locations.get('system', 'lobby')
         except KeyError:
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You need to set up a lobby first silly: {}".format(
-                common.find_action_help("lobby", "set_up_lobby")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                common.find_action_help("lobby", "set_up_lobby")), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             return False
 
         coords = target_player.get_coord_tuple()
@@ -132,18 +132,18 @@ def set_up_lobby_outer_perimeter(chrani_bot, source_player, target_player, comma
         if set_radius is True:
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             message = "The lobby ends here and spans {} meters ^^".format(int(location_object.radius * 2))
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             response_messages.add_message(message, True)
         else:
             message = "Your given range ({}) seems to be invalid ^^".format(int(location_object.radius * 2))
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             response_messages.add_message(message, False)
 
         if set_radius and location_object.radius <= location_object.warning_boundary:
             set_boundary, allowed_range = location_object.set_warning_boundary(distance_to_location - 1)
             if set_boundary is True:
                 message = "The inner core has been set to match the outer perimeter."
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                 response_messages.add_message(message, True)
 
         chrani_bot.locations.upsert(location_object, save=True)
@@ -175,7 +175,7 @@ def set_up_lobby_inner_perimeter(chrani_bot, source_player, target_player, comma
             location_object = chrani_bot.locations.get('system', 'lobby')
         except KeyError:
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You need to set up a lobby first silly: {}".format(
-                common.find_action_help("lobby", "set_up_lobby")), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                common.find_action_help("lobby", "set_up_lobby")), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             return False
 
         coords = target_player.get_coord_tuple()
@@ -184,11 +184,11 @@ def set_up_lobby_inner_perimeter(chrani_bot, source_player, target_player, comma
         if set_boundary is True:
             chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
             message = "The lobby warning perimeter ends here and spans {} meters ^^".format(int(location_object.warning_boundary * 2))
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             response_messages.add_message(message, True)
         else:
             message = "Your given range ({}) seems to be invalid ^^".format(int(location_object.warning_boundary * 2))
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             response_messages.add_message(message, False)
 
         chrani_bot.locations.upsert(location_object, save=True)
@@ -216,9 +216,9 @@ def goto_lobby(chrani_bot, source_player, target_player, command):
         try:
             location_object = chrani_bot.locations.get('system', 'lobby')
             if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, location_object=location_object):
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have ported to the lobby", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "You have ported to the lobby", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
         except KeyError:
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "There is no lobby :(", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "There is no lobby :(", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
     except Exception as e:
         logger.debug(e)
@@ -246,12 +246,12 @@ def remove_lobby(chrani_bot, source_player, target_player, command):
             chrani_bot.locations.remove(location_object)
             message = "lobby has been removed oO"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             chrani_bot.socketio.emit('remove_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
         except KeyError:
             message = "no lobby found oO"
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
         return response_messages
 
@@ -277,14 +277,14 @@ def set_up_lobby_teleport(chrani_bot, source_player, target_player, command):
         try:
             location_object = chrani_bot.locations.get('system', 'lobby')
         except KeyError:
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "coming from the wrong end... set up the lobby first!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "coming from the wrong end... set up the lobby first!", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             return False
 
         if location_object.set_teleport_coordinates(target_player):
             chrani_bot.locations.upsert(location_object, save=True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "the teleport for {} has been set up!".format('lobby'), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "the teleport for {} has been set up!".format('lobby'), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         else:
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your position seems to be outside of the location", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "your position seems to be outside of the location", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
     except Exception as e:
         logger.debug(e)
@@ -320,11 +320,11 @@ def change_lobby_shape(chrani_bot, source_player, target_player, command):
                 else:
                     location_object.set_shape("square")
 
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "The {} is now {}".format(location_object.name, shape_to_set), chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "The {} is now {}".format(location_object.name, shape_to_set), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
                 chrani_bot.socketio.emit('update_leaflet_markers', chrani_bot.locations.get_leaflet_marker_json([location_object]), namespace='/chrani-bot/public')
                 chrani_bot.locations.upsert(location_object, save=True)
             except KeyError:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "There doesn't seem to be a lobby oO", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "There doesn't seem to be a lobby oO", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
             return response_messages
         else:

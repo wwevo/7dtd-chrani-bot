@@ -23,7 +23,7 @@ def pm(player_object, message, color=None):
         return True
 
     if color is None:
-        color = chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard']
+        color = chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard")
 
     try:
         chrani_bot.telnet_observer.tn.write("{command} {steamid} \"[{color}]{message}[-]\"{line_end}".format(command=command, steamid=player_object.steamid, color=color, message=message, line_end=b"\r\n"))

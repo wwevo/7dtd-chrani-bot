@@ -13,9 +13,9 @@ def rolling_announcements(chrani_bot):
         if timeout_occurred(float(chrani_bot.settings.get_setting_by_name(name='rolling_announcements_interval')), float(common.schedulers_dict["rolling_announcements"]["last_executed"])):
             message, interval = random.choice(list(chrani_bot.settings.get_setting_by_name(name='rolling_announcements').items()))
             if interval == "all":
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
             if interval == "day7" and chrani_bot.is_it_horde_day(int(chrani_bot.dom["game_data"]["gametime"]["day"])):
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
             common.schedulers_dict["rolling_announcements"]["last_executed"] = time.time()
 
             return True

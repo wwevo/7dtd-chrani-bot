@@ -77,7 +77,7 @@ def mute_unauthenticated_players(chrani_bot, player_thread):
     player_object = player_thread.player_object
     if chrani_bot.settings.get_setting_by_name(name="mute_unauthenticated"):
         # we only mute when it's enabled in the settings
-        if chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["authenticated"]:
+        if chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("authenticated", False):
             # nothing to mute
             return
         if chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_muted"] and chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("is_allowed_to_chat", "None") == "None":
@@ -90,12 +90,12 @@ def mute_unauthenticated_players(chrani_bot, player_thread):
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] = "False"
             return
-        if not chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["authenticated"] and chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("is_allowed_to_chat", "None") == "None":
+        if not chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("authenticated", False) and chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("is_allowed_to_chat", "None") == "None":
             # player is not authenticated and the chat status has not been set yet
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] = "False"
             return
-        if not chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["authenticated"] and chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] == "True":
+        if not chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("authenticated", False) and chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] == "True":
             # player is not authenticated and the chat status has been set to enabled
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, True)
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] = "False"
@@ -129,11 +129,11 @@ def unmute_authenticated_players(chrani_bot, player_thread):
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] = "True"
             return
     else:
-        if chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["authenticated"] and not chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_muted"] and chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("is_allowed_to_chat", "None") == "None":
+        if chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("authenticated", False) and not chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_muted"] and chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("is_allowed_to_chat", "None") == "None":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, False)
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] = "True"
             return
-        if chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["authenticated"] and not chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_muted"] and chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] == "False":
+        if chrani_bot.dom.get("bot_data").get("player_data").get(player_thread.player_steamid).get("authenticated", False) and not chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_muted"] and chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] == "False":
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name="mute_method"), player_object, False)
             chrani_bot.dom["bot_data"]["player_data"][player_thread.player_steamid]["is_allowed_to_chat"] = "True"
             return

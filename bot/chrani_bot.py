@@ -83,7 +83,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.831'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.832'),
             "bot_flags": {
                 "bot_has_working_environment": False,
                 "has_database_available": False
@@ -299,15 +299,23 @@ class ChraniBot(Thread):
         return horde_day
 
     def ongoing_bloodmoon(self):
-        if self.dom["game_data"]["gametime"] is None or len(self.dom["game_data"]["gametime"]) <= 0:
+        gametime = self.dom.get("game_data").get("gametime", None)
+        if gametime is None or len(gametime) <= 0:
+            return False
+
+        gameday = gametime.get("day", None)
+        gamehour = gametime.get("hour", None)
+        gameminute = gametime.get("minute", None)
+
+        if (gameday is None or len(gameday) <= 0) or (gamehour is None or len(gamehour) <= 0):
             return False
 
         bloodmoon = False
-        if self.is_it_horde_day(int(self.dom["game_data"]["gametime"]["day"])) and int(self.dom["game_data"]["gametime"]["hour"]) >= 21:
+        if self.is_it_horde_day(int(gameday)) and int(gamehour) >= 21:
             bloodmoon = True
 
         day_after_bloodmoon = False
-        if self.is_it_horde_day(int(self.dom["game_data"]["gametime"]["day"]) - 1) and int(self.dom["game_data"]["gametime"]["hour"]) < 4:
+        if self.is_it_horde_day(int(gameday) - 1) and int(gamehour) < 4:
             day_after_bloodmoon = True
 
         if bloodmoon or day_after_bloodmoon:
@@ -361,6 +369,13 @@ class ChraniBot(Thread):
                 self.dom["bot_data"]["time_running"] = int(time.time() - self.dom["bot_data"]["time_launched"])
                 self.custodian.check_in('main_loop', True)
 
+                """ everything that needs to be checked periodically and is not directly player-related should be done in schedulers
+                """
+                if self.schedulers_dict and timeout_occurred(max(math.fabs(next_cycle * 10), 2), last_schedule):
+                    last_schedule = profile_start
+                    only_essential = not self.dom.get("bot_flags").get("bot_has_working_environment")
+                    run_schedulers(self, only_essential=only_essential)
+
                 if not isinstance(self.telnet_observer, TelnetObserver) or self.telnet_observer.stopped.isSet():
                     try:
                         telnet = Telnet(
@@ -389,13 +404,6 @@ class ChraniBot(Thread):
                 if not self.dom.get("bot_flags").get("bot_has_working_environment", False):
                     self.dom["bot_flags"]["bot_has_working_environment"] = self.has_required_environment()
 
-                """ everything that needs to be checked periodically and is not directly player-related should be done in schedulers
-                """
-                if self.schedulers_dict and timeout_occurred(max(math.fabs(next_cycle * 10), 2), last_schedule):
-                    last_schedule = profile_start
-                    only_essential = not self.dom.get("bot_flags").get("bot_has_working_environment")
-                    run_schedulers(self, only_essential=only_essential)
-
                 """ this check has to be after schedulers are run, since those actually initialize the environment """
                 if not self.dom.get("bot_flags").get("bot_has_working_environment", False) or self.is_paused is not False:
                     time.sleep(self.settings.get_setting_by_name(name='list_players_interval'))
@@ -413,7 +421,7 @@ class ChraniBot(Thread):
 
                 self.first_run = False
                 self.last_execution_time = time.time() - profile_start
-                next_cycle = (0.2 - self.last_execution_time)
+                next_cycle = math.fabs(0.2 - self.last_execution_time)
 
             except (NameError, AttributeError) as error:
                 traceback.print_exc()
@@ -429,9 +437,9 @@ class ChraniBot(Thread):
         self.shutdown()
 
     def clear_env(self):
-        self.dom["game_data"]["gametime"] = None,
-        self.dom["game_data"]["time_running"] = None,
-        self.dom["game_data"]["restart_in"] = None,
+        self.dom["game_data"]["gametime"] = None
+        self.dom["game_data"]["time_running"] = None
+        self.dom["game_data"]["restart_in"] = None
         self.first_run = True
         self.is_paused = True
 

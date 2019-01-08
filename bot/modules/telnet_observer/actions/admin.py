@@ -54,9 +54,9 @@ def mpc_callback_thread(player_object, status):
         if match:
             is_muted = True if match.group("is_muted") == "muted" else False
             if is_muted is True:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been disabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been disabled!", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             else:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been enabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been enabled!", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_muted"] = is_muted
             common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)
@@ -119,9 +119,9 @@ def bc_mute_callback_thread(player_object, status):
         if match:
             is_muted = True if match.group("is_muted") == "Muting" else False
             if is_muted is True:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been disabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been disabled!", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             else:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been enabled!", chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, "Your chat has been enabled!", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_muted"] = is_muted
             common.set_active_action_result(player_object.steamid, command, match.group(0))
         time.sleep(0.5)

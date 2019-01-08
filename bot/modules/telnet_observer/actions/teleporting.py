@@ -51,7 +51,7 @@ def teleportplayer(player_object, location_object=None, coord_tuple=None, delay=
                 message = "You will be ported to some coordinates ({pos_x} {pos_y} {pos_z})".format(pos_x=target_tuple[0], pos_y=target_tuple[1], pos_z=target_tuple[2])
                 pass
 
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             time.sleep(delay + 1)
 
         try:

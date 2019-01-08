@@ -228,7 +228,7 @@ def airdrop_spawned(regex_results):
     online_players = chrani_bot.players.get_all_players(get_online_only=True)
     for player in online_players:
         if any(x in ["donator", "mod", "admin"] for x in player.permission_levels):
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
 
 
 common.triggers_dict["airdrop_spawned"] = {

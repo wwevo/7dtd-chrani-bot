@@ -21,12 +21,12 @@ def reload_from_db(chrani_bot, source_player, target_player, command):
         try:
             chrani_bot.load_local_files()
             message = "loaded all data from storage."
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             response_messages.add_message(message, True)
             chrani_bot.socketio.emit('reinitialize', {"steamid": target_player.steamid, "entityid": target_player.entityid}, namespace='/chrani-bot/public')
         except Exception as e:
             message = "loading data from storage failed."
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             response_messages.add_message(message, False)
             logger.debug(e)
             pass
@@ -73,7 +73,7 @@ def shutdown_bot(chrani_bot, source_player, target_player, command):
             try:
                 message = "The bot is about to shut down..."
                 response_messages.add_message(message, True)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
                 chrani_bot.initiate_shutdown = True
             except Exception as e:
                 logger.debug(e)
@@ -120,11 +120,13 @@ def pause_bot(chrani_bot, source_player, target_player, command):
             chrani_bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             message = "The bot operations have been suspended"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         except Exception as e:
             message = "Pausing of the bot failed."
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             logger.debug(e)
             pass
 
@@ -167,11 +169,13 @@ def resume_bot(chrani_bot, source_player, target_player, command):
             chrani_bot.socketio.emit('refresh_status', '', namespace='/chrani-bot/public')
             message = "The bots operations have been resumed"
             response_messages.add_message(message, True)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['success'])
+            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         except Exception as e:
             message = "Resuming of the bot failed."
             response_messages.add_message(message, False)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             logger.debug(e)
             pass
 
@@ -202,7 +206,7 @@ def shutdown_server(chrani_bot, source_player, target_player, command):
             try:
                 message = "The server is about to shut down..."
                 response_messages.add_message(message, True)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "shutdown")
             except Exception as e:
                 logger.debug(e)
@@ -401,7 +405,7 @@ def skip_bloodmoon(chrani_bot, source_player, target_player, command):
                 response_messages.add_message(message, False)
 
             logger.info(message)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom["bot_data"]["settings"]["color_scheme"]['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
         return response_messages
 
     except Exception as e:

@@ -125,7 +125,7 @@ class Player(flask_login.UserMixin):
         chrani_bot = __main__.chrani_bot
         permission_levels_dict = {}
         for permission_level in permissions_list:
-            if permission_level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []):
+            if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []) is None or permission_level not in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []):
                 permission_levels_dict[permission_level] = False
             else:
                 permission_levels_dict[permission_level] = True
@@ -149,7 +149,7 @@ class Player(flask_login.UserMixin):
 
     def has_permission_level(self, level=None):
         chrani_bot = __main__.chrani_bot
-        if level in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []):
+        if chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []) is not None and level in chrani_bot.dom.get("bot_data").get("player_data").get(self.steamid, {}).get("permission_levels", []):
             return True
 
     def remove_permission_level(self, level):
