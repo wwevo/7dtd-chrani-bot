@@ -149,7 +149,7 @@ class PlayerObserver(Thread):
 
             profile_start = time.time()
             # get all currently online players and store them in a dictionary
-            listplayers_dict = self.chrani_bot.telnet_observer.actions.common.get_active_action_result("system", self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'))
+            listplayers_dict = self.chrani_bot.dom.get("bot_data").get("telnet_observer").get("system", {}).get(self.chrani_bot.settings.get_setting_by_name(name='listplayers_method'), {}).get("result", "")
             if len(listplayers_dict) <= 0:
                 # no players are online, so we can set them all to offline here
                 listplayers_dict = {}

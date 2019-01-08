@@ -103,6 +103,7 @@ $(document).ready(
             $("main #location_radar_widget").addClass("shamed");
         } else {
             $("main .widget").removeClass("wide").addClass("shamed");
+            $("main .widget.forced").add("wide").removeClass("shamed");
             $("main #player_table_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
             $("main #system_log_widget").addClass("wide").removeClass("shamed");
             $("main #whitelist_widget").removeClass("shamed");

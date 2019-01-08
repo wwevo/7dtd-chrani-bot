@@ -83,9 +83,10 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.826'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.828'),
             "bot_flags": {
-                "bot_has_working_environment": False
+                "bot_has_working_environment": False,
+                "has_database_available": False
             },
             "bot_data": {
                 "active_threads": {
@@ -94,6 +95,7 @@ class ChraniBot(Thread):
                     "actions": {},
                     "player_observer": {}
                 },
+                "telnet_observer": {},
                 "time_launched": None,
                 "time_running": None,
                 "settings": {
@@ -117,7 +119,7 @@ class ChraniBot(Thread):
             },
             "game_data": {
                 "settings": {},
-                "gametime": {},
+                "gametime": None,
                 "time_running": None,
                 "restart_in": None,
                 "landclaim_data": {}
@@ -187,15 +189,21 @@ class ChraniBot(Thread):
         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
         self.custodian = Custodian(self).setup().start()
 
+        self.player_observer = PlayerObserver(self).setup().start()
+
+        if not self.dom.get("bot_flags").get("has_database_available", False):
+            self.load_local_files()
+
         Thread.start(self)
         return self
 
-    def reload_local_files(self):
+    def load_local_files(self):
         self.settings.load_all()
         self.players.load_all()
         self.locations.load_all()  # load all location data to memory
         self.whitelist.load_all()  # load all whitelisted players
         self.permissions.load_all(self.player_observer.actions_list)  # get the permissions or create new permissions-file
+        self.dom["bot_flags"]["has_database_available"] = True
 
     def manage_landclaims(self):
         polled_lcb = self.telnet_observer.actions.get_active_action_result('system', self.settings.get_setting_by_name(name='listlandprotection_method', default='llp'))
@@ -362,8 +370,6 @@ class ChraniBot(Thread):
                                                               show_log_init=True)
                         )
                         self.telnet_observer = TelnetObserver(self, telnet.authenticated_connection).setup().start()
-                        self.player_observer = PlayerObserver(self).setup().start()
-                        self.reload_local_files()
 
                         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
@@ -371,7 +377,7 @@ class ChraniBot(Thread):
                         self.is_paused = False
 
                     except IOError as e:
-                        traceback.print_exc()
+                        # traceback.print_exc()
                         self.clear_env()
                         self.socketio.emit('server_offline', '', namespace='/chrani-bot/public')
                         log_message = "no telnet-connection - trying to connect... - will try again in {} seconds ({})".format(str(self.restart_delay), e)
@@ -425,11 +431,6 @@ class ChraniBot(Thread):
     def clear_env(self):
         self.first_run = True
         self.is_paused = True
-        self.dom["bot_data"]["bot_flags"] = {}
-        try:
-            self.player_observer.stopped.set()
-        except AttributeError:
-            pass
 
     def shutdown(self):
         time.sleep(5)

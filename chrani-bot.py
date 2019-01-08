@@ -9,6 +9,7 @@ except ImportError:
     debug = False
 
 import re
+import time
 import requests
 from urllib import urlencode
 
@@ -58,6 +59,8 @@ if __name__ == '__main__':
         socketio = flask_socketio.SocketIO(app, async_mode='threading')
 
     chrani_bot = ChraniBot(app, flask, flask_login, socketio).setup().start()
+    while not chrani_bot.dom.get("bot_flags").get("has_database_available", False):
+        time.sleep(1)
 
     @login_manager.user_loader
     def user_loader(steamid):
@@ -150,16 +153,20 @@ if __name__ == '__main__':
     @app.route('/unauthorized')
     @login_manager.unauthorized_handler
     def unauthorized_handler():
-        output = 'You are not authorized. You need to be authenticated in-game to get access to the webinterface ^^<br />'
-        output += '<a href="/">home</a><br /><br />'
+        output = '<div class="widget forced">'
+        output += '<p>You are not authorized. You need to be logged in with your steam account and also need to be authenticated in-game to get access to the webinterface.</p>'
+        output += '<p><a href="/">home</a></p>'
+        output += "</div>"
         markup = flask.Markup(output)
         return flask.render_template('index.html', chrani_bot=chrani_bot, content=markup)
 
 
     @app.errorhandler(404)
     def page_not_found(error):
-        output = 'Page not found :(<br />'
-        output += '<a href="/">home</a><br /><br />'
+        output = '<div class="widget forced">'
+        output += '<p>Page not found :(</p>'
+        output += '<p><a href="/">home</a></p>'
+        output += "</div>"
         markup = flask.Markup(output)
         return flask.render_template('index.html', chrani_bot=chrani_bot, content=markup), 404
 
@@ -169,8 +176,13 @@ if __name__ == '__main__':
         if flask_login.current_user.is_authenticated is True:
             return flask.redirect("/protected")
 
-        output = '<div class="widget wide">'
-        output += "Welcome to the <strong>{}</strong><br />".format(chrani_bot.dom['bot_name'])
+        output = '<div class="widget forced">'
+        output += "<p>Welcome to the <strong>{}</strong></p>".format(chrani_bot.dom['bot_name'])
+        output += '<p>please log in with your steam account to get access to the bots functions</p>'
+        output += '<p>' \
+                  'Please be aware that you also need to be authenticated with the bot, either as<br />' \
+                  'an webinterface admin or<br />' \
+                  'as an authenticated player with the corresponding rank and rights (depending on settings)</p>'
         output += "</div>"
 
         markup = flask.Markup(output)
