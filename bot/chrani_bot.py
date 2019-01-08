@@ -83,9 +83,10 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.832'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.834'),
             "bot_flags": {
                 "bot_has_working_environment": False,
+                "telnet_is_available": False,
                 "has_database_available": False
             },
             "bot_data": {
@@ -227,7 +228,7 @@ class ChraniBot(Thread):
         lcb_list_final = []
         try:
             land_claim_size = int(self.dom["game_data"]["settings"]["LandClaimSize"])
-        except TypeError:
+        except (KeyError, TypeError) as error:
             return lcb_list_final
 
         try:
@@ -385,7 +386,7 @@ class ChraniBot(Thread):
                                                               show_log_init=True)
                         )
                         self.telnet_observer = TelnetObserver(self, telnet.authenticated_connection).setup().start()
-
+                        self.dom["bot_flags"]["telnet_is_available"] = True
                         self.socketio.emit('server_online', '', namespace='/chrani-bot/public')
 
                         self.reboot_imminent = False
@@ -440,6 +441,7 @@ class ChraniBot(Thread):
         self.dom["game_data"]["gametime"] = None
         self.dom["game_data"]["time_running"] = None
         self.dom["game_data"]["restart_in"] = None
+        self.dom["bot_flags"]["telnet_is_available"] = False
         self.first_run = True
         self.is_paused = True
 

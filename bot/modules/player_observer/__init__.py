@@ -3,6 +3,8 @@ import time
 from threading import *
 from collections import deque
 
+from dns import name
+
 import actions
 
 from player_thread import PlayerThread
@@ -153,9 +155,10 @@ class PlayerObserver(Thread):
                 # no players are online, so we can set them all to offline here
                 listplayers_dict = {}
                 for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-                    self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
-                    player_object.is_online = False
-                    player_object.update()
+                    if player_steamid not in self.chrani_bot.settings.get_setting_by_name(name="webinterface_admins", default=[]):
+                        self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False
+                        player_object.is_online = False
+                        player_object.update()
 
             if old_list_players_timestamp == list_players_timestamp or self.chrani_bot.is_paused is not False:
                 time.sleep(1)
@@ -184,16 +187,16 @@ class PlayerObserver(Thread):
                 """ start player_observer_thread for each player not already being observed """
                 if player_object.steamid not in self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer") and player_steamid != "system":
                     # manually trigger actions for players found through lp response
-                    if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_logging_in"] is True:
+                    if self.chrani_bot.dom.get("bot_data").get("player_data").get(player_steamid, {}).get("is_logging_in", False) is True:
                         player_thread = self.start_player_thread(player_object)
                         player_thread.trigger_action(player_object, "found in the stream")
-                    if self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] is True:
+                    if self.chrani_bot.dom.get("bot_data").get("player_data").get(player_steamid, {}).get("is_online", False) is True:
                         player_thread = self.start_player_thread(player_object)
                         player_thread.trigger_action(player_object, "found in the world")
 
             players_to_obliterate = []
             for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-                if self.chrani_bot.dom.get("bot_data").get("player_data").get(player_steamid).get("is_to_be_obliterated") is True:
+                if self.chrani_bot.dom.get("bot_data").get("player_data").get(player_steamid, {}).get("is_to_be_obliterated", False) is True:
                     player_object.is_online = False
                     player_object.is_logging_in = False
                     self.chrani_bot.dom["bot_data"]["player_data"][player_steamid]["is_online"] = False

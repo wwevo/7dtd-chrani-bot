@@ -11,7 +11,7 @@ import common
 def set_chat_prefix(chrani_bot):
     try:
         if timeout_occurred(2, float(common.schedulers_dict["set_chat_prefix"]["last_executed"])):
-            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+            if chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name='chatprefix_method'))
                 common.schedulers_dict["set_chat_prefix"]["last_executed"] = time.time()
             return True
@@ -39,7 +39,7 @@ common.schedulers_controller["set_chat_prefix"] = {
 def get_game_preferences(chrani_bot):
     try:
         if timeout_occurred(5, float(common.schedulers_dict["get_game_preferences"]["last_executed"])):
-            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+            if chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "gg")
                 common.schedulers_dict["get_game_preferences"]["last_executed"] = time.time()
             return True
@@ -66,7 +66,7 @@ common.schedulers_controller["get_game_preferences"] = {
 def get_mem_status(chrani_bot):
     try:
         if timeout_occurred(0.25 * 60, float(common.schedulers_dict["get_mem_status"]["last_executed"])):
-            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+            if chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "mem")
                 common.schedulers_dict["get_mem_status"]["last_executed"] = time.time()
 
@@ -103,7 +103,7 @@ def poll_players(chrani_bot):
 
         if timeout_occurred(listplayers_interval, float(common.schedulers_dict["poll_players"]["last_executed"])):
             # logger.debug("{source}/{error_message}".format(source="poll_players", error_message="about to execute!"))
-            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+            if chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, chrani_bot.settings.get_setting_by_name(name='listplayers_method'))
                 common.schedulers_dict["poll_players"]["last_executed"] = time.time()
 
@@ -132,7 +132,7 @@ common.schedulers_controller["poll_players"] = {
 def get_gametime(chrani_bot):
     try:
         if timeout_occurred(10, float(common.schedulers_dict["get_gametime"]["last_executed"])):
-            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+            if chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "gt")
                 common.schedulers_dict["get_gametime"]["last_executed"] = time.time()
 
@@ -220,7 +220,7 @@ def list_landprotection(chrani_bot):
             listlandprotection_interval = float(chrani_bot.settings.get_setting_by_name(name='list_landprotection_interval'))
 
         if timeout_occurred(listlandprotection_interval, float(common.schedulers_dict["list_landprotection"]["last_executed"])):
-            if chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+            if chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "llp")
                 common.schedulers_dict["list_landprotection"]["last_executed"] = time.time()
             chrani_bot.manage_landclaims()
@@ -273,7 +273,7 @@ def reboot(chrani_bot):
                 return True
 
     try:
-        if not chrani_bot.dom.get("bot_flags").get("bot_has_working_environment", False):
+        if not chrani_bot.dom.get("bot_flags").get("telnet_is_available", False):
             return False
 
         if chrani_bot.dom.get("game_data").get("time_running", False):

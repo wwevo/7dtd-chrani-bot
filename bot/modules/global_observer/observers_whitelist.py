@@ -10,8 +10,6 @@ def check_if_player_is_on_whitelist(chrani_bot, player_thread):
     except KeyError:
         return
 
-    print(player_object.steamid)
-
     if chrani_bot.whitelist.is_active() is True and not chrani_bot.whitelist.player_is_on_whitelist(player_object.steamid) and player_object.steamid not in chrani_bot.settings.get_setting_by_name(name='webinterface_admins', default=[]):
         if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"]:
             if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"]:

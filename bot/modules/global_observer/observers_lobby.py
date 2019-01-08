@@ -32,5 +32,5 @@ common.observers_dict["player_is_outside_lobby_boundary"] = {
 
 common.observers_controller["player_is_outside_lobby_boundary"] = {
     "is_active": True,
-    "is_essential": False
+    "is_essential": True
 }
