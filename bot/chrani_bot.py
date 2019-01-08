@@ -83,7 +83,7 @@ class ChraniBot(Thread):
         self.settings = Settings(self)
         self.dom = {
             "bot_name": self.settings.get_setting_by_name(name='bot_name', default='chrani_bot'),
-            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.834'),
+            "bot_version": self.settings.get_setting_by_name(name='bot_version', default='0.7.835'),
             "bot_flags": {
                 "bot_has_working_environment": False,
                 "telnet_is_available": False,
