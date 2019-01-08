@@ -2,10 +2,11 @@
   "bot_name": "chrani-bot_example",
   "rules_url": "https://",
 
-  "listplayers_method": "lp",
-  "listplayerfriends_method": "lpf",
-  "chatprefix_method": "tcch",
-  "mute_method": "mpc",
+  "listplayers_method": "bc-lp",
+  "listplayerfriends_method": null,
+  "listlandprotection_method": "llp",
+  "chatprefix_method": "bc-chatprefix",
+  "mute_method": "bc-mute",
 
   "bot_ip": "127.0.0.1",
   "bot_port": 5000,
@@ -37,7 +38,7 @@
   "authentication_groups": {
     "admin": "admin_pass",
     "mod": "mod_pass",
-
+    "donator": "donator_pass",
     "authenticated": "authenticated_pass"
   },
 
