@@ -441,6 +441,7 @@ def bc_lp():
 
 
 def bc_lp_callback_thread():
+    print("************** BC-LP STARTED **********************")
     chrani_bot = __main__.chrani_bot
     command = "bc-lp"
     poll_is_finished = False
