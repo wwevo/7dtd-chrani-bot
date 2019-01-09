@@ -457,6 +457,7 @@ def bc_lp_callback_thread():
         match = False
         for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'{command} /online /1l /filter=EntityId,Name,Position,Rotation,Remote,Health,Deaths,Score,Level,SteamId,IP,Ping,Friends,OnGround\' by Telnet from (.*)\s(?P<players>\[.*\])".format(command=command), chrani_bot.telnet_observer.telnet_buffer, re.MULTILINE):
             poll_is_finished = True
+            print("**************" + chrani_bot.telnet_observer.telnet_buffer)
             pass
 
         if match:
