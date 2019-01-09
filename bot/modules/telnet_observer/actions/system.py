@@ -431,11 +431,10 @@ def bc_lp():
 
         logger.debug("starting '{command}'".format(command=command))
 
-        worker_thread = threading.Thread(target=common.actions_dict[command]["action_callback"], name=command)
-        worker_thread.start()
-
         common.set_active_action_status('system', command, True)
 
+        worker_thread = threading.Thread(target=common.actions_dict[command]["action_callback"], name=command)
+        worker_thread.start()
     else:
         logger.debug("command '{command}' is active and waiting for a response!".format(command=command))
 
