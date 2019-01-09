@@ -71,7 +71,7 @@ def get_active_action_last_executed(steamid, command):
     try:
         return chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command]["last_executed"]
     except KeyError:
-        return 0
+        return False
 
 
 def trigger_action(bot, action, *args, **kwargs):
