@@ -440,19 +440,15 @@ def bc_lp():
 
 
 def bc_lp_callback_thread():
-    logger.debug("************** BC-LP STARTED **********************")
     chrani_bot = __main__.chrani_bot
     command = "bc-lp"
     poll_is_finished = False
 
-    logger.debug("{} : {}/{}".format(poll_is_finished, 3, common.get_active_action_last_executed('system', command)))
-    while not poll_is_finished and not timeout_occurred(10, common.get_active_action_last_executed('system', command)):
+    while not poll_is_finished and not timeout_occurred(3, common.get_active_action_last_executed('system', command)):
 
-        logger.debug("************** BC-LP WAITING **********************")
         logger.debug("waiting for response of '{command}'".format(command=command))
         m = re.search(r"\*\*\* ERROR: unknown command \'{command}\'".format(command=command), chrani_bot.telnet_observer.telnet_buffer)
         if m:
-            logger.debug("************** BC-LP UNKNOWN **********************")
             logger.debug("command not recognized: {command}".format(command=command))
             common.actions_dict[command]["is_available"] = False
             poll_is_finished = True
@@ -460,8 +456,6 @@ def bc_lp_callback_thread():
 
         match = False
         for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'{command} /online /1l /filter=EntityId,Name,Position,Rotation,Remote,Health,Deaths,Score,Level,SteamId,IP,Ping,Friends,OnGround\' by Telnet from (.*)\s(?P<players>\[.*\])".format(command=command), chrani_bot.telnet_observer.telnet_buffer, re.MULTILINE):
-            logger.debug("************** BC-LP FOUND **********************")
-            logger.debug("************** " + chrani_bot.telnet_observer.telnet_buffer + " ****************************")
             poll_is_finished = True
             pass
 
