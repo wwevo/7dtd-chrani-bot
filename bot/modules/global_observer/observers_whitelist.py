@@ -39,13 +39,16 @@ def check_if_player_has_url_name(chrani_bot, player_thread):
     except KeyError:
         return False
 
-    if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"] and player_object.steamid not in chrani_bot.settings.get_setting_by_name(name='webinterface_admins', default=[]):
-        if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"] and not chrani_bot.whitelist.player_is_allowed(player_object):
-            p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
-            if p:
-                logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. we do not allow url-names!".format(player_object.steamid), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_url_name_kick_msg', default="We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"))
+    try:
+        if chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"] or chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"] and player_object.steamid not in chrani_bot.settings.get_setting_by_name(name='webinterface_admins', default=[]):
+            if not chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_about_to_be_kicked"] and not chrani_bot.whitelist.player_is_allowed(player_object):
+                p = re.search(r"[-A-Z0-9+&@#/%?=~_|!:,.;]{3,}\.[A-Z0-9+&@#/%=~_|]{2,3}$", player_object.name, re.IGNORECASE)
+                if p:
+                    logger.info("kicked player {} for having an URL in the name.".format(player_object.name))
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} has been kicked. we do not allow url-names!".format(player_object.steamid), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object, chrani_bot.settings.get_setting_by_name(name='whitelist_url_name_kick_msg', default="We do not allow urls in names. Visit chrani.net/chrani-bot to find out what that means and if / what options are available to you!"))
+    except KeyError:
+        pass
 
 
 common.observers_dict["check_if_player_has_url_name"] = {

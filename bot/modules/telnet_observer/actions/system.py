@@ -167,12 +167,12 @@ def gg_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'gg\' by Telnet from (.*)([\s\S]+?)GamePref.ZombiesRun = (\d{1,2})\r\n", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'gg\' by Telnet from (?:.*)(?P<prefs>[\s\S]+?GamePref\.ZombiePlayers = (?:True|False))", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
         if match:
-            game_preferences_raw = match.group(0)
+            game_preferences_raw = match.group("prefs")
             game_preferences_dict = {}
             if game_preferences_raw != "":
                 game_preferences = game_preferences_raw.strip()
@@ -356,7 +356,7 @@ def lp_callback_thread():
             continue
 
         match = False
-        for match in re.finditer(r"(?P<datetime>.+?) (?P<stardate>.+?) INF Executing command \'" + command + r"\' by Telnet from (.*)(?P<players>[\s\S]+?)Total of (\d{1,2}) in the game", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}) (?P<stardate>.+?) INF Executing command \'" + command + r"\' by Telnet from (.*)(?P<players>[\s\S]+?)Total of (\d{1,2}) in the game", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
             pass
 
