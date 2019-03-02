@@ -29,7 +29,7 @@
         </form>
     </li>
     {% endif %}
-    {% if "admin" in current_user.permission_levels %}
+    {% if current_user.has_permission_level("admin") %}
     <li class="seperator right"><a href="/protected/players/obliterate/{{ player_object.steamid }}" onclick="player_action(this); return false;">obliterate</a></li>
     {% endif %}
 </ul>

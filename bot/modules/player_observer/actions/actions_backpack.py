@@ -31,10 +31,10 @@ def on_player_death(chrani_bot, source_player, target_player, command):
         except:
             return False
 
-        target_player.initialized = False
+        target_player.is_initialized = False
         chrani_bot.players.upsert(target_player, save=True)
         message = "{}s place of death has been recorded ^^".format(target_player.name)
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['standard'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
         response_messages.add_message(message, True)
 
         return response_messages
@@ -99,11 +99,11 @@ def take_me_to_my_backpack(chrani_bot, source_player, target_player, command):
         try:
             location_object = chrani_bot.locations.get(target_player.steamid, "death")
             if location_object.player_is_inside_boundary(target_player):
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "eh, you already ARE near your pack oO".format(target_player.name), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "eh, you already ARE near your pack oO".format(target_player.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             else:
                 coord_tuple = (location_object.pos_x, -1, location_object.pos_z)
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, coord_tuple=coord_tuple)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} can't live without their stuff".format(target_player.name), chrani_bot.chat_colors['standard'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", "{} can't live without their stuff".format(target_player.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("standard"))
 
             chrani_bot.locations.remove(target_player.steamid, 'death')
 
@@ -111,7 +111,7 @@ def take_me_to_my_backpack(chrani_bot, source_player, target_player, command):
             response_messages.add_message(message, True)
 
         except KeyError:
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "I don't have your last death on record, sorry :(".format(target_player.name), chrani_bot.chat_colors['warning'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "I don't have your last death on record, sorry :(".format(target_player.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
         return response_messages
 

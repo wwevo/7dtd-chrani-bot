@@ -82,6 +82,13 @@ $(document).ready(
         $("main .widget").removeClass("dominant").removeClass("prominent").removeClass("shamed").removeClass("full");
         if (Cookies.get("page") == "map")  {
             init_radar();
+            $("main .widget").removeClass("wide").addClass("shamed");
+            $("main #location_radar_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
+            $("main #system_log_widget").addClass("wide").removeClass("shamed");
+            $("main #whitelist_widget").removeClass("shamed");
+            $("main #player_table_widget").removeClass("shamed");
+            $("main #banned_players_widget").addClass("shamed");
+
             $("main .widget").removeClass("wide");
             $("main #player_table_widget").addClass("prominent").removeClass("dominant");
             $("main #location_radar_widget").addClass("dominant");
@@ -96,6 +103,7 @@ $(document).ready(
             $("main #location_radar_widget").addClass("shamed");
         } else {
             $("main .widget").removeClass("wide").addClass("shamed");
+            $("main .widget.forced").add("wide").removeClass("shamed");
             $("main #player_table_widget").addClass("dominant").removeClass("prominent").removeClass("shamed");
             $("main #system_log_widget").addClass("wide").removeClass("shamed");
             $("main #whitelist_widget").removeClass("shamed");

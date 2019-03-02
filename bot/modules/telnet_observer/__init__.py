@@ -26,9 +26,10 @@ class TelnetObserver(Thread):
     valid_telnet_lines = deque
     action_queue = deque
 
-    def __init__(self, event, chrani_bot, tn):
-        self.tn = tn
+    def __init__(self, chrani_bot, tn):
         self.chrani_bot = chrani_bot
+        self.tn = tn
+
         self.actions = actions
 
         self.run_observer_interval = 0.5
@@ -42,8 +43,19 @@ class TelnetObserver(Thread):
 
         self.last_execution_time = 0.0
 
-        self.stopped = event
+        self.stopped = Event()
         Thread.__init__(self)
+
+    def setup(self):
+        self.name = 'telnet observer'
+        self.setDaemon(daemonic=True)
+
+        return self
+
+    def start(self):
+        logger.info("chrani custodian started")
+        Thread.start(self)
+        return self
 
     def is_a_valid_line(self, telnet_line):
         telnet_response_is_a_valid_line = False
@@ -174,7 +186,7 @@ class TelnetObserver(Thread):
             check 'chat' telnet-line(s) for any known playername currently online
             """
             for player_steamid, player_object in self.chrani_bot.players.players_dict.iteritems():
-                if player_steamid in self.chrani_bot.player_observer.active_player_threads_dict and player_object.name not in self.chrani_bot.settings.get_setting_by_name(name="restricted_names"):
+                if player_steamid in self.chrani_bot.dom.get("bot_data").get("active_threads").get("player_observer") and player_object.name not in self.chrani_bot.settings.get_setting_by_name(name="restricted_names"):
                     m = re.search(self.chrani_bot.match_types['chat_commands'], telnet_line)
                     if m:
                         player_name = m.group('player_name')
@@ -184,14 +196,9 @@ class TelnetObserver(Thread):
         return len(telnet_lines)
 
     def run(self):
-        logger.info("telnet observer thread started")
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             self.chrani_bot.custodian.check_in('telnet_observer', True)
-
-            if not self.chrani_bot.has_connection:
-                raise IOError("{source}/{error_message}".format(source="telnet observer", error_message="lost telnet connection :("))
-
             if self.chrani_bot.is_paused is not False:
                 sleep(1)
                 continue

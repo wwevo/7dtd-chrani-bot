@@ -1,3 +1,4 @@
+import __main__
 import math
 import random
 from bot.assorted_functions import get_region_string
@@ -313,39 +314,52 @@ class Location(object):
 
         got some math-skills? contact me :)
         """
-        if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
+        chrani_bot = __main__.chrani_bot
+        if not player_object.is_online and\
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] <= 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
         try:
-            is_it_inside = self.position_is_inside_boundary((player_object.pos_x, player_object.pos_y, player_object.pos_z))
+            is_it_inside = self.position_is_inside_boundary((
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"],
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"],
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"],
+            ))
         except TypeError:
             is_it_inside = None
 
         return is_it_inside
 
     def player_is_inside_core(self, player_object):
-        if not player_object.is_online and player_object.pos_x == 0.0 and player_object.pos_y == 0.0 and player_object.pos_z == 0.0:
+        chrani_bot = __main__.chrani_bot
+        if not player_object.is_online and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"] <= 0.0 and \
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"] <= 0.0:
             logger.debug("Can't check core: No locationdata found for Player {} ".format(player_object.name))
             return None
 
         player_is_inside_core = False
         if self.shape == "sphere":
             distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_y) - float(player_object.pos_y)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+                (float(self.pos_x) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) ** 2 + (
+                    float(self.pos_y) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"])) ** 2 + (
+                    float(self.pos_z) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])) ** 2))
             player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
         if self.shape == "cube":
-            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(player_object.pos_y) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"]) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_y) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_y"]) <= (float(self.pos_y) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"]) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
         if self.shape == "circle":
             distance_to_location_center = float(math.sqrt(
-                (float(self.pos_x) - float(player_object.pos_x)) ** 2 + (
-                    float(self.pos_z) - float(player_object.pos_z)) ** 2))
+                (float(self.pos_x) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"])) ** 2 + (
+                    float(self.pos_z) - float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"])) ** 2))
             player_is_inside_core = distance_to_location_center <= float(self.warning_boundary)
         if self.shape == "square":
-            if (float(self.pos_x) - float(self.warning_boundary)) <= float(player_object.pos_x) <= (float(self.pos_x) + float(self.warning_boundary)) and (float(self.pos_z) - float(self.warning_boundary)) <= float(player_object.pos_z) <= (float(self.pos_z) + float(self.warning_boundary)):
+            if (float(self.pos_x) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_x"]) <= (float(self.pos_x) + float(self.warning_boundary)) and \
+                    (float(self.pos_z) - float(self.warning_boundary)) <= float(chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["pos_z"]) <= (float(self.pos_z) + float(self.warning_boundary)):
                 player_is_inside_core = True
 
         return player_is_inside_core
@@ -398,3 +412,29 @@ class Location(object):
                 response_message.add_message(player_status)
 
         return response_message.get_message_dict()
+
+    def get_leaflet_marker_json(self):
+        bot = __main__.chrani_bot
+        location_list = []
+        try:
+            location_list = {
+                "id": "{}_{}".format(self.owner, self.identifier),
+                "owner": self.owner,
+                "identifier": self.identifier,
+                "name": self.name,
+                "owner_name": bot.players.get_by_steamid(self.owner).name,
+                "radius": self.radius,
+                "inner_radius": self.warning_boundary,
+                "protected": self.protected_core,
+                "pos_x": self.pos_x,
+                "pos_y": self.pos_y,
+                "pos_z": self.pos_z,
+                "shape": self.shape,
+                "type": self.type,
+                "layerGroup": self.owner if self.owner == "system" else "locations" if (self.identifier not in bot.settings.get_setting_by_name(name="restricted_names")) else self.identifier
+            }
+        except KeyError:
+            pass
+
+        return location_list
+
