@@ -1,4 +1,5 @@
 <ul id="psw_{{ player_object.steamid }}">
     {{ player_object.get_last_seen() }}<br />
-    {{ player_object.region }}
+    {{ player_object.region }}<br />
+    {{ player_object.get_position_string() }}
 </ul>

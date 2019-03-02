@@ -1,6 +1,5 @@
 from flask import request
 import common
-import bot.modules.player_observer.actions
 import __main__  # my ide throws a warning here, but it works oO
 
 
@@ -8,8 +7,8 @@ def get_player_status(target_player_steamid):
     chrani_bot = __main__.chrani_bot
     player_object = chrani_bot.players.get_by_steamid(target_player_steamid)
     player_status = {
-        "is_online": player_object.is_online,
-        "is_logging_in": player_object.is_logging_in
+        "is_online": chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_online"],
+        "is_logging_in": chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["is_logging_in"]
     }
     return chrani_bot.app.response_class(
         response=chrani_bot.flask.json.dumps(player_status),
@@ -51,7 +50,7 @@ def get_player_lcb_widget(target_player_steamid):
         return ""
 
     try:
-        lcb_list = chrani_bot.landclaims_dict[target_player_steamid]
+        lcb_list = chrani_bot.dom["game_data"]["landclaim_data"][target_player_steamid]
     except:
         lcb_list = []
 

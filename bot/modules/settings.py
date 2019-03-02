@@ -18,6 +18,7 @@ class Settings(object):
         self.chrani_bot = chrani_bot
         self.root = "data/{db}".format(db=args_dict['Database-file'])
         self.extension = "json"
+        self.settings_dict = {}
 
         self.load_all()
 

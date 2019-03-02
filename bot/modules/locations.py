@@ -46,6 +46,7 @@ class Locations(object):
             for file_to_remove in files_to_remove_list:
                 try:
                     os.remove(file_to_remove)
+                    logger.debug("removed invalid location file: {}".format(file_to_remove))
                 except OSError, e:
                     logger.exception(e)
 
@@ -100,32 +101,6 @@ class Locations(object):
                 locations_found.append(location)
 
         return locations_found
-
-    def get_leaflet_marker_json(self, location_objects):
-        bot = self.chrani_bot
-        location_list = []
-        for location in location_objects:
-            try:
-                location_list.append({
-                    "id": "{}_{}".format(location.owner, location.identifier),
-                    "owner": location.owner,
-                    "identifier": location.identifier,
-                    "name": location.name,
-                    "owner_name": bot.players.get_by_steamid(location.owner).name,
-                    "radius": location.radius,
-                    "inner_radius": location.warning_boundary,
-                    "protected": location.protected_core,
-                    "pos_x": location.pos_x,
-                    "pos_y": location.pos_y,
-                    "pos_z": location.pos_z,
-                    "shape": location.shape,
-                    "type": location.type,
-                    "layerGroup": location.owner if location.owner == "system" else "locations" if (location.identifier not in bot.settings.get_setting_by_name(name="restricted_names")) else location.identifier
-                })
-            except KeyError:
-                continue
-
-        return location_list
 
     def get_available_locations(self, player_object):
         available_locations_dict = {}

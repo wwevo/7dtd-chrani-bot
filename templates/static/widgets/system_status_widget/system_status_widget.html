@@ -1,26 +1,33 @@
 
 <div id="bot_status">
-    Day: {% if bot.current_gametime != None %}
-        {{ bot.current_gametime["day"] }} @ {{ bot.current_gametime["hour"] }}:{{ bot.current_gametime["minute"] }},
+    Day: {% if bot.dom["game_data"]["gametime"] != None %}
+        {{ bot.dom["game_data"]["gametime"]["day"] }} @ {{ bot.dom["game_data"]["gametime"]["hour"] }}:{{ bot.dom["game_data"]["gametime"]["minute"] }},
         {% if bot.ongoing_bloodmoon() == True %}(<a href="/protected/system/skip_bloodmoon" onclick="player_action(this); return false;">skip bm</a>){% endif %}
     {% else %}n/A,{% endif %}
-    (bot-uptime: {% if bot.time_running != None %}
-        {{ bot.time_running }}s,
+    (bot-uptime: {% if bot.dom["bot_data"]["time_running"] != None %}
+        {{ bot.dom["bot_data"]["time_running"] }}s /
+    {% else %}n/A /{% endif %}
+    server-uptime: {% if bot.dom["game_data"]["time_running"] != None %}
+        {{ bot.dom["game_data"]["time_running"] }}s,
     {% else %}n/A,{% endif %}
-    server-uptime: {% if bot.server_time_running != None %}
-        {{ bot.server_time_running }}s,
-    {% else %}n/A,{% endif %}
-    restart in: {{ bot.restart_in }}s)<br />
+    restart in: {% if bot.dom["game_data"]["restart_in"] != None %}
+        {{ bot.dom["game_data"]["restart_in"] }}s)
+    {% else %}n/A){% endif %}<br />
     {% if current_user.is_authenticated %}
         {% if current_user.has_permission_level("admin") or current_user.has_permission_level("mod") %}
             {% if bot.is_paused == True %}
-            (<a href="/protected/system/resume" onclick="player_action(this); return false;">resume bot</a>)
+            (status: <a href="/protected/system/resume" onclick="player_action(this); return false;">paused</a>)
             {% else %}
-            (<a href="/protected/system/pause" onclick="player_action(this); return false;">pause bot</a>)
+            (status: <a href="/protected/system/pause" onclick="player_action(this); return false;">running</a>)
             {% endif %}
             (<a href="/protected/system/shutdown" onclick="player_action(this); return false;">shutdown bot</a>)
-            (<a href="/protected/system/reinitialize" onclick="player_action(this); return false;">reinitialize</a>)
+            <!-- (<a href="/protected/system/reinitialize" onclick="player_action(this); return false;">reinitialize</a>) //-->
             (<a href="/protected/system/shutdown/server" onclick="player_action(this); return false;">shutdown server</a>)
+            {% if bot.whitelist.whitelist_active == True %}
+            (whitelist: <a href="/protected/whitelist/deactivate" onclick="player_action(this); return false;">active</a>)
+            {% else %}
+            (whitelist: <a href="/protected/whitelist/activate" onclick="player_action(this); return false;">deactivated</a>)
+            {% endif %}
         {% endif %}
     {% endif %}
 </div>

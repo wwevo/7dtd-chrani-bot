@@ -5,8 +5,13 @@ from bot.modules.logger import logger
 
 
 class Custodian(Thread):
+    stopped = object
+
     tn = object
-    bot = object
+    chrani_bot = object
+
+    run_observer_interval = float
+    last_execution_time = float
 
     health_dict = {
         "main_loop": bool,
@@ -15,8 +20,8 @@ class Custodian(Thread):
         "player_observer": bool,
     }
 
-    def __init__(self, event, chrani_bot):
-        self.bot = chrani_bot
+    def __init__(self, chrani_bot):
+        self.chrani_bot = chrani_bot
 
         self.run_observer_interval = 2
         self.last_execution_time = 0.0
@@ -28,8 +33,18 @@ class Custodian(Thread):
             "player_observer": False,
         }
 
-        self.stopped = event
         Thread.__init__(self)
+
+    def setup(self):
+        self.stopped = Event()
+        self.name = 'custodian'
+        self.setDaemon(daemonic=True)
+        return self
+
+    def start(self):
+        logger.info("chrani custodian started")
+        Thread.start(self)
+        return self
 
     def clear_status(self):
         self.health_dict["main_loop"] = False
@@ -41,12 +56,11 @@ class Custodian(Thread):
         self.health_dict[observed_entity] = status
 
     def run(self):
-        logger.info("chrani custodian started")
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             profile_start = time.time()
             
-            self.bot.socketio.emit('refresh_health', '', namespace='/chrani-bot/public')
+            self.chrani_bot.socketio.emit('refresh_health', '', namespace='/chrani-bot/public')
 
             self.last_execution_time = time.time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

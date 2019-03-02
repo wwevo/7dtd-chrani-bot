@@ -8,16 +8,6 @@
     <tbody>
     <tr>
         <td>
-            the whitelist is currently
-            {% if bot.whitelist.whitelist_active == True %}
-            (<a href="/protected/whitelist/deactivate" onclick="player_action(this); return false;">active</a>)
-            {% else %}
-            (<a href="/protected/whitelist/activate" onclick="player_action(this); return false;">deactivated</a>)
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <td>
             add player<br />
             <form action="/protected/whitelist/add/player/player_to_add" method="POST" onsubmit="send_form(this); return false;">
                 <input list="players_not_on_whitelist" name="player_to_add" autocomplete="off">

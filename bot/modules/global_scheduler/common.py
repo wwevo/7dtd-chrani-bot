@@ -27,7 +27,7 @@ def run_schedulers(chrani_bot, only_essential=False):
             })
 
     for command in command_queue:
-        if command["is_active"] and chrani_bot.has_connection:
+        if command["is_active"]:
             try:
                 if only_essential:
                     if command["is_essential"]:
@@ -42,7 +42,6 @@ def run_schedulers(chrani_bot, only_essential=False):
                 pass
             except IOError as error:
                 logger.debug("{} had an input/output error! ({})".format(command["scheduler"], error.message))
-                chrani_bot.has_connection = False
                 pass
             except TimeoutError as error:
                 logger.debug("{} had a timeout! ({})".format(command["scheduler"], error.message))

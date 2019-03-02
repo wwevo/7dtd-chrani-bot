@@ -45,11 +45,14 @@ def lpf_callback_thread(player_object, dummy):
             continue
 
         match = False
-        for match in re.finditer(r"Executing command \'lpf " + str(player_object.steamid) + "\' by Telnet from (.*)([\s\S]+?)FriendsOf id=" + str(player_object.steamid) + ", friends=(?P<friendslist>.*)", chrani_bot.telnet_observer.telnet_buffer):
+        for match in re.finditer(r"Executing command \'lpf " + str(player_object.steamid) + r"\' by Telnet from (.*)([\s\S]+?)FriendsOf id=" + str(player_object.steamid) + r", friends=(?P<friendslist>.*)", chrani_bot.telnet_observer.telnet_buffer):
             poll_is_finished = True
-            pass
 
         if match:
+            friendslist_raw = match.group("friendslist").lstrip()
+            if len(friendslist_raw) >= 1:
+                chrani_bot.dom["bot_data"]["player_data"][player_object.steamid]["friends"] = friendslist_raw.split(',')
+
             common.set_active_action_result(player_object.steamid, command, match.group("friendslist"))
         time.sleep(0.5)
 

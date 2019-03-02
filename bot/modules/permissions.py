@@ -10,25 +10,21 @@ import pathlib2
 class Permissions(object):
 
     chrani_bot = object
-
     root = str
     extension = str
 
-    player_actions_list = list
+    available_actions_dict = dict
+
     permission_levels_list = list
     action_permissions_dict = dict
 
-    available_actions_dict = dict
-
-    def __init__(self, chrani_bot, player_actions_list, permission_levels_list):
+    def __init__(self, chrani_bot, permission_levels_list):
         self.chrani_bot = chrani_bot
         self.root = "data/{db}".format(db=args_dict['Database-file'])
         self.extension = "json"
-
-        self.permission_levels_list = permission_levels_list
-        self.player_actions_list = player_actions_list
         self.available_actions_dict = {}
         self.action_permissions_dict = {}
+        self.permission_levels_list = permission_levels_list
 
     def player_has_permission(self, player_object, action_identifier=None, action_group=None):
         if player_object.steamid == 'system':
@@ -48,7 +44,8 @@ class Permissions(object):
             except (KeyError, TypeError):
                 return True  # as in no permission required
 
-    def load_all(self):
+    def load_all(self, player_actions_list):
+        self.player_actions_list = player_actions_list
         filename = "{}/permissions.{}".format(self.root, self.extension)
         try:
             with open(filename) as file_to_read:
@@ -70,13 +67,13 @@ class Permissions(object):
         player_object = Player(**player_dict)
         bot.players.upsert(player_object)
 
-        self.update_permissions_file()
+        self.update_permissions_file(player_actions_list)
 
-    def update_permissions_file(self):
+    def update_permissions_file(self, player_actions_list):
         filename = '{}/permissions.{}'.format(self.root, self.extension)
 
         available_actions_dict = {}
-        for player_action in self.player_actions_list:
+        for player_action in player_actions_list:
             if player_action["essential"] is False:  # quick hack to get some system-functions in ^^
                 # if it were 'True', it would be a system action not requiring permission, they are available to all
                 try:

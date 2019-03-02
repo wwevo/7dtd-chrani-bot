@@ -1,8 +1,8 @@
 import os
 import time
+import __main__
 
 actions_dict = {}
-active_actions_dict = {}
 
 for module in os.listdir(os.path.dirname(__file__)):
     if module == 'common.py' or module == '__init__.py' or module[-3:] != '.py':
@@ -13,8 +13,9 @@ for module in os.listdir(os.path.dirname(__file__)):
 
 
 def set_active_action_status(steamid, command, status=True):
+    chrani_bot = __main__.chrani_bot
     try:
-        active_actions_dict[steamid][command].update({
+        chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command].update({
             "status": status,
             "last_executed": time.time(),
         })
@@ -23,7 +24,7 @@ def set_active_action_status(steamid, command, status=True):
         pass
 
     try:
-        active_actions_dict[steamid][command] = {
+        chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command] = {
             "status": status,
             "last_executed": time.time(),
         }
@@ -32,8 +33,8 @@ def set_active_action_status(steamid, command, status=True):
         pass
 
     try:
-        active_actions_dict[steamid] = {}
-        active_actions_dict[steamid][command] = {
+        chrani_bot.dom["bot_data"]["telnet_observer"][steamid] = {}
+        chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command] = {
             "status": status,
             "last_executed": time.time(),
         }
@@ -42,29 +43,33 @@ def set_active_action_status(steamid, command, status=True):
 
 
 def set_active_action_result(steamid, command, result):
+    chrani_bot = __main__.chrani_bot
     try:
-        active_actions_dict[steamid][command]["result"] = result
+        chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command]["result"] = result
     except KeyError:
         return None
 
 
 def get_active_action_status(steamid, command):
+    chrani_bot = __main__.chrani_bot
     try:
-        return active_actions_dict[steamid][command]["status"]
+        return chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command]["status"]
     except KeyError:
         return False
 
 
 def get_active_action_result(steamid, command):
+    chrani_bot = __main__.chrani_bot
     try:
-        return active_actions_dict[steamid][command]["result"]
+        return chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command]["result"]
     except KeyError:
         return ""
 
 
 def get_active_action_last_executed(steamid, command):
+    chrani_bot = __main__.chrani_bot
     try:
-        return active_actions_dict[steamid][command]["last_executed"]
+        return chrani_bot.dom["bot_data"]["telnet_observer"][steamid][command]["last_executed"]
     except KeyError:
         return False
 

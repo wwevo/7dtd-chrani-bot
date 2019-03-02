@@ -101,7 +101,7 @@ common.actions_list.append({
 def on_player_death(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        target_player.initialized = False
+        target_player.is_initialized = False
         chrani_bot.players.upsert(target_player, save=True)
         message="player {} died".format(target_player.name)
         response_messages.add_message(message, False)
@@ -128,7 +128,7 @@ common.actions_list.append({
 def on_player_kill(chrani_bot, source_player, target_player, command):
     try:
         response_messages = ResponseMessage()
-        target_player.initialized = False
+        target_player.is_initialized = False
         chrani_bot.players.upsert(target_player, save=True)
         message="player {} got killed :/".format(target_player.name)
         response_messages.add_message(message, False)
@@ -168,13 +168,13 @@ def teleport_player_to_coords(chrani_bot, source_player, target_player, command)
             if steamid_to_teleport is None:
                 steamid_to_teleport = chrani_bot.players.entityid_to_steamid(entityid_to_teleport)
                 if steamid_to_teleport is False:
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "could not find player", chrani_bot.chat_colors['error'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "could not find player", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("error"))
                     return False
             else:
                 player_object_to_teleport = chrani_bot.players.get_by_steamid(steamid_to_teleport)
         else:
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you did not specify a player. Use {}".format(
-                common.find_action_help("players", "send player")), chrani_bot.chat_colors['warning'])
+                common.find_action_help("players", "send player")), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
             return False
 
         coord_tuple = tuple(item for item in coords_to_teleport_to.split(',') if item.strip())
@@ -213,30 +213,30 @@ def teleport_self_to_player(chrani_bot, source_player, target_player, command):
                 if steamid_to_teleport_to is None:
                     steamid_to_teleport_to = chrani_bot.players.entityid_to_steamid(entityid_to_teleport_to)
                     if steamid_to_teleport_to is False:
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "could not find player", chrani_bot.chat_colors['error'])
+                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "could not find player", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("error"))
                         return False
                 if int(steamid_to_teleport_to) == int(target_player.steamid):
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "Try meditation, if you want to find yourself ^^", chrani_bot.chat_colors['warning'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "Try meditation, if you want to find yourself ^^", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                     return False
                 else:
                     player_object_to_teleport_to = chrani_bot.players.get_by_steamid(steamid_to_teleport_to)
             else:
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "you did not specify a player. Use {}".format(
-                    common.find_action_help("players", "goto player")), chrani_bot.chat_colors['warning'])
+                    common.find_action_help("players", "goto player")), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                 return False
 
         except Exception as e:
             logger.debug(e)
             raise KeyError
 
-        coord_tuple = (player_object_to_teleport_to.pos_x, player_object_to_teleport_to.pos_y, player_object_to_teleport_to.pos_z)
+        coord_tuple = player_object_to_teleport_to.get_coord_tuple()
         if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", target_player, coord_tuple=coord_tuple):
             message = "You have been ported to {}'s last known location".format(player_object_to_teleport_to.name)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             response_messages.add_message(message, True)
         else:
             message = "Teleporting to player {} failed :(".format(player_object_to_teleport_to.name)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.chat_colors['error'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("error"))
             response_messages.add_message(message, False)
 
         return response_messages
@@ -269,30 +269,30 @@ def teleport_player_to_self(chrani_bot, source_player, target_player, command):
                 if steamid_to_fetch is None:
                     steamid_to_fetch = chrani_bot.players.entityid_to_steamid(entityid_to_fetch)
                     if steamid_to_fetch is False:
-                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "could not find player", chrani_bot.chat_colors['error'])
+                        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "could not find player", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("error"))
                         return False
                 if int(steamid_to_fetch) == int(target_player.steamid):
-                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "Hands off those drugs man. They ain't good for you!", chrani_bot.chat_colors['warning'])
+                    chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "Hands off those drugs man. They ain't good for you!", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                     return False
                 else:
                     player_object_to_teleport_to = chrani_bot.players.get_by_steamid(steamid_to_fetch)
             else:
                 chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, "you did not specify a player. Use {}".format(
-                    common.find_action_help("players", "summon player")), chrani_bot.chat_colors['warning'])
+                    common.find_action_help("players", "summon player")), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                 return False
 
         except Exception as e:
             logger.debug(e)
             raise KeyError
 
-        coord_tuple = (target_player.pos_x, target_player.pos_y, target_player.pos_z)
+        coord_tuple = target_player.get_coord_tuple()
         if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "teleportplayer", player_object_to_teleport_to, coord_tuple=coord_tuple):
             message = "You have been summoned to {}'s location".format(target_player.name)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             response_messages.add_message(message, True)
         else:
             message = "Summoning player {} failed :(".format(player_object_to_teleport_to.name)
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.chat_colors['error'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm",target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("error"))
             response_messages.add_message(message, False)
 
         return response_messages
@@ -335,7 +335,7 @@ def list_online_players(chrani_bot, source_player, target_player, command):
             players_to_list = chrani_bot.players.get_all_players(get_online_only=True)
 
             for player_object_to_list in players_to_list:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "{} ([ffffff]{}[-]) / authenticated: [ffffff]{}[-]".format(player_object_to_list.name, player_object_to_list.entityid, str(player_object_to_list.authenticated)), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
 
             message = "Listed {} online players.".format(len(players_to_list))
             response_messages.add_message(message, True)
@@ -390,11 +390,11 @@ def list_available_player_actions(chrani_bot, source_player, target_player, comm
                 if isinstance(has_permission, bool) and has_permission is True and action_string is not None:
                     available_player_actions.append("({}) - [ffffff]{}[-]".format(function_category, action_string))
 
-            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "The following actions are available to you:", chrani_bot.chat_colors['success'])
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "The following actions are available to you:", chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
             # available_player_actions = list(set(available_player_actions))  # this removes entries present in more than one group
 
             for player_action in available_player_actions:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "{}".format(player_action), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "{}".format(player_action), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
 
             message = "Listed {} available actions.".format(len(available_player_actions))
             chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message)
@@ -446,10 +446,7 @@ def obliterate_player(chrani_bot, source_player, target_player, command):
                     raise KeyError
 
             reason_for_kick = "Your profile and all your bot stuff will be removed now!"
-            if chrani_bot.tn.kick(target_player, reason_for_kick):
-                response_messages.add_message("player {} has been kicked".format(target_player.name), True)
-            else:
-                response_messages.add_message("could not kick player {}".format(target_player.name), False)
+            chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "ban", target_player, reason_for_kick)
 
             try:
                 location_objects_dict = chrani_bot.locations.get(target_player.steamid)
@@ -474,7 +471,7 @@ def obliterate_player(chrani_bot, source_player, target_player, command):
                 else:
                     response_messages.add_message("could not remove player {} from the whitelist :(".format(target_player.name), False)
 
-            target_player.is_to_be_obliterated = True
+            chrani_bot.dom["bot_data"]["player_data"][target_player.steamid]["is_to_be_obliterated"] = True
             response_messages.add_message("player {} is marked for removal ^^".format(target_player.name), True)
 
             target_player.is_online = False
@@ -576,14 +573,14 @@ def ban_player(chrani_bot, source_player, target_player, command):
             if not player_object_to_ban.is_banned and chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "ban", player_object_to_ban, reason_for_ban, 24 * 365):
                 player_object_to_ban.is_banned = True
                 chrani_bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_ban.steamid, "entityid": player_object_to_ban.entityid}, namespace='/chrani-bot/public')
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_ban, "you have been banned by {}".format(source_player.name), chrani_bot.chat_colors['warning'])
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you have banned player {}".format(player_object_to_ban.name), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", player_object_to_ban, "you have been banned by {}".format(source_player.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "you have banned player {}".format(player_object_to_ban.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                 message = "{} has been banned by {} for '{}'!".format(player_object_to_ban.name, source_player.name, reason_for_ban)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                 response_messages.add_message(message, True)
                 chrani_bot.players.upsert(player_object_to_ban, save=True)
             else:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "could not find a player with id {}".format(steamid_to_ban), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "could not find a player with id {}".format(steamid_to_ban), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
             return response_messages
         else:
@@ -633,13 +630,13 @@ def unban_player(chrani_bot, source_player, target_player, command):
             if chrani_bot.tn.unban(player_object_to_unban):
                 player_object_to_unban.is_banned = False
                 chrani_bot.socketio.emit('refresh_player_actions', {"steamid": player_object_to_unban.steamid, "entityid": player_object_to_unban.entityid}, namespace='/chrani-bot/public')
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, "you have unbanned player {}".format(player_object_to_unban.name), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, "you have unbanned player {}".format(player_object_to_unban.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                 message = "{} has been unbanned by {}.".format(player_object_to_unban.name, source_player.name)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                 response_messages.add_message(message, True)
                 chrani_bot.players.upsert(player_object_to_unban, save=True)
             else:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "could not find a player with steamid {}".format(steamid_to_unban), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "could not find a player with steamid {}".format(steamid_to_unban), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
 
             return response_messages
         else:
@@ -688,13 +685,13 @@ def kick_player(chrani_bot, source_player, target_player, command):
             try:
                 player_object_to_kick = chrani_bot.players.get_by_steamid(steamid_to_kick)
             except KeyError:
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "could not find a player with id {}".format(steamid_to_kick), chrani_bot.chat_colors['warning'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, "could not find a player with id {}".format(steamid_to_kick), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("warning"))
                 return
 
             if chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "kick", player_object_to_kick, reason_for_kick):
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, "you have kicked {}".format(player_object_to_kick.name), chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", source_player, "you have kicked {}".format(player_object_to_kick.name), chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                 message = "{} has been kicked by {} for '{}'!".format(player_object_to_kick.name, source_player.name, reason_for_kick)
-                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.chat_colors['success'])
+                chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "say", message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
                 response_messages.add_message(message, True)
 
             return response_messages

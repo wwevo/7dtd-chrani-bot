@@ -32,7 +32,7 @@ class Players(object):
             if command != "Teleport":
                 player_object = self.get_by_steamid(player_steamid)
                 spawning_player = {
-                    "thread": bot.player_observer.active_player_threads_dict[player_steamid]["thread"],
+                    "thread": bot.dom["bot_data"]["active_threads"]["player_observer"][player_steamid],
                     "player_object": player_object
                 }
 
@@ -66,7 +66,10 @@ class Players(object):
                             continue
 
                         player_dict['health'] = 0
+                        player_dict['is_online'] = False
+                        player_dict['is_logging_in'] = False
                         players_dict[player_dict['steamid']] = Player(**player_dict)
+                        self.chrani_bot.dom["bot_data"]["player_data"][player_dict['steamid']] = player_dict
 
         self.players_dict = players_dict
 
@@ -90,10 +93,6 @@ class Players(object):
         except KeyError:
             raise
 
-        # try:
-        #     return self.load(steamid)
-        # except KeyError:
-        #     raise
 
     def get_all_players(self, get_online_only=False):
         try:
@@ -122,30 +121,6 @@ class Players(object):
 
         return False
 
-    def get_leaflet_marker_json(self, player_objects):
-        player_list = []
-        for player in player_objects:
-
-            if not isinstance(player.pos_x, float) or not isinstance(player.pos_y, float) or not isinstance(player.pos_z, float):
-                continue
-
-            player_list.append({
-                "id": "{}".format(player.steamid),
-                "owner": player.steamid,
-                "identifier": player.name,
-                "name": player.name,
-                "radius": 3,
-                "pos_x": player.pos_x,
-                "pos_y": player.pos_y,
-                "pos_z": player.pos_z,
-                "online": player.is_online,
-                "shape": "icon",
-                "type": "icon",
-                "layerGroup": "players"
-            })
-
-        return player_list
-
     def remove(self, player_object):
         filename = "{}/{}.{}".format(self.root, player_object.steamid, self.extension)
         if os.path.isfile(filename):
@@ -163,14 +138,17 @@ class Players(object):
             dict_to_save = {
                 "id": player_object.id,
                 "name": player_object.name,
-                "permission_levels": player_object.permission_levels,
+                "permission_levels": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("permission_levels", []),
+                "pos_x": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("pos_x", 0),
+                "pos_y": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("pos_y", 0),
+                "pos_z": self.chrani_bot.dom.get("bot_data").get("player_data").get(player_object.steamid).get("pos_z", 0),
                 "steamid": player_object.steamid,
                 "entityid": player_object.entityid,
                 "region": player_object.region,
                 "country_code": player_object.country_code,
                 "authenticated": player_object.authenticated,
                 "is_banned": player_object.is_banned,
-                "is_muted": player_object.is_manually_muted,
+                "is_muted": player_object.is_muted,
                 "last_teleport": player_object.last_teleport,
                 "last_responsive": player_object.last_responsive,
                 "last_seen": player_object.last_seen,

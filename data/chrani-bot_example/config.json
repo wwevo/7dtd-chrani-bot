@@ -1,0 +1,89 @@
+{
+  "bot_name": "chrani-bot_example",
+  "rules_url": "https://",
+
+  "listplayers_method": "bc-lp",
+  "listplayerfriends_method": null,
+  "listlandprotection_method": "llp",
+  "chatprefix_method": "bc-chatprefix",
+  "mute_method": "bc-mute",
+
+  "bot_ip": "127.0.0.1",
+  "bot_port": 5000,
+  "ipinfo.io_password": "",
+  "banned_countries": ["CN", "CHN", "KP", "PRK", "RU", "RUS", "NG", "NGA"],
+
+  "telnet_ip": "",
+  "telnet_port": 0,
+  "telnet_password": "",
+
+  "webmap_ip": "",
+  "webmap_port": 0,
+
+  "webinterface_admins": [
+    "steamid"
+  ],
+
+  "restricted_names": {
+    "teleport": "Teleports",
+    "lobby": "Lobby",
+    "spawn": "Player Spawns" ,
+    "home": "Player Homes",
+    "death": "RIP",
+	"system": "System"
+  },
+
+  "silent_mode": false,
+
+  "authentication_groups": {
+    "admin": "admin_pass",
+    "mod": "mod_pass",
+    "donator": "donator_pass",
+    "authenticated": "authenticated_pass"
+  },
+
+  "chatbox_color_scheme": {
+    "standard": "afb0b2",
+    "highlight": "b3b8bc",
+    "header": "e57255",
+    "warning": "e5c453",
+    "success": "52d273",
+    "error": "e95065",
+    "info": "46bddf"
+  },
+
+  "mute_unauthenticated": true,
+  "scan_for_lcb": true,
+  "whitelist_active": false,
+
+  "location_default_radius": 15,
+  "location_default_warning_boundary": 10,
+
+  "list_players_interval": 1.5,
+  "list_players_interval_idle": 15.0,
+
+  "list_status_interval": 3,
+  "list_status_interval_idle": 10,
+
+  "list_playerfriends_interval": 15,
+  "list_playerfriends_interval_idle": null,
+
+  "list_landprotection_interval": 15.0,
+  "list_landprotection_interval_idle": null,
+
+  "rolling_announcements_interval": 10.0,
+  "rolling_announcements_interval_idle": null,
+  "rolling_announcements": {
+    "message [ffffff]# 1[-]": "all",
+    "message [ffffff]# 2[-]": "all",
+    "message [ffffff]# 3[-]": "all",
+    "message [ffffff]# 4[-]": "all",
+    "message [ffffff]# 5[-]": "day7"
+  },
+
+  "whitelist_player_unknown_kick_msg" : "you are not on our whitelist. you can not join while the dev is working on the bot unless you are ^^",
+
+  "restart_timer": 86400,
+  "restart_warning": 600
+
+}

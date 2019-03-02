@@ -34,8 +34,8 @@
         <div id="flex_layout">
             <header>
                 <div id="info">
-                    <a href="/">{% if chrani_bot.dom['bot_name'] %}{{ chrani_bot.dom['bot_name'] }} ({{ chrani_bot.dom['bot_version'] }}){% else %}chrani-bot{% endif %}</a> - webinterface{% if chrani_bot.server_settings_dict %}<br />
-                    <i>{{ chrani_bot.server_settings_dict["ServerName"] }}</i>{% endif %}
+                    <a href="/">{% if chrani_bot.dom['bot_name'] %}{{ chrani_bot.dom['bot_name'] }} ({{ chrani_bot.dom['bot_version'] }}){% else %}chrani-bot{% endif %}</a> - webinterface{% if chrani_bot.dom["game_data"]["settings"] %}<br />
+                    <i>{{ chrani_bot.dom["game_data"]["settings"]["ServerName"] }}</i>{% endif %}
                 </div>
                 <div id="status">{{ system_status }}</div>
                 <div id="user">

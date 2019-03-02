@@ -5,7 +5,7 @@ from bot.modules.logger import logger
 
 
 class Telnet:
-    tn = object
+    authenticated_connection = object
     show_log_init = bool
 
     def __init__(self, ip, port, password, show_log_init=False):
@@ -19,7 +19,7 @@ class Telnet:
         self.show_log_init = show_log_init
 
         try:
-            self.tn = self.authenticate(connection, password)
+            self.authenticated_connection = self.authenticate(connection, password)
         except IOError:
             raise
 
@@ -75,7 +75,7 @@ class Telnet:
 
     def read_very_eager(self):
         try:
-            return self.tn.read_very_eager()
+            return self.connection.read_very_eager()
         except Exception as e:
             log_message = 'trying to read_very_eager from telnet connection failed: {} / {}'.format(e, type(e))
             # logger.error(log_message)

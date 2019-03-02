@@ -9,3 +9,6 @@ venv_pypy/
 data/**/*.json
 # logfiles
 data/**/*.log
+!/data/chrani-bot_example/
+!/data/chrani-bot_example/config.json
+!/data/chrani-bot_example/permissions.json

@@ -26,7 +26,7 @@ def fix_players_legs(chrani_bot, source_player, target_player, command):
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "buffLegBroken")
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "buffLegSprained")
         message = "your legs have been taken care of ^^"
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         response_messages.add_message(message, True)
 
         return response_messages
@@ -69,7 +69,7 @@ def stop_the_bleeding(chrani_bot, source_player, target_player, command):
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "debuffplayer", target_player, "buffInternalBleeding")
 
         message = "your wounds have been bandaided ^^"
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         response_messages.add_message(message, True)
 
         return response_messages
@@ -110,7 +110,7 @@ def apply_first_aid(chrani_bot, source_player, target_player, command):
         response_messages = ResponseMessage()
         chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "buffplayer", target_player, "firstAidLarge")
         message = "feel the power flowing through you!! ^^"
-        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.chat_colors['success'])
+        chrani_bot.telnet_observer.actions.common.trigger_action(chrani_bot, "pm", target_player, message, chrani_bot.dom.get("bot_data").get("settings").get("color_scheme").get("success"))
         response_messages.add_message(message, True)
 
         return response_messages
